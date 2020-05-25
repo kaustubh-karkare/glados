@@ -1,0 +1,37 @@
+{
+  "name": "productivity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-react": "^7.9.4",
+    "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^4.3.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "webpack": "^4.43.0"
+  },
+  "scripts": {
+    "start": "nodemon -w index.js -w webpack.config.js -w src/server/ -w src/common/ --exec babel-node index.js",
+    "testwa": "babel-node -h",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaustubh-karkare/productivity.git"
+  },
+  "keywords": [],
+  "author": "Kaustubh Karkare",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaustubh-karkare/productivity/issues"
+  },
+  "homepage": "https://github.com/kaustubh-karkare/productivity#readme"
+}
