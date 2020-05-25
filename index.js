@@ -1,30 +1,40 @@
-const port = 80;
+import assert from './src/common/assert';
+import './src/common/polyfill';
 
-// Utility
+// Step 1: Load Configuration
 
-function getTimePrefix() {
-  const now = new Date();
-  return '[' + now.toLocaleDateString() + ' ' + now.toLocaleTimeString() + ']';
+const fs = require("fs");
+
+const appConfig = JSON.parse(fs.readFileSync('./config.json'));
+
+try {
+  const appConfigExample = JSON.parse(fs.readFileSync('./config.json.example'));
+  (function ensureSameStructure(left, right) {
+    if (typeof left != "object" && typeof right != "object") {
+      assert(typeof left == typeof right);
+      return;
+    }
+    assert(typeof left == "object");
+    assert(typeof right == "object");
+    const leftKeys = Object.keys(left);
+    const rightKeys = Object.keys(right);
+    assert(leftKeys.equals(rightKeys));
+    leftKeys.forEach((key, index) => {
+      ensureSameStructure(left[key], right[key]);
+    });
+  })(appConfig, appConfigExample);
+} catch (error) {
+  throw new Error("The format of ./config.json must match ./config.json.example");
 }
-function addTimePrefix(name) {
-  const original = console[name];
-  console[name] = (...args) => {
-    original(getTimePrefix(), ...args)
-  }
-}
-addTimePrefix('error');
-addTimePrefix('info');
-addTimePrefix('log');
-addTimePrefix('warning');
 
-// Step 1: Use webpack to build the client bundle.
+// Step 2: Use webpack to build the client bundle.
 
 const webpack = require('webpack');
 const webpackConfig = require('./webpack.config');
 
 webpackConfig.plugins.forEach(plugin => {
   if (plugin.constructor.name == 'HtmlWebpackPlugin') {
-    plugin.options.templateParameters = {port};
+    plugin.options.templateParameters = {port: appConfig.port};
   }
 });
 const webpackCompiler = webpack(webpackConfig);
@@ -32,7 +42,7 @@ webpackCompiler.watch({poll: 100}, (err, stats) => {
   console.info('Webpack change detected. Recompiled!');
 });
 
-// Step 2: Use express to serve the client.
+// Step 3: Use express to serve the client.
 
 const express = require('express');
 const app = express();
@@ -42,5 +52,4 @@ require('./src/server/index.js')(app, io);
 
 app.use(express.static('dist'));
 app.get('/', (req, res) => res.sendFile('index.html', {root: 'dist'}));
-
-server.listen(port);
+server.listen(appConfig.port);

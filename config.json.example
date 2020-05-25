@@ -1,0 +1,8 @@
+{
+    "database": {
+        "name": "productivity",
+        "username": "kaustubh",
+        "password": "password"
+    },
+    "port": 8080
+}
