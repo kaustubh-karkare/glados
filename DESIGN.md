@@ -19,13 +19,120 @@
     * Unlike most of my other side-projects, the goal here is not to experiment with and understand new technology. It is to use existing libraries to quickly create something that allows me to start generating useful structured data ASAP.
     * Planning to use [MySQL](https://www.mysql.com/) as a database (storing the data in Dropbox to generate a version history) and [NodeJS](https://nodejs.org/en/) for the server, [Sequelize](https://sequelize.org/) for the ORM, [SocketIO](https://socket.io/) for communiation, [ReactJS](https://reactjs.org/) for the webapp, [Bootstrap](https://getbootstrap.com/) for styling, and [TypeScript](https://www.typescriptlang.org/) for safety.
 * Database schema?
-    * Item: ID, Type (done/todo), Date, Index, Time, Title, Unstructured_Details
-    * Structured_Details: ID, Key, Value
-    * Association: N:N mapping between Item.ID and Structured_Details.ID
-    * // Rules: Instead of a table, v1 will go with hardcoding these.
-* Interface design?
-    * Search bar at the top, supports filtering by date, title, structured details.
-    * Vertically split screen at display the done-items and todo-items for current filters.
-    * Stream of items, with each item compressed to one line by default. Expandable + editable.
-    * Infinite scroll, but in the upward direction for older entries.
-    * Form at the bottom for creating new items.
+    * LogEntry
+        * ID
+        * Title. Summary of what I did.
+        * Details. More details about what I did. Markdown, supports tags.
+        * Category.
+        * Index. Used for relative ordering within a single date.
+        * Date. Main grouping!
+        * Time. Further grouping?
+        * Deadline? If present, this item is at top of suggeetsion list.
+        * Status. enum(completed, in_progress, abandoned, pending, failed)
+        * Priority. enum(wishlist, low, normal, high, critical)
+        * Verbosity? Don't render if completed.
+    * 1:N mapping between Entries and Categories.
+    * Categories
+        * ID
+        * Name
+    * N:N mapping between Categories and Keys.
+        * Category ID
+        * Key ID
+        * Default Ordering Index
+        * // Key groups to share multiple keys across items?
+    * LESD Keys
+        * ID
+        * Key Name
+        * Value Type = enum(number, string, link, enum)
+        * Color? For syntax highlighting maybe.
+    * N:N mapping between Entries and Values.
+        * When will multiple entries point to same value?
+            * Same book, being read across days.
+            * Same TV show, seen across multiple spisodes.
+        * Ordering Index.
+    * LESD Values
+        * ID
+        * Key ID
+        * Value, depends on Value Type (defined on Key).
+    * Periodic Log Entry
+        * Name
+        * Category
+        * Frequency = daily, weekdays, mondays
+        * Priority
+        * Verbosity
+        * Order Index. Determines ordering in left sidebar.
+    * Tags
+        * Name. Used for mentions in unstructured details.
+    * N:N mapping between log entries and tags.
+* Actions
+    * Category.
+        * Create category.
+        * Rename category. Easy.
+        * Edit keys. Adding keys only works if all existing entries have that value already.
+        * Delete category. Values corresponding to entries for that category are unchanged.
+    * Log Entry.
+        * Create entry.
+        * Edit entry (any field).
+        * Delete entry.
+    * Search
+        * By category, tags, structured data, date.
+        * Slow search by unstructured text.
+    * Consistency
+        * Verify that all log entries have the structured data based on their category.
+        * Verify that all tags mentioned in unstructured text appear in mapping.
+* Components
+    * Search Bar
+        * Tokenizer Search supporting complex filters.
+            * First iteration could be simple with a dropdown to select field.
+    * Log View
+        * Log Entry.
+            * Edit mode contains the form.
+            * View mode just displays a single line, with details on hover.
+        * Log List (sequence of ordered log entries)
+            * Allows bulk select and bulk actions on log entries. Eg - updating status.
+            * Infinite Scroll Upwards.
+    * Category View
+        * Category
+            * Allows creation of new category and editting of existing ones.
+        * Category List (ordered by name)
+    * Reference Lists
+        * Books
+        * Movies
+        * Anime
+        * Television
+        * Articles
+        * Exercise
+        * Food Recipes / Accomplishments.
+        * Bucket List
+    * Left Sidebar (specific item suggestions)
+        * Periodic Items
+        * Random pending Suggestions. Button to load log entry.
+    * Right Sidebar (analytics)
+        * Exercise Graphs
+        * Random Motivation Quotes.
+        * Time since last backup.
+        * Time since last consistency checks.
+    * Generic
+        * Collapsable section.
+        * Graph?
+        * Markdown Editor with Tagging Support.
+        * Datetime Edtior.
+* Random Thoughts
+    * Category 0 is Uncategorized.
+    * Monospace font (Consolas), small size, black & green/blue/red theme.
+    * Category Ideas
+        * Exercise > Cycling. Time (minutes), Distance (miles), Calories.
+        * Exercise > Suryanamaskar. Count.
+        * Entertainment > Movie
+        * Reading > Literature. Name? Summary.
+        * Reading > Education. Link is necessary.
+        * Writing > Story Ideas.
+        * Writing > Blogs.
+        * Travel Logs
+    * Certain entrie are associated with time, and others are not.
+        * It might be useful to track when an item was created.
+        * Certain items are timeless.
+        * Separation of creation time vs completion time?
+    * How do I deal with media?
+    * Backups on browser localstorage.
+    * Database backup story is crritial before active usage.
