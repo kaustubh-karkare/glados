@@ -48,7 +48,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-require('./src/server/index.js')(app, io);
+require('./src/server/index.js')(io, appConfig);
 
 app.use(express.static('dist'));
 app.get('/', (req, res) => res.sendFile('index.html', {root: 'dist'}));
