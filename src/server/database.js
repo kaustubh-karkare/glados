@@ -1,35 +1,11 @@
 const Sequelize = require('sequelize');
 
 function create_models(sequelize) {
-    const LogEntry = sequelize.define(
-        'log_entries',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true
-            },
-            category_id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            details: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-                defaultValue: '',
-            },
-        },
-        {
-            timestamps: false,
-        },
-    );
-    LogEntry.prototype.genCategory = function() {
-        return Category.gen(this.category_id);
-    }
+    const options = {
+        timestamps: false,
+        underscored: true,
+    };
+
     const Category = sequelize.define(
         'categories',
         {
@@ -43,11 +19,82 @@ function create_models(sequelize) {
                 allowNull: false,
             },
         },
-        {
-            timestamps: false,
-        },
+        options,
     );
-    const Models = {LogEntry, Category};
+    const LSDKey = sequelize.define(
+        'lsd_keys',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            value_type: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        options,
+    );
+    const CategoryToLSDKey = sequelize.define(
+        'categories_to_lsd_keys',
+        {
+            category_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: Category,
+                    key: 'id',
+                },
+            },
+            lsd_key_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LSDKey,
+                    key: 'id',
+                },
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            }
+        },
+        options,
+    );
+    Category.belongsToMany(LSDKey, { through: CategoryToLSDKey, onDelete: 'restrict', onUpdate: 'restrict' });
+    LSDKey.belongsToMany(Category, { through: CategoryToLSDKey, onDelete: 'restrict', onUpdate: 'restrict' });
+
+    const LogEntry = sequelize.define(
+        'log_entries',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true
+            },
+            category_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            title: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            details: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+                defaultValue: '',
+            },
+        },
+        options,
+    );
+    LogEntry.prototype.genCategory = function() {
+        return Category.gen(this.category_id);
+    }
+    const Models = {Category, LSDKey, CategoryToLSDKey, LogEntry};
     Object.keys(Models).forEach(name => {
         Models[name].gen = (id) => Models[name].findByPk(id);
     });
@@ -56,7 +103,9 @@ function create_models(sequelize) {
 
 class Database {
     constructor(config) {
-        const options = {logging: false};
+        const options = {
+            logging: false
+        };
         if (config.type == 'mysql') {
             options.dialect = 'mysql';
             options.host = 'localhost';
@@ -73,6 +122,9 @@ class Database {
             options,
         );
         this.models = create_models(this.sequelize);
+    }
+    async close() {
+        await this.sequelize.close();
     }
     static async init(config) {
         const instance = new Database(config);
