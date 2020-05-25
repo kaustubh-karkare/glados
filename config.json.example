@@ -1,8 +1,10 @@
 {
     "database": {
-        "name": "productivity",
+        "type": "mysql",
+        "host": "localhost",
         "username": "kaustubh",
-        "password": "password"
+        "password": "password",
+        "name": "productivity"
     },
     "port": 8080
 }
