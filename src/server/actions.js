@@ -46,18 +46,24 @@ class Actions {
         });
     }
 
-    async genCreateLogEntry({title, category, category_id}) {
-        const {Category, LogEntry} = this.database.models;
+    async genCreateLogEntry({title, details, category_id, lsd_values = []}) {
+        const {LogEntry, LSDValue, LogEntryToLSDValue} = this.database.models;
         return this.database.sequelize.transaction(async transaction => {
-            if (!category) {
-                assert(category_id);
-                category = Category.gen(category_id);
-            }
-            const scheduled_time = parseInt(Date.now() / 1000);
-            return await LogEntry.create({
-                category_id,
-                title,
-            }, {transaction});
+            // TODO: Assert that LD values exist for LSD keys associated with this category.
+            const log_entry = await LogEntry.create({title, details, category_id}, {transaction});
+            await Promise.all(
+                lsd_values.map(async ({lsd_key_id, value_data}, ordering_index) => {
+                    const [lsd_value, _] = await LSDValue.findOrCreate(
+                        {where: {lsd_key_id, value_data}, transaction},
+                    );
+                    await LogEntryToLSDValue.create(
+                        {log_entry_id: log_entry.id, lsd_value_id: lsd_value.id, ordering_index},
+                        // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
+                        {fields: ['log_entry_id', 'lsd_value_id', 'ordering_index'], transaction},
+                    );
+                }),
+            );
+            return log_entry;
         });
     }
 }

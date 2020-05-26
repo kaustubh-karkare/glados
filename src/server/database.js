@@ -21,6 +21,7 @@ function create_models(sequelize) {
         },
         options,
     );
+
     const LSDKey = sequelize.define(
         'lsd_keys',
         {
@@ -40,6 +41,7 @@ function create_models(sequelize) {
         },
         options,
     );
+
     const CategoryToLSDKey = sequelize.define(
         'categories_to_lsd_keys',
         {
@@ -64,8 +66,49 @@ function create_models(sequelize) {
         },
         options,
     );
-    Category.belongsToMany(LSDKey, { through: CategoryToLSDKey, onDelete: 'restrict', onUpdate: 'restrict' });
-    LSDKey.belongsToMany(Category, { through: CategoryToLSDKey, onDelete: 'restrict', onUpdate: 'restrict' });
+
+    Category.belongsToMany(LSDKey, {
+        through: CategoryToLSDKey,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    LSDKey.belongsToMany(Category, {
+        through: CategoryToLSDKey,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    const LSDValue = sequelize.define(
+        'lsd_values',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true
+            },
+            lsd_key_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            value_data: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        {
+            ...options,
+            indexes: [
+                {unique: true, fields: ['lsd_key_id', 'value_data']},
+            ],
+        }
+    );
+
+    LSDKey.hasMany(LSDValue, {
+        foreignKey: 'lsd_key_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
 
     const LogEntry = sequelize.define(
         'log_entries',
@@ -77,7 +120,7 @@ function create_models(sequelize) {
             },
             category_id: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
+                allowNull: true,
             },
             title: {
                 type: Sequelize.STRING,
@@ -91,10 +134,54 @@ function create_models(sequelize) {
         },
         options,
     );
-    LogEntry.prototype.genCategory = function() {
-        return Category.gen(this.category_id);
-    }
-    const Models = {Category, LSDKey, CategoryToLSDKey, LogEntry};
+
+    Category.hasMany(LogEntry, {
+        foreignKey: 'category_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    const LogEntryToLSDValue = sequelize.define(
+        'log_entries_to_lsd_values',
+        {
+            log_entry_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogEntry,
+                    key: 'id',
+                },
+            },
+            lsd_value_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LSDValue,
+                    key: 'id',
+                },
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            }
+        },
+        options,
+    );
+
+    LogEntry.belongsToMany(LSDValue, {
+        through: LogEntryToLSDValue,
+        // Deleteing a LogEntry is allowed!
+        // The links will be broken, and the LSDValues could be cleaned up.
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+    });
+
+    LSDValue.belongsToMany(LogEntry, {
+        through: LogEntryToLSDValue,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    const Models = {Category, LSDKey, CategoryToLSDKey, LSDValue, LogEntry, LogEntryToLSDValue};
     Object.keys(Models).forEach(name => {
         Models[name].gen = (id) => Models[name].findByPk(id);
     });
