@@ -8,13 +8,13 @@ const LSDValueType = PropTypes.oneOf(
 const LSDKey = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    value_type: LSDValueType.isRequired,
+    valueType: LSDValueType.isRequired,
 });
 
 const Category = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    lsd_keys: PropTypes.arrayOf(LSDKey.isRequired),
+    lsdKeys: PropTypes.arrayOf(LSDKey.isRequired),
 });
 
 PropTypes.Custom = {LSDValueType, LSDKey, Category};
