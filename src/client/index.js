@@ -6,6 +6,8 @@ import SocketRPC from '../common/socket_rpc';
 const port = document.getElementById("server-port").value;
 const api = new SocketRPC(io('localhost:' + port));
 
+import CategoryEditor from './CategoryEditor.react';
+
 class SquareTest extends React.Component {
   constructor(props) {
     super(props);
@@ -30,7 +32,7 @@ class SquareTest extends React.Component {
 
 ReactDOM.render(
   <div>
-    <SquareTest />
+    <CategoryEditor />
   </div>,
   document.getElementById('app')
 );
