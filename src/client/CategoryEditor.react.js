@@ -1,53 +1,60 @@
 import React from 'react';
 import Dropdown from './Dropdown.react';
-import Typeahead from './Typeahead.react';
 import PropTypes from './prop-types';
 import LSDValueTypes from '../common/lsd_value_types';
 import assert from '../common/assert';
 import deepcopy from '../common/deepcopy';
 import range from '../common/range';
 
+import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import {SortableContainer, SortableElement, SortableHandle} from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 
 const DragHandle = SortableHandle(({children}) => <span>{children}</span>);
 
 class LSDKeyEditor extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {isLoading: false, options: []};
+    }
     render() {
         return (
             <div>
                 <DragHandle>
                     <span className="drag-handle form-element">{'⋮'}</span>
                 </DragHandle>
-                <Typeahead
-                    type='input'
-                    width={130}
-                    value={this.props.lsdKey.name}
-                    selected={this.props.lsdKey.id > 0}
-                    source={(query) => {
-                        return Promise.resolve(
-                            ["ant","bat","bell","cat","dog","eel","fly"]
-                                .map((label, index) => {
-                                    return {id: index + 1, name: label, valueType: 'string', label};
-                                }).filter(item => item.label.startsWith(query))
-                        );
-                    }}
-                    onChange={value => this.onUpdate('name', value)}
-                    onSelect={item => {
-                        if (item) {
-                            assert(item.id && item.name && item.valueType);
-                            this.props.onUpdate(item);
-                        } else {
-                            this.props.onUpdate(null);
-                        }
-                    }}
-                    placeholder='Key Name'
-                />
+                <div style={{display: 'inline-block'}}>
+                    <AsyncTypeahead
+                        {...this.state}
+                        id="key_name"
+                        labelKey="name"
+                        minLength={1}
+                        disabled={this.props.lsdKey.id > 0}
+                        onSearch={query => {
+                            this.setState({isLoading: true}, () => {
+                                window.api.send("category-typeahead")
+                                    .then(options => this.setState({isLoading: false, options}));
+                            });
+                        }}
+                        filterBy={this.props.filterBy}
+                        placeholder='Key Name'
+                        selected={[this.props.lsdKey.name]}
+                        onInputChange={value => this.onUpdate('name', value)}
+                        onChange={selected => {
+                            if (selected.length) {
+                                this.props.onUpdate(selected[0]);
+                            }
+                        }}
+                        renderMenuItemChildren={(option, props, index) => {
+                            return <div onMouseDown={() => this.props.onUpdate(option)}>{option.name}</div>;
+                        }}
+                    />
+                </div>
                 <Dropdown
                     options={Object.values(LSDValueTypes)}
                     value={this.props.lsdKey.valueType}
                     onChange={event => this.onUpdate('valueType', event.target.value)}
-                    disabled={this.props.lsdKey.id != -1}
+                    disabled={this.props.lsdKey.id > 0}
                 />
                 <input
                     type='button'
@@ -67,6 +74,7 @@ class LSDKeyEditor extends React.Component {
 LSDKeyEditor.propTypes = {
     total: PropTypes.number.isRequired,
     lsdKey: PropTypes.Custom.LSDKey.isRequired,
+    filterBy: PropTypes.func.isRequired,
     onUpdate: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
@@ -111,6 +119,7 @@ class CategoryEditor extends React.Component {
                             index={index}
                             total={list.length}
                             lsdKey={lsdKey}
+                            filterBy={this.filterBy.bind(this, index)}
                             onUpdate={this.onUpdate.bind(this, index)}
                             onDelete={this.onDelete.bind(this, index)}
                         />
@@ -133,6 +142,15 @@ class CategoryEditor extends React.Component {
             </div>
         );
     }
+    filterBy(index, option) {
+        const lsdKey = this.state.category.lsdKeys[index];
+        return (
+            this.state.category.lsdKeys
+                .filter((_, itemIndex) => (index != itemIndex))
+                .every(lsdKey => option.id != lsdKey.id) &&
+            option.name.includes(lsdKey.name)
+        );
+    }
     onCreate(index) {
         this.updateCategory((category, state) => {
             if (typeof index == "undefined") {
@@ -152,7 +170,6 @@ class CategoryEditor extends React.Component {
             return;
         }
         this.updateCategory(category => {
-            console.info(data);
             category.lsdKeys[index] = data;
         });
     }

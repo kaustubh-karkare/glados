@@ -2,6 +2,8 @@ import SocketRPC from '../common/socket_rpc';
 import Database from './database';
 import Actions from './actions';
 
+import LSDValueTypes from '../common/lsd_value_types';
+
 module.exports = function(io, appConfig) {
 
   Database.init(appConfig.database)
@@ -10,12 +12,14 @@ module.exports = function(io, appConfig) {
   io.on('connection', (socket) => {
     const api = new SocketRPC(socket);
 
-    api.register('square', function(request, resolve) {
-      const input = BigInt(request);
-      const output = (input * input).toString();
-      console.info("square", input.toString(), output);
-      resolve(output);
+    api.register('category-typeahead', function(request, resolve) {
+      resolve(
+        ["ant","bat","bell","cat","dog","eel","fly"]
+          .map((name, index) => ({id: index + 1000, name, valueType: LSDValueTypes.STRING.value}))
+      );
     });
+
+
   });
 
 };

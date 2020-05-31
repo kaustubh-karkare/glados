@@ -15,7 +15,7 @@ function initCookies() {
 
 window.main = function() {
   initCookies();
-  const api = new SocketRPC(io('localhost:' + document.cookies.port));
+  window.api = new SocketRPC(io('localhost:' + document.cookies.port));
 
   ReactDOM.render(
     <div>
