@@ -22,7 +22,7 @@ body * {
     border: 1px solid #008800;
 }
 
-input, select {
+.form-element, input, select {
     background: #161616;
     border: 1px solid #008800;
     box-shadow: none;
@@ -33,10 +33,18 @@ input::placeholder {
     color: #004400;
 }
 
+input {
+    height: 16px;
+}
+
+select {
+    height: 20px;
+}
+
 input:focus,
 select:focus {
     outline: none;
-    border-color: white;
+    /* border-color: white; */
 }
 
 select {
@@ -57,4 +65,10 @@ select {
 .typeahead > .reset-button {
     border-left: 1px solid #008800;
     cursor: pointer;
+    height: 20px;
+}
+
+.drag-handle {
+    position: relative;
+    top:1px;
 }

@@ -32,17 +32,19 @@ class Typeahead extends React.Component {
             );
         } else {
             return (
-                <div className="typeahead form-group">
-                    <input
-                        type='text'
-                        placeholder={this.props.placeholder}
-                        value={this.props.value}
-                        onFocus={() => this.setState({focus: true})}
-                        onBlur={() => this.setState({focus: false})}
-                        onChange={event => this.props.onChange(event.target.value)}
-                        onKeyDown={event => this.onKeyDown(event.keyCode)}
-                        style={{width: this.props.width - 6}}
-                    />
+                <div className="typeahead">
+                    <div className="form-group">
+                        <input
+                            type='text'
+                            placeholder={this.props.placeholder}
+                            value={this.props.value}
+                            onFocus={() => this.setState({focus: true})}
+                            onBlur={() => this.setState({focus: false})}
+                            onChange={event => this.props.onChange(event.target.value)}
+                            onKeyDown={event => this.onKeyDown(event.keyCode)}
+                            style={{width: this.props.width - 6}}
+                        />
+                    </div>
                     {this.renderOptions()}
                 </div>
             );
