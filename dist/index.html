@@ -3,9 +3,10 @@
   <head>
     <title>Productivity</title>
     <link rel="stylesheet" href="react-bootstrap-typeahead.css"></link>
+    <link rel="stylesheet" href="index.css"></link>
+    <script type="text/javascript" src="index.js"></script>
   </head>
-  <body>
-    <input type="hidden" id="server-port" value="<%= port %>" />
-    <div id="app"></div>
+  <body onLoad="main()">
+    <div id="root"></div>
   </body>
 </html>

@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
 import SocketRPC from '../common/socket_rpc';
 
-const port = document.getElementById("server-port").value;
-const api = new SocketRPC(io('localhost:' + port));
-
 import CategoryEditor from './CategoryEditor.react';
 
 import {Typeahead} from 'react-bootstrap-typeahead';
@@ -61,10 +58,23 @@ const states = [
     "West Virginia",
 ];
 
-ReactDOM.render(
-  <div>
-    <CategoryEditor />
-    <Typeahead id="typeahead" options={states} />
-  </div>,
-  document.getElementById('app')
-);
+function initCookies() {
+  document.cookies = document.cookie.split("; ").reduce((result, item) => {
+    const [key, value] = item.split("=");
+    result[key] = value;
+    return result;
+  }, {});
+}
+
+window.main = function() {
+  initCookies();
+  const api = new SocketRPC(io('localhost:' + document.cookies.port));
+
+  ReactDOM.render(
+    <div>
+      <CategoryEditor />
+      <Typeahead id="typeahead" options={states} />
+    </div>,
+    document.getElementById('root')
+  );
+};

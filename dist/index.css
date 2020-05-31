@@ -1,0 +1,22 @@
+
+body {
+    background: #1e1e1e;
+}
+
+body * {
+    font-family: Calibri;
+}
+
+input, select {
+    background: #161616;
+    border: 1px solid #008800;
+    border-radius: 3px;
+    box-shadow: none;
+    color: #00cc00;
+}
+
+select {
+    padding: 1px 0 2px;
+    position: relative;
+    top: 1px;
+}

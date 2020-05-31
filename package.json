@@ -10,9 +10,9 @@
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
     "babel-loader": "^8.1.0",
-    "clean-webpack-plugin": "^3.0.0",
+    "babel-preset-react": "^6.24.1",
+    "babelify": "^10.0.0",
     "express": "^4.17.1",
-    "html-webpack-plugin": "^4.3.0",
     "jest": "^26.0.1",
     "mysql2": "^2.1.0",
     "react": "^16.13.1",
@@ -21,12 +21,11 @@
     "sequelize": "^5.21.10",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "sqlite3": "^4.2.0",
-    "webpack": "^4.43.0"
+    "sqlite3": "^4.2.0"
   },
   "scripts": {
-    "start": "nodemon -w index.js -w webpack.config.js -w src/server/ -w src/common/ --exec babel-node index.js",
-    "testwa": "babel-node -h",
+    "start": "nodemon -w index.js -w src/ --exec babel-node index.js",
+    "build": "watchify -t babelify --presets  react src/client/index.js -o dist/index.js",
     "test": "jest"
   },
   "repository": {

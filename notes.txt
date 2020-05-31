@@ -1,3 +1,5 @@
 * npm install -g nodemon
+* npm install -g watchify
+* npm install -g browserify
 * Install MySQL.
 * Install DbVisualizer (needs JVM).

@@ -27,29 +27,16 @@ try {
   throw new Error("The format of ./config.json must match ./config.json.example");
 }
 
-// Step 2: Use webpack to build the client bundle.
-
-const webpack = require('webpack');
-const webpackConfig = require('./webpack.config');
-
-webpackConfig.plugins.forEach(plugin => {
-  if (plugin.constructor.name == 'HtmlWebpackPlugin') {
-    plugin.options.templateParameters = {port: appConfig.port};
-  }
-});
-const webpackCompiler = webpack(webpackConfig);
-webpackCompiler.watch({poll: 100}, (err, stats) => {
-  console.info('Webpack change detected. Recompiled!');
-});
-
-// Step 3: Use express to serve the client.
+// Step 2: Use express to serve the client.
 
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 require('./src/server/index.js')(io, appConfig);
-
+app.get('/', (req, res) => {
+  res.cookie('port', appConfig.port);
+  res.sendFile('index.html', {root: 'dist'});
+});
 app.use(express.static('dist'));
-app.get('/', (req, res) => res.sendFile('index.html', {root: 'dist'}));
 server.listen(appConfig.port);
