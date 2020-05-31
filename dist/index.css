@@ -1,78 +1,14 @@
-
-body {
-    background: #1e1e1e;
+.input-group-text {
+    border: none;
+    display: block;
+    text-align: center;
 }
 
-body * {
-    font-family: Calibri;
+.dropdown > button {
+    border-radius: 0;
+    width: 79px;
 }
 
-.form-group > input:first-child {
-    /* border-radius: 3px 0 0 3px; */
-    border-right: none;
-}
-
-.form-group > input:last-child {
-    /* border-radius: 0 3px 3px 0; */
-    border-left: none;
-}
-
-.form-group > input:first-child:last-child {
-    /* border-radius: 3px; */
-    border: 1px solid #008800;
-}
-
-.form-element, input, select {
-    background: #161616;
-    border: 1px solid #008800;
-    box-shadow: none;
-    color: #00cc00;
-}
-
-input::placeholder {
-    color: #004400;
-}
-
-input {
-    height: 16px;
-}
-
-select {
-    height: 20px;
-}
-
-input:focus,
-select:focus {
-    outline: none;
-    /* border-color: white; */
-}
-
-select {
-    padding: 1px 0 2px;
-    position: relative;
-    top: 1px;
-}
-
-.typeahead {
-    display: inline-block;
-    position: relative;
-}
-
-.typeahead > .options {
-    position: absolute;
-}
-
-.typeahead > .reset-button {
-    border-left: 1px solid #008800;
-    cursor: pointer;
-    height: 20px;
-}
-
-.drag-handle {
-    position: relative;
-    top:1px;
-}
-
-.dropdown-menu {
-    background: black;
+.btn.dropdown-toggle {
+    box-shadow: none !important;
 }

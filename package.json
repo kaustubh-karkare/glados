@@ -13,10 +13,13 @@
     "babel-loader": "^8.1.0",
     "babel-preset-react": "^6.24.1",
     "babelify": "^10.0.0",
+    "bootstrap": "^4.5.0",
+    "browserify-css": "^0.15.0",
     "express": "^4.17.1",
     "jest": "^26.0.1",
     "mysql2": "^2.1.0",
     "react": "^16.13.1",
+    "react-bootstrap": "^1.0.1",
     "react-bootstrap-typeahead": "^5.0.0-rc.1",
     "react-dom": "^16.13.1",
     "react-sortable-hoc": "^1.11.0",
@@ -27,7 +30,7 @@
   },
   "scripts": {
     "start": "nodemon -w index.js -w src/ --exec babel-node index.js",
-    "build": "watchify -t babelify --presets  react src/client/index.js -o dist/index.js",
+    "build": "watchify -t babelify --presets react src/client/index.js -o dist/index.js",
     "test": "jest"
   },
   "repository": {

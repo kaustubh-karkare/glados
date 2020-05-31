@@ -1,5 +1,4 @@
 import React from 'react';
-import Dropdown from './Dropdown.react';
 import PropTypes from './prop-types';
 import LSDValueTypes from '../common/lsd_value_types';
 import assert from '../common/assert';
@@ -10,6 +9,17 @@ import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import {SortableContainer, SortableElement, SortableHandle} from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 
+import LeftRight from './LeftRight.react';
+
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Card from 'react-bootstrap/Card';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import ListGroup from 'react-bootstrap/ListGroup';
+
 const DragHandle = SortableHandle(({children}) => <span>{children}</span>);
 
 class LSDKeyEditor extends React.Component {
@@ -19,49 +29,63 @@ class LSDKeyEditor extends React.Component {
     }
     render() {
         return (
-            <div>
-                <DragHandle>
-                    <span className="drag-handle form-element">{'⋮'}</span>
-                </DragHandle>
-                <div style={{display: 'inline-block'}}>
-                    <AsyncTypeahead
-                        {...this.state}
-                        id="key_name"
-                        labelKey="name"
-                        minLength={1}
+            <InputGroup className="mb-1" size="sm">
+                <InputGroup.Prepend>
+                    <InputGroup.Text style={{cursor: 'grab'}}>
+                        <DragHandle>{'⋮'}</DragHandle>
+                    </InputGroup.Text>
+                    <DropdownButton
+                        as={ButtonGroup}
+                        className=""
                         disabled={this.props.lsdKey.id > 0}
-                        onSearch={query => {
-                            this.setState({isLoading: true}, () => {
-                                window.api.send("category-typeahead")
-                                    .then(options => this.setState({isLoading: false, options}));
-                            });
-                        }}
-                        filterBy={this.props.filterBy}
-                        placeholder='Key Name'
-                        selected={[this.props.lsdKey.name]}
-                        onInputChange={value => this.onUpdate('name', value)}
-                        onChange={selected => {
-                            if (selected.length) {
-                                this.props.onUpdate(selected[0]);
-                            }
-                        }}
-                        renderMenuItemChildren={(option, props, index) => {
-                            return <div onMouseDown={() => this.props.onUpdate(option)}>{option.name}</div>;
-                        }}
-                    />
-                </div>
-                <Dropdown
-                    options={Object.values(LSDValueTypes)}
-                    value={this.props.lsdKey.valueType}
-                    onChange={event => this.onUpdate('valueType', event.target.value)}
+                        onSelect={() => console.info(arguments)}
+                        size="sm"
+                        title={this.props.lsdKey.valueType}
+                        variant="secondary">
+                        {Object.values(LSDValueTypes).map(item =>
+                            <Dropdown.Item
+                                key={item.value}
+                                onMouseDown={() => this.onUpdate('valueType', item.value)}>
+                                {item.label}
+                            </Dropdown.Item>
+                        )}
+                    </DropdownButton>
+                </InputGroup.Prepend>
+                <AsyncTypeahead
+                    {...this.state}
+                    id="key_name"
+                    labelKey="name"
+                    size="small"
+                    minLength={1}
                     disabled={this.props.lsdKey.id > 0}
+                    onSearch={query => {
+                        this.setState({isLoading: true}, () => {
+                            window.api.send("category-typeahead")
+                                .then(options => this.setState({isLoading: false, options}));
+                        });
+                    }}
+                    filterBy={this.props.filterBy}
+                    placeholder='Key Name'
+                    selected={[this.props.lsdKey.name]}
+                    onInputChange={value => this.onUpdate('name', value)}
+                    onChange={selected => {
+                        if (selected.length) {
+                            this.props.onUpdate(selected[0]);
+                        }
+                    }}
+                    renderMenuItemChildren={(option, props, index) => {
+                        return <div onMouseDown={() => this.props.onUpdate(option)}>{option.name}</div>;
+                    }}
                 />
-                <input
-                    type='button'
-                    value='Delete'
-                    onClick={this.props.onDelete}
-                />
-            </div>
+                <InputGroup.Append>
+                    <Button
+                        onClick={this.props.onDelete}
+                        size="sm"
+                        variant="secondary">
+                        {'🗑'}
+                    </Button>
+                </InputGroup.Append>
+            </InputGroup>
         );
     }
     onUpdate(name, value) {
@@ -95,22 +119,20 @@ class CategoryEditor extends React.Component {
     }
     render() {
         return (
-            <div>
-                <div>
-                    <input
-                        type='input'
-                        placeholder='Category Name'
+            <Card className="p-2">
+                <InputGroup className="my-1" size="sm">
+                    <InputGroup.Prepend>
+                        <InputGroup.Text style={{width: 100}}>
+                            {'Category'}
+                        </InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <Form.Control
+                        placeholder="Category Name"
+                        type="text"
                         value={this.state.category.name}
-                        onChange={event => {
-                            const name = event.target.value;
-                            this.setState(state => {
-                                const category = {...state.category};
-                                category.name = name;
-                                return {category};
-                            });
-                        }}
+                        onChange={event => this.onUpdateName(event.target.value)}
                     />
-                </div>
+                </InputGroup>
                 <SortableList
                     onSortEnd={this.onReorder.bind(this)}>
                     {this.state.category.lsdKeys.map((lsdKey, index, list) =>
@@ -125,22 +147,38 @@ class CategoryEditor extends React.Component {
                         />
                     )}
                 </SortableList>
-                <input
-                    type='button'
-                    value='Add Key'
-                    onClick={() => this.onCreate()}
-                />
-                <input
-                    type='button'
-                    value='Reset'
-                    onClick={() => this.setState({category: this.props.category})}
-                />
-                <input
-                    type='button'
-                    value='Save'
-                />
-            </div>
+                <LeftRight className="mt-1">
+                    <Button
+                        variant="secondary"
+                        onClick={() => this.onCreate()}
+                        size="sm"
+                        style={{width: 100}}>
+                        {'Add Key'}
+                    </Button>
+                    <div>
+                        <Button
+                            className="mr-1"
+                            onClick={() => this.setState({category: this.props.category})}
+                            size="sm"
+                            style={{width: 95}}
+                            variant="success">
+                            {'Reset'}
+                        </Button>
+                        <Button
+                            size="sm"
+                            style={{width: 82}}
+                            variant="success">
+                            {this.state.category.id < 0 ? 'Create' : 'Save'}
+                        </Button>
+                    </div>
+                </LeftRight>
+            </Card>
         );
+    }
+    onUpdateName(value) {
+        this.updateCategory(category => {
+            category.name = value;
+        });
     }
     filterBy(index, option) {
         const lsdKey = this.state.category.lsdKeys[index];
@@ -153,15 +191,16 @@ class CategoryEditor extends React.Component {
     }
     onCreate(index) {
         this.updateCategory((category, state) => {
-            if (typeof index == "undefined") {
-                index = category.lsdKeys.length;
-            }
             state.creationId -= 1;
-            category.lsdKeys[index] = {
+            const newItem = {
                 id: state.creationId,
                 name: '',
                 valueType: LSDValueTypes.STRING.value,
             };
+            if (typeof index == "undefined") {
+                index = category.lsdKeys.length;
+            }
+            category.lsdKeys[index] = newItem;
         });
     }
     onUpdate(index, data) {
@@ -198,11 +237,11 @@ CategoryEditor.propTypes = {
 
 CategoryEditor.defaultProps = {
     category: {
-        id: 1,
+        id: -1,
         name: 'Animal',
         lsdKeys: [
             {id: 2, name: 'Size', valueType: 'string'},
-            {id: 3, name: 'Legs aksjhdkashdklakhjsda', valueType: 'integer'},
+            {id: 3, name: 'Legs', valueType: 'integer'},
             {id: -10000, name: '', valueType: 'integer'},
         ],
     },
