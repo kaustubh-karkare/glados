@@ -13,23 +13,26 @@ class Typeahead extends React.Component {
     render() {
         if (this.props.selected) {
             return (
-                <span>
+                <div className="typeahead form-group">
                     <input
                         type='text'
                         value={this.props.value}
                         readOnly={true}
                         disabled={true}
+                        style={{width: this.props.width - 6 - 18}}
                     />
                     <input
+                        className="reset-button"
                         type='button'
-                        value='X'
+                        value='×'
                         onClick={() => this.props.onSelect(null)}
+                        style={{width: 19}}
                     />
-                </span>
+                </div>
             );
         } else {
             return (
-                <span>
+                <div className="typeahead form-group">
                     <input
                         type='text'
                         placeholder={this.props.placeholder}
@@ -38,9 +41,10 @@ class Typeahead extends React.Component {
                         onBlur={() => this.setState({focus: false})}
                         onChange={event => this.props.onChange(event.target.value)}
                         onKeyDown={event => this.onKeyDown(event.keyCode)}
+                        style={{width: this.props.width - 6}}
                     />
                     {this.renderOptions()}
-                </span>
+                </div>
             );
         }
     }
@@ -65,23 +69,17 @@ class Typeahead extends React.Component {
             return null;
         }
         // TODO: Figure out the proper position here.
-        // TODO: Make this match the input style.
-        const containerStyle = {
-            background: 'white',
-            border: '1px solid black',
-            position: 'absolute',
-        };
         // TODO: Support mouse-over style.
         const highlightStyle = {
             background: '#aaa',
         };
         return (
-            <div style={containerStyle}>
+            <div className="options">
                 {this.state.options.length == 0 ? "No suggestions!" : null}
                 {this.state.options.map((option, index) =>
                     <div
                         key={option.label}
-                        style={this.state.index == index ? highlightStyle : null}
+                        className={this.state.index == index ? "highlight" : null}
                         onMouseDown={() => this.props.onSelect(option)}>
                         {option.label}
                     </div>
@@ -113,6 +111,7 @@ const ValueType = PropTypes.shape({
 });
 
 Typeahead.propTypes = {
+    width: PropTypes.number.isRequired,
     value: PropTypes.string.isRequired,
     selected: PropTypes.bool.isRequired,
     source: PropTypes.func.isRequired,

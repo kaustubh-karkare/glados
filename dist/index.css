@@ -7,16 +7,54 @@ body * {
     font-family: Calibri;
 }
 
+.form-group > input:first-child {
+    /* border-radius: 3px 0 0 3px; */
+    border-right: none;
+}
+
+.form-group > input:last-child {
+    /* border-radius: 0 3px 3px 0; */
+    border-left: none;
+}
+
+.form-group > input:first-child:last-child {
+    /* border-radius: 3px; */
+    border: 1px solid #008800;
+}
+
 input, select {
     background: #161616;
     border: 1px solid #008800;
-    border-radius: 3px;
     box-shadow: none;
     color: #00cc00;
+}
+
+input::placeholder {
+    color: #004400;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: white;
 }
 
 select {
     padding: 1px 0 2px;
     position: relative;
     top: 1px;
+}
+
+.typeahead {
+    display: inline-block;
+    position: relative;
+}
+
+.typeahead > .options {
+    position: absolute;
+}
+
+.typeahead > .reset-button {
+    border-left: 1px solid #008800;
+    cursor: pointer;
 }

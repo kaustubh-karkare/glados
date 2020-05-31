@@ -23,6 +23,7 @@ class LSDKeyEditor extends React.Component {
                 />
                 <Typeahead
                     type='input'
+                    width={130}
                     value={this.props.lsdKey.name}
                     selected={this.props.lsdKey.id != -1}
                     source={(query) => {
@@ -157,7 +158,8 @@ CategoryEditor.defaultProps = {
         name: 'Animal',
         lsdKeys: [
             {id: 2, name: 'Size', valueType: 'string'},
-            {id: 3, name: 'Legs', valueType: 'integer'},
+            {id: 3, name: 'Legs aksjhdkashdklakhjsda', valueType: 'integer'},
+            {id: -1, name: '', valueType: 'integer'},
         ],
     },
 };
