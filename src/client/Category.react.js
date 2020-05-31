@@ -13,6 +13,7 @@ import LeftRight from './LeftRight.react';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Collapse from 'react-bootstrap/Collapse';
 import Card from 'react-bootstrap/Card';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
@@ -20,7 +21,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
 
-const DragHandle = SortableHandle(({children}) => <span>{children}</span>);
+const DragHandle = SortableHandle(({children}) => <>{children}</>);
 
 class LSDKeyEditor extends React.Component {
     constructor(props) {
@@ -31,9 +32,11 @@ class LSDKeyEditor extends React.Component {
         return (
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
-                    <InputGroup.Text style={{cursor: 'grab'}}>
-                        <DragHandle>{'⋮'}</DragHandle>
-                    </InputGroup.Text>
+                    <DragHandle>
+                        <InputGroup.Text style={{cursor: 'grab'}}>
+                            {'⋮'}
+                        </InputGroup.Text>
+                    </DragHandle>
                     <DropdownButton
                         as={ButtonGroup}
                         className=""
@@ -119,7 +122,7 @@ class CategoryEditor extends React.Component {
     }
     render() {
         return (
-            <Card className="p-2">
+            <>
                 <InputGroup className="my-1" size="sm">
                     <InputGroup.Prepend>
                         <InputGroup.Text style={{width: 100}}>
@@ -134,6 +137,7 @@ class CategoryEditor extends React.Component {
                     />
                 </InputGroup>
                 <SortableList
+                    useDragHandle={true}
                     onSortEnd={this.onReorder.bind(this)}>
                     {this.state.category.lsdKeys.map((lsdKey, index, list) =>
                         <LSDKeyEditorSortableItem
@@ -147,7 +151,7 @@ class CategoryEditor extends React.Component {
                         />
                     )}
                 </SortableList>
-                <LeftRight className="mt-1">
+                <LeftRight>
                     <Button
                         variant="secondary"
                         onClick={() => this.onCreate()}
@@ -172,7 +176,7 @@ class CategoryEditor extends React.Component {
                         </Button>
                     </div>
                 </LeftRight>
-            </Card>
+            </>
         );
     }
     onUpdateName(value) {
@@ -235,7 +239,52 @@ CategoryEditor.propTypes = {
     category: PropTypes.Custom.Category,
 };
 
-CategoryEditor.defaultProps = {
+class Category extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {edit: false};
+    }
+    render() {
+        return (
+            <Card className="p-2">
+                <LeftRight>
+                    <div>
+                        <b>{this.props.category.name}</b>
+                        {this.props.category.lsdKeys.map(lsdKey =>
+                            <Button
+                                className="ml-2"
+                                disabled={true}
+                                key={lsdKey.id}
+                                size="sm"
+                                variant="secondary">
+                                {lsdKey.name}
+                            </Button>
+                        )}
+                    </div>
+                    <Form.Check
+                        aria-controls="category-editor"
+                        type="switch"
+                        id="edit-mode"
+                        label="Edit"
+                        value={this.state.edit}
+                        onClick={() => this.setState({edit: !this.state.edit})}
+                    />
+                </LeftRight>
+                <Collapse in={this.state.edit} unmountOnExit={true}>
+                    <div id="category-editor">
+                        <CategoryEditor category={this.props.category} />
+                    </div>
+                </Collapse>
+            </Card>
+        );
+    }
+}
+
+Category.propTypes = {
+    category: PropTypes.Custom.Category,
+};
+
+Category.defaultProps = {
     category: {
         id: -1,
         name: 'Animal',
@@ -247,4 +296,4 @@ CategoryEditor.defaultProps = {
     },
 };
 
-export default CategoryEditor;
+export default Category;
