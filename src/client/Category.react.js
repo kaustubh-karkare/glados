@@ -160,18 +160,29 @@ class CategoryEditor extends React.Component {
                         {'Add Key'}
                     </Button>
                     <div>
+                        {this.state.category.id > 0
+                            ? <Button
+                                className="ml-1"
+                                size="sm"
+                                style={{width: 80}}
+                                variant="secondary">
+                                {'Delete'}
+                              </Button>
+                            : null
+                        }
                         <Button
-                            className="mr-1"
+                            className="ml-1"
                             onClick={() => this.setState({category: this.props.category})}
                             size="sm"
-                            style={{width: 95}}
-                            variant="success">
+                            style={{width: 80}}
+                            variant="secondary">
                             {'Reset'}
                         </Button>
                         <Button
+                            className="ml-1"
                             size="sm"
-                            style={{width: 82}}
-                            variant="success">
+                            style={{width: 80}}
+                            variant="secondary">
                             {this.state.category.id < 0 ? 'Create' : 'Save'}
                         </Button>
                     </div>
@@ -236,7 +247,25 @@ class CategoryEditor extends React.Component {
 }
 
 CategoryEditor.propTypes = {
-    category: PropTypes.Custom.Category,
+    category: PropTypes.Custom.Category.isRequired,
+};
+
+class CategoryCreator extends React.Component {
+    render() {
+        return (
+            <Card className="p-2 mt-2">
+                <CategoryEditor category={this.props.category} />
+            </Card>
+        );
+    }
+}
+
+CategoryCreator.defaultProps = {
+    category: {
+        id: -1,
+        name: '',
+        lsdKeys: [],
+    },
 };
 
 class Category extends React.Component {
@@ -246,7 +275,7 @@ class Category extends React.Component {
     }
     render() {
         return (
-            <Card className="p-2">
+            <Card className="p-2 mt-2">
                 <LeftRight>
                     <div>
                         <b>{this.props.category.name}</b>
@@ -271,7 +300,7 @@ class Category extends React.Component {
                     />
                 </LeftRight>
                 <Collapse in={this.state.edit} unmountOnExit={true}>
-                    <div id="category-editor">
+                    <div id="category-editor" className="mt-1">
                         <CategoryEditor category={this.props.category} />
                     </div>
                 </Collapse>
@@ -286,7 +315,7 @@ Category.propTypes = {
 
 Category.defaultProps = {
     category: {
-        id: -1,
+        id: 1,
         name: 'Animal',
         lsdKeys: [
             {id: 2, name: 'Size', valueType: 'string'},
@@ -296,4 +325,4 @@ Category.defaultProps = {
     },
 };
 
-export default Category;
+export {Category, CategoryCreator};

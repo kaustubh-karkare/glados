@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
 import SocketRPC from '../common/socket_rpc';
 
-import Category from './Category.react';
+import {Category, CategoryCreator} from './Category.react';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -29,6 +29,7 @@ window.main = function() {
         </Col>
         <Col md={8}>
           <Category />
+          <CategoryCreator />
         </Col>
         <Col md={2}>
           Right
