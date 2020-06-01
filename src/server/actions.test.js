@@ -1,7 +1,7 @@
 import Database from './database';
 import Actions from './actions';
 
-let actions = null;
+let database = null;
 
 beforeAll(async () => {
     const config = {
@@ -11,16 +11,19 @@ beforeAll(async () => {
         "password": "productivity_test",
         "name": "productivity_test"
     };
-    const database = await Database.init(config);
-    actions = new Actions(database);
+    database = await Database.init(config);
 });
 
 afterAll(async () => {
-    await actions.database.close();
+    if (database) await database.close();
 });
 
+async function invoke(name, ...args) {
+    return await Actions[name].call({database}, ...args);
+}
+
 test("category_update", async () => {
-    let cat1 = await actions.createOrUpdateCategory({
+    let cat1 = await invoke("category-update", {
         id: -1,
         name: "Animals",
         lsdKeys: [
@@ -28,7 +31,7 @@ test("category_update", async () => {
             {id: -2, name: "Legs", valueType: "integer"},
         ],
     });
-    let cat2 = await actions.createOrUpdateCategory({
+    let cat2 = await invoke("category-update", {
         id: -1,
         name: "Vehicles",
         lsdKeys: [
@@ -36,7 +39,7 @@ test("category_update", async () => {
             {id: -1, name: "Size", valueType: "string"},
         ],
     });
-    expect(await actions.getCategories()).toEqual([
+    expect(await invoke("category-list")).toEqual([
         {
             "id": 1,
             "name": "Animals",
@@ -71,12 +74,17 @@ test("category_update", async () => {
         }
     ]);
 
-    cat2.name = "Fish";
+    cat2.name = "Machines";
     cat2.lsdKeys = [{id: -1, name: "Size", valueType: "integer"}];
-    cat2 = await actions.createOrUpdateCategory(cat2);
-    expect(cat2.name).toEqual("Fish"); // updated
+    cat2 = await invoke("category-update", cat2);
+    expect(cat2.name).toEqual("Machines"); // updated
     expect(cat2.lsdKeys[0].id).toEqual(1); // updated
     expect(cat2.lsdKeys[0].valueType).toEqual("string"); // unchanged
+
+    // SequelizeForeignKeyConstraintError
+    expect(() => database.delete('LSDKey', {id: 2})).rejects.toThrow();
+    await invoke("category-delete", cat1);
+    await database.delete('LSDKey', {id: 2});
 });
 
 if(0) test("basic_operations", async () => {

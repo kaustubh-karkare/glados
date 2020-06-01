@@ -1,11 +1,7 @@
 import assert from '../common/assert';
 
-class Actions {
-    constructor(database, socket) {
-        this.database = database;
-    }
-
-    async getCategories() {
+const Actions = {
+    "category-list": async function() {
         return await this.database.sequelize.transaction(async transaction => {
             const {Category, LSDKey, CategoryToLSDKey} = this.database.models;
             const categories = await Category.findAll({
@@ -26,9 +22,8 @@ class Actions {
                 })),
             }));
         });
-    }
-
-    async createOrUpdateCategory(input) {
+    },
+    "category-update": async function(input) {
         return await this.database.sequelize.transaction(async transaction => {
             let category = await this.database.create_or_update(
                 'Category', {id: input.id, name: input.name}, transaction
@@ -72,15 +67,13 @@ class Actions {
                     }))
             };
         });
-    }
-
-    async deleteCategory(input) {
+    },
+    "category-delete": async function(input) {
         return await this.database.sequelize.transaction(async transaction => {
             return this.database.delete('Category', input, transaction);
         });
-    }
-
-    async getLsdKeys(input) {
+    },
+    "lsd-key-typeahead": async function(input) {
         const lsd_keys = await this.database.get_all('LSDKey');
         return lsd_keys.map(item => ({
             id: item.id,
@@ -88,27 +81,6 @@ class Actions {
             valueType: item.value_type,
         }));
     }
-
-    async genCreateLogEntry({title, details, category_id, lsd_values = []}) {
-        const {LogEntry, LSDValue, LogEntryToLSDValue} = this.database.models;
-        return this.database.sequelize.transaction(async transaction => {
-            // TODO: Assert that LD values exist for LSD keys associated with this category.
-            const log_entry = await LogEntry.create({title, details, category_id}, {transaction});
-            await Promise.all(
-                lsd_values.map(async ({lsd_key_id, value_data}, ordering_index) => {
-                    const [lsd_value, _] = await LSDValue.findOrCreate(
-                        {where: {lsd_key_id, value_data}, transaction},
-                    );
-                    await LogEntryToLSDValue.create(
-                        {log_entry_id: log_entry.id, lsd_value_id: lsd_value.id, ordering_index},
-                        // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
-                        {fields: ['log_entry_id', 'lsd_value_id', 'ordering_index'], transaction},
-                    );
-                }),
-            );
-            return log_entry;
-        });
-    }
-}
+};
 
 export default Actions;
