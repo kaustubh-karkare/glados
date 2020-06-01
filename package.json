@@ -29,7 +29,7 @@
     "sqlite3": "^4.2.0"
   },
   "scripts": {
-    "start": "nodemon -w index.js -w src/ --exec babel-node index.js",
+    "start": "nodemon -w index.js -w src/ --exec babel-node --trace-warnings index.js",
     "build": "watchify -t babelify --presets react src/client/index.js -o dist/index.js",
     "test": "jest"
   },

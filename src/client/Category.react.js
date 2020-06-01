@@ -20,6 +20,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Modal from 'react-bootstrap/Modal';
 
 const DragHandle = SortableHandle(({children}) => <>{children}</>);
 
@@ -41,7 +42,7 @@ class LSDKeyEditor extends React.Component {
                         as={ButtonGroup}
                         className=""
                         disabled={this.props.lsdKey.id > 0}
-                        onSelect={() => console.info(arguments)}
+                        onSelect={() => null}
                         size="sm"
                         title={this.props.lsdKey.valueType}
                         variant="secondary">
@@ -63,7 +64,7 @@ class LSDKeyEditor extends React.Component {
                     disabled={this.props.lsdKey.id > 0}
                     onSearch={query => {
                         this.setState({isLoading: true}, () => {
-                            window.api.send("category-typeahead")
+                            window.api.send("lsd-key-typeahead")
                                 .then(options => this.setState({isLoading: false, options}));
                         });
                     }}
@@ -118,7 +119,13 @@ class CategoryEditor extends React.Component {
         this.state = {
             category: props.category,
             creationId: 0,
+            showDeleteDialog: false,
         };
+    }
+    componentDidUpdate(prevProps) {
+        if (this.props != prevProps) {
+            this.setState({category: this.props.category});
+        }
     }
     render() {
         return (
@@ -133,12 +140,12 @@ class CategoryEditor extends React.Component {
                         placeholder="Category Name"
                         type="text"
                         value={this.state.category.name}
-                        onChange={event => this.onUpdateName(event.target.value)}
+                        onChange={event => this.onNameUpdate(event.target.value)}
                     />
                 </InputGroup>
                 <SortableList
                     useDragHandle={true}
-                    onSortEnd={this.onReorder.bind(this)}>
+                    onSortEnd={this.onKeyReorder.bind(this)}>
                     {this.state.category.lsdKeys.map((lsdKey, index, list) =>
                         <LSDKeyEditorSortableItem
                             key={lsdKey.id}
@@ -146,23 +153,24 @@ class CategoryEditor extends React.Component {
                             total={list.length}
                             lsdKey={lsdKey}
                             filterBy={this.filterBy.bind(this, index)}
-                            onUpdate={this.onUpdate.bind(this, index)}
-                            onDelete={this.onDelete.bind(this, index)}
+                            onUpdate={this.onKeyUpdate.bind(this, index)}
+                            onDelete={this.onKeyDelete.bind(this, index)}
                         />
                     )}
                 </SortableList>
                 <LeftRight>
                     <Button
                         variant="secondary"
-                        onClick={() => this.onCreate()}
+                        onClick={() => this.onKeyCreate()}
                         size="sm"
                         style={{width: 100}}>
                         {'Add Key'}
                     </Button>
                     <div>
-                        {this.state.category.id > 0
+                        {this.props.category.id > 0
                             ? <Button
                                 className="ml-1"
+                                onClick={() => this.setState({showDeleteDialog: true})}
                                 size="sm"
                                 style={{width: 80}}
                                 variant="secondary">
@@ -180,17 +188,43 @@ class CategoryEditor extends React.Component {
                         </Button>
                         <Button
                             className="ml-1"
+                            onClick={() => this.props.onSave(this.state.category)}
                             size="sm"
                             style={{width: 80}}
                             variant="secondary">
-                            {this.state.category.id < 0 ? 'Create' : 'Save'}
+                            {this.props.category.id > 0 ? 'Save' : 'Create'}
                         </Button>
                     </div>
                 </LeftRight>
+                {this.renderDeleteModal()}
             </>
         );
     }
-    onUpdateName(value) {
+    renderDeleteModal() {
+        return (
+            <Modal
+                show={this.state.showDeleteDialog}
+                onHide={() => this.setState({showDeleteDialog: false})}>
+                <Modal.Header>
+                    <Modal.Title>{this.state.category.name}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete this category?</Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        onClick={() => this.setState({showDeleteDialog: false})}
+                        variant="secondary">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => this.props.onDelete(this.state.category)}
+                        variant="danger">
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+    onNameUpdate(value) {
         this.updateCategory(category => {
             category.name = value;
         });
@@ -204,7 +238,7 @@ class CategoryEditor extends React.Component {
             option.name.includes(lsdKey.name)
         );
     }
-    onCreate(index) {
+    onKeyCreate(index) {
         this.updateCategory((category, state) => {
             state.creationId -= 1;
             const newItem = {
@@ -218,21 +252,21 @@ class CategoryEditor extends React.Component {
             category.lsdKeys[index] = newItem;
         });
     }
-    onUpdate(index, data) {
+    onKeyUpdate(index, data) {
         if (data == null) {
-            this.onCreate(index);
+            this.onKeyCreate(index);
             return;
         }
         this.updateCategory(category => {
             category.lsdKeys[index] = data;
         });
     }
-    onDelete(index) {
+    onKeyDelete(index) {
         this.updateCategory(category => {
             category.lsdKeys.splice(index, 1);
         });
     }
-    onReorder({oldIndex, newIndex}) {
+    onKeyReorder({oldIndex, newIndex}) {
         this.updateCategory(category => {
             category.lsdKeys = arrayMove(category.lsdKeys, oldIndex, newIndex);
         });
@@ -248,38 +282,59 @@ class CategoryEditor extends React.Component {
 
 CategoryEditor.propTypes = {
     category: PropTypes.Custom.Category.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
 };
 
-class CategoryCreator extends React.Component {
-    render() {
-        return (
-            <Card className="p-2 mt-2">
-                <CategoryEditor category={this.props.category} />
-            </Card>
-        );
-    }
-}
-
-CategoryCreator.defaultProps = {
-    category: {
-        id: -1,
-        name: '',
-        lsdKeys: [],
-    },
-};
-
-class Category extends React.Component {
+class CategoryList extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {edit: false};
+        this.state = {
+            newCategory: this.createEmptyCategory(),
+            editCategory: null,
+        };
+    }
+    createEmptyCategory() {
+        return {
+            id: -1,
+            name: '',
+            lsdKeys: [],
+        };
+    }
+    componentDidMount() {
+        this.reload();
+    }
+    reload() {
+        window.api.send("category-list")
+            .then(categories => this.setState({categories}));
     }
     render() {
+        if (!this.state.categories) {
+            return <div>{'Loading Categories ...'}</div>;
+        }
         return (
-            <Card className="p-2 mt-2">
+            <div>
+                <LeftRight>
+                    <span />
+                    <Button
+                        onClick={() => this.setState({editCategory: this.createEmptyCategory()})}
+                        size="sm"
+                        variant="secondary">
+                        Create
+                    </Button>
+                </LeftRight>
+                {this.state.categories.map(category => this.renderCategory(category))}
+                {this.renderEditorModal()}
+            </div>
+        )
+    }
+    renderCategory(category, index) {
+        return (
+            <Card key={category.id} className="p-2 mt-2">
                 <LeftRight>
                     <div>
-                        <b>{this.props.category.name}</b>
-                        {this.props.category.lsdKeys.map(lsdKey =>
+                        <b>{category.name}</b>
+                        {category.lsdKeys.map(lsdKey =>
                             <Button
                                 className="ml-2"
                                 disabled={true}
@@ -290,39 +345,47 @@ class Category extends React.Component {
                             </Button>
                         )}
                     </div>
-                    <Form.Check
-                        aria-controls="category-editor"
-                        type="switch"
-                        id="edit-mode"
-                        label="Edit"
-                        value={this.state.edit}
-                        onClick={() => this.setState({edit: !this.state.edit})}
-                    />
+                    <Button
+                        onClick={() => this.setState({editCategory: category})}
+                        size="sm"
+                        variant="secondary">
+                        {'Edit'}
+                    </Button>
                 </LeftRight>
-                <Collapse in={this.state.edit} unmountOnExit={true}>
-                    <div id="category-editor" className="mt-1">
-                        <CategoryEditor category={this.props.category} />
-                    </div>
-                </Collapse>
             </Card>
         );
     }
+    renderEditorModal() {
+        return (
+            <Modal
+                show={!!this.state.editCategory}
+                size="lg"
+                onHide={() => this.setState({editCategory: null})}>
+                <Modal.Header closeButton={true}>
+                    <Modal.Title>{'Category Editor'}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {this.state.editCategory
+                        ? <CategoryEditor
+                            category={this.state.editCategory}
+                            onSave={category => this.onSave(category)}
+                            onDelete={category => this.onDelete(category)}
+                        />
+                        : null}
+                </Modal.Body>
+            </Modal>
+        );
+    }
+    onSave(category) {
+        this.setState({editCategory: null});
+        window.api.send("category-update", category)
+            .then(_ => this.reload());
+    }
+    onDelete(category) {
+        this.setState({editCategory: null});
+        window.api.send("category-delete", category)
+            .then(_ => this.reload());
+    }
 }
 
-Category.propTypes = {
-    category: PropTypes.Custom.Category,
-};
-
-Category.defaultProps = {
-    category: {
-        id: 1,
-        name: 'Animal',
-        lsdKeys: [
-            {id: 2, name: 'Size', valueType: 'string'},
-            {id: 3, name: 'Legs', valueType: 'integer'},
-            {id: -10000, name: '', valueType: 'integer'},
-        ],
-    },
-};
-
-export {Category, CategoryCreator};
+export {CategoryList};
