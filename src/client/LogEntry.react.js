@@ -1,48 +1,12 @@
-import React from 'react';
-import PropTypes from './prop-types';
-import deepcopy from '../common/deepcopy';
-import LogKeyTypes from '../common/log_key_types';
-import LeftRight from './LeftRight.react';
-import {LogKeyTypeDropdown, LogKeyNameTypeahead} from './LogKey.react';
-
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
+import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import LeftRight from './LeftRight.react';
+import {LogValueListEditor} from './LogValue.react';
+import PropTypes from './prop-types';
+import React from 'react';
 
-class LogValueEditor extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {isLoading: false, options: []};
-    }
-    render() {
-        return (
-            <InputGroup className="mb-1" size="sm">
-                <InputGroup.Prepend>
-                    <LogKeyTypeDropdown
-                        logKey={this.props.logValue.logKey}
-                        onUpdate={logKey => this.updateLogKey(logKey)}
-                    />
-                </InputGroup.Prepend>
-                <LogKeyNameTypeahead
-                    logKey={this.props.logValue.logKey}
-                    onUpdate={logKey => this.updateLogKey(logKey)}
-                />
-            </InputGroup>
-        );
-    }
-    updateLogKey(logKey) {
-        let logValue = deepcopy(this.props.logValue);
-        logValue.logKey = logKey;
-        this.props.onUpdate(logValue);
-    }
-}
-
-LogValueEditor.propTypes = {
-    logValue: PropTypes.Custom.LogValue.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-}
+import deepcopy from '../common/deepcopy';
 
 class LogEntryEditor extends React.Component {
     constructor(props) {
@@ -54,16 +18,19 @@ class LogEntryEditor extends React.Component {
     createEmptyLogEntry() {
         return {
             title: '',
-            logCategory: null,
-            logValues: [this.createEmptyLogValue()],
+            logCategory: {
+                id: window.getNegativeID(),
+                name: '',
+            },
+            logValues: [],
         };
     }
     createEmptyLogValue() {
         return {
-            id: -1,
+            id: window.getNegativeID(),
             data: '',
             logKey: {
-                id: -1,
+                id: window.getNegativeID(),
                 name: '',
                 type: 'string',
             }
@@ -74,17 +41,24 @@ class LogEntryEditor extends React.Component {
             <div>
                 {this.getTitleRow()}
                 {this.getCategoryRow()}
-                {this.state.logEntry.logValues.map((logValue, index) =>
-                    <LogValueEditor
-                        key={logValue.id}
-                        logValue={logValue}
-                        onUpdate={logValue => {
-                            let logEntry = deepcopy(this.state.logEntry);
-                            logEntry.logValues[index] = logValue;
-                            this.setState({logEntry});
-                        }}
-                    />
-                )}
+                <LogValueListEditor
+                    logValues={this.state.logEntry.logValues}
+                    onUpdate={logValues => {
+                        let logEntry = {...this.state.logEntry};
+                        logEntry.logValues = logValues;
+                        this.setState({logEntry});
+                    }}
+                />
+                <Button
+                    onClick={() => {
+                        const logEntry = {...this.state.logEntry};
+                        logEntry.logValues = [...logEntry.logValues, this.createEmptyLogValue()],
+                        this.setState({logEntry});
+                    }}
+                    size="sm"
+                    variant="secondary">
+                    {'Add value?'}
+                </Button>
             </div>
         );
     }
@@ -119,8 +93,13 @@ class LogEntryEditor extends React.Component {
                 </InputGroup.Prepend>
                 <Form.Control
                     type="text"
-                    value={this.state.logEntry.title}
-                    onChange={event => this.onTitleUpdate(event.target.value)}
+                    value={this.state.logEntry.logCategory.name}
+                    onChange={event => {
+                        const value = event.target.value;
+                        this.updateLogEntry(logEntry => {
+                            logEntry.logCategory.name = value;
+                        });
+                    }}
                 />
             </InputGroup>
         );

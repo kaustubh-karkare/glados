@@ -12,12 +12,20 @@ function initCookies() {
   }, {});
 }
 
+function getNegativeID() {
+  if (typeof window.negativeID == "undefined") {
+    window.negativeID = 0;
+  }
+  return --window.negativeID;
+}
+
 window.main = function() {
   initCookies();
-  window.api = new SocketRPC(io('localhost:' + document.cookies.port));
+  window.api = new SocketRPC(io("localhost:" + document.cookies.port));
+  window.getNegativeID = getNegativeID;
 
   ReactDOM.render(
     <Application />,
-    document.getElementById('root')
+    document.getElementById("root")
   );
 };

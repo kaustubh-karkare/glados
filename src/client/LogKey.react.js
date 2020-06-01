@@ -1,4 +1,4 @@
-import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -7,7 +7,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import LogKeyTypes from '../common/log_key_types';
 import React from 'react';
 import PropTypes from './prop-types';
-import {SortableContainer, SortableElement, SortableHandle} from 'react-sortable-hoc';
+import {SortableDragHandle, SortableElement, SortableList} from './Sortable.react';
 
 import arrayMove from 'array-move';
 
@@ -94,18 +94,16 @@ LogKeyNameTypeahead.propTypes = {
     onUpdate: PropTypes.func.isRequired,
 };
 
-const DragHandle = SortableHandle(({children}) => <>{children}</>);
-
 class LogKeyEditor extends React.Component {
     render() {
         return (
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
-                    <DragHandle>
+                    <SortableDragHandle>
                         <InputGroup.Text style={{cursor: 'grab'}}>
                             {'⋮'}
                         </InputGroup.Text>
-                    </DragHandle>
+                    </SortableDragHandle>
                     <LogKeyTypeDropdown
                         logKey={this.props.logKey}
                         onUpdate={this.props.onUpdate}
@@ -142,8 +140,6 @@ LogKeyEditor.propTypes = {
 };
 
 const LogKeyEditorSortableItem = SortableElement(LogKeyEditor);
-
-const SortableList = SortableContainer(({children}) => <div>{children}</div>);
 
 class LogKeyListEditor extends React.Component {
     render() {

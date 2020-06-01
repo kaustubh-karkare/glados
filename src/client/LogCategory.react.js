@@ -19,7 +19,6 @@ class LogCategoryEditor extends React.Component {
         super(props);
         this.state = {
             category: props.category,
-            creationId: 0,
             showDeleteDialog: false,
         };
     }
@@ -126,14 +125,13 @@ class LogCategoryEditor extends React.Component {
     }
     createEmptyLogKey(state) {
         return {
-            id: state.creationId,
+            id: window.getNegativeID(),
             name: '',
             type: LogKeyTypes.STRING.value,
         }
     }
     onKeyCreate(index) {
         this.updateCategory((category, state) => {
-            state.creationId -= 1;
             if (typeof index == "undefined") {
                 index = category.logKeys.length;
             }
