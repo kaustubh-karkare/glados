@@ -29,20 +29,20 @@ const Actions = {
                 'Category', {id: input.id, name: input.name}, transaction
             );
             let lsdKeys = await Promise.all(
-                input.lsdKeys.map(async (lsdKey, index) => this.database.create_or_find(
+                input.lsdKeys.map(async (lsdKey, index) => {
+                    const logKey = await this.database.create_or_find(
                         'LSDKey',
                         {name: lsdKey.name},
                         {value_type: lsdKey.valueType},
                         transaction,
-                    )
-                )
+                    );
+                    return {
+                        id: logKey.id,
+                        name: logKey.name,
+                        valueType: logKey.value_type,
+                    };
+                })
             );
-            let map1 = {};
-            let map2 = {};
-            lsdKeys.forEach((lsdKey, index) => {
-                map1[lsdKey.id] = {ordering_index: index}
-                map2[lsdKey.id] = lsdKey;
-            });
             let edges = await this.database.set_edges(
                 'CategoryToLSDKey',
                 'category_id',
@@ -57,14 +57,7 @@ const Actions = {
             return {
                 id: category.id,
                 name: category.name,
-                lsdKeys: edges
-                    .sort((left, right) => left.ordering_index - right.ordering_index)
-                    .map(edge => map2[edge.lsd_key_id])
-                    .map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        valueType: item.value_type,
-                    }))
+                lsdKeys
             };
         });
     },
@@ -80,7 +73,67 @@ const Actions = {
             name: item.name,
             valueType: item.value_type,
         }));
-    }
+    },
+    "log-entry-update": async function(input) {
+        return await this.database.sequelize.transaction(async transaction => {
+            let fields = {id: input.category.id, name: input.category.name};
+            let category = await this.database.create_or_find('Category', fields, {}, transaction);
+            let keyEdges = await this.database.get_edges(
+                'CategoryToLSDKey',
+                'category_id',
+                category.id,
+                transaction,
+            );
+            fields = {id: input.id, title: input.title, category_id: category.id};
+            const log = await this.database.create_or_update('LogEntry', fields, transaction);
+            let lsdValues = await Promise.all(
+                input.lsdValues.map(async (lsdValue, index) => {
+                    const logKey = await this.database.create_or_find(
+                        'LSDKey',
+                        {name: lsdValue.key_name},
+                        {value_type: lsdValue.key_type},
+                        transaction,
+                    )
+                    assert(logKey.value_type == lsdValue.key_type, "Mismatched key type!");
+                    const logValue = await this.database.create_or_find(
+                        'LSDValue',
+                        {lsd_key_id: logKey.id, value_data: lsdValue.data},
+                        {},
+                        transaction,
+                    );
+                    return {
+                        id: logValue.id,
+                        key_id: logValue.lsd_key_id,
+                        key_name: logKey.name,
+                        key_type: logKey.value_type,
+                        data: logValue.value_data,
+                    };
+                })
+            );
+            let keyIDs = lsdValues.map(lsdValue => lsdValue.key_id);
+            assert(
+                keyEdges.every(edge => keyIDs.includes(edge.lsd_key_id)),
+                "Missing keys for selected category!",
+            );
+            let edges = await this.database.set_edges(
+                'LogEntryToLSDValue',
+                'log_entry_id',
+                log.id,
+                'lsd_value_id',
+                lsdValues.reduce((result, lsdValue, index) => {
+                    result[lsdValue.id] = {ordering_index: index};
+                    return result;
+                }, {}),
+                transaction,
+            );
+            return {
+                id: log.id,
+                title: log.title,
+                category: {id: log.category_id, name: category.name},
+                lsdValues,
+            };
+        });
+    },
 };
 
 export default Actions;

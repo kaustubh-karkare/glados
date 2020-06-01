@@ -1,3 +1,4 @@
+import assert from '../common/assert';
 const Sequelize = require('sequelize');
 
 function create_models(sequelize) {
@@ -79,13 +80,17 @@ function create_models(sequelize) {
 
     Category.belongsToMany(LSDKey, {
         through: CategoryToLSDKey,
-        // Allow category to be deleted with the edges.
+        foreignKey: 'category_id',
+        // Allow the edge to be deleted with the category.
         onDelete: 'cascade',
         onUpdate: 'restrict',
     });
 
     LSDKey.belongsToMany(Category, {
         through: CategoryToLSDKey,
+        foreignKey: 'lsd_key_id',
+        // Don't allow key to be deleted if there are
+        // categories that depend on it.
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -228,7 +233,6 @@ class Database {
 
     async create(name, fields, transaction) {
         const {id, ...remaining_fields} = fields;
-        // assert(id < 0);
         const Model = this.models[name];
         return await Model.create(
             remaining_fields,
@@ -245,11 +249,16 @@ class Database {
     }
 
     async create_or_update(name, fields, transaction) {
-        if (fields.id < 0) {
+        if (typeof fields.id == "undefined" || fields.id < 0) {
             return await this.create(name, fields, transaction);
         } else {
             return await this.update(name, fields, transaction);
         }
+    }
+
+    async find(name, where, transaction) {
+        const Model = this.models[name];
+        return await Model.findOne({where, transaction});
     }
 
     async create_or_find(name, where, update_fields, transaction) {
@@ -269,8 +278,16 @@ class Database {
         return await instance.destroy({transaction});
     }
 
-    async set_edges(name, left_name, left_id, right_name, right, transaction) {
-        const Model = this.models[name];
+    async get_edges(edge_name, left_name, left_id, transaction) {
+        const Model = this.models[edge_name];
+        const edges = await Model.findAll({
+            where: {[left_name]: left_id},
+        });
+        return edges;
+    }
+
+    async set_edges(edge_name, left_name, left_id, right_name, right, transaction) {
+        const Model = this.models[edge_name];
         const existing_edges = await Model.findAll({where: {[left_name]: left_id}});
         const existing_ids = existing_edges.map(edge => edge[right_name].toString());
         // Why specify fields? https://github.com/sequelize/sequelize/issues/11417

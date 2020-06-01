@@ -22,7 +22,7 @@ async function invoke(name, ...args) {
     return await Actions[name].call({database}, ...args);
 }
 
-test("category_update", async () => {
+if(0) test("category_update", async () => {
     let cat1 = await invoke("category-update", {
         id: -1,
         name: "Animals",
@@ -87,36 +87,25 @@ test("category_update", async () => {
     await database.delete('LSDKey', {id: 2});
 });
 
-if(0) test("basic_operations", async () => {
-    const models = actions.database.models;
-
-    const key1 = await actions.genCreateLSDKey({name: 'Size', value_type: 'string'});
-    const key2 = await actions.genCreateLSDKey({name: 'Legs', value_type: 'integer'});
-    const category = await actions.genCreateCategory({name: 'Animal'});
-    await actions.genSetCategoryKeys({category_id: category.id, lsd_key_ids: [key1.id, key2.id]});
-    await expect(() => key1.destroy()).rejects.toThrow(); // SequelizeForeignKeyConstraintError
-    await expect(() => category.destroy()).rejects.toThrow(); // SequelizeForeignKeyConstraintError
-
-    const log1 = await actions.genCreateLogEntry({
-        title: 'Cat',
-        details: 'Meow!',
-        category_id: category.id,
-        lsd_values: [
-            {lsd_key_id: key1.id, value_data: 'small'},
-            {lsd_key_id: key2.id, value_data: '4'},
+test("test_log_entry", async () => {
+    const cat1 = await invoke("category-update", {
+        id: -1,
+        name: "Animals",
+        lsdKeys: [
+            {id: -1, name: "Size", valueType: "string"},
+            {id: -2, name: "Legs", valueType: "integer"},
         ],
     });
-    const log2 = await actions.genCreateLogEntry({
-        title: 'Dog',
-        details: 'Bark!',
-        category_id: category.id,
-        lsd_values: [
-            {lsd_key_id: key1.id, value_data: 'medium'},
-            {lsd_key_id: key2.id, value_data: '4'},
+    const log1 = await invoke("log-entry-update", {
+        id: -1,
+        title: "Cat",
+        category: {
+            id: cat1.id,
+            name: cat1.name,
+        },
+        lsdValues: [
+            {key_name: "Size", key_type: "string", data: "small"},
+            {key_name: "Legs", key_type: "integer", data: "4"},
         ],
     });
-    expect((await models.LogEntryToLSDValue.findAll()).length).toEqual(4);
-    await log1.destroy();
-    expect((await models.LogEntryToLSDValue.findAll()).length).toEqual(2);
-    expect((await models.LSDValue.findAll()).length).toEqual(3);
 });
