@@ -314,7 +314,7 @@ class CategoryList extends React.Component {
         }
         return (
             <div>
-                <LeftRight>
+                <LeftRight className="mt-2">
                     <span />
                     <Button
                         onClick={() => this.setState({editCategory: this.createEmptyCategory()})}
