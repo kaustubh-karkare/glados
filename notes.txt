@@ -5,9 +5,9 @@
 * Install DbVisualizer (needs JVM).
 
 
-DROP TABLE IF EXISTS `productivity_test`.`log_entries_to_lsd_values`;
-DROP TABLE IF EXISTS `productivity_test`.`categories_to_lsd_keys`;
+DROP TABLE IF EXISTS `productivity_test`.`log_entries_to_log_values`;
+DROP TABLE IF EXISTS `productivity_test`.`log_categories_to_log_keys`;
 DROP TABLE IF EXISTS `productivity_test`.`log_entries`;
-DROP TABLE IF EXISTS `productivity_test`.`categories`;
-DROP TABLE IF EXISTS `productivity_test`.`lsd_values`;
-DROP TABLE IF EXISTS `productivity_test`.`lsd_keys`;
+DROP TABLE IF EXISTS `productivity_test`.`log_categories`;
+DROP TABLE IF EXISTS `productivity_test`.`log_values`;
+DROP TABLE IF EXISTS `productivity_test`.`log_keys`;

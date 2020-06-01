@@ -7,8 +7,8 @@ function create_models(sequelize) {
         underscored: true,
     };
 
-    const Category = sequelize.define(
-        'categories',
+    const LogCategory = sequelize.define(
+        'log_categories',
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -28,8 +28,8 @@ function create_models(sequelize) {
         },
     );
 
-    const LSDKey = sequelize.define(
-        'lsd_keys',
+    const LogKey = sequelize.define(
+        'log_keys',
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -40,7 +40,7 @@ function create_models(sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            value_type: {
+            type: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
@@ -53,20 +53,20 @@ function create_models(sequelize) {
         },
     );
 
-    const CategoryToLSDKey = sequelize.define(
-        'categories_to_lsd_keys',
+    const LogCategoryToLogKey = sequelize.define(
+        'log_categories_to_log_keys',
         {
             category_id: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: Category,
+                    model: LogCategory,
                     key: 'id',
                 },
             },
-            lsd_key_id: {
+            key_id: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: LSDKey,
+                    model: LogKey,
                     key: 'id',
                 },
             },
@@ -78,36 +78,36 @@ function create_models(sequelize) {
         options,
     );
 
-    Category.belongsToMany(LSDKey, {
-        through: CategoryToLSDKey,
+    LogCategory.belongsToMany(LogKey, {
+        through: LogCategoryToLogKey,
         foreignKey: 'category_id',
         // Allow the edge to be deleted with the category.
         onDelete: 'cascade',
-        onUpdate: 'restrict',
+        onUpdate: 'cascade',
     });
 
-    LSDKey.belongsToMany(Category, {
-        through: CategoryToLSDKey,
-        foreignKey: 'lsd_key_id',
+    LogKey.belongsToMany(LogCategory, {
+        through: LogCategoryToLogKey,
+        foreignKey: 'key_id',
         // Don't allow key to be deleted if there are
         // categories that depend on it.
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    const LSDValue = sequelize.define(
-        'lsd_values',
+    const LogValue = sequelize.define(
+        'log_values',
         {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
                 primaryKey: true
             },
-            lsd_key_id: {
+            key_id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            value_data: {
+            data: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
@@ -115,13 +115,13 @@ function create_models(sequelize) {
         {
             ...options,
             indexes: [
-                {unique: true, fields: ['lsd_key_id', 'value_data']},
+                {unique: true, fields: ['key_id', 'data']},
             ],
         }
     );
 
-    LSDKey.hasMany(LSDValue, {
-        foreignKey: 'lsd_key_id',
+    LogKey.hasMany(LogValue, {
+        foreignKey: 'key_id',
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -151,27 +151,27 @@ function create_models(sequelize) {
         options,
     );
 
-    Category.hasMany(LogEntry, {
+    LogCategory.hasMany(LogEntry, {
         foreignKey: 'category_id',
         allowNull: true,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    const LogEntryToLSDValue = sequelize.define(
-        'log_entries_to_lsd_values',
+    const LogEntryToLogValue = sequelize.define(
+        'log_entries_to_log_values',
         {
-            log_entry_id: {
+            entry_id: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: LogEntry,
                     key: 'id',
                 },
             },
-            lsd_value_id: {
+            value_id: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: LSDValue,
+                    model: LogValue,
                     key: 'id',
                 },
             },
@@ -183,21 +183,23 @@ function create_models(sequelize) {
         options,
     );
 
-    LogEntry.belongsToMany(LSDValue, {
-        through: LogEntryToLSDValue,
-        // Deleteing a LogEntry is allowed!
-        // The links will be broken, and the LSDValues could be cleaned up.
+    LogEntry.belongsToMany(LogValue, {
+        through: LogEntryToLogValue,
+        foreignKey: 'entry_id',
+        // Deleteing an Entry is allowed!
+        // The links will be broken, and the Values could be cleaned up.
         onDelete: 'cascade',
         onUpdate: 'cascade',
     });
 
-    LSDValue.belongsToMany(LogEntry, {
-        through: LogEntryToLSDValue,
+    LogValue.belongsToMany(LogEntry, {
+        through: LogEntryToLogValue,
+        foreignKey: 'value_id',
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    return {Category, LSDKey, CategoryToLSDKey, LSDValue, LogEntry, LogEntryToLSDValue};
+    return {LogCategory, LogKey, LogCategoryToLogKey, LogValue, LogEntry, LogEntryToLogValue};
 }
 
 class Database {

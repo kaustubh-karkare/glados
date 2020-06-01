@@ -22,90 +22,74 @@ async function invoke(name, ...args) {
     return await Actions[name].call({database}, ...args);
 }
 
-if(0) test("category_update", async () => {
-    let cat1 = await invoke("category-update", {
+test("test_categories", async () => {
+    let cat1 = await invoke("category-upsert", {
         id: -1,
         name: "Animals",
-        lsdKeys: [
-            {id: -1, name: "Size", valueType: "string"},
-            {id: -2, name: "Legs", valueType: "integer"},
+        logKeys: [
+            {id: -1, name: "Size", type: "string"},
+            {id: -2, name: "Legs", type: "integer"},
         ],
     });
-    let cat2 = await invoke("category-update", {
+    let cat2 = await invoke("category-upsert", {
         id: -1,
         name: "Vehicles",
-        lsdKeys: [
-            {id: -2, name: "Medium", valueType: "string"},
-            {id: -1, name: "Size", valueType: "string"},
+        logKeys: [
+            {id: -2, name: "Medium", type: "string"},
+            {id: -1, name: "Size", type: "string"},
         ],
     });
     expect(await invoke("category-list")).toEqual([
         {
             "id": 1,
             "name": "Animals",
-            "lsdKeys": [
-                {
-                    "id": 1,
-                    "name": "Size",
-                    "valueType": "string"
-                },
-                {
-                    "id": 2,
-                    "name": "Legs",
-                    "valueType": "integer"
-                }
+            "logKeys": [
+                {"id": 1, "name": "Size", "type": "string"},
+                {"id": 2, "name": "Legs", "type": "integer"},
             ]
         },
         {
             "id": 2,
             "name": "Vehicles",
-            "lsdKeys": [
-                {
-                    "id": 3,
-                    "name": "Medium",
-                    "valueType": "string"
-                },
-                {
-                    "id": 1,
-                    "name": "Size",
-                    "valueType": "string"
-                }
+            "logKeys": [
+                {"id": 3, "name": "Medium", "type": "string"},
+                {"id": 1, "name": "Size", "type": "string"},
             ]
         }
     ]);
 
     cat2.name = "Machines";
-    cat2.lsdKeys = [{id: -1, name: "Size", valueType: "integer"}];
-    cat2 = await invoke("category-update", cat2);
+    cat2.logKeys = [{id: -1, name: "Size", type: "integer"}];
+    cat2 = await invoke("category-upsert", cat2);
     expect(cat2.name).toEqual("Machines"); // updated
-    expect(cat2.lsdKeys[0].id).toEqual(1); // updated
-    expect(cat2.lsdKeys[0].valueType).toEqual("string"); // unchanged
+    expect(cat2.logKeys[0].id).toEqual(1); // updated
+    expect(cat2.logKeys[0].type).toEqual("string"); // unchanged
 
     // SequelizeForeignKeyConstraintError
-    expect(() => database.delete('LSDKey', {id: 2})).rejects.toThrow();
+    expect(() => database.delete('LogKey', {id: 2})).rejects.toThrow();
     await invoke("category-delete", cat1);
-    await database.delete('LSDKey', {id: 2});
+    await database.delete('LogKey', {id: 2});
 });
 
-test("test_log_entry", async () => {
-    const cat1 = await invoke("category-update", {
+test("test_entries", async () => {
+    const cat1 = await invoke("category-upsert", {
         id: -1,
         name: "Animals",
-        lsdKeys: [
-            {id: -1, name: "Size", valueType: "string"},
-            {id: -2, name: "Legs", valueType: "integer"},
+        logKeys: [
+            {id: -1, name: "Size", type: "string"},
+            {id: -2, name: "Legs", type: "integer"},
         ],
     });
-    const log1 = await invoke("log-entry-update", {
+    const entry1 = await invoke("entry-upsert", {
         id: -1,
         title: "Cat",
-        category: {
+        logCategory: {
             id: cat1.id,
             name: cat1.name,
         },
-        lsdValues: [
-            {key_name: "Size", key_type: "string", data: "small"},
-            {key_name: "Legs", key_type: "integer", data: "4"},
+        logValues: [
+            {keyName: "Size", keyType: "string", data: "small"},
+            {keyName: "Legs", keyType: "integer", data: "4"},
         ],
     });
 });
