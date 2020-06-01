@@ -1,5 +1,5 @@
 import React from 'react';
-import {CategoryList} from './Category.react';
+import {LogCategoryList} from './LogCategoryList.react';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -33,7 +33,7 @@ class Applicaton extends React.Component {
                                 {'Log Entries'}
                             </Tab>
                             <Tab eventKey={TabKeys.CATEGORIES} title="Categories">
-                                <CategoryList />
+                                <LogCategoryList />
                             </Tab>
                             <Tab eventKey={TabKeys.LSD_KEYS} title="Keys">
                                 {'LSD Keys'}

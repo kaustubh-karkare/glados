@@ -1,7 +1,7 @@
 import assert from '../common/assert';
 
 const Actions = {
-    "category-list": async function() {
+    "log-category-list": async function() {
         return await this.database.sequelize.transaction(async transaction => {
             const {LogCategory, LogKey} = this.database.models;
             const categories = await LogCategory.findAll({
@@ -21,7 +21,7 @@ const Actions = {
             }));
         });
     },
-    "category-upsert": async function(input) {
+    "log-category-upsert": async function(input) {
         return await this.database.sequelize.transaction(async transaction => {
             let logCategory = await this.database.create_or_update(
                 'LogCategory', {id: input.id, name: input.name}, transaction
@@ -59,13 +59,13 @@ const Actions = {
             };
         });
     },
-    "category-delete": async function(input) {
+    "log-category-delete": async function(input) {
         return await this.database.sequelize.transaction(async transaction => {
             const logCategory = await this.database.delete('LogCategory', input, transaction);
             return {id: logCategory.id};
         });
     },
-    "key-typeahead": async function(input) {
+    "log-key-typeahead": async function(input) {
         const logKeys = await this.database.get_all('LogKey');
         return logKeys.map(logKey => ({
             id: logKey.id,
@@ -73,7 +73,7 @@ const Actions = {
             type: logKey.type,
         }));
     },
-    "entry-upsert": async function(input) {
+    "log-entry-upsert": async function(input) {
         return await this.database.sequelize.transaction(async transaction => {
             let fields = {id: input.logCategory.id, name: input.logCategory.name};
             let logCategory = await this.database.create_or_find('LogCategory', fields, {}, transaction);

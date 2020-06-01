@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from './prop-types';
-import LSDValueTypes from '../common/lsd_value_types';
+import LogKeyTypes from '../common/log_key_types';
 import assert from '../common/assert';
 import deepcopy from '../common/deepcopy';
 import range from '../common/range';
@@ -24,7 +24,7 @@ import Modal from 'react-bootstrap/Modal';
 
 const DragHandle = SortableHandle(({children}) => <>{children}</>);
 
-class LSDKeyEditor extends React.Component {
+class LogKeyEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {isLoading: false, options: []};
@@ -41,15 +41,15 @@ class LSDKeyEditor extends React.Component {
                     <DropdownButton
                         as={ButtonGroup}
                         className=""
-                        disabled={this.props.lsdKey.id > 0}
+                        disabled={this.props.logKey.id > 0}
                         onSelect={() => null}
                         size="sm"
-                        title={this.props.lsdKey.valueType}
+                        title={this.props.logKey.type}
                         variant="secondary">
-                        {Object.values(LSDValueTypes).map(item =>
+                        {Object.values(LogKeyTypes).map(item =>
                             <Dropdown.Item
                                 key={item.value}
-                                onMouseDown={() => this.onUpdate('valueType', item.value)}>
+                                onMouseDown={() => this.onUpdate('type', item.value)}>
                                 {item.label}
                             </Dropdown.Item>
                         )}
@@ -61,16 +61,16 @@ class LSDKeyEditor extends React.Component {
                     labelKey="name"
                     size="small"
                     minLength={1}
-                    disabled={this.props.lsdKey.id > 0}
+                    disabled={this.props.logKey.id > 0}
                     onSearch={query => {
                         this.setState({isLoading: true}, () => {
-                            window.api.send("lsd-key-typeahead")
+                            window.api.send("log-key-typeahead")
                                 .then(options => this.setState({isLoading: false, options}));
                         });
                     }}
                     filterBy={this.props.filterBy}
                     placeholder='Key Name'
-                    selected={[this.props.lsdKey.name]}
+                    selected={[this.props.logKey.name]}
                     onInputChange={value => this.onUpdate('name', value)}
                     onChange={selected => {
                         if (selected.length) {
@@ -93,27 +93,27 @@ class LSDKeyEditor extends React.Component {
         );
     }
     onUpdate(name, value) {
-        const lsdKey = {...this.props.lsdKey};
-        lsdKey[name] = value;
-        this.props.onUpdate(lsdKey);
+        const logKey = {...this.props.logKey};
+        logKey[name] = value;
+        this.props.onUpdate(logKey);
     }
 }
 
-LSDKeyEditor.propTypes = {
+LogKeyEditor.propTypes = {
     total: PropTypes.number.isRequired,
-    lsdKey: PropTypes.Custom.LSDKey.isRequired,
+    logKey: PropTypes.Custom.LogKey.isRequired,
     filterBy: PropTypes.func.isRequired,
     onUpdate: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
-const LSDKeyEditorSortableItem = SortableElement(LSDKeyEditor);
+const LogKeyEditorSortableItem = SortableElement(LogKeyEditor);
 
 const SortableList = SortableContainer(({children}) => {
   return <div>{children}</div>;
 });
 
-class CategoryEditor extends React.Component {
+class LogCategoryEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -146,12 +146,12 @@ class CategoryEditor extends React.Component {
                 <SortableList
                     useDragHandle={true}
                     onSortEnd={this.onKeyReorder.bind(this)}>
-                    {this.state.category.lsdKeys.map((lsdKey, index, list) =>
-                        <LSDKeyEditorSortableItem
-                            key={lsdKey.id}
+                    {this.state.category.logKeys.map((logKey, index, list) =>
+                        <LogKeyEditorSortableItem
+                            key={logKey.id}
                             index={index}
                             total={list.length}
-                            lsdKey={lsdKey}
+                            logKey={logKey}
                             filterBy={this.filterBy.bind(this, index)}
                             onUpdate={this.onKeyUpdate.bind(this, index)}
                             onDelete={this.onKeyDelete.bind(this, index)}
@@ -230,26 +230,28 @@ class CategoryEditor extends React.Component {
         });
     }
     filterBy(index, option) {
-        const lsdKey = this.state.category.lsdKeys[index];
+        const logKey = this.state.category.logKeys[index];
         return (
-            this.state.category.lsdKeys
+            this.state.category.logKeys
                 .filter((_, itemIndex) => (index != itemIndex))
-                .every(lsdKey => option.id != lsdKey.id) &&
-            option.name.includes(lsdKey.name)
+                .every(logKey => option.id != logKey.id) &&
+            option.name.includes(logKey.name)
         );
+    }
+    createEmptyLogKey(state) {
+        return {
+            id: state.creationId,
+            name: '',
+            type: LogKeyTypes.STRING.value,
+        }
     }
     onKeyCreate(index) {
         this.updateCategory((category, state) => {
             state.creationId -= 1;
-            const newItem = {
-                id: state.creationId,
-                name: '',
-                valueType: LSDValueTypes.STRING.value,
-            };
             if (typeof index == "undefined") {
-                index = category.lsdKeys.length;
+                index = category.logKeys.length;
             }
-            category.lsdKeys[index] = newItem;
+            category.logKeys[index] = this.createEmptyLogKey(state);
         });
     }
     onKeyUpdate(index, data) {
@@ -258,17 +260,17 @@ class CategoryEditor extends React.Component {
             return;
         }
         this.updateCategory(category => {
-            category.lsdKeys[index] = data;
+            category.logKeys[index] = data;
         });
     }
     onKeyDelete(index) {
         this.updateCategory(category => {
-            category.lsdKeys.splice(index, 1);
+            category.logKeys.splice(index, 1);
         });
     }
     onKeyReorder({oldIndex, newIndex}) {
         this.updateCategory(category => {
-            category.lsdKeys = arrayMove(category.lsdKeys, oldIndex, newIndex);
+            category.logKeys = arrayMove(category.logKeys, oldIndex, newIndex);
         });
     }
     updateCategory(method) {
@@ -280,32 +282,32 @@ class CategoryEditor extends React.Component {
     }
 }
 
-CategoryEditor.propTypes = {
-    category: PropTypes.Custom.Category.isRequired,
+LogCategoryEditor.propTypes = {
+    category: PropTypes.Custom.LogCategory.isRequired,
     onSave: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
-class CategoryList extends React.Component {
+class LogCategoryList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            newCategory: this.createEmptyCategory(),
+            newCategory: this.createEmptyLogCategory(),
             editCategory: null,
         };
     }
-    createEmptyCategory() {
+    createEmptyLogCategory() {
         return {
             id: -1,
             name: '',
-            lsdKeys: [],
+            logKeys: [],
         };
     }
     componentDidMount() {
         this.reload();
     }
     reload() {
-        window.api.send("category-list")
+        window.api.send("log-category-list")
             .then(categories => this.setState({categories}));
     }
     render() {
@@ -317,7 +319,7 @@ class CategoryList extends React.Component {
                 <LeftRight className="mt-2">
                     <span />
                     <Button
-                        onClick={() => this.setState({editCategory: this.createEmptyCategory()})}
+                        onClick={() => this.setState({editCategory: this.createEmptyLogCategory()})}
                         size="sm"
                         variant="secondary">
                         Create
@@ -334,14 +336,14 @@ class CategoryList extends React.Component {
                 <LeftRight>
                     <div>
                         <b>{category.name}</b>
-                        {category.lsdKeys.map(lsdKey =>
+                        {category.logKeys.map(logKey =>
                             <Button
                                 className="ml-2"
                                 disabled={true}
-                                key={lsdKey.id}
+                                key={logKey.id}
                                 size="sm"
                                 variant="secondary">
-                                {lsdKey.name}
+                                {logKey.name}
                             </Button>
                         )}
                     </div>
@@ -366,7 +368,7 @@ class CategoryList extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     {this.state.editCategory
-                        ? <CategoryEditor
+                        ? <LogCategoryEditor
                             category={this.state.editCategory}
                             onSave={category => this.onSave(category)}
                             onDelete={category => this.onDelete(category)}
@@ -378,14 +380,14 @@ class CategoryList extends React.Component {
     }
     onSave(category) {
         this.setState({editCategory: null});
-        window.api.send("category-update", category)
+        window.api.send("log-category-upsert", category)
             .then(_ => this.reload());
     }
     onDelete(category) {
         this.setState({editCategory: null});
-        window.api.send("category-delete", category)
+        window.api.send("log-category-delete", category)
             .then(_ => this.reload());
     }
 }
 
-export {CategoryList};
+export {LogCategoryList};

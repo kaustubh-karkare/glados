@@ -1,5 +1,5 @@
 
-const LSDValueTypes = {
+const LogKeyTypes = {
     STRING: {
         label: 'String',
         value: 'string',
@@ -12,4 +12,4 @@ const LSDValueTypes = {
     }
 };
 
-export default LSDValueTypes;
+export default LogKeyTypes;

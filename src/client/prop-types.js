@@ -1,21 +1,21 @@
 import PropTypes from 'prop-types';
-import LSDValueTypes from '../common/lsd_value_types';
+import LogKeyTypes from '../common/log_key_types';
 
-const LSDValueType = PropTypes.oneOf(
-    Object.values(LSDValueTypes).map(item => item.value)
+const LogKeyType = PropTypes.oneOf(
+    Object.values(LogKeyTypes).map(item => item.value)
 );
 
-const LSDKey = PropTypes.shape({
+const LogKey = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    valueType: LSDValueType.isRequired,
+    type: LogKeyType.isRequired,
 });
 
-const Category = PropTypes.shape({
+const LogCategory = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    lsdKeys: PropTypes.arrayOf(LSDKey.isRequired),
+    logKeys: PropTypes.arrayOf(LogKey.isRequired),
 });
 
-PropTypes.Custom = {LSDValueType, LSDKey, Category};
+PropTypes.Custom = {LogKeyType, LogKey, LogCategory};
 export default PropTypes;
