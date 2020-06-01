@@ -11,7 +11,7 @@ beforeAll(async () => {
         "password": "productivity_test",
         "name": "productivity_test"
     };
-    const database = await Database.init(config)
+    const database = await Database.init(config);
     actions = new Actions(database);
 });
 
@@ -19,7 +19,67 @@ afterAll(async () => {
     await actions.database.close();
 });
 
-test("basic_operations", async () => {
+test("category_update", async () => {
+    let cat1 = await actions.createOrUpdateCategory({
+        id: -1,
+        name: "Animals",
+        lsdKeys: [
+            {id: -1, name: "Size", valueType: "string"},
+            {id: -2, name: "Legs", valueType: "integer"},
+        ],
+    });
+    let cat2 = await actions.createOrUpdateCategory({
+        id: -1,
+        name: "Vehicles",
+        lsdKeys: [
+            {id: -2, name: "Medium", valueType: "string"},
+            {id: -1, name: "Size", valueType: "string"},
+        ],
+    });
+    expect(await actions.getCategories()).toEqual([
+        {
+            "id": 1,
+            "name": "Animals",
+            "lsdKeys": [
+                {
+                    "id": 1,
+                    "name": "Size",
+                    "valueType": "string"
+                },
+                {
+                    "id": 2,
+                    "name": "Legs",
+                    "valueType": "integer"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Vehicles",
+            "lsdKeys": [
+                {
+                    "id": 3,
+                    "name": "Medium",
+                    "valueType": "string"
+                },
+                {
+                    "id": 1,
+                    "name": "Size",
+                    "valueType": "string"
+                }
+            ]
+        }
+    ]);
+
+    cat2.name = "Fish";
+    cat2.lsdKeys = [{id: -1, name: "Size", valueType: "integer"}];
+    cat2 = await actions.createOrUpdateCategory(cat2);
+    expect(cat2.name).toEqual("Fish"); // updated
+    expect(cat2.lsdKeys[0].id).toEqual(1); // updated
+    expect(cat2.lsdKeys[0].valueType).toEqual("string"); // unchanged
+});
+
+if(0) test("basic_operations", async () => {
     const models = actions.database.models;
 
     const key1 = await actions.genCreateLSDKey({name: 'Size', value_type: 'string'});

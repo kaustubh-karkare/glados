@@ -19,7 +19,12 @@ function create_models(sequelize) {
                 allowNull: false,
             },
         },
-        options,
+        {
+            ...options,
+            indexes: [
+                {unique: true, fields: ['name']},
+            ],
+        },
     );
 
     const LSDKey = sequelize.define(
@@ -39,7 +44,12 @@ function create_models(sequelize) {
                 allowNull: false,
             },
         },
-        options,
+        {
+            ...options,
+            indexes: [
+                {unique: true, fields: ['name']},
+            ],
+        },
     );
 
     const CategoryToLSDKey = sequelize.define(
@@ -69,7 +79,8 @@ function create_models(sequelize) {
 
     Category.belongsToMany(LSDKey, {
         through: CategoryToLSDKey,
-        onDelete: 'restrict',
+        // Allow category to be deleted with the edges.
+        onDelete: 'cascade',
         onUpdate: 'restrict',
     });
 
@@ -181,14 +192,15 @@ function create_models(sequelize) {
         onUpdate: 'restrict',
     });
 
-    const Models = {Category, LSDKey, CategoryToLSDKey, LSDValue, LogEntry, LogEntryToLSDValue};
-    Object.keys(Models).forEach(name => {
-        Models[name].gen = (id) => Models[name].findByPk(id);
-    });
-    return Models;
+    return {Category, LSDKey, CategoryToLSDKey, LSDValue, LogEntry, LogEntryToLSDValue};
 }
 
 class Database {
+    static async init(config) {
+        const instance = new Database(config);
+        return instance.sequelize.sync({force: false}).then(_ => instance);
+    }
+
     constructor(config) {
         const options = {
             logging: false
@@ -213,9 +225,87 @@ class Database {
     async close() {
         await this.sequelize.close();
     }
-    static async init(config) {
-        const instance = new Database(config);
-        return instance.sequelize.sync({force: true}).then(_ => instance);
+
+    async create(name, fields, transaction) {
+        const {id, ...remaining_fields} = fields;
+        // assert(id < 0);
+        const Model = this.models[name];
+        return await Model.create(
+            remaining_fields,
+            // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
+            {fields: Object.keys(remaining_fields), transaction},
+        );
+    }
+
+    async update(name, fields, transaction) {
+        const {id, ...remaining_fields} = fields;
+        const Model = this.models[name];
+        let instance = await Model.findByPk(id, {transaction});
+        return await instance.update(remaining_fields, {transaction});
+    }
+
+    async create_or_update(name, fields, transaction) {
+        if (fields.id < 0) {
+            return await this.create(name, fields, transaction);
+        } else {
+            return await this.update(name, fields, transaction);
+        }
+    }
+
+    async create_or_find(name, where, update_fields, transaction) {
+        const Model = this.models[name];
+        let instance = await Model.findOne({where, transaction});
+        if (!instance) {
+            return await this.create(name, {...where, ...update_fields}, transaction);
+        } else {
+            return instance;
+        }
+    }
+
+    async delete(name, fields, transaction) {
+        const Model = this.models[name];
+        const {id} = fields;
+        let instance = await Model.findByPk(id);
+        return await instance.destroy({transaction});
+    }
+
+    async set_edges(name, left_name, left_id, right_name, right, transaction) {
+        const Model = this.models[name];
+        const existing_edges = await Model.findAll({where: {[left_name]: left_id}});
+        const existing_ids = existing_edges.map(edge => edge[right_name].toString());
+        // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
+        const fields = [
+            left_name,
+            right_name,
+            ...Object.keys(Object.values(right)[0] || {}),
+        ];
+        const [created_edges, updated_edges, deleted_edges] = await Promise.all([
+            Promise.all(
+                Object.keys(right)
+                    .filter(right_id => !existing_ids.includes(right_id))
+                    .map(right_id => Model.create({
+                        [left_name]: left_id,
+                        [right_name]: right_id,
+                        ...right[right_id],
+                    }, {fields, transaction}))
+            ),
+            Promise.all(
+                existing_edges
+                    .filter(edge => edge[right_name] in right)
+                    .map(edge => edge.update(right[edge[right_name]], {transaction}))
+            ),
+            Promise.all(
+                existing_edges
+                    .filter(edge => !(edge[right_name] in right))
+                    .map(edge => edge.destroy({transaction}))
+            )
+        ]);
+        return [...created_edges, ...updated_edges];
+    }
+
+    async get_all(name, transaction) {
+        const Model = this.models[name];
+        return await Model.findAll({transaction});
     }
 }
 

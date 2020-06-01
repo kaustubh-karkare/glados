@@ -33,10 +33,12 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-require('./src/server/index.js')(io, appConfig);
-app.get('/', (req, res) => {
-  res.cookie('port', appConfig.port);
-  res.sendFile('index.html', {root: 'dist'});
-});
-app.use(express.static('dist'));
-server.listen(appConfig.port);
+require('./src/server/index.js')(io, appConfig)
+  .then(() => {
+    app.get('/', (req, res) => {
+      res.cookie('port', appConfig.port);
+      res.sendFile('index.html', {root: 'dist'});
+    });
+    app.use(express.static('dist'));
+    server.listen(appConfig.port);
+  });

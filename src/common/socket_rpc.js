@@ -6,7 +6,6 @@ const responseSuffix = "-response-";
 class SocketRPC {
     constructor(socket) {
         this.socket = socket;
-        this.context = {};
         this.counter = 0;
     }
     send(name, request) {
@@ -23,7 +22,7 @@ class SocketRPC {
         });
     }
     register(name, callback) {
-        this.socket.on(name + requestSuffix, (wrapper) => {
+        this.socket.on(name + requestSuffix, async (wrapper) => {
             const {counter, request} = wrapper;
             const responseName = name + responseSuffix + counter;
             let complete = false;
@@ -36,9 +35,10 @@ class SocketRPC {
                 this.socket.emit(responseName, {error});
             };
             try {
-                callback.call(this, request, resolve, reject);
+                const result = await callback(request);
+                resolve(result);
             } catch (error) {
-                reject(error);
+                reject(JSON.stringify(request, null, 4) + "\n\n" + error.stack.toString());
             }
         });
     }
