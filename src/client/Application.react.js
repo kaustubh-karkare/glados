@@ -1,5 +1,6 @@
 import React from 'react';
-import {LogCategoryList} from './LogCategoryList.react';
+import LogCategoryList from './LogCategoryList.react';
+import LogEntryList from './LogEntryList.react';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -16,7 +17,7 @@ const TabKeys = {
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {activeTab: TabKeys.CATEGORIES};
+        this.state = {activeTab: TabKeys.LOG_ENTRIES};
     }
     render() {
         return (
@@ -30,7 +31,7 @@ class Applicaton extends React.Component {
                             activeKey={this.state.activeTab}
                             onSelect={activeTab => this.setState({activeTab})}>
                             <Tab eventKey={TabKeys.LOG_ENTRIES} title="Entries">
-                                {'Log Entries'}
+                                <LogEntryList />
                             </Tab>
                             <Tab eventKey={TabKeys.CATEGORIES} title="Categories">
                                 <LogCategoryList />

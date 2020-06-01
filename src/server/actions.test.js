@@ -88,8 +88,8 @@ test("test_entries", async () => {
             name: cat1.name,
         },
         logValues: [
-            {keyName: "Size", keyType: "string", data: "small"},
-            {keyName: "Legs", keyType: "integer", data: "4"},
+            {logKey: {name: "Size", type: "string"}, data: "small"},
+            {logKey: {name: "Legs", type: "integer"}, data: "4"},
         ],
     });
 });

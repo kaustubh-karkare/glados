@@ -102,9 +102,11 @@ const Actions = {
                     );
                     return {
                         id: logValue.id,
-                        keyId: logValue.key_id,
-                        keyName: logKey.name,
-                        keyType: logKey.type,
+                        logKey: {
+                            id: logKey.id,
+                            name: logKey.name,
+                            type: logKey.type,
+                        },
                         data: logValue.data,
                     };
                 })

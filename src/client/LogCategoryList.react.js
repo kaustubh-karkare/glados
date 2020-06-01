@@ -57,10 +57,10 @@ class LogKeyEditor extends React.Component {
                 </InputGroup.Prepend>
                 <AsyncTypeahead
                     {...this.state}
-                    id="key_name"
+                    id="log_key"
                     labelKey="name"
                     size="small"
-                    minLength={1}
+                    minLength={0}
                     disabled={this.props.logKey.id > 0}
                     onSearch={query => {
                         this.setState({isLoading: true}, () => {
@@ -390,4 +390,4 @@ class LogCategoryList extends React.Component {
     }
 }
 
-export {LogCategoryList};
+export default LogCategoryList;
