@@ -3,8 +3,7 @@ import PropTypes from './prop-types';
 import deepcopy from '../common/deepcopy';
 import LogKeyTypes from '../common/log_key_types';
 import LeftRight from './LeftRight.react';
-
-import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+import {LogKeyTypeDropdown, LogKeyNameTypeahead} from './LogKey.react';
 
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -21,68 +20,16 @@ class LogValueEditor extends React.Component {
         return (
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
-                    {this.renderLogKeyTypeDropdown()}
+                    <LogKeyTypeDropdown
+                        logKey={this.props.logValue.logKey}
+                        onUpdate={logKey => this.updateLogKey(logKey)}
+                    />
                 </InputGroup.Prepend>
-                {this.renderLogKeyNameDropdown()}
+                <LogKeyNameTypeahead
+                    logKey={this.props.logValue.logKey}
+                    onUpdate={logKey => this.updateLogKey(logKey)}
+                />
             </InputGroup>
-        );
-    }
-    renderLogKeyTypeDropdown() {
-        return (
-            <DropdownButton
-                as={ButtonGroup}
-                className=""
-                disabled={this.props.logValue.logKey.id > 0}
-                onSelect={() => null}
-                size="sm"
-                title={this.props.logValue.logKey.type}
-                variant="secondary">
-                {Object.values(LogKeyTypes).map(item =>
-                    <Dropdown.Item
-                        key={item.value}
-                        onMouseDown={() => {
-                            let logValue = deepcopy(this.props.logValue);
-                            logValue.logKey.type = item.value;
-                            this.props.onUpdate(logValue);
-                        }}>
-                        {item.label}
-                    </Dropdown.Item>
-                )}
-            </DropdownButton>
-        );
-    }
-    renderLogKeyNameDropdown() {
-        return (
-            <AsyncTypeahead
-                {...this.state}
-                id="log_value"
-                labelKey="name"
-                size="small"
-                minLength={0}
-                disabled={this.props.logValue.logKey.id > 0}
-                onSearch={query => {
-                    this.setState({isLoading: true}, () => {
-                        window.api.send("log-key-typeahead")
-                            .then(options => this.setState({isLoading: false, options}));
-                    });
-                }}
-                filterBy={this.props.filterBy}
-                placeholder='Key Name'
-                selected={[this.props.logValue.logKey.name]}
-                onInputChange={value => {
-                    let logValue = deepcopy(this.props.logValue);
-                    logValue.logKey.name = value;
-                    this.props.onUpdate(logValue);
-                }}
-                onChange={selected => {
-                    if (selected.length) {
-                        this.updateLogKey(selected[0]);
-                    }
-                }}
-                renderMenuItemChildren={(logKey, props, index) => {
-                    return <div onMouseDown={() => this.updateLogKey(logKey)}>{logKey.name}</div>;
-                }}
-            />
         );
     }
     updateLogKey(logKey) {
@@ -211,4 +158,4 @@ class LogEntryList extends React.Component {
     }
 }
 
-export default LogEntryList;
+export {LogEntryList};

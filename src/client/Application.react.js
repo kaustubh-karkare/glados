@@ -1,6 +1,6 @@
 import React from 'react';
-import LogCategoryList from './LogCategoryList.react';
-import LogEntryList from './LogEntryList.react';
+import {LogCategoryList} from './LogCategory.react';
+import {LogEntryList} from './LogEntry.react';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
