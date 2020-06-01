@@ -2,6 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LeftRight from './LeftRight.react';
+import {LogCategoryTypeahead} from './LogCategory.react';
 import {LogValueListEditor} from './LogValue.react';
 import PropTypes from './prop-types';
 import React from 'react';
@@ -21,6 +22,7 @@ class LogEntryEditor extends React.Component {
             logCategory: {
                 id: window.getNegativeID(),
                 name: '',
+                logKeys: [],
             },
             logValues: [],
         };
@@ -91,13 +93,11 @@ class LogEntryEditor extends React.Component {
                         {'Category'}
                     </InputGroup.Text>
                 </InputGroup.Prepend>
-                <Form.Control
-                    type="text"
-                    value={this.state.logEntry.logCategory.name}
-                    onChange={event => {
-                        const value = event.target.value;
+                <LogCategoryTypeahead
+                    logCategory={this.state.logEntry.logCategory}
+                    onUpdate={logCategory => {
                         this.updateLogEntry(logEntry => {
-                            logEntry.logCategory.name = value;
+                            logEntry.logCategory = logCategory;
                         });
                     }}
                 />

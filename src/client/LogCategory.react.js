@@ -5,6 +5,7 @@ import assert from '../common/assert';
 import deepcopy from '../common/deepcopy';
 import range from '../common/range';
 
+import GenericTypeahead from './GenericTypeahead.react';
 import LeftRight from './LeftRight.react';
 import {LogKeyListEditor} from './LogKey.react';
 
@@ -13,6 +14,26 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
+
+class LogCategoryTypeahead extends React.Component {
+    render() {
+        return (
+            <GenericTypeahead
+                id="log_category"
+                labelKey="name"
+                onUpdate={this.props.onUpdate}
+                placeholder="Category Name"
+                rpcName="log-category-list"
+                value={this.props.logCategory}
+            />
+        )
+    }
+}
+
+LogCategoryTypeahead.propTypes = {
+    logCategory: PropTypes.Custom.LogCategory.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+};
 
 class LogCategoryEditor extends React.Component {
     constructor(props) {
@@ -255,4 +276,4 @@ class LogCategoryList extends React.Component {
     }
 }
 
-export {LogCategoryList};
+export {LogCategoryTypeahead, LogCategoryList};

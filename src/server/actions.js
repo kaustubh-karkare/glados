@@ -65,7 +65,7 @@ const Actions = {
             return {id: logCategory.id};
         });
     },
-    "log-key-typeahead": async function(input) {
+    "log-key-list": async function(input) {
         const logKeys = await this.database.get_all('LogKey');
         return logKeys.map(logKey => ({
             id: logKey.id,
@@ -134,6 +134,9 @@ const Actions = {
                 logValues,
             };
         });
+    },
+    "log-value-typeahead": async function(input) {
+        return [];
     },
 };
 

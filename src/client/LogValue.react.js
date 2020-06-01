@@ -1,5 +1,5 @@
-import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
+import GenericTypeahead from './GenericTypeahead.react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {LogKeyTypeDropdown, LogKeyNameTypeahead} from './LogKey.react';
 import PropTypes from './prop-types';
@@ -9,44 +9,17 @@ import {SortableDragHandle, SortableElement, SortableList} from './Sortable.reac
 import arrayMove from 'array-move';
 
 class LogValueDataTypeahead extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {isLoading: false, options: []};
-    }
     render() {
         return (
-            <>
-                <AsyncTypeahead
-                    {...this.state}
-                    id="log_key"
-                    labelKey="data"
-                    size="small"
-                    minLength={0}
-                    disabled={this.props.logValue.id > 0}
-                    onSearch={query => {
-                        this.setState({isLoading: true}, () => {
-                            window.api.send("log-value-typeahead", this.props.logValue.logKey)
-                                .then(options => this.setState({isLoading: false, options}));
-                        });
-                    }}
-                    placeholder='Value'
-                    selected={[this.props.logValue.data]}
-                    onInputChange={value => {
-                        const logValue = {...this.props.logValue};
-                        logValue.data = value
-                        this.props.onUpdate(logValue);
-                    }}
-                    onChange={selected => {
-                        if (selected.length) {
-                            this.props.onUpdate(selected[0]);
-                        }
-                    }}
-                    renderMenuItemChildren={(option, props, index) => {
-                        return <div onMouseDown={() => this.props.onUpdate(option)}>{option.data}</div>;
-                    }}
-                />
-            </>
-        )
+            <GenericTypeahead
+                id="log_value"
+                labelKey="data"
+                onUpdate={this.props.onUpdate}
+                placeholder=""
+                rpcName="log-value-typeahead"
+                value={this.props.logValue}
+            />
+        );
     }
 }
 

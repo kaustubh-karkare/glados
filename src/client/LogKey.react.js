@@ -1,8 +1,8 @@
-import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import GenericTypeahead from './GenericTypeahead.react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LogKeyTypes from '../common/log_key_types';
 import React from 'react';
@@ -46,44 +46,17 @@ LogKeyTypeDropdown.propTypes = {
 };
 
 class LogKeyNameTypeahead extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {isLoading: false, options: []};
-    }
     render() {
         return (
-            <>
-                <AsyncTypeahead
-                    {...this.state}
-                    id="log_key"
-                    labelKey="name"
-                    size="small"
-                    minLength={0}
-                    disabled={this.props.logKey.id > 0}
-                    onSearch={query => {
-                        this.setState({isLoading: true}, () => {
-                            window.api.send("log-key-typeahead")
-                                .then(options => this.setState({isLoading: false, options}));
-                        });
-                    }}
-                    filterBy={this.props.filterBy}
-                    placeholder='Key Name'
-                    selected={[this.props.logKey.name]}
-                    onInputChange={value => {
-                        const logKey = {...this.props.logKey};
-                        logKey.name = value
-                        this.props.onUpdate(logKey);
-                    }}
-                    onChange={selected => {
-                        if (selected.length) {
-                            this.props.onUpdate(selected[0]);
-                        }
-                    }}
-                    renderMenuItemChildren={(option, props, index) => {
-                        return <div onMouseDown={() => this.props.onUpdate(option)}>{option.name}</div>;
-                    }}
-                />
-            </>
+            <GenericTypeahead
+                filterBy={this.props.filterBy}
+                id="log_key"
+                labelKey="name"
+                onUpdate={this.props.onUpdate}
+                placeholder="Key Name"
+                rpcName="log-key-list"
+                value={this.props.logKey}
+            />
         )
     }
 }
