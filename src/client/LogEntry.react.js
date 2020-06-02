@@ -1,5 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import GenericTextArea from './GenericTextArea.react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LeftRight from './LeftRight.react';
 import {LogCategoryTypeahead} from './LogCategory.react';
@@ -8,6 +9,15 @@ import PropTypes from './prop-types';
 import React from 'react';
 
 import deepcopy from '../common/deepcopy';
+
+class LogEntryDetailsEditor extends React.Component {
+    render() {}
+}
+
+LogEntryDetailsEditor.propTypes = {
+    details: PropTypes.string.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+};
 
 class LogEntryEditor extends React.Component {
     constructor(props) {
@@ -25,6 +35,7 @@ class LogEntryEditor extends React.Component {
                 logKeys: [],
             },
             logValues: [],
+            details: '',
         };
     }
     createEmptyLogValue() {
@@ -61,6 +72,7 @@ class LogEntryEditor extends React.Component {
                     variant="secondary">
                     {'Add value?'}
                 </Button>
+                {this.getDetailsRow()}
             </div>
         );
     }
@@ -77,9 +89,7 @@ class LogEntryEditor extends React.Component {
                     value={this.state.logEntry.title}
                     onChange={event => {
                         const value = event.target.value;
-                        this.updateLogEntry(logEntry => {
-                            logEntry.title = value;
-                        });
+                        this.updateLogEntry(logEntry => { logEntry.title = value; });
                     }}
                 />
             </InputGroup>
@@ -102,6 +112,16 @@ class LogEntryEditor extends React.Component {
                     }}
                 />
             </InputGroup>
+        );
+    }
+    getDetailsRow() {
+        return (
+            <GenericTextArea
+                value={this.state.logEntry.details}
+                onUpdate={value => {
+                    this.updateLogEntry(logEntry => { logEntry.details = value; });
+                }}
+            />
         );
     }
     updateLogEntry(method) {

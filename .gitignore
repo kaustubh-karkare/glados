@@ -2,4 +2,5 @@
 config.json
 dist/index.js
 node_modules
+notes.txt
 package-lock.json

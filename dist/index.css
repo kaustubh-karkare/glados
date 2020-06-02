@@ -12,3 +12,9 @@
 .btn.dropdown-toggle {
     box-shadow: none !important;
 }
+
+.public-DraftEditor-content {
+    background: white;
+    border: 1px solid #222;
+    color: #444;
+}
