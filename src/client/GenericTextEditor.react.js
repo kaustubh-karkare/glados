@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
+import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
+
+const plugins = [createMarkdownShortcutsPlugin()];
 
 const SerializationUtils = {
     deserialize: function(text) {
@@ -62,13 +65,15 @@ class GenericTextArea extends React.Component {
     }
     render() {
         const { MentionSuggestions } = this.mentionPlugin;
-        const plugins = [this.mentionPlugin];
         return (
             <div id="root-editor">
                 <Editor
                     editorState={this.state.editorState}
                     handleKeyCommand={this.handleKeyCommand.bind(this)}
-                    plugins={plugins}
+                    plugins={[
+                        ...plugins,
+                        this.mentionPlugin,
+                    ]}
                     onChange={this.onChange.bind(this)}
                 />
                 <MentionSuggestions
@@ -90,6 +95,7 @@ class GenericTextArea extends React.Component {
             return;
         }
         const value = SerializationUtils.serialize(rawContent, isEmpty);
+        console.info(value);
         this.props.onUpdate(value);
     }
 }
