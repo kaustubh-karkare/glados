@@ -17,6 +17,8 @@
     "bootstrap": "^4.5.0",
     "browserify-css": "^0.15.0",
     "draft-js": "^0.11.5",
+    "draft-js-mention-plugin": "^3.1.5",
+    "draft-js-plugins-editor": "^3.0.0",
     "express": "^4.17.1",
     "jest": "^26.0.1",
     "mysql2": "^2.1.0",

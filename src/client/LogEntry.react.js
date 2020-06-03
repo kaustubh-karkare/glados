@@ -1,6 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import GenericTextArea from './GenericTextArea.react';
+import GenericTextEditor from './GenericTextEditor.react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LeftRight from './LeftRight.react';
 import {LogCategoryTypeahead} from './LogCategory.react';
@@ -116,7 +116,7 @@ class LogEntryEditor extends React.Component {
     }
     getDetailsRow() {
         return (
-            <GenericTextArea
+            <GenericTextEditor
                 value={this.state.logEntry.details}
                 onUpdate={value => {
                     this.updateLogEntry(logEntry => { logEntry.details = value; });
