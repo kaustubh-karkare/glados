@@ -10,7 +10,7 @@ import deepcopy from '../common/deepcopy';
 
 import GenericTypeahead from './GenericTypeahead.react';
 import LeftRight from './LeftRight.react';
-import { LogKeyListEditor } from './LogKey.react';
+import { LogKeyListEditor } from './LogKey';
 
 
 function LogCategoryTypeahead(props) {

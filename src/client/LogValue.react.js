@@ -3,7 +3,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import arrayMove from 'array-move';
 import GenericTypeahead from './GenericTypeahead.react';
-import { LogKeyTypeDropdown, LogKeyNameTypeahead } from './LogKey.react';
+import { LogKeyTypeDropdown, LogKeyNameTypeahead } from './LogKey';
 import PropTypes from './prop-types';
 import { SortableDragHandle, SortableElement, SortableList } from './Sortable.react';
 
