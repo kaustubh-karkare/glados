@@ -4,7 +4,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import GenericTextEditor from './GenericTextEditor.react';
 import { LogCategoryTypeahead } from './LogCategory.react';
-import { LogValueListEditor } from './LogValue.react';
+import { LogValueListEditor } from './LogValue';
 import PropTypes from './prop-types';
 
 import deepcopy from '../common/deepcopy';
