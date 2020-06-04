@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { LogEntryList } from './LogEntry.react';
-import { LogCategoryList } from './LogCategory.react';
+import { LogCategoryList } from './LogCategory';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
