@@ -24,6 +24,7 @@ class LogValueDataTypeahead extends React.Component {
 }
 
 LogValueDataTypeahead.propTypes = {
+    allowEdit: PropTypes.bool,
     logValue: PropTypes.Custom.LogValue.isRequired,
     onUpdate: PropTypes.func.isRequired,
 };
@@ -52,6 +53,7 @@ class LogValueEditor extends React.Component {
                     onUpdate={logKey => this.updateLogKey(logKey)}
                 />
                 <LogValueDataTypeahead
+                    allowEdit={true}
                     logValue={this.props.logValue}
                     onUpdate={this.props.onUpdate}
                 />

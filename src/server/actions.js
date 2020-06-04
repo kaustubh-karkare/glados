@@ -28,12 +28,20 @@ const Actions = {
             );
             let logKeys = await Promise.all(
                 input.logKeys.map(async (logKey, index) => {
-                    logKey = await this.database.create_or_find(
-                        'LogKey',
-                        {name: logKey.name},
-                        {type: logKey.type},
-                        transaction,
-                    );
+                    if (logKey.id < 0) {
+                        logKey = await this.database.create_or_find(
+                            'LogKey',
+                            {name: logKey.name},
+                            {type: logKey.type},
+                            transaction,
+                        );
+                    } else {
+                        logKey = await this.database.update(
+                            'LogKey',
+                            {id: logKey.id, name: logKey.name},
+                            transaction,
+                        );
+                    }
                     return {
                         id: logKey.id,
                         name: logKey.name,

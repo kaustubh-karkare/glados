@@ -2,6 +2,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import { FaRegTrashAlt } from 'react-icons/fa';
 import GenericTypeahead from './GenericTypeahead.react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LogKeyTypes from '../common/log_key_types';
@@ -49,10 +50,9 @@ class LogKeyNameTypeahead extends React.Component {
     render() {
         return (
             <GenericTypeahead
-                filterBy={this.props.filterBy}
+                {...this.props}
                 id="log_key"
                 labelKey="name"
-                onUpdate={this.props.onUpdate}
                 placeholder="Key Name"
                 rpcName="log-key-list"
                 value={this.props.logKey}
@@ -63,8 +63,6 @@ class LogKeyNameTypeahead extends React.Component {
 
 LogKeyNameTypeahead.propTypes = {
     logKey: PropTypes.Custom.LogKey.isRequired,
-    filterBy: PropTypes.func,
-    onUpdate: PropTypes.func.isRequired,
 };
 
 class LogKeyEditor extends React.Component {
@@ -83,6 +81,7 @@ class LogKeyEditor extends React.Component {
                     />
                 </InputGroup.Prepend>
                 <LogKeyNameTypeahead
+                    allowEditing={this.props.allowEditing}
                     logKey={this.props.logKey}
                     filterBy={this.props.filterBy}
                     onUpdate={this.props.onUpdate}
@@ -92,7 +91,7 @@ class LogKeyEditor extends React.Component {
                         onClick={this.props.onDelete}
                         size="sm"
                         variant="secondary">
-                        {'🗑'}
+                        <FaRegTrashAlt />
                     </Button>
                 </InputGroup.Append>
             </InputGroup>
@@ -106,6 +105,7 @@ class LogKeyEditor extends React.Component {
 }
 
 LogKeyEditor.propTypes = {
+    allowEditing: PropTypes.bool,
     logKey: PropTypes.Custom.LogKey.isRequired,
     filterBy: PropTypes.func,
     onUpdate: PropTypes.func.isRequired,
@@ -125,6 +125,7 @@ class LogKeyListEditor extends React.Component {
                         key={logKey.id}
                         index={index}
                         logKey={logKey}
+                        allowEditing={true}
                         filterBy={this.filterBy.bind(this, index)}
                         onUpdate={this.onUpdate.bind(this, index)}
                         onDelete={this.onDelete.bind(this, index)}
