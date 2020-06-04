@@ -1,5 +1,7 @@
 import Editor from 'draft-js-plugins-editor';
-import {EditorState, RichUtils, convertFromRaw, convertToRaw} from 'draft-js';
+import {
+    EditorState, RichUtils, convertFromRaw, convertToRaw,
+} from 'draft-js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -11,30 +13,38 @@ import 'draft-js/dist/Draft.css';
 const plugins = [createMarkdownShortcutsPlugin()];
 
 const SerializationUtils = {
-    deserialize: function(text) {
+    deserialize(text) {
         if (!text) {
             return convertToRaw(EditorState.createEmpty().getCurrentContent());
-        } else {
-            return JSON.parse(text);
         }
+        return JSON.parse(text);
     },
-    serialize: function(rawContent, isEmpty) {
+    serialize(rawContent, isEmpty) {
         if (isEmpty) {
-            return "";
-        } else {
-            return JSON.stringify(rawContent);
+            return '';
         }
+        return JSON.stringify(rawContent);
     },
 };
 
 // [{name, link, avatar}]
 const mentions = [
-    {name: "Anurag Dubey"},
-    {name: "Kaustubh Karkare"},
-    {name: "Vishnu Mohandas"},
+    { name: 'Anurag Dubey' },
+    { name: 'Kaustubh Karkare' },
+    { name: 'Vishnu Mohandas' },
 ];
 
 class GenericTextArea extends React.Component {
+    static getDerivedStateFromProps(props, state) {
+        // eslint-disable-next-line no-param-reassign
+        state.rawContent = SerializationUtils.deserialize(props.value);
+        if (!state.editorState) { // first time only
+            // eslint-disable-next-line no-param-reassign
+            state.editorState = EditorState.createWithContent(convertFromRaw(state.rawContent));
+        }
+        return state;
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -42,13 +52,27 @@ class GenericTextArea extends React.Component {
         };
         this.mentionPlugin = createMentionPlugin();
     }
-    static getDerivedStateFromProps(props, state) {
-        state.rawContent = SerializationUtils.deserialize(props.value);
-        if (!state.editorState) { // first time only
-            state.editorState = EditorState.createWithContent(convertFromRaw(state.rawContent));
-        }
-        return state;
+
+    onSearchChange({ value }) {
+        this.setState({
+            suggestions: defaultSuggestionsFilter(value, mentions),
+        });
     }
+
+    onChange(editorState) {
+        this.setState({ editorState });
+        const rawContent = convertToRaw(editorState.getCurrentContent());
+        const isEmpty = !editorState.getCurrentContent().hasText();
+        if (
+            SerializationUtils.serialize(this.state.rawContent)
+                === SerializationUtils.serialize(rawContent)
+        ) {
+            return;
+        }
+        const value = SerializationUtils.serialize(rawContent, isEmpty);
+        this.props.onUpdate(value);
+    }
+
     handleKeyCommand(command, editorState) {
         const newState = RichUtils.handleKeyCommand(editorState, command);
         if (newState) {
@@ -57,48 +81,28 @@ class GenericTextArea extends React.Component {
         }
         return 'not-handled';
     }
-    onSearchChange = ({ value }) => {
-        this.setState({
-            suggestions: defaultSuggestionsFilter(value, mentions),
-        });
-    }
-    onAddMention = (mentionedObject) => {
-        // get the selected mentions object
-    }
+
     render() {
         const { MentionSuggestions } = this.mentionPlugin;
         return (
             <div id="root-editor">
                 <Editor
                     editorState={this.state.editorState}
-                    handleKeyCommand={this.handleKeyCommand.bind(this)}
+                    handleKeyCommand={
+                        (command, editorState) => this.handleKeyCommand(command, editorState)
+                    }
                     plugins={[
                         ...plugins,
                         this.mentionPlugin,
                     ]}
-                    onChange={this.onChange.bind(this)}
+                    onChange={(editorState) => this.onChange(editorState)}
                 />
                 <MentionSuggestions
-                    onSearchChange={this.onSearchChange}
+                    onSearchChange={(data) => this.onSearchChange(data)}
                     suggestions={this.state.suggestions}
-                    onAddMention={this.onAddMention}
                 />
             </div>
         );
-    }
-    onChange(editorState) {
-        this.setState({editorState});
-        const rawContent = convertToRaw(editorState.getCurrentContent());
-        const isEmpty = !editorState.getCurrentContent().hasText();
-        if (
-            SerializationUtils.serialize(this.state.rawContent)
-                == SerializationUtils.serialize(rawContent)
-        ) {
-            return;
-        }
-        const value = SerializationUtils.serialize(rawContent, isEmpty);
-        console.info(value);
-        this.props.onUpdate(value);
     }
 }
 

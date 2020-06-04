@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import LogKeyTypes from '../common/log_key_types';
 
 const LogKeyType = PropTypes.oneOf(
-    Object.values(LogKeyTypes).map(item => item.value)
+    Object.values(LogKeyTypes).map((item) => item.value),
 );
 
 const LogKey = PropTypes.shape({
@@ -30,5 +30,7 @@ const LogEntry = PropTypes.shape({
     logValues: PropTypes.arrayOf(LogValue.isRequired).isRequired,
 });
 
-PropTypes.Custom = {LogKeyType, LogKey, LogCategory, LogValue, LogEntry};
+PropTypes.Custom = {
+    LogKeyType, LogKey, LogCategory, LogValue, LogEntry,
+};
 export default PropTypes;

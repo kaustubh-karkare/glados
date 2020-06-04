@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon -w index.js -w src/ --exec babel-node --trace-warnings index.js",
-    "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix src/client/",
+    "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix .",
     "test": "jest"
   },
   "repository": {

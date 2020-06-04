@@ -1,32 +1,28 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import GenericTextEditor from './GenericTextEditor.react';
 import InputGroup from 'react-bootstrap/InputGroup';
-import LeftRight from './LeftRight.react';
-import {LogCategoryTypeahead} from './LogCategory.react';
-import {LogValueListEditor} from './LogValue.react';
-import PropTypes from './prop-types';
 import React from 'react';
+import GenericTextEditor from './GenericTextEditor.react';
+import { LogCategoryTypeahead } from './LogCategory.react';
+import { LogValueListEditor } from './LogValue.react';
+import PropTypes from './prop-types';
 
 import deepcopy from '../common/deepcopy';
 
-class LogEntryDetailsEditor extends React.Component {
-    render() {}
-}
-
-LogEntryDetailsEditor.propTypes = {
-    details: PropTypes.string.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-};
-
 class LogEntryEditor extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            logEntry: this.createEmptyLogEntry(),
+    static createEmptyLogValue() {
+        return {
+            id: window.getNegativeID(),
+            data: '',
+            logKey: {
+                id: window.getNegativeID(),
+                name: '',
+                type: 'string',
+            },
         };
     }
-    createEmptyLogEntry() {
+
+    static createEmptyLogEntry() {
         return {
             title: '',
             logCategory: {
@@ -38,17 +34,74 @@ class LogEntryEditor extends React.Component {
             details: '',
         };
     }
-    createEmptyLogValue() {
-        return {
-            id: window.getNegativeID(),
-            data: '',
-            logKey: {
-                id: window.getNegativeID(),
-                name: '',
-                type: 'string',
-            }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            logEntry: this.props.logEntry || LogEntryEditor.createEmptyLogEntry(),
         };
     }
+
+    getTitleRow() {
+        return (
+            <InputGroup className="my-1" size="sm">
+                <InputGroup.Prepend>
+                    <InputGroup.Text style={{ width: 100 }}>
+                        Title
+                    </InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control
+                    type="text"
+                    value={this.state.logEntry.title}
+                    onChange={(event) => {
+                        const { value } = event.target;
+                        // eslint-disable-next-line no-param-reassign
+                        this.updateLogEntry((logEntry) => { logEntry.title = value; });
+                    }}
+                />
+            </InputGroup>
+        );
+    }
+
+    getCategoryRow() {
+        return (
+            <InputGroup className="my-1" size="sm">
+                <InputGroup.Prepend>
+                    <InputGroup.Text style={{ width: 100 }}>
+                        Category
+                    </InputGroup.Text>
+                </InputGroup.Prepend>
+                <LogCategoryTypeahead
+                    logCategory={this.state.logEntry.logCategory}
+                    onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEntry.logCategory = logCategory;
+                    })}
+                />
+            </InputGroup>
+        );
+    }
+
+    getDetailsRow() {
+        return (
+            <GenericTextEditor
+                value={this.state.logEntry.details}
+                onUpdate={(value) => this.updateLogEntry((logEntry) => {
+                    // eslint-disable-next-line no-param-reassign
+                    logEntry.details = value;
+                })}
+            />
+        );
+    }
+
+    updateLogEntry(method) {
+        this.setState((state) => {
+            const logEntry = deepcopy(state.logEntry);
+            method(logEntry, state);
+            return { logEntry };
+        });
+    }
+
     render() {
         return (
             <div>
@@ -56,80 +109,27 @@ class LogEntryEditor extends React.Component {
                 {this.getCategoryRow()}
                 <LogValueListEditor
                     logValues={this.state.logEntry.logValues}
-                    onUpdate={logValues => {
-                        let logEntry = {...this.state.logEntry};
+                    onUpdate={(logValues) => this.setState((state) => {
+                        const logEntry = { ...state.logEntry };
                         logEntry.logValues = logValues;
-                        this.setState({logEntry});
-                    }}
+                        return { logEntry };
+                    })}
                 />
                 <Button
-                    onClick={() => {
-                        const logEntry = {...this.state.logEntry};
-                        logEntry.logValues = [...logEntry.logValues, this.createEmptyLogValue()],
-                        this.setState({logEntry});
-                    }}
+                    onClick={() => this.setState((state) => {
+                        const logEntry = { ...state.logEntry };
+                        logEntry.logValues = [...logEntry.logValues];
+                        logEntry.logValues.push(LogEntryEditor.createEmptyLogValue());
+                        return { logEntry };
+                    })}
                     size="sm"
-                    variant="secondary">
-                    {'Add value?'}
+                    variant="secondary"
+                >
+                    Add value?
                 </Button>
                 {this.getDetailsRow()}
             </div>
         );
-    }
-    getTitleRow() {
-        return (
-            <InputGroup className="my-1" size="sm">
-                <InputGroup.Prepend>
-                    <InputGroup.Text style={{width: 100}}>
-                        {'Title'}
-                    </InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                    type="text"
-                    value={this.state.logEntry.title}
-                    onChange={event => {
-                        const value = event.target.value;
-                        this.updateLogEntry(logEntry => { logEntry.title = value; });
-                    }}
-                />
-            </InputGroup>
-        );
-    }
-    getCategoryRow() {
-        return (
-            <InputGroup className="my-1" size="sm">
-                <InputGroup.Prepend>
-                    <InputGroup.Text style={{width: 100}}>
-                        {'Category'}
-                    </InputGroup.Text>
-                </InputGroup.Prepend>
-                <LogCategoryTypeahead
-                    logCategory={this.state.logEntry.logCategory}
-                    onUpdate={logCategory => {
-                        this.updateLogEntry(logEntry => {
-                            logEntry.logCategory = logCategory;
-                        });
-                    }}
-                />
-            </InputGroup>
-        );
-    }
-    getDetailsRow() {
-        return (
-            <GenericTextEditor
-                value={this.state.logEntry.details}
-                onUpdate={value => {
-                    this.updateLogEntry(logEntry => { logEntry.details = value; });
-                }}
-            />
-        );
-    }
-    updateLogEntry(method) {
-        this.setState(state => {
-            const logEntry = deepcopy(state.logEntry);
-            method(logEntry, state);
-            return {logEntry};
-        });
     }
 }
 
@@ -140,21 +140,24 @@ LogEntryEditor.propTypes = {
 class LogEntryList extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {entries: null};
+        this.state = { entries: null };
     }
+
     componentDidMount() {
         this.reload();
     }
+
     reload() {
-        window.api.send("log-entry-list")
-            .then(entries => this.setState({entries}));
+        window.api.send('log-entry-list')
+            .then((entries) => this.setState({ entries }));
     }
+
     render() {
         if (this.state.entries) {
-            return <div>{'Loading Entries ...'}</div>;
+            return <div>Loading Entries ...</div>;
         }
         return <LogEntryEditor />;
     }
 }
 
-export {LogEntryList};
+export { LogEntryList };

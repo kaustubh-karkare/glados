@@ -8,27 +8,29 @@ import './bootstrap.css';
 import './index.css';
 
 function initCookies() {
-  document.cookies = document.cookie.split("; ").reduce((result, item) => {
-    const [key, value] = item.split("=");
-    result[key] = value;
-    return result;
-  }, {});
+    document.cookies = document.cookie.split('; ').reduce((result, item) => {
+        const [key, value] = item.split('=');
+        // eslint-disable-next-line no-param-reassign
+        result[key] = value;
+        return result;
+    }, {});
 }
 
 function getNegativeID() {
-  if (typeof window.negativeID == "undefined") {
-    window.negativeID = 0;
-  }
-  return --window.negativeID;
+    if (typeof window.negativeID === 'undefined') {
+        window.negativeID = 0;
+    }
+    window.negativeID -= 1;
+    return window.negativeID;
 }
 
-window.main = function() {
-  initCookies();
-  window.api = new SocketRPC(io("localhost:" + document.cookies.port));
-  window.getNegativeID = getNegativeID;
+window.main = function main() {
+    initCookies();
+    window.api = new SocketRPC(io(`localhost:${document.cookies.port}`));
+    window.getNegativeID = getNegativeID;
 
-  ReactDOM.render(
-    <Application />,
-    document.getElementById("root")
-  );
+    ReactDOM.render(
+        <Application />,
+        document.getElementById('root'),
+    );
 };
