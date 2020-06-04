@@ -1,10 +1,13 @@
 
 function range(start, end, step) {
-    if (typeof end == 'undefined') {
+    if (typeof end === 'undefined') {
+        // eslint-disable-next-line no-param-reassign
         end = start;
+        // eslint-disable-next-line no-param-reassign
         start = 0;
     }
-    if (typeof step == 'undefined') {
+    if (typeof step === 'undefined') {
+        // eslint-disable-next-line no-param-reassign
         step = 1;
     }
     const result = [];

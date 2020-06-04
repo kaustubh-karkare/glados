@@ -1,7 +1,8 @@
 import assert from '../common/assert';
+
 const Sequelize = require('sequelize');
 
-function create_models(sequelize) {
+function createModels(sequelize) {
     const options = {
         timestamps: false,
         underscored: true,
@@ -13,7 +14,7 @@ function create_models(sequelize) {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
             name: {
                 type: Sequelize.STRING,
@@ -23,7 +24,7 @@ function create_models(sequelize) {
         {
             ...options,
             indexes: [
-                {unique: true, fields: ['name']},
+                { unique: true, fields: ['name'] },
             ],
         },
     );
@@ -34,7 +35,7 @@ function create_models(sequelize) {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
             name: {
                 type: Sequelize.STRING,
@@ -48,7 +49,7 @@ function create_models(sequelize) {
         {
             ...options,
             indexes: [
-                {unique: true, fields: ['name']},
+                { unique: true, fields: ['name'] },
             ],
         },
     );
@@ -73,7 +74,7 @@ function create_models(sequelize) {
             ordering_index: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
-            }
+            },
         },
         options,
     );
@@ -101,7 +102,7 @@ function create_models(sequelize) {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
             key_id: {
                 type: Sequelize.INTEGER,
@@ -115,9 +116,9 @@ function create_models(sequelize) {
         {
             ...options,
             indexes: [
-                {unique: true, fields: ['key_id', 'data']},
+                { unique: true, fields: ['key_id', 'data'] },
             ],
-        }
+        },
     );
 
     LogKey.hasMany(LogValue, {
@@ -132,7 +133,7 @@ function create_models(sequelize) {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
             category_id: {
                 type: Sequelize.INTEGER,
@@ -178,7 +179,7 @@ function create_models(sequelize) {
             ordering_index: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
-            }
+            },
         },
         options,
     );
@@ -199,27 +200,29 @@ function create_models(sequelize) {
         onUpdate: 'restrict',
     });
 
-    return {LogCategory, LogKey, LogCategoryToLogKey, LogValue, LogEntry, LogEntryToLogValue};
+    return {
+        LogCategory, LogKey, LogCategoryToLogKey, LogValue, LogEntry, LogEntryToLogValue,
+    };
 }
 
 class Database {
     static async init(config) {
         const instance = new Database(config);
-        return instance.sequelize.sync({force: false}).then(_ => instance);
+        return instance.sequelize.sync({ force: false }).then(() => instance);
     }
 
     constructor(config) {
         const options = {
-            logging: false
+            logging: false,
         };
-        if (config.type == 'mysql') {
+        if (config.type === 'mysql') {
             options.dialect = 'mysql';
             options.host = 'localhost';
-        } else if (config.type == 'sqlite') {
+        } else if (config.type === 'sqlite') {
             options.dialect = 'sqlite';
             options.storage = ':memory:';
         } else {
-            assert(false, "unknown database type");
+            assert(false, 'unknown database type');
         }
         this.sequelize = new Sequelize(
             config.name,
@@ -227,104 +230,105 @@ class Database {
             config.password,
             options,
         );
-        this.models = create_models(this.sequelize);
+        this.models = createModels(this.sequelize);
     }
+
     async close() {
         await this.sequelize.close();
     }
 
     async create(name, fields, transaction) {
-        const {id, ...remaining_fields} = fields;
+        const { id, ...remainingFields } = fields;
         const Model = this.models[name];
-        return await Model.create(
-            remaining_fields,
+        return Model.create(
+            remainingFields,
             // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
-            {fields: Object.keys(remaining_fields), transaction},
+            { fields: Object.keys(remainingFields), transaction },
         );
     }
 
     async update(name, fields, transaction) {
-        const {id, ...remaining_fields} = fields;
+        const { id, ...remainingFields } = fields;
         const Model = this.models[name];
-        let instance = await Model.findByPk(id, {transaction});
-        return await instance.update(remaining_fields, {transaction});
+        const instance = await Model.findByPk(id, { transaction });
+        return instance.update(remainingFields, { transaction });
     }
 
-    async create_or_update(name, fields, transaction) {
-        if (typeof fields.id == "undefined" || fields.id < 0) {
-            return await this.create(name, fields, transaction);
-        } else {
-            return await this.update(name, fields, transaction);
+    async createOrUpdate(name, fields, transaction) {
+        if (typeof fields.id === 'undefined' || fields.id < 0) {
+            return this.create(name, fields, transaction);
         }
+        return this.update(name, fields, transaction);
     }
 
     async find(name, where, transaction) {
         const Model = this.models[name];
-        return await Model.findOne({where, transaction});
+        return Model.findOne({ where, transaction });
     }
 
-    async create_or_find(name, where, update_fields, transaction) {
+    async createOrFind(name, where, updateFields, transaction) {
         const Model = this.models[name];
-        let instance = await Model.findOne({where, transaction});
+        const instance = await Model.findOne({ where, transaction });
         if (!instance) {
-            return await this.create(name, {...where, ...update_fields}, transaction);
-        } else {
-            return instance;
+            return this.create(name, { ...where, ...updateFields }, transaction);
         }
+        return instance;
     }
 
     async delete(name, fields, transaction) {
         const Model = this.models[name];
-        const {id} = fields;
-        let instance = await Model.findByPk(id);
-        return await instance.destroy({transaction});
+        const { id } = fields;
+        const instance = await Model.findByPk(id);
+        return instance.destroy({ transaction });
     }
 
-    async get_edges(edge_name, left_name, left_id, transaction) {
-        const Model = this.models[edge_name];
+    async getEdges(edgeName, leftName, leftId, transaction) {
+        const Model = this.models[edgeName];
         const edges = await Model.findAll({
-            where: {[left_name]: left_id},
+            where: { [leftName]: leftId },
+            transaction,
         });
         return edges;
     }
 
-    async set_edges(edge_name, left_name, left_id, right_name, right, transaction) {
-        const Model = this.models[edge_name];
-        const existing_edges = await Model.findAll({where: {[left_name]: left_id}});
-        const existing_ids = existing_edges.map(edge => edge[right_name].toString());
+    async setEdges(edgeName, leftName, leftId, rightName, right, transaction) {
+        const Model = this.models[edgeName];
+        const existingEdges = await Model.findAll({ where: { [leftName]: leftId } });
+        const existingIDs = existingEdges.map((edge) => edge[rightName].toString());
         // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
         const fields = [
-            left_name,
-            right_name,
+            leftName,
+            rightName,
             ...Object.keys(Object.values(right)[0] || {}),
         ];
-        const [created_edges, updated_edges, deleted_edges] = await Promise.all([
+        // eslint-disable-next-line no-unused-vars
+        const [createdEdges, updatedEdges, deletedEdges] = await Promise.all([
             Promise.all(
                 Object.keys(right)
-                    .filter(right_id => !existing_ids.includes(right_id))
-                    .map(right_id => Model.create({
-                        [left_name]: left_id,
-                        [right_name]: right_id,
-                        ...right[right_id],
-                    }, {fields, transaction}))
+                    .filter((rightId) => !existingIDs.includes(rightId))
+                    .map((rightId) => Model.create({
+                        [leftName]: leftId,
+                        [rightName]: rightId,
+                        ...right[rightId],
+                    }, { fields, transaction })),
             ),
             Promise.all(
-                existing_edges
-                    .filter(edge => edge[right_name] in right)
-                    .map(edge => edge.update(right[edge[right_name]], {transaction}))
+                existingEdges
+                    .filter((edge) => edge[rightName] in right)
+                    .map((edge) => edge.update(right[edge[rightName]], { transaction })),
             ),
             Promise.all(
-                existing_edges
-                    .filter(edge => !(edge[right_name] in right))
-                    .map(edge => edge.destroy({transaction}))
-            )
+                existingEdges
+                    .filter((edge) => !(edge[rightName] in right))
+                    .map((edge) => edge.destroy({ transaction })),
+            ),
         ]);
-        return [...created_edges, ...updated_edges];
+        return [...createdEdges, ...updatedEdges];
     }
 
-    async get_all(name, transaction) {
+    async getAll(name, transaction) {
         const Model = this.models[name];
-        return await Model.findAll({transaction});
+        return Model.findAll({ transaction });
     }
 }
 
