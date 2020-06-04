@@ -2,7 +2,22 @@
   "name": "productivity",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "nodemon -w index.js -w src/ --exec babel-node --trace-warnings index.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaustubh-karkare/productivity.git"
+  },
+  "keywords": [],
+  "author": "Kaustubh Karkare",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaustubh-karkare/productivity/issues"
+  },
+  "homepage": "https://github.com/kaustubh-karkare/productivity#readme",
   "dependencies": {
     "@babel/core": "^7.9.6",
     "@babel/node": "^7.8.7",
@@ -13,9 +28,7 @@
     "array-move": "^2.2.2",
     "babel-loader": "^8.1.0",
     "babel-preset-react": "^6.24.1",
-    "babelify": "^10.0.0",
     "bootstrap": "^4.5.0",
-    "browserify-css": "^0.15.0",
     "draft-js": "^0.11.5",
     "draft-js-markdown-shortcuts-plugin": "^0.6.1",
     "draft-js-mention-plugin": "^3.1.5",
@@ -33,20 +46,12 @@
     "socket.io-client": "^2.3.0",
     "sqlite3": "^4.2.0"
   },
-  "scripts": {
-    "start": "nodemon -w index.js -w src/ --exec babel-node --trace-warnings index.js",
-    "build": "watchify -t babelify --presets react src/client/index.js -o dist/index.js",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kaustubh-karkare/productivity.git"
-  },
-  "keywords": [],
-  "author": "Kaustubh Karkare",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kaustubh-karkare/productivity/issues"
-  },
-  "homepage": "https://github.com/kaustubh-karkare/productivity#readme"
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.5.3",
+    "html-webpack-plugin": "^4.3.0",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  }
 }

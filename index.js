@@ -27,7 +27,16 @@ try {
   throw new Error("The format of ./config.json must match ./config.json.example");
 }
 
-// Step 2: Use express to serve the client.
+// Step 2: Use webpack to build the client bundle.
+
+const webpack = require('webpack');
+const webpackConfig = require('./webpack.config');
+const webpackCompiler = webpack(webpackConfig);
+webpackCompiler.watch({poll: 100}, (err, stats) => {
+  console.info('Webpack change detected. Recompiled!');
+});
+
+// Step 3: Use express to serve the client.
 
 const express = require('express');
 const app = express();

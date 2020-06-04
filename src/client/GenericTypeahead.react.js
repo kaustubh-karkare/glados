@@ -2,6 +2,8 @@ import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+
 class GenericTypeahead extends React.Component {
     constructor(props) {
         super(props);

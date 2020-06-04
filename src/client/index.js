@@ -4,6 +4,9 @@ import io from 'socket.io-client';
 import SocketRPC from '../common/socket_rpc';
 import Application from './Application.react';
 
+import './bootstrap.css';
+import './index.css';
+
 function initCookies() {
   document.cookies = document.cookie.split("; ").reduce((result, item) => {
     const [key, value] = item.split("=");

@@ -6,6 +6,8 @@ import React from 'react';
 import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 
+import 'draft-js/dist/Draft.css';
+
 const plugins = [createMarkdownShortcutsPlugin()];
 
 const SerializationUtils = {

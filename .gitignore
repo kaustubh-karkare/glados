@@ -1,6 +1,6 @@
 .DS_Store
 config.json
-dist/index.js
+dist/
 node_modules
 notes.txt
 package-lock.json
