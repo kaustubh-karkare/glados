@@ -5,7 +5,7 @@ import { GiCancel } from 'react-icons/gi';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import 'react-bootstrap-typeahead/css/Typeahead.css';
+import 'react-bootstrap-typeahead/css/Typeahead.min.css';
 
 const RENAME_KEY = '__rename_key__';
 

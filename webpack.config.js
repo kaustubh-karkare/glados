@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const path = require('path');
 
@@ -10,20 +11,27 @@ module.exports = {
         filename: 'bundle.js',
         publicPath: '/',
     },
+    devServer: {
+        hot: true,
+    },
     resolve: {
         extensions: ['.js', '.css'],
     },
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
-                use: 'babel-loader',
+                test: /\.[tj]sx?$/,
+                use: [
+                    'babel-loader',
+                    'ts-loader',
+                    'linaria/loader',
+                ],
+                exclude: /node_modules/,
             },
             {
                 test: /\.css$/,
                 use: [
-                    // Inject CSS into the DOM.
-                    'style-loader',
+                    MiniCssExtractPlugin.loader,
                     // The css-loader interprets @import and url()
                     // like import/require() and will resolve them.
                     'css-loader',
@@ -33,6 +41,9 @@ module.exports = {
     },
     plugins: [
         // new CleanWebpackPlugin(),
+        new MiniCssExtractPlugin({
+            filename: 'styles.css',
+        }),
         new HtmlWebpackPlugin({
             template: './src/client/index.html',
         }),

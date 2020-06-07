@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "nodemon -w index.js -w src/ --exec babel-node --trace-warnings index.js",
+    "start": "nodemon -w index.js -w src/server/ -w src/common/ --exec babel-node --trace-warnings index.js",
     "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix .",
     "test": "jest"
   },
@@ -36,6 +36,7 @@
     "draft-js-plugins-editor": "^3.0.0",
     "express": "^4.17.1",
     "jest": "^26.0.1",
+    "linaria": "^1.3.3",
     "mysql2": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
@@ -59,7 +60,10 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^2.5.1",
     "html-webpack-plugin": "^4.3.0",
+    "mini-css-extract-plugin": "^0.9.0",
     "style-loader": "^1.2.1",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   }

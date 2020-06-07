@@ -5,7 +5,10 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
+// Using a local copy of the plugin until the PR is merged.
+// https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
+// cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
+import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 
 import 'draft-js/dist/Draft.css';
@@ -34,7 +37,7 @@ const mentions = [
     { name: 'Vishnu Mohandas' },
 ];
 
-class GenericTextArea extends React.Component {
+class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
         // eslint-disable-next-line no-param-reassign
         state.rawContent = SerializationUtils.deserialize(props.value);
@@ -49,11 +52,14 @@ class GenericTextArea extends React.Component {
         super(props);
         this.state = {
             suggestions: mentions,
+            open: false,
         };
-        this.mentionPlugin = createMentionPlugin();
+        this.mentionPlugin = createMentionPlugin({
+            mentionTriggers: ['@', '#'],
+        });
     }
 
-    onSearchChange({ value }) {
+    onSearchChange({ trigger, value }) {
         this.setState({
             suggestions: defaultSuggestionsFilter(value, mentions),
         });
@@ -85,7 +91,7 @@ class GenericTextArea extends React.Component {
     render() {
         const { MentionSuggestions } = this.mentionPlugin;
         return (
-            <div id="root-editor">
+            <div className="text-editor">
                 <Editor
                     editorState={this.state.editorState}
                     handleKeyCommand={
@@ -97,18 +103,22 @@ class GenericTextArea extends React.Component {
                     ]}
                     onChange={(editorState) => this.onChange(editorState)}
                 />
-                <MentionSuggestions
-                    onSearchChange={(data) => this.onSearchChange(data)}
-                    suggestions={this.state.suggestions}
-                />
+                <div className="mention-suggestions">
+                    <MentionSuggestions
+                        open={this.state.open}
+                        onOpenChange={open => this.setState({open})}
+                        onSearchChange={(data) => this.onSearchChange(data)}
+                        suggestions={this.state.suggestions}
+                    />
+                </div>
             </div>
         );
     }
 }
 
-GenericTextArea.propTypes = {
+TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
     onUpdate: PropTypes.func.isRequired,
 };
 
-export default GenericTextArea;
+export default TextEditor;

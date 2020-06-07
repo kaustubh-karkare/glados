@@ -13,8 +13,23 @@
     box-shadow: none !important;
 }
 
-.public-DraftEditor-content {
+.text-editor .public-DraftEditor-content {
     background: white;
     border: 1px solid #222;
     color: #444;
+}
+
+.text-editor .public-DraftStyleDefault-ul,
+.text-editor .public-DraftStyleDefault-ol {
+    margin: 0;
+}
+
+.text-editor > .mention-suggestions > div {
+    background-color: #222;
+    border: 1px solid #444;
+    box-shadow: 0px 4px 30px 0px #222;
+}
+
+.text-editor > .mention-suggestions > div > div[aria-selected="true"] {
+    background-color: #444;
 }

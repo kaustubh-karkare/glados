@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import GenericTextEditor from './GenericTextEditor.react';
+import TextEditor from './Common/TextEditor.react';
 import { LogCategoryTypeahead } from './LogCategory';
 import { LogValueListEditor } from './LogValue';
 import PropTypes from './prop-types';
@@ -84,7 +84,7 @@ class LogEntryEditor extends React.Component {
 
     getDetailsRow() {
         return (
-            <GenericTextEditor
+            <TextEditor
                 value={this.state.logEntry.details}
                 onUpdate={(value) => this.updateLogEntry((logEntry) => {
                     // eslint-disable-next-line no-param-reassign
