@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import SocketRPC from '../common/socket_rpc';
 import Application from './Application.react';
 
-import './bootstrap.css';
+import './bootstrap.min.css';
 import './index.css';
 
 function initCookies() {
