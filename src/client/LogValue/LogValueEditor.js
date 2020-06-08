@@ -7,7 +7,7 @@ import LogValueDataTypeahead from './LogValueDataTypeahead';
 import PropTypes from '../prop-types';
 import { SortableDragHandle } from '../Common';
 
-import { createEmptyLogKey } from '../Data';
+import { createEmptyLogKey, createEmptyLogValue } from '../Data';
 
 
 class LogValueEditor extends React.Component {
@@ -56,10 +56,10 @@ class LogValueEditor extends React.Component {
                     onDelete={() => this.updateLogKey(createEmptyLogKey())}
                 />
                 <LogValueDataTypeahead
-                    allowDelete={this.props.logValue.id < 0}
+                    allowDelete={this.props.logValue.id > 0}
                     logValue={this.props.logValue}
                     onUpdate={this.props.onUpdate}
-                    onDelete={(logValue) => this.props.onUpdate({...logValue, data: ''})}
+                    onDelete={(logValue) => this.props.onUpdate(createEmptyLogValue(logValue.logKey))}
                 />
                 {this.renderDeleteButton()}
             </InputGroup>

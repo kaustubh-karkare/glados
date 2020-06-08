@@ -12,10 +12,6 @@ import { createEmptyLogCategory, createEmptyLogEntry, createEmptyLogValue } from
 import deepcopy from '../../common/deepcopy';
 
 class LogEntryEditor extends React.Component {
-    LogEntryEditor.propTypes = {
-        logEntry: PropTypes.Custom.LogEntry,
-    };
-
     constructor(props) {
         super(props);
         this.state = {
@@ -23,7 +19,7 @@ class LogEntryEditor extends React.Component {
         };
     }
 
-    getTitleRow() {
+    renderTitleRow() {
         return (
             <InputGroup className="my-1" size="sm">
                 <InputGroup.Prepend>
@@ -66,7 +62,7 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    getCategoryRow() {
+    renderCategoryRow() {
         return (
             <InputGroup className="my-1" size="sm">
                 <InputGroup.Prepend>
@@ -95,7 +91,7 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    getDetailsRow() {
+    renderDetailsRow() {
         return (
             <InputGroup className="my-1" size="sm">
                 <InputGroup.Prepend>
@@ -122,11 +118,28 @@ class LogEntryEditor extends React.Component {
         });
     }
 
+    renderSaveButton() {
+        return (
+            <Button
+                onClick={() => this.saveLogEntry(this.state.logEntry)}
+                size="sm"
+                variant="secondary">
+                {'Save'}
+            </Button>
+        );
+    }
+
+    saveLogEntry(logEntry) {
+        window.api.send('log-entry-upsert', logEntry)
+            .then(result => console.info(result))
+            .catch(error => console.error(error));
+    }
+
     render() {
         return (
             <div>
-                {this.getTitleRow()}
-                {this.getCategoryRow()}
+                {this.renderTitleRow()}
+                {this.renderCategoryRow()}
                 <LogValueListEditor
                     allowReorder={false}
                     isNewCategory={this.state.logEntry.logCategory.id < 0}
@@ -137,10 +150,15 @@ class LogEntryEditor extends React.Component {
                         return { logEntry };
                     })}
                 />
-                {this.getDetailsRow()}
+                {this.renderDetailsRow()}
+                {this.renderSaveButton()}
             </div>
         );
     }
 }
+
+LogEntryEditor.propTypes = {
+    logEntry: PropTypes.Custom.LogEntry,
+};
 
 export default LogEntryEditor;

@@ -6,9 +6,6 @@ const express = require('express');
 const fs = require('fs');
 const http = require('http');
 const SocketIO = require('socket.io');
-// eslint-disable-next-line import/no-extraneous-dependencies
-const webpack = require('webpack');
-const webpackConfig = require('./webpack.config');
 
 // Step 1: Load Configuration
 
@@ -34,15 +31,7 @@ try {
     throw new Error('The format of ./config.json must match ./config.json.example');
 }
 
-// Step 2: Use webpack to build the client bundle.
-
-const webpackCompiler = webpack(webpackConfig);
-webpackCompiler.watch({ poll: 100 }, () => {
-    // eslint-disable-next-line no-console
-    console.info('Webpack change detected. Recompiled!');
-});
-
-// Step 3: Use express to serve the client.
+// Step 2: Use express to serve the client.
 
 const app = express();
 const server = http.Server(app);
@@ -56,4 +45,6 @@ main(io, appConfig)
         });
         app.use(express.static('dist'));
         server.listen(appConfig.port);
+        // eslint-disable-next-line no-console
+        console.info('Server ready!');
     });

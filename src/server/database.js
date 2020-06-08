@@ -282,13 +282,17 @@ class Database {
         return instance.destroy({ transaction });
     }
 
-    async getEdges(edgeName, leftName, leftId, transaction) {
-        const Model = this.models[edgeName];
-        const edges = await Model.findAll({
+    async getNodesByEdge(edgeName, leftName, leftId, rightName, rightType, transaction) {
+        const EdgeModel = this.models[edgeName];
+        const edges = await EdgeModel.findAll({
             where: { [leftName]: leftId },
             transaction,
         });
-        return edges;
+        const NodeModel = this.models[rightType];
+        const nodes = await Promise.all(
+            edges.map((edge) => NodeModel.findByPk(edge[rightName]))
+        );
+        return nodes;
     }
 
     async setEdges(edgeName, leftName, leftId, rightName, right, transaction) {

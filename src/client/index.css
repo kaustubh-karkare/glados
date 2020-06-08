@@ -13,6 +13,10 @@
     box-shadow: none !important;
 }
 
+.form-control:disabled {
+    background-color: #ccc;
+}
+
 .text-editor {
     flex-grow: 1;
 }

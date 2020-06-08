@@ -90,23 +90,22 @@ const Actions = {
         return this.database.sequelize.transaction(async (transaction) => {
             let fields = { id: input.logCategory.id, name: input.logCategory.name };
             const logCategory = await this.database.createOrFind('LogCategory', fields, {}, transaction);
-            const logCategoryKeyEdges = await this.database.getEdges(
-                'LogCategoryToLogKey',
-                'category_id',
-                logCategory.id,
-                transaction,
-            );
-            fields = { id: input.id, title: input.title, category_id: logCategory.id };
+            fields = {
+                id: input.id,
+                title: input.title,
+                category_id: logCategory.id,
+                details: logCategory.details,
+            };
             const logEntry = await this.database.createOrUpdate('LogEntry', fields, transaction);
             const logValues = await Promise.all(
                 input.logValues.map(async (inputLogValue) => {
                     const logKey = await this.database.createOrFind(
                         'LogKey',
-                        { name: inputLogValue.keyName },
-                        { type: inputLogValue.keyType },
+                        { name: inputLogValue.logKey.name },
+                        { type: inputLogValue.logKey.type },
                         transaction,
                     );
-                    assert(logKey.type === inputLogValue.keyType, 'Mismatched key type!');
+                    assert(logKey.type === inputLogValue.logKey.type, 'Mismatched key type!');
                     const logValue = await this.database.createOrFind(
                         'LogValue',
                         { key_id: logKey.id, data: inputLogValue.data },
@@ -124,11 +123,37 @@ const Actions = {
                     };
                 }),
             );
-            const logKeyIDs = logValues.map((value) => value.keyId);
-            assert(
-                logCategoryKeyEdges.every((edge) => logKeyIDs.includes(edge.key_id)),
-                'Missing keys for selected category!',
-            );
+            if (input.logCategory.id < 0) {
+                await this.database.setEdges(
+                    'LogCategoryToLogKey',
+                    'category_id',
+                    logCategory.id,
+                    'key_id',
+                    logValues.reduce((result, logValue, index) => {
+                        // eslint-disable-next-line no-param-reassign
+                        result[logValue.logKey.id] = { ordering_index: index };
+                        return result;
+                    }, {}),
+                    transaction,
+                );
+            } else {
+                const logCategoryKeys = await this.database.getNodesByEdge(
+                    'LogCategoryToLogKey',
+                    'category_id',
+                    logCategory.id,
+                    'key_id',
+                    'LogKey',
+                    transaction,
+                );
+                assert(
+                    logCategoryKeys.map((logKey) => logKey.id).equals(
+                        logValues.map((logValue) => logValue.logKey.id)
+                    ),
+                    'Missing keys for selected category!'
+                        + '\nExpected = ' + logCategoryKeys.map((logKey) => logKey.name).join(', ')
+                        + '\nActual = ' + logValues.map((logValue) => logValue.logKey.name).join(', ')
+                );
+            }
             await this.database.setEdges(
                 'LogEntryToLogValue',
                 'entry_id',
@@ -144,13 +169,26 @@ const Actions = {
             return {
                 id: logEntry.id,
                 title: logEntry.title,
-                logCategory: { id: logCategory.id, name: logCategory.name },
+                logCategory: {
+                    id: logCategory.id,
+                    name: logCategory.name,
+                    logKeys: logValues.map((logValue) => logValue.logKey),
+                },
                 logValues,
             };
         });
     },
-    'log-value-typeahead': async function () {
-        return [];
+    'log-value-typeahead': async function (logValue) {
+        const { LogValue } = this.database.models;
+        const logKey = logValue.logKey;
+        const matchingLogValues = await LogValue.findAll({
+            where: {key_id: logValue.logKey.id},
+        });
+        return matchingLogValues.map((logValue) => ({
+            id: logValue.id,
+            data: logValue.data,
+            logKey,
+        }));
     },
 };
 
