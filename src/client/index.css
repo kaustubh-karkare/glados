@@ -13,10 +13,16 @@
     box-shadow: none !important;
 }
 
+.text-editor {
+    flex-grow: 1;
+}
+
 .text-editor .public-DraftEditor-content {
     background: white;
     border: 1px solid #222;
     color: #444;
+    min-height: 27px;
+    padding: 1px 5px;
 }
 
 .text-editor .public-DraftStyleDefault-ul,

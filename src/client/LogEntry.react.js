@@ -84,13 +84,20 @@ class LogEntryEditor extends React.Component {
 
     getDetailsRow() {
         return (
-            <TextEditor
-                value={this.state.logEntry.details}
-                onUpdate={(value) => this.updateLogEntry((logEntry) => {
-                    // eslint-disable-next-line no-param-reassign
-                    logEntry.details = value;
-                })}
-            />
+            <InputGroup className="my-1" size="sm">
+                <InputGroup.Prepend>
+                    <InputGroup.Text style={{ width: 100 }}>
+                        Details
+                    </InputGroup.Text>
+                </InputGroup.Prepend>
+                <TextEditor
+                    value={this.state.logEntry.details}
+                    onUpdate={(value) => this.updateLogEntry((logEntry) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEntry.details = value;
+                    })}
+                />
+            </InputGroup>
         );
     }
 
@@ -115,6 +122,7 @@ class LogEntryEditor extends React.Component {
                         return { logEntry };
                     })}
                 />
+                {this.getDetailsRow()}
                 <Button
                     onClick={() => this.setState((state) => {
                         const logEntry = { ...state.logEntry };
@@ -127,7 +135,6 @@ class LogEntryEditor extends React.Component {
                 >
                     Add value?
                 </Button>
-                {this.getDetailsRow()}
             </div>
         );
     }
