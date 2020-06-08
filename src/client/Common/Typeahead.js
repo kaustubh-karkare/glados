@@ -9,7 +9,19 @@ import 'react-bootstrap-typeahead/css/Typeahead.min.css';
 
 const RENAME_KEY = '__rename_key__';
 
-class GenericTypeahead extends React.Component {
+class Typeahead extends React.Component {
+    static propTypes = {
+        allowEditing: PropTypes.bool,
+        filterBy: PropTypes.func,
+        id: PropTypes.string.isRequired,
+        labelKey: PropTypes.string.isRequired,
+        onUpdate: PropTypes.func.isRequired,
+        placeholder: PropTypes.string.isRequired,
+        rpcName: PropTypes.string.isRequired,
+        // eslint-disable-next-line react/forbid-prop-types
+        value: PropTypes.any.isRequired,
+    };
+
     constructor(props) {
         super(props);
         this.state = { isLoading: false, options: [] };
@@ -88,16 +100,4 @@ class GenericTypeahead extends React.Component {
     }
 }
 
-GenericTypeahead.propTypes = {
-    allowEditing: PropTypes.bool,
-    filterBy: PropTypes.func,
-    id: PropTypes.string.isRequired,
-    labelKey: PropTypes.string.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    placeholder: PropTypes.string.isRequired,
-    rpcName: PropTypes.string.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    value: PropTypes.any.isRequired,
-};
-
-export default GenericTypeahead;
+export default Typeahead;

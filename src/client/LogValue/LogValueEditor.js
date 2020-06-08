@@ -4,7 +4,7 @@ import React from 'react';
 import { LogKeyTypeDropdown, LogKeyNameTypeahead } from '../LogKey';
 import LogValueDataTypeahead from './LogValueDataTypeahead';
 import PropTypes from '../prop-types';
-import { SortableDragHandle } from '../Sortable.react';
+import { SortableDragHandle } from '../Common';
 
 
 class LogValueEditor extends React.Component {

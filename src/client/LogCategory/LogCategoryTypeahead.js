@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from '../prop-types';
-
-import GenericTypeahead from '../GenericTypeahead.react';
+import { Typeahead } from '../Common';
 
 
 function LogCategoryTypeahead(props) {
     return (
-        <GenericTypeahead
+        <Typeahead
             id="log_category"
             labelKey="name"
             onUpdate={props.onUpdate}

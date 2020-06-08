@@ -1,10 +1,10 @@
 import React from 'react';
-import GenericTypeahead from '../GenericTypeahead.react';
+import { Typeahead } from '../Common';
 import PropTypes from '../prop-types';
 
 function LogKeyNameTypeahead(props) {
     return (
-        <GenericTypeahead
+        <Typeahead
             {...props}
             id="log_key"
             labelKey="name"

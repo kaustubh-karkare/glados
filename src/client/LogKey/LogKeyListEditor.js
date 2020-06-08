@@ -1,7 +1,7 @@
 import React from 'react';
 import arrayMove from 'array-move';
 import PropTypes from '../prop-types';
-import { SortableElement, SortableList } from '../Sortable.react';
+import { SortableElement, SortableList } from '../Common';
 
 import LogKeyEditor from './LogKeyEditor';
 

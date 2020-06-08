@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
 
-import LeftRight from '../LeftRight.react';
+import { LeftRight } from '../Common';
 import LogCategoryEditor from './LogCategoryEditor';
 
 

@@ -7,7 +7,7 @@ import PropTypes from '../prop-types';
 import LogKeyTypes from '../../common/log_key_types';
 import deepcopy from '../../common/deepcopy';
 
-import LeftRight from '../LeftRight.react';
+import { LeftRight } from '../Common';
 import { LogKeyListEditor } from '../LogKey';
 
 class LogCategoryEditor extends React.Component {

@@ -1,10 +1,10 @@
 import React from 'react';
-import GenericTypeahead from '../GenericTypeahead.react';
+import { Typeahead } from '../Common';
 import PropTypes from '../prop-types';
 
 function LogValueDataTypeahead(props) {
     return (
-        <GenericTypeahead
+        <Typeahead
             id="log_value"
             labelKey="data"
             onUpdate={props.onUpdate}

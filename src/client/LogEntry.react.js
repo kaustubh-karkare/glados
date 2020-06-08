@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import TextEditor from './Common/TextEditor.react';
+import { TextEditor } from './Common';
 import { LogCategoryTypeahead } from './LogCategory';
 import { LogValueListEditor } from './LogValue';
 import PropTypes from './prop-types';
