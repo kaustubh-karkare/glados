@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { LogEntryList } from './LogEntry.react';
+import { LogEntryList } from './LogEntry';
 import { LogCategoryList } from './LogCategory';
 
 const TabKeys = {

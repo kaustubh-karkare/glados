@@ -2,14 +2,18 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { TextEditor } from './Common';
-import { LogCategoryTypeahead } from './LogCategory';
-import { LogValueListEditor } from './LogValue';
-import PropTypes from './prop-types';
+import { TextEditor } from '../Common';
+import { LogCategoryTypeahead } from '../LogCategory';
+import { LogValueListEditor } from '../LogValue';
+import PropTypes from '../prop-types';
 
-import deepcopy from '../common/deepcopy';
+import deepcopy from '../../common/deepcopy';
 
 class LogEntryEditor extends React.Component {
+    static propTypes = {
+        logEntry: PropTypes.Custom.LogEntry,
+    };
+
     static createEmptyLogValue() {
         return {
             id: window.getNegativeID(),
@@ -140,31 +144,4 @@ class LogEntryEditor extends React.Component {
     }
 }
 
-LogEntryEditor.propTypes = {
-    logEntry: PropTypes.Custom.LogEntry,
-};
-
-class LogEntryList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { entries: null };
-    }
-
-    componentDidMount() {
-        this.reload();
-    }
-
-    reload() {
-        window.api.send('log-entry-list')
-            .then((entries) => this.setState({ entries }));
-    }
-
-    render() {
-        if (this.state.entries) {
-            return <div>Loading Entries ...</div>;
-        }
-        return <LogEntryEditor />;
-    }
-}
-
-export { LogEntryList };
+export default LogEntryEditor;

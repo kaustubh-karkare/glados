@@ -25,7 +25,6 @@ module.exports = {
     ],
     rules: {
         indent: ['error', 4],
-        'max-classes-per-file': [0],
         'react/jsx-indent': ['error', 4],
         'react/jsx-indent-props': ['error', 4],
         'react/destructuring-assignment': [0],
