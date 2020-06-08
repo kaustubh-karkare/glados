@@ -10,20 +10,6 @@ import 'react-bootstrap-typeahead/css/Typeahead.min.css';
 const RENAME_KEY = '__rename_key__';
 
 class Typeahead extends React.Component {
-    static propTypes = {
-        allowUpdate: PropTypes.bool,
-        allowDelete: PropTypes.bool,
-        filterBy: PropTypes.func,
-        id: PropTypes.string.isRequired,
-        labelKey: PropTypes.string.isRequired,
-        onUpdate: PropTypes.func.isRequired,
-        onDelete: PropTypes.func,
-        placeholder: PropTypes.string,
-        rpcName: PropTypes.string.isRequired,
-        // eslint-disable-next-line react/forbid-prop-types
-        value: PropTypes.any.isRequired,
-    };
-
     constructor(props) {
         super(props);
         this.state = { isLoading: false, options: [] };
@@ -64,7 +50,7 @@ class Typeahead extends React.Component {
     }
 
     render() {
-        const selected = this.props.value[this.props.labelKey];
+        const selectedOptionLabel = this.props.value[this.props.labelKey];
         return (
             <>
                 <AsyncTypeahead
@@ -77,11 +63,11 @@ class Typeahead extends React.Component {
                         this.props.value.id > 0
                         && !this.props.value[RENAME_KEY]
                     }
-                    onFocus={() => this.onSearch(selected)}
+                    onFocus={() => this.onSearch(selectedOptionLabel)}
                     onSearch={(query) => this.onSearch(query)}
                     filterBy={this.props.filterBy}
                     placeholder={this.props.placeholder}
-                    selected={[selected]}
+                    selected={[selectedOptionLabel]}
                     onInputChange={(text) => this.onInputChange(text)}
                     onChange={(selected) => {
                         if (selected.length) {
@@ -111,10 +97,24 @@ class Typeahead extends React.Component {
         this.setState({ isLoading: true }, () => {
             window.api.send(this.props.rpcName, this.props.value, query)
                 .then((options) => {
-                    this.setState({ isLoading: false, options })
+                    this.setState({ isLoading: false, options });
                 });
         });
     }
 }
+
+Typeahead.propTypes = {
+    allowUpdate: PropTypes.bool,
+    allowDelete: PropTypes.bool,
+    filterBy: PropTypes.func,
+    id: PropTypes.string.isRequired,
+    labelKey: PropTypes.string.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
+    placeholder: PropTypes.string,
+    rpcName: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    value: PropTypes.any.isRequired,
+};
 
 export default Typeahead;

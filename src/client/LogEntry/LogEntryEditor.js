@@ -19,6 +19,20 @@ class LogEntryEditor extends React.Component {
         };
     }
 
+    saveLogEntry(logEntry) {
+        window.api.send('log-entry-upsert', logEntry)
+            .then((result) => console.info(result))
+            .catch((error) => console.error(error));
+    }
+
+    updateLogEntry(method) {
+        this.setState((state) => {
+            const logEntry = deepcopy(state.logEntry);
+            method(logEntry, state);
+            return { logEntry };
+        });
+    }
+
     renderTitleRow() {
         return (
             <InputGroup className="my-1" size="sm">
@@ -42,17 +56,17 @@ class LogEntryEditor extends React.Component {
 
     renderAddLogValueButton() {
         if (this.state.logEntry.logCategory.id > 0) {
-            return;
+            return null;
         }
         return (
             <InputGroup.Append>
                 <Button
                     onClick={() => this.setState((state) => {
-                    const logEntry = { ...state.logEntry };
-                    logEntry.logValues = [...logEntry.logValues];
-                    logEntry.logValues.push(createEmptyLogValue());
-                    return { logEntry };
-                })}
+                        const logEntry = { ...state.logEntry };
+                        logEntry.logValues = [...logEntry.logValues];
+                        logEntry.logValues.push(createEmptyLogValue());
+                        return { logEntry };
+                    })}
                     size="sm"
                     variant="secondary"
                 >
@@ -71,13 +85,13 @@ class LogEntryEditor extends React.Component {
                     </InputGroup.Text>
                 </InputGroup.Prepend>
                 <LogCategoryTypeahead
-                    allowDelete={true}
+                    allowDelete
                     logCategory={this.state.logEntry.logCategory}
                     onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = logCategory;
                         logEntry.logValues = logCategory.logKeys.map(
-                            logKey => createEmptyLogValue(logKey)
+                            (logKey) => createEmptyLogValue(logKey),
                         );
                     })}
                     onDelete={() => this.updateLogEntry((logEntry) => {
@@ -110,29 +124,16 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    updateLogEntry(method) {
-        this.setState((state) => {
-            const logEntry = deepcopy(state.logEntry);
-            method(logEntry, state);
-            return { logEntry };
-        });
-    }
-
     renderSaveButton() {
         return (
             <Button
                 onClick={() => this.saveLogEntry(this.state.logEntry)}
                 size="sm"
-                variant="secondary">
-                {'Save'}
+                variant="secondary"
+            >
+                Save
             </Button>
         );
-    }
-
-    saveLogEntry(logEntry) {
-        window.api.send('log-entry-upsert', logEntry)
-            .then(result => console.info(result))
-            .catch(error => console.error(error));
     }
 
     render() {
@@ -141,7 +142,7 @@ class LogEntryEditor extends React.Component {
                 {this.renderTitleRow()}
                 {this.renderCategoryRow()}
                 <LogValueListEditor
-                    allowReorder={false}
+                    allowReordering={false}
                     isNewCategory={this.state.logEntry.logCategory.id < 0}
                     logValues={this.state.logEntry.logValues}
                     onUpdate={(logValues) => this.setState((state) => {

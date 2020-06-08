@@ -14,6 +14,13 @@ class LogKeyEditor extends React.Component {
         this.props.onUpdate(logKey);
     }
 
+    filterBy(option) {
+        return (
+            !this.props.filterBy
+            || this.props.filterBy(this.props.sortableListItemIndex, option)
+        );
+    }
+
     render() {
         return (
             <InputGroup className="mb-1" size="sm">
@@ -29,9 +36,8 @@ class LogKeyEditor extends React.Component {
                     />
                 </InputGroup.Prepend>
                 <LogKeyNameTypeahead
-                    allowEditing={this.props.allowEditing}
                     logKey={this.props.logKey}
-                    filterBy={this.props.filterBy}
+                    filterBy={(option) => this.filterBy(option)}
                     onUpdate={this.props.onUpdate}
                 />
                 <InputGroup.Append>
@@ -50,7 +56,6 @@ class LogKeyEditor extends React.Component {
 }
 
 LogKeyEditor.propTypes = {
-    allowEditing: PropTypes.bool.isRequired,
     logKey: PropTypes.Custom.LogKey.isRequired,
     filterBy: PropTypes.func,
     onUpdate: PropTypes.func.isRequired,

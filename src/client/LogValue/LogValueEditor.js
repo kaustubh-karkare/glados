@@ -30,9 +30,8 @@ class LogValueEditor extends React.Component {
                     </Button>
                 </InputGroup.Append>
             );
-        } else {
-            return null;
         }
+        return null;
     }
 
     render() {
@@ -44,11 +43,11 @@ class LogValueEditor extends React.Component {
                             ⋮
                         </InputGroup.Text>
                     </SortableDragHandle>
-                    <LogKeyTypeDropdown
-                        logKey={this.props.logValue.logKey}
-                        onUpdate={(logKey) => this.updateLogKey(logKey)}
-                    />
                 </InputGroup.Prepend>
+                <LogKeyTypeDropdown
+                    logKey={this.props.logValue.logKey}
+                    onUpdate={(logKey) => this.updateLogKey(logKey)}
+                />
                 <LogKeyNameTypeahead
                     logKey={this.props.logValue.logKey}
                     allowDelete={this.props.isNewCategory}
@@ -59,7 +58,9 @@ class LogValueEditor extends React.Component {
                     allowDelete={this.props.logValue.id > 0}
                     logValue={this.props.logValue}
                     onUpdate={this.props.onUpdate}
-                    onDelete={(logValue) => this.props.onUpdate(createEmptyLogValue(logValue.logKey))}
+                    onDelete={(logValue) => this.props.onUpdate(
+                        createEmptyLogValue(logValue.logKey),
+                    )}
                 />
                 {this.renderDeleteButton()}
             </InputGroup>

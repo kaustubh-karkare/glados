@@ -147,11 +147,11 @@ const Actions = {
                 );
                 assert(
                     logCategoryKeys.map((logKey) => logKey.id).equals(
-                        logValues.map((logValue) => logValue.logKey.id)
+                        logValues.map((logValue) => logValue.logKey.id),
                     ),
-                    'Missing keys for selected category!'
-                        + '\nExpected = ' + logCategoryKeys.map((logKey) => logKey.name).join(', ')
-                        + '\nActual = ' + logValues.map((logValue) => logValue.logKey.name).join(', ')
+                    `${'Missing keys for selected category!'
+                        + '\nExpected = '}${logCategoryKeys.map((logKey) => logKey.name).join(', ')
+                    }\nActual = ${logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
                 );
             }
             await this.database.setEdges(
@@ -180,9 +180,9 @@ const Actions = {
     },
     'log-value-typeahead': async function (logValue) {
         const { LogValue } = this.database.models;
-        const logKey = logValue.logKey;
+        const { logKey } = logValue;
         const matchingLogValues = await LogValue.findAll({
-            where: {key_id: logValue.logKey.id},
+            where: { key_id: logValue.logKey.id },
         });
         return matchingLogValues.map((logValue) => ({
             id: logValue.id,

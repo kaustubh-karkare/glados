@@ -1,9 +1,9 @@
 import LeftRight from './LeftRight';
 import TextEditor from './TextEditor';
 import Typeahead from './Typeahead';
-import { SortableDragHandle, SortableElement, SortableList } from './Sortable';
+import { GenericSortableList, SortableDragHandle } from './Sortable';
 
 export {
     LeftRight, TextEditor, Typeahead,
-    SortableDragHandle, SortableElement, SortableList,
+    GenericSortableList, SortableDragHandle,
 };

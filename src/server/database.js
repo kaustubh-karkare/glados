@@ -290,7 +290,7 @@ class Database {
         });
         const NodeModel = this.models[rightType];
         const nodes = await Promise.all(
-            edges.map((edge) => NodeModel.findByPk(edge[rightName]))
+            edges.map((edge) => NodeModel.findByPk(edge[rightName])),
         );
         return nodes;
     }
