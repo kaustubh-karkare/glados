@@ -11,11 +11,13 @@ const RENAME_KEY = '__rename_key__';
 
 class Typeahead extends React.Component {
     static propTypes = {
-        allowEditing: PropTypes.bool,
+        allowUpdate: PropTypes.bool,
+        allowDelete: PropTypes.bool,
         filterBy: PropTypes.func,
         id: PropTypes.string.isRequired,
         labelKey: PropTypes.string.isRequired,
         onUpdate: PropTypes.func.isRequired,
+        onDelete: PropTypes.func,
         placeholder: PropTypes.string.isRequired,
         rpcName: PropTypes.string.isRequired,
         // eslint-disable-next-line react/forbid-prop-types
@@ -27,35 +29,41 @@ class Typeahead extends React.Component {
         this.state = { isLoading: false, options: [] };
     }
 
-    renderEditButtons() {
-        if (!this.props.allowEditing) {
+    renderUpdateButton() {
+        if (!this.props.allowUpdate) {
             return null;
         }
         return (
-            <>
-                <Button
-                    onClick={() => {
-                        this.props.onUpdate({ ...this.props.value, [RENAME_KEY]: true });
-                    }}
-                    size="sm"
-                    title="Edit"
-                    variant="secondary"
-                >
-                    <FaRegEdit />
-                </Button>
-                <Button
-                    size="sm"
-                    title="Cancel"
-                    variant="secondary"
-                >
-                    <GiCancel />
-                </Button>
-            </>
+            <Button
+                onClick={() => {
+                    this.props.onUpdate({ ...this.props.value, [RENAME_KEY]: true });
+                }}
+                size="sm"
+                title="Edit"
+                variant="secondary"
+            >
+                <FaRegEdit />
+            </Button>
+        );
+    }
+
+    renderDeleteButton() {
+        if (!this.props.allowDelete || this.props.value.id < 0) {
+            return null;
+        }
+        return (
+            <Button
+                onClick={() => this.props.onDelete(this.props.value)}
+                size="sm"
+                title="Cancel"
+                variant="secondary"
+            >
+                <GiCancel />
+            </Button>
         );
     }
 
     render() {
-        const { value } = this.props;
         return (
             <>
                 <AsyncTypeahead
@@ -65,22 +73,15 @@ class Typeahead extends React.Component {
                     size="small"
                     minLength={0}
                     disabled={
-                        value
-                        && value.id > 0
-                        && !value[RENAME_KEY]
+                        this.props.value
+                        && this.props.value.id > 0
+                        && !this.props.value[RENAME_KEY]
                     }
-                    onSearch={(query) => {
-                        this.setState({ isLoading: true }, () => {
-                            window.api.send(this.props.rpcName, value, query)
-                                .then((options) => this.setState({ isLoading: false, options }));
-                        });
-                    }}
+                    onSearch={(query) => this.onSearch(query)}
                     filterBy={this.props.filterBy}
                     placeholder={this.props.placeholder}
-                    selected={[value && value[this.props.labelKey]]}
-                    onInputChange={
-                        (text) => this.props.onUpdate({ ...value, [this.props.labelKey]: text })
-                    }
+                    selected={[this.props.value && this.props.value[this.props.labelKey]]}
+                    onInputChange={(text) => this.onInputChange(text)}
                     onChange={(selected) => {
                         if (selected.length) {
                             this.props.onUpdate(selected[0]);
@@ -94,9 +95,24 @@ class Typeahead extends React.Component {
                         )
                     }
                 />
-                {this.renderEditButtons()}
+                {this.renderUpdateButton()}
+                {this.renderDeleteButton()}
             </>
         );
+    }
+
+    onInputChange(text) {
+        this.onSearch(text);
+        this.props.onUpdate({ ...this.props.value, [this.props.labelKey]: text });
+    }
+
+    onSearch(query) {
+        this.setState({ isLoading: true }, () => {
+            window.api.send(this.props.rpcName, this.props.value, query)
+                .then((options) => {
+                    this.setState({ isLoading: false, options })
+                });
+        });
     }
 }
 

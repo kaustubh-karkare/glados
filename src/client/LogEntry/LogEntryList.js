@@ -1,5 +1,5 @@
-import LogEntryEditor from './LogEntryEditor';
 import React from 'react';
+import LogEntryEditor from './LogEntryEditor';
 
 class LogEntryList extends React.Component {
     constructor(props) {

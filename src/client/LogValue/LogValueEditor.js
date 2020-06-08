@@ -1,4 +1,5 @@
 import Button from 'react-bootstrap/Button';
+import { FaRegTrashAlt } from 'react-icons/fa';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import { LogKeyTypeDropdown, LogKeyNameTypeahead } from '../LogKey';
@@ -6,12 +7,32 @@ import LogValueDataTypeahead from './LogValueDataTypeahead';
 import PropTypes from '../prop-types';
 import { SortableDragHandle } from '../Common';
 
+import { createEmptyLogKey } from '../Data';
+
 
 class LogValueEditor extends React.Component {
     updateLogKey(logKey) {
         const logValue = { ...this.props.logValue };
         logValue.logKey = logKey;
         this.props.onUpdate(logValue);
+    }
+
+    renderDeleteButton() {
+        if (this.props.isNewCategory) {
+            return (
+                <InputGroup.Append>
+                    <Button
+                        onClick={this.props.onDelete}
+                        size="sm"
+                        variant="secondary"
+                    >
+                        <FaRegTrashAlt />
+                    </Button>
+                </InputGroup.Append>
+            );
+        } else {
+            return null;
+        }
     }
 
     render() {
@@ -30,28 +51,24 @@ class LogValueEditor extends React.Component {
                 </InputGroup.Prepend>
                 <LogKeyNameTypeahead
                     logKey={this.props.logValue.logKey}
+                    allowDelete={this.props.isNewCategory}
                     onUpdate={(logKey) => this.updateLogKey(logKey)}
+                    onDelete={() => this.updateLogKey(createEmptyLogKey())}
                 />
                 <LogValueDataTypeahead
-                    allowEdit
+                    allowDelete={this.props.logValue.id < 0}
                     logValue={this.props.logValue}
                     onUpdate={this.props.onUpdate}
+                    onDelete={(logValue) => this.props.onUpdate({...logValue, data: ''})}
                 />
-                <InputGroup.Append>
-                    <Button
-                        onClick={this.props.onDelete}
-                        size="sm"
-                        variant="secondary"
-                    >
-                        🗑
-                    </Button>
-                </InputGroup.Append>
+                {this.renderDeleteButton()}
             </InputGroup>
         );
     }
 }
 
 LogValueEditor.propTypes = {
+    isNewCategory: PropTypes.bool.isRequired,
     logValue: PropTypes.Custom.LogValue.isRequired,
     onUpdate: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,

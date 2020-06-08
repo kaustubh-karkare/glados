@@ -6,10 +6,10 @@ import { Typeahead } from '../Common';
 function LogCategoryTypeahead(props) {
     return (
         <Typeahead
+            {...props}
             id="log_category"
             labelKey="name"
             onUpdate={props.onUpdate}
-            placeholder="Category Name"
             rpcName="log-category-list"
             value={props.logCategory}
         />
@@ -18,7 +18,6 @@ function LogCategoryTypeahead(props) {
 
 LogCategoryTypeahead.propTypes = {
     logCategory: PropTypes.Custom.LogCategory.isRequired,
-    onUpdate: PropTypes.func.isRequired,
 };
 
 export default LogCategoryTypeahead;

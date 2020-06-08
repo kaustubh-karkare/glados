@@ -45,7 +45,8 @@ class LogKeyListEditor extends React.Component {
                         key={logKey.id}
                         index={index}
                         logKey={logKey}
-                        allowEditing
+                        allowUpdate
+                        allowDelete
                         filterBy={(option) => this.filterBy(index, option)}
                         onUpdate={(updatedLogKey) => this.onUpdate(index, updatedLogKey)}
                         onDelete={(deletedLogKey) => this.onDelete(index, deletedLogKey)}

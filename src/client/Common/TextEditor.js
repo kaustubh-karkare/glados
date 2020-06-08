@@ -8,8 +8,8 @@ import React from 'react';
 // Using a local copy of the plugin until the PR is merged.
 // https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
 // cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
-import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
+import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 
 import 'draft-js/dist/Draft.css';
 
@@ -106,7 +106,7 @@ class TextEditor extends React.Component {
                 <div className="mention-suggestions">
                     <MentionSuggestions
                         open={this.state.open}
-                        onOpenChange={open => this.setState({open})}
+                        onOpenChange={(open) => this.setState({ open })}
                         onSearchChange={(data) => this.onSearchChange(data)}
                         suggestions={this.state.suggestions}
                     />

@@ -1,48 +1,25 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import { TextEditor } from '../Common';
 import { LogCategoryTypeahead } from '../LogCategory';
 import { LogValueListEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
+import { createEmptyLogCategory, createEmptyLogEntry, createEmptyLogValue } from '../Data';
 import deepcopy from '../../common/deepcopy';
 
 class LogEntryEditor extends React.Component {
-    static propTypes = {
+    LogEntryEditor.propTypes = {
         logEntry: PropTypes.Custom.LogEntry,
     };
-
-    static createEmptyLogValue() {
-        return {
-            id: window.getNegativeID(),
-            data: '',
-            logKey: {
-                id: window.getNegativeID(),
-                name: '',
-                type: 'string',
-            },
-        };
-    }
-
-    static createEmptyLogEntry() {
-        return {
-            title: '',
-            logCategory: {
-                id: window.getNegativeID(),
-                name: '',
-                logKeys: [],
-            },
-            logValues: [],
-            details: '',
-        };
-    }
 
     constructor(props) {
         super(props);
         this.state = {
-            logEntry: this.props.logEntry || LogEntryEditor.createEmptyLogEntry(),
+            logEntry: this.props.logEntry || createEmptyLogEntry(),
         };
     }
 
@@ -67,6 +44,28 @@ class LogEntryEditor extends React.Component {
         );
     }
 
+    renderAddLogValueButton() {
+        if (this.state.logEntry.logCategory.id > 0) {
+            return;
+        }
+        return (
+            <InputGroup.Append>
+                <Button
+                    onClick={() => this.setState((state) => {
+                    const logEntry = { ...state.logEntry };
+                    logEntry.logValues = [...logEntry.logValues];
+                    logEntry.logValues.push(createEmptyLogValue());
+                    return { logEntry };
+                })}
+                    size="sm"
+                    variant="secondary"
+                >
+                    <MdAddCircleOutline />
+                </Button>
+            </InputGroup.Append>
+        );
+    }
+
     getCategoryRow() {
         return (
             <InputGroup className="my-1" size="sm">
@@ -76,12 +75,22 @@ class LogEntryEditor extends React.Component {
                     </InputGroup.Text>
                 </InputGroup.Prepend>
                 <LogCategoryTypeahead
+                    allowDelete={true}
                     logCategory={this.state.logEntry.logCategory}
                     onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = logCategory;
+                        logEntry.logValues = logCategory.logKeys.map(
+                            logKey => createEmptyLogValue(logKey)
+                        );
+                    })}
+                    onDelete={() => this.updateLogEntry((logEntry) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEntry.logCategory = createEmptyLogCategory();
+                        logEntry.logValues = [];
                     })}
                 />
+                {this.renderAddLogValueButton()}
             </InputGroup>
         );
     }
@@ -90,7 +99,7 @@ class LogEntryEditor extends React.Component {
         return (
             <InputGroup className="my-1" size="sm">
                 <InputGroup.Prepend>
-                    <InputGroup.Text style={{ width: 100 }}>
+                    <InputGroup.Text style={{ width: 99 }}>
                         Details
                     </InputGroup.Text>
                 </InputGroup.Prepend>
@@ -119,6 +128,8 @@ class LogEntryEditor extends React.Component {
                 {this.getTitleRow()}
                 {this.getCategoryRow()}
                 <LogValueListEditor
+                    allowReorder={false}
+                    isNewCategory={this.state.logEntry.logCategory.id < 0}
                     logValues={this.state.logEntry.logValues}
                     onUpdate={(logValues) => this.setState((state) => {
                         const logEntry = { ...state.logEntry };
@@ -127,18 +138,6 @@ class LogEntryEditor extends React.Component {
                     })}
                 />
                 {this.getDetailsRow()}
-                <Button
-                    onClick={() => this.setState((state) => {
-                        const logEntry = { ...state.logEntry };
-                        logEntry.logValues = [...logEntry.logValues];
-                        logEntry.logValues.push(LogEntryEditor.createEmptyLogValue());
-                        return { logEntry };
-                    })}
-                    size="sm"
-                    variant="secondary"
-                >
-                    Add value?
-                </Button>
             </div>
         );
     }

@@ -33,6 +33,7 @@ class LogValueListEditor extends React.Component {
                     <LogValueEditorSortableItem
                         key={logValue.id}
                         index={index}
+                        isNewCategory={this.props.isNewCategory}
                         logValue={logValue}
                         onUpdate={(updatedLogValue) => this.onUpdate(index, updatedLogValue)}
                         onDelete={(deletedIndex) => this.onDelete(deletedIndex)}
@@ -44,6 +45,7 @@ class LogValueListEditor extends React.Component {
 }
 
 LogValueListEditor.propTypes = {
+    isNewCategory: PropTypes.bool.isRequired,
     logValues: PropTypes.arrayOf(PropTypes.Custom.LogValue.isRequired).isRequired,
     onUpdate: PropTypes.func.isRequired,
 };

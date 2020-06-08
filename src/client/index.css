@@ -20,6 +20,7 @@
 .text-editor .public-DraftEditor-content {
     background: white;
     border: 1px solid #222;
+    border-radius: 0 0.2rem 0.2rem 0;
     color: #444;
     min-height: 27px;
     padding: 1px 5px;

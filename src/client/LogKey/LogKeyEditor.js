@@ -38,6 +38,7 @@ class LogKeyEditor extends React.Component {
                     <Button
                         onClick={this.props.onDelete}
                         size="sm"
+                        title="Delete LogValue"
                         variant="secondary"
                     >
                         <FaRegTrashAlt />
