@@ -154,7 +154,7 @@ class LogEntryEditor extends React.Component {
                 {this.renderTitleRow()}
                 {this.renderCategoryRow()}
                 <LogValueListEditor
-                    allowReordering={false}
+                    allowReordering={this.state.logEntry.logCategory.id < 0}
                     isNewCategory={this.state.logEntry.logCategory.id < 0}
                     logValues={this.state.logEntry.logValues}
                     onUpdate={(logValues) => this.setState((state) => {

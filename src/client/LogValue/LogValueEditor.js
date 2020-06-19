@@ -38,11 +38,7 @@ class LogValueEditor extends React.Component {
         return (
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
-                    <SortableDragHandle>
-                        <InputGroup.Text style={{ cursor: 'grab' }}>
-                            ⋮
-                        </InputGroup.Text>
-                    </SortableDragHandle>
+                    <SortableDragHandle />
                 </InputGroup.Prepend>
                 <LogKeyTypeDropdown
                     logKey={this.props.logValue.logKey}
@@ -55,6 +51,7 @@ class LogValueEditor extends React.Component {
                     onDelete={() => this.updateLogKey(createEmptyLogKey())}
                 />
                 <LogValueDataTypeahead
+                    allowUpdate
                     allowDelete={this.props.logValue.id > 0}
                     logValue={this.props.logValue}
                     onUpdate={this.props.onUpdate}

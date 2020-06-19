@@ -23,7 +23,7 @@ function createModels(sequelize) {
             template: {
                 type: Sequelize.TEXT,
                 allowNull: false,
-            }
+            },
         },
         {
             ...options,

@@ -7,9 +7,9 @@ import Modal from 'react-bootstrap/Modal';
 import PropTypes from '../prop-types';
 import deepcopy from '../../common/deepcopy';
 
-import { LeftRight } from '../Common';
+import { LeftRight, TextEditor } from '../Common';
 import { LogKeyListEditor } from '../LogKey';
-import { TextEditor } from '../Common';
+
 
 import { createEmptyLogKey } from '../Data';
 
@@ -126,7 +126,7 @@ class LogCategoryEditor extends React.Component {
                     <TextEditor
                         value={this.state.category.template}
                         suggestions={[
-                            {trigger: '@', source: this.state.category.logKeys},
+                            { trigger: '@', source: this.state.category.logKeys },
                         ]}
                         onUpdate={(value) => this.updateCategory((category) => {
                             // eslint-disable-next-line no-param-reassign

@@ -65,7 +65,7 @@ function updateCategoryTemplate(value, before, after) {
 
     const block = editorContent.blocks[0];
     let prevIndex = 0;
-    let text = "";
+    let text = '';
     const entityRanges = [];
     block.entityRanges.forEach((entityRange) => {
         assert(prevIndex <= entityRange.offset);
@@ -90,12 +90,12 @@ function materializeCategoryTemplate(template, logValues) {
     const mapping = {};
     logValues.forEach((logValue) => {
         mapping[logValue.logKey.id] = logValue.data || '???';
-    })
+    });
 
     const editorContent = JSON.parse(template);
     const block = editorContent.blocks[0];
     let prevIndex = 0;
-    let result = "";
+    let result = '';
     block.entityRanges.forEach((entityRange) => {
         assert(prevIndex <= entityRange.offset);
         result += block.text.substring(prevIndex, entityRange.offset);
@@ -108,7 +108,7 @@ function materializeCategoryTemplate(template, logValues) {
     result = Array.from(result.matchAll(/(?:\{[^}]*\}|[^{}]*)/g))
         .map((result) => {
             const part = result[0];
-            if (part.startsWith("{") && part.endsWith("}")) {
+            if (part.startsWith('{') && part.endsWith('}')) {
                 try {
                     return eval(part.substring(1, part.length - 1)).toString();
                 } catch (error) {
@@ -118,7 +118,7 @@ function materializeCategoryTemplate(template, logValues) {
                 return part;
             }
         })
-        .join("");
+        .join('');
 
     return result;
 }

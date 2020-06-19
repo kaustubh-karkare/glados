@@ -25,17 +25,14 @@ class LogKeyEditor extends React.Component {
         return (
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
-                    <SortableDragHandle>
-                        <InputGroup.Text style={{ cursor: 'grab' }}>
-                            ⋮
-                        </InputGroup.Text>
-                    </SortableDragHandle>
+                    <SortableDragHandle />
                     <LogKeyTypeDropdown
                         logKey={this.props.logKey}
                         onUpdate={this.props.onUpdate}
                     />
                 </InputGroup.Prepend>
                 <LogKeyNameTypeahead
+                    allowUpdate
                     logKey={this.props.logKey}
                     filterBy={(option) => this.filterBy(option)}
                     onUpdate={this.props.onUpdate}

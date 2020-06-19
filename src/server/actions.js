@@ -28,7 +28,7 @@ const Actions = {
     },
     'log-category-upsert': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const fields = { id: input.id, name: input.name, template: input.template};
+            const fields = { id: input.id, name: input.name, template: input.template };
             let logCategory = await this.database.createOrUpdate(
                 'LogCategory', fields, transaction,
             );
@@ -58,7 +58,7 @@ const Actions = {
             );
             const template = updateCategoryTemplate(input.template, input.logKeys, logKeys);
             logCategory = await this.database.update(
-                'LogCategory', {id: logCategory.id, template}, transaction,
+                'LogCategory', { id: logCategory.id, template }, transaction,
             );
             await this.database.setEdges(
                 'LogCategoryToLogKey',
@@ -98,7 +98,7 @@ const Actions = {
         return this.database.sequelize.transaction(async (transaction) => {
             let logCategory = null;
             if (input.logCategory.id > 0) {
-                logCategory = await this.database.find('LogCategory', {id: input.logCategory.id});
+                logCategory = await this.database.find('LogCategory', { id: input.logCategory.id });
             }
             const fields = {
                 id: input.id,

@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
 
-const RENAME_KEY = '__rename_key__';
+const UPDATE_KEY = '__update_key__';
 
 class Typeahead extends React.Component {
     constructor(props) {
@@ -16,19 +16,23 @@ class Typeahead extends React.Component {
     }
 
     renderUpdateButton() {
-        if (!this.props.allowUpdate) {
+        if (this.props.value.id < 0 || !this.props.allowUpdate) {
             return null;
         }
         return (
             <Button
                 onClick={() => {
-                    this.props.onUpdate({ ...this.props.value, [RENAME_KEY]: true });
+                    if (this.props.value[UPDATE_KEY]) {
+                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: false });
+                    } else {
+                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: true });
+                    }
                 }}
                 size="sm"
                 title="Edit"
                 variant="secondary"
             >
-                <FaRegEdit />
+                {this.props.value[UPDATE_KEY] ? <GiCancel /> : <FaRegEdit />}
             </Button>
         );
     }
@@ -61,7 +65,7 @@ class Typeahead extends React.Component {
                     minLength={0}
                     disabled={
                         this.props.value.id > 0
-                        && !this.props.value[RENAME_KEY]
+                        && !this.props.value[UPDATE_KEY]
                     }
                     onFocus={() => this.onSearch(selectedOptionLabel)}
                     onSearch={(query) => this.onSearch(query)}

@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import LogKeyTypes from '../common/log_key_types';
+import { getLogKeyTypes } from '../common/LogKey';
 
 const LogKeyType = PropTypes.oneOf(
-    Object.values(LogKeyTypes).map((item) => item.value),
+    getLogKeyTypes().map((item) => item.value),
 );
 
 const LogKey = PropTypes.shape({

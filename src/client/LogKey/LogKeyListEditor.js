@@ -24,7 +24,6 @@ class LogKeyListEditor extends React.Component {
                 allowDelete
                 filterBy={(index, option) => this.filterBy(index, option)}
                 values={this.props.logKeys}
-                onUpdate={this.props.onUpdate}
             />
         );
     }

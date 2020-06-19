@@ -1,10 +1,17 @@
+import { GrDrag } from 'react-icons/gr';
+import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 
 import arrayMove from 'array-move';
 
-const SortableDragHandle = SortableHandle(({ children }) => <>{children}</>);
+const SortableDragHandle = SortableHandle(({ children }) => (
+    <InputGroup.Text style={{ cursor: 'grab', padding: '4px' }}>
+        <GrDrag />
+    </InputGroup.Text>
+));
+
 const SortableList = SortableContainer(({ children }) => <div>{children}</div>);
 
 class GenericSortableList extends React.Component {
@@ -44,7 +51,7 @@ class GenericSortableList extends React.Component {
                         ...this.props,
                         key: value.id,
                         index, // consumed by SortableElement
-                        disabled: !this.props.allowReorder, // consumed by SortableElement
+                        disabled: !this.props.allowReordering, // consumed by SortableElement
                         sortableListItemIndex: index,
                         [this.props.itemKey]: value,
                         onUpdate: (updatedValue) => this.onUpdate(index, updatedValue),
@@ -57,7 +64,7 @@ class GenericSortableList extends React.Component {
 }
 
 GenericSortableList.propTypes = {
-    allowReorder: PropTypes.bool,
+    allowReordering: PropTypes.bool,
     type: PropTypes.any.isRequired,
     itemKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types

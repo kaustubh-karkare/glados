@@ -1,5 +1,4 @@
 
-import assert from '../../common/assert';
 import Editor from 'draft-js-plugins-editor';
 import {
     EditorState, RichUtils, convertFromRaw, convertToRaw,
@@ -10,9 +9,10 @@ import React from 'react';
 // Using a local copy of the plugin until the PR is merged.
 // https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
 // cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
+import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 
-import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
+import assert from '../../common/assert';
 
 import 'draft-js/dist/Draft.css';
 
@@ -154,6 +154,6 @@ TextEditor.defaultProps = {
     isSingleLine: false,
     isMarkdown: false,
     suggestions: [],
-}
+};
 
 export default TextEditor;

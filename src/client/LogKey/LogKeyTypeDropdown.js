@@ -2,8 +2,9 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import React from 'react';
-import LogKeyTypes from '../../common/log_key_types';
 import PropTypes from '../prop-types';
+
+import { getLogKeyType, getLogKeyTypes } from '../../common/LogKey';
 
 function LogKeyTypeDropdown(props) {
     return (
@@ -14,10 +15,10 @@ function LogKeyTypeDropdown(props) {
                 disabled={props.logKey.id > 0}
                 onSelect={() => null}
                 size="sm"
-                title={props.logKey.type}
+                title={getLogKeyType(props.logKey.type).label}
                 variant="secondary"
             >
-                {Object.values(LogKeyTypes).map((item) => (
+                {getLogKeyTypes().map((item) => (
                     <Dropdown.Item
                         key={item.value}
                         onMouseDown={() => {
