@@ -1,6 +1,7 @@
 /* eslint-disable func-names */
 
 import assert from '../common/assert';
+import { updateCategoryTemplate } from '../common/LogCategory';
 
 const Actions = {
     'log-category-list': async function () {
@@ -21,13 +22,15 @@ const Actions = {
                     name: key.name,
                     type: key.type,
                 })),
+                template: logCategory.template,
             }));
         });
     },
     'log-category-upsert': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const logCategory = await this.database.createOrUpdate(
-                'LogCategory', { id: input.id, name: input.name }, transaction,
+            const fields = { id: input.id, name: input.name, template: input.template};
+            let logCategory = await this.database.createOrUpdate(
+                'LogCategory', fields, transaction,
             );
             const logKeys = await Promise.all(
                 input.logKeys.map(async (inputLogKey) => {
@@ -53,6 +56,10 @@ const Actions = {
                     };
                 }),
             );
+            const template = updateCategoryTemplate(input.template, input.logKeys, logKeys);
+            logCategory = await this.database.update(
+                'LogCategory', {id: logCategory.id, template}, transaction,
+            );
             await this.database.setEdges(
                 'LogCategoryToLogKey',
                 'category_id',
@@ -69,6 +76,7 @@ const Actions = {
                 id: logCategory.id,
                 name: logCategory.name,
                 logKeys,
+                template: logCategory.template,
             };
         });
     },
@@ -173,6 +181,7 @@ const Actions = {
                     id: logCategory.id,
                     name: logCategory.name,
                     logKeys: logValues.map((logValue) => logValue.logKey),
+                    template: logCategory.template,
                 },
                 logValues,
             };

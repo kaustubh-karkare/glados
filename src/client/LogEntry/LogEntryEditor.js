@@ -11,6 +11,8 @@ import PropTypes from '../prop-types';
 import { createEmptyLogCategory, createEmptyLogEntry, createEmptyLogValue } from '../Data';
 import deepcopy from '../../common/deepcopy';
 
+import { materializeCategoryTemplate } from '../../common/LogCategory';
+
 class LogEntryEditor extends React.Component {
     constructor(props) {
         super(props);
@@ -29,6 +31,12 @@ class LogEntryEditor extends React.Component {
         this.setState((state) => {
             const logEntry = deepcopy(state.logEntry);
             method(logEntry, state);
+            if (logEntry.logCategory.template) {
+                logEntry.title = materializeCategoryTemplate(
+                    logEntry.logCategory.template,
+                    logEntry.logValues,
+                );
+            }
             return { logEntry };
         });
     }
@@ -44,6 +52,7 @@ class LogEntryEditor extends React.Component {
                 <Form.Control
                     type="text"
                     value={this.state.logEntry.title}
+                    disabled={!!this.state.logEntry.logCategory.template}
                     onChange={(event) => {
                         const { value } = event.target;
                         // eslint-disable-next-line no-param-reassign
@@ -95,6 +104,9 @@ class LogEntryEditor extends React.Component {
                         );
                     })}
                     onDelete={() => this.updateLogEntry((logEntry) => {
+                        if (logEntry.logCategory.template) {
+                            logEntry.title = '';
+                        }
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = createEmptyLogCategory();
                         logEntry.logValues = [];

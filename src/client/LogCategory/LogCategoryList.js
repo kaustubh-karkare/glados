@@ -6,16 +6,10 @@ import Modal from 'react-bootstrap/Modal';
 import { LeftRight } from '../Common';
 import LogCategoryEditor from './LogCategoryEditor';
 
+import { createEmptyLogCategory } from '../Data';
+
 
 class LogCategoryList extends React.Component {
-    static createEmptyLogCategory() {
-        return {
-            id: -1,
-            name: '',
-            logKeys: [],
-        };
-    }
-
     constructor(props) {
         super(props);
         this.state = { editCategory: null };
@@ -26,15 +20,19 @@ class LogCategoryList extends React.Component {
     }
 
     onSave(category) {
-        this.setState({ editCategory: null });
         window.api.send('log-category-upsert', category)
-            .then(() => this.reload());
+            .then(() => {
+                this.setState({ editCategory: null });
+                this.reload();
+            });
     }
 
     onDelete(category) {
-        this.setState({ editCategory: null });
         window.api.send('log-category-delete', category)
-            .then(() => this.reload());
+            .then(() => {
+                this.setState({ editCategory: null });
+                this.reload();
+            });
     }
 
     reload() {
@@ -107,7 +105,7 @@ class LogCategoryList extends React.Component {
                     <span />
                     <Button
                         onClick={() => this.setState({
-                            editCategory: LogCategoryList.createEmptyLogCategory(),
+                            editCategory: createEmptyLogCategory(),
                         })}
                         size="sm"
                         variant="secondary"

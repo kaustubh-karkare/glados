@@ -20,6 +20,10 @@ function createModels(sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
+            template: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            }
         },
         {
             ...options,

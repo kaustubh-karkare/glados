@@ -8,6 +8,7 @@ import deepcopy from '../../common/deepcopy';
 
 import { LeftRight } from '../Common';
 import { LogKeyListEditor } from '../LogKey';
+import { TextEditor } from '../Common';
 
 import { createEmptyLogKey } from '../Data';
 
@@ -107,6 +108,24 @@ class LogCategoryEditor extends React.Component {
                     logKeys={this.state.category.logKeys}
                     onUpdate={(logKeys) => this.onLogKeysUpdate(logKeys)}
                 />
+                <InputGroup className="my-1" size="sm">
+                    <InputGroup.Prepend>
+                        <InputGroup.Text style={{ width: 100 }}>
+                            Template
+                        </InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <TextEditor
+                        value={this.state.category.template}
+                        suggestions={[
+                            {trigger: '@', source: this.state.category.logKeys},
+                            {trigger: '#', source: this.state.category.logKeys},
+                        ]}
+                        onUpdate={(value) => this.updateCategory((category) => {
+                            // eslint-disable-next-line no-param-reassign
+                            category.template = value;
+                        })}
+                    />
+                </InputGroup>
                 <LeftRight>
                     <Button
                         variant="secondary"

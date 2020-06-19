@@ -1,3 +1,5 @@
+
+import assert from '../../common/assert';
 import Editor from 'draft-js-plugins-editor';
 import {
     EditorState, RichUtils, convertFromRaw, convertToRaw,
@@ -9,11 +11,10 @@ import React from 'react';
 // https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
 // cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
+import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 
 import 'draft-js/dist/Draft.css';
-
-const plugins = [createMarkdownShortcutsPlugin()];
 
 const SerializationUtils = {
     deserialize(text) {
@@ -53,15 +54,31 @@ class TextEditor extends React.Component {
         this.state = {
             suggestions: mentions,
             open: false,
+            plugins: [],
         };
+
+        this.markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
+        this.state.plugins.push(this.markdownShortcutsPlugin);
+
         this.mentionPlugin = createMentionPlugin({
-            mentionTriggers: ['@', '#'],
+            mentionTriggers: this.props.suggestions.map((suggestion) => suggestion.trigger),
         });
+        this.state.plugins.push(this.mentionPlugin);
+
+        if (this.props.isSingleLine) {
+            this.singleLinePlugin = createSingleLinePlugin({
+                stripEntities: false,
+            });
+            this.state.plugins.push(this.singleLinePlugin);
+        }
     }
 
     onSearchChange({ trigger, value }) {
+        const suggestion = this.props.suggestions
+            .find((suggestion) => suggestion.trigger == trigger);
+        assert(suggestion, 'unknown suggestion for trigger');
         this.setState({
-            suggestions: defaultSuggestionsFilter(value, mentions),
+            suggestions: defaultSuggestionsFilter(value, suggestion.source),
         });
     }
 
@@ -97,10 +114,12 @@ class TextEditor extends React.Component {
                     handleKeyCommand={
                         (command, editorState) => this.handleKeyCommand(command, editorState)
                     }
-                    plugins={[
-                        ...plugins,
-                        this.mentionPlugin,
-                    ]}
+                    blockRenderMap={
+                        this.props.isSingleLine
+                            ? this.singleLinePlugin.blockRenderMap
+                            : undefined
+                    }
+                    plugins={this.state.plugins}
                     onChange={(editorState) => this.onChange(editorState)}
                 />
                 <div className="mention-suggestions">
@@ -118,7 +137,19 @@ class TextEditor extends React.Component {
 
 TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
+    isSingleLine: PropTypes.bool.isRequired,
+    suggestions: PropTypes.arrayOf(
+        PropTypes.shape({
+            trigger: PropTypes.string.isRequired,
+            source: PropTypes.any.isRequired,
+        }).isRequired,
+    ).isRequired,
     onUpdate: PropTypes.func.isRequired,
 };
+
+TextEditor.defaultProps = {
+    isSingleLine: false,
+    suggestions: [],
+}
 
 export default TextEditor;

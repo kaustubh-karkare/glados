@@ -27,6 +27,7 @@ function createEmptyLogCategory() {
         id: getNegativeID(),
         name: '',
         logKeys: [],
+        template: '',
     };
 }
 
