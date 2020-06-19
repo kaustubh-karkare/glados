@@ -1,7 +1,14 @@
 
+let negativeID = 0;
+
+function getNegativeID() {
+    negativeID -= 1;
+    return negativeID;
+}
+
 function createEmptyLogKey() {
     return {
-        id: window.getNegativeID(),
+        id: getNegativeID(),
         name: '',
         type: 'string',
     };
@@ -9,7 +16,7 @@ function createEmptyLogKey() {
 
 function createEmptyLogValue(logKey) {
     return {
-        id: window.getNegativeID(),
+        id: getNegativeID(),
         data: '',
         logKey: logKey || createEmptyLogKey(),
     };
@@ -17,7 +24,7 @@ function createEmptyLogValue(logKey) {
 
 function createEmptyLogCategory() {
     return {
-        id: window.getNegativeID(),
+        id: getNegativeID(),
         name: '',
         logKeys: [],
     };
@@ -25,7 +32,7 @@ function createEmptyLogCategory() {
 
 function createEmptyLogEntry(logCategory) {
     return {
-        id: window.getNegativeID(),
+        id: getNegativeID(),
         title: '',
         logCategory: logCategory || createEmptyLogCategory(),
         logValues: [],

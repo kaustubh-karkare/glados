@@ -4,21 +4,14 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from '../prop-types';
-import LogKeyTypes from '../../common/log_key_types';
 import deepcopy from '../../common/deepcopy';
 
 import { LeftRight } from '../Common';
 import { LogKeyListEditor } from '../LogKey';
 
-class LogCategoryEditor extends React.Component {
-    static createEmptyLogKey() {
-        return {
-            id: window.getNegativeID(),
-            name: '',
-            type: LogKeyTypes.STRING.value,
-        };
-    }
+import { createEmptyLogKey } from '../Data';
 
+class LogCategoryEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -48,13 +41,13 @@ class LogCategoryEditor extends React.Component {
     }
 
     onKeyCreate(index) {
-        this.updateCategory((category, state) => {
+        this.updateCategory((category) => {
             if (typeof index === 'undefined') {
                 // eslint-disable-next-line no-param-reassign
                 index = category.logKeys.length;
             }
             // eslint-disable-next-line no-param-reassign
-            category.logKeys[index] = LogCategoryEditor.createEmptyLogKey(state);
+            category.logKeys[index] = createEmptyLogKey();
         });
     }
 

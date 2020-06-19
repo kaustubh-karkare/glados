@@ -16,18 +16,9 @@ function initCookies() {
     }, {});
 }
 
-function getNegativeID() {
-    if (typeof window.negativeID === 'undefined') {
-        window.negativeID = 0;
-    }
-    window.negativeID -= 1;
-    return window.negativeID;
-}
-
 window.main = function main() {
     initCookies();
     window.api = new SocketRPC(io(`localhost:${document.cookies.port}`));
-    window.getNegativeID = getNegativeID;
 
     ReactDOM.render(
         <Application />,
