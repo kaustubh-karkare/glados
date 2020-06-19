@@ -10,9 +10,9 @@ import React from 'react';
 // Using a local copy of the plugin until the PR is merged.
 // https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
 // cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
-import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
-import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
+
+import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 
 import 'draft-js/dist/Draft.css';
 
@@ -57,8 +57,10 @@ class TextEditor extends React.Component {
             plugins: [],
         };
 
-        this.markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
-        this.state.plugins.push(this.markdownShortcutsPlugin);
+        if (this.props.isMarkdown) {
+            this.markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
+            this.state.plugins.push(this.markdownShortcutsPlugin);
+        }
 
         this.mentionPlugin = createMentionPlugin({
             mentionTriggers: this.props.suggestions.map((suggestion) => suggestion.trigger),
@@ -137,6 +139,7 @@ class TextEditor extends React.Component {
 
 TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
+    isMarkdown: PropTypes.bool.isRequired,
     isSingleLine: PropTypes.bool.isRequired,
     suggestions: PropTypes.arrayOf(
         PropTypes.shape({
@@ -149,6 +152,7 @@ TextEditor.propTypes = {
 
 TextEditor.defaultProps = {
     isSingleLine: false,
+    isMarkdown: false,
     suggestions: [],
 }
 

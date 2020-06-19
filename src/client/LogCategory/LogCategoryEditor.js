@@ -2,6 +2,7 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import { MdAddCircleOutline } from 'react-icons/md';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from '../prop-types';
 import deepcopy from '../../common/deepcopy';
@@ -103,6 +104,14 @@ class LogCategoryEditor extends React.Component {
                         value={this.state.category.name}
                         onChange={(event) => this.onNameUpdate(event.target.value)}
                     />
+                    <InputGroup.Append>
+                        <Button
+                            onClick={() => this.onKeyCreate()}
+                            variant="secondary"
+                        >
+                            <MdAddCircleOutline />
+                        </Button>
+                    </InputGroup.Append>
                 </InputGroup>
                 <LogKeyListEditor
                     logKeys={this.state.category.logKeys}
@@ -118,7 +127,6 @@ class LogCategoryEditor extends React.Component {
                         value={this.state.category.template}
                         suggestions={[
                             {trigger: '@', source: this.state.category.logKeys},
-                            {trigger: '#', source: this.state.category.logKeys},
                         ]}
                         onUpdate={(value) => this.updateCategory((category) => {
                             // eslint-disable-next-line no-param-reassign
@@ -127,14 +135,7 @@ class LogCategoryEditor extends React.Component {
                     />
                 </InputGroup>
                 <LeftRight>
-                    <Button
-                        variant="secondary"
-                        onClick={() => this.onKeyCreate()}
-                        size="sm"
-                        style={{ width: 100 }}
-                    >
-                        Add Key
-                    </Button>
+                    <div />
                     <div>
                         {this.props.category.id > 0
                             ? (

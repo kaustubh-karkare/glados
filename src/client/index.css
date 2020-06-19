@@ -19,6 +19,7 @@
 
 .text-editor {
     flex-grow: 1;
+    width: 1px;
 }
 
 .text-editor .public-DraftEditor-content {

@@ -96,13 +96,15 @@ const Actions = {
     },
     'log-entry-upsert': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            let fields = { id: input.logCategory.id, name: input.logCategory.name };
-            const logCategory = await this.database.createOrFind('LogCategory', fields, {}, transaction);
-            fields = {
+            let logCategory = null;
+            if (input.logCategory.id > 0) {
+                logCategory = await this.database.find('LogCategory', {id: input.logCategory.id});
+            }
+            const fields = {
                 id: input.id,
                 title: input.title,
-                category_id: logCategory.id,
-                details: logCategory.details,
+                category_id: logCategory ? logCategory.id : null,
+                details: input.details,
             };
             const logEntry = await this.database.createOrUpdate('LogEntry', fields, transaction);
             const logValues = await Promise.all(
@@ -131,20 +133,7 @@ const Actions = {
                     };
                 }),
             );
-            if (input.logCategory.id < 0) {
-                await this.database.setEdges(
-                    'LogCategoryToLogKey',
-                    'category_id',
-                    logCategory.id,
-                    'key_id',
-                    logValues.reduce((result, logValue, index) => {
-                        // eslint-disable-next-line no-param-reassign
-                        result[logValue.logKey.id] = { ordering_index: index };
-                        return result;
-                    }, {}),
-                    transaction,
-                );
-            } else {
+            if (logCategory) {
                 const logCategoryKeys = await this.database.getNodesByEdge(
                     'LogCategoryToLogKey',
                     'category_id',
@@ -177,12 +166,12 @@ const Actions = {
             return {
                 id: logEntry.id,
                 title: logEntry.title,
-                logCategory: {
+                logCategory: logEntry.category_id ? ({
                     id: logCategory.id,
                     name: logCategory.name,
                     logKeys: logValues.map((logValue) => logValue.logKey),
                     template: logCategory.template,
-                },
+                }) : input.logCategory,
                 logValues,
             };
         });

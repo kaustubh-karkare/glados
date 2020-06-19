@@ -105,6 +105,21 @@ function materializeCategoryTemplate(template, logValues) {
     });
     result += block.text.substr(prevIndex);
 
+    result = Array.from(result.matchAll(/(?:\{[^}]*\}|[^{}]*)/g))
+        .map((result) => {
+            const part = result[0];
+            if (part.startsWith("{") && part.endsWith("}")) {
+                try {
+                    return eval(part.substring(1, part.length - 1)).toString();
+                } catch (error) {
+                    return part;
+                }
+            } else {
+                return part;
+            }
+        })
+        .join("");
+
     return result;
 }
 

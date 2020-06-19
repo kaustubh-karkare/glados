@@ -48,7 +48,7 @@ class GenericSortableList extends React.Component {
                         sortableListItemIndex: index,
                         [this.props.itemKey]: value,
                         onUpdate: (updatedValue) => this.onUpdate(index, updatedValue),
-                        onDelete: (deletedIndex) => this.onDelete(deletedIndex),
+                        onDelete: (deletedIndex) => this.onDelete(index),
                     },
                 ))}
             </SortableList>
