@@ -15,6 +15,20 @@ class Typeahead extends React.Component {
         this.state = { isLoading: false, options: [] };
     }
 
+    onInputChange(text) {
+        this.onSearch(text);
+        this.props.onUpdate({ ...this.props.value, [this.props.labelKey]: text });
+    }
+
+    onSearch(query) {
+        this.setState({ isLoading: true }, () => {
+            window.api.send(this.props.rpcName, this.props.value, query)
+                .then((options) => {
+                    this.setState({ isLoading: false, options });
+                });
+        });
+    }
+
     renderUpdateButton() {
         if (this.props.value.id < 0 || !this.props.allowUpdate) {
             return null;
@@ -90,20 +104,6 @@ class Typeahead extends React.Component {
                 {this.renderDeleteButton()}
             </>
         );
-    }
-
-    onInputChange(text) {
-        this.onSearch(text);
-        this.props.onUpdate({ ...this.props.value, [this.props.labelKey]: text });
-    }
-
-    onSearch(query) {
-        this.setState({ isLoading: true }, () => {
-            window.api.send(this.props.rpcName, this.props.value, query)
-                .then((options) => {
-                    this.setState({ isLoading: false, options });
-                });
-        });
     }
 }
 

@@ -106,10 +106,10 @@ function materializeCategoryTemplate(template, logValues) {
     result += block.text.substr(prevIndex);
 
     result = Array.from(result.matchAll(/(?:\{[^}]*\}|[^{}]*)/g))
-        .map((result) => {
-            const part = result[0];
+        .map(([part]) => {
             if (part.startsWith('{') && part.endsWith('}')) {
                 try {
+                    // eslint-disable-next-line no-eval
                     return eval(part.substring(1, part.length - 1)).toString();
                 } catch (error) {
                     return part;

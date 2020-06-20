@@ -6,7 +6,7 @@ import { SortableContainer, SortableElement, SortableHandle } from 'react-sortab
 
 import arrayMove from 'array-move';
 
-const SortableDragHandle = SortableHandle(({ children }) => (
+const SortableDragHandle = SortableHandle(() => (
     <InputGroup.Text style={{ cursor: 'grab', padding: '4px' }}>
         <GrDrag />
     </InputGroup.Text>
@@ -55,7 +55,7 @@ class GenericSortableList extends React.Component {
                         sortableListItemIndex: index,
                         [this.props.itemKey]: value,
                         onUpdate: (updatedValue) => this.onUpdate(index, updatedValue),
-                        onDelete: (deletedIndex) => this.onDelete(index),
+                        onDelete: () => this.onDelete(index),
                     },
                 ))}
             </SortableList>
@@ -65,7 +65,7 @@ class GenericSortableList extends React.Component {
 
 GenericSortableList.propTypes = {
     allowReordering: PropTypes.bool,
-    type: PropTypes.any.isRequired,
+    type: PropTypes.func.isRequired,
     itemKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     values: PropTypes.arrayOf(PropTypes.any.isRequired).isRequired,

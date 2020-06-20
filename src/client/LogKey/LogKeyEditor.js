@@ -53,6 +53,7 @@ class LogKeyEditor extends React.Component {
 }
 
 LogKeyEditor.propTypes = {
+    sortableListItemIndex: PropTypes.number,
     logKey: PropTypes.Custom.LogKey.isRequired,
     filterBy: PropTypes.func,
     onUpdate: PropTypes.func.isRequired,

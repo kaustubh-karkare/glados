@@ -166,6 +166,7 @@ const Actions = {
             return {
                 id: logEntry.id,
                 title: logEntry.title,
+                details: logEntry.details,
                 logCategory: logEntry.category_id ? ({
                     id: logCategory.id,
                     name: logCategory.name,
@@ -176,11 +177,11 @@ const Actions = {
             };
         });
     },
-    'log-value-typeahead': async function (logValue) {
+    'log-value-typeahead': async function (inputLogValue) {
         const { LogValue } = this.database.models;
-        const { logKey } = logValue;
+        const { logKey } = inputLogValue;
         const matchingLogValues = await LogValue.findAll({
-            where: { key_id: logValue.logKey.id },
+            where: { key_id: inputLogValue.logKey.id },
         });
         return matchingLogValues.map((logValue) => ({
             id: logValue.id,

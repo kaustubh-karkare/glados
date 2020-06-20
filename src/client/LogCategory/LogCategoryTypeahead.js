@@ -9,7 +9,6 @@ function LogCategoryTypeahead(props) {
             {...props}
             id="log_category"
             labelKey="name"
-            onUpdate={props.onUpdate}
             rpcName="log-category-list"
             value={props.logCategory}
         />

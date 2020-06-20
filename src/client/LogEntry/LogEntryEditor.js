@@ -23,8 +23,7 @@ class LogEntryEditor extends React.Component {
 
     saveLogEntry(logEntry) {
         window.api.send('log-entry-upsert', logEntry)
-            .then((result) => console.info(result))
-            .catch((error) => console.error(error));
+            .then((result) => this.setState({ logEntry: result }));
     }
 
     updateLogEntry(method) {

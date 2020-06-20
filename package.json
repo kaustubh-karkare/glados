@@ -9,6 +9,11 @@
     "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix .",
     "test": "jest"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kaustubh-karkare/productivity.git"
@@ -62,6 +67,7 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^2.5.1",
     "html-webpack-plugin": "^4.3.0",
+    "husky": "^4.2.5",
     "mini-css-extract-plugin": "^0.9.0",
     "style-loader": "^1.2.1",
     "ts-loader": "^7.0.5",

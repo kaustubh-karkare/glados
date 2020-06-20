@@ -9,6 +9,7 @@ import React from 'react';
 // Using a local copy of the plugin until the PR is merged.
 // https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
 // cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
+import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 
@@ -76,11 +77,11 @@ class TextEditor extends React.Component {
     }
 
     onSearchChange({ trigger, value }) {
-        const suggestion = this.props.suggestions
-            .find((suggestion) => suggestion.trigger == trigger);
-        assert(suggestion, 'unknown suggestion for trigger');
+        const selectedSuggestions = this.props.suggestions
+            .find((suggestion) => suggestion.trigger === trigger);
+        assert(selectedSuggestions, 'unknown suggestion for trigger');
         this.setState({
-            suggestions: defaultSuggestionsFilter(value, suggestion.source),
+            suggestions: defaultSuggestionsFilter(value, selectedSuggestions.source),
         });
     }
 
@@ -139,14 +140,14 @@ class TextEditor extends React.Component {
 
 TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
-    isMarkdown: PropTypes.bool.isRequired,
-    isSingleLine: PropTypes.bool.isRequired,
+    isMarkdown: PropTypes.bool,
+    isSingleLine: PropTypes.bool,
     suggestions: PropTypes.arrayOf(
         PropTypes.shape({
             trigger: PropTypes.string.isRequired,
             source: PropTypes.any.isRequired,
         }).isRequired,
-    ).isRequired,
+    ),
     onUpdate: PropTypes.func.isRequired,
 };
 

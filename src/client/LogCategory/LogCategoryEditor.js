@@ -22,12 +22,6 @@ class LogCategoryEditor extends React.Component {
         };
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props !== prevProps) {
-            this.setState({ category: this.props.category });
-        }
-    }
-
     onNameUpdate(value) {
         this.updateCategory((category) => {
             // eslint-disable-next-line no-param-reassign
