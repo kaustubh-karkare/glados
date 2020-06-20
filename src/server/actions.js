@@ -2,6 +2,7 @@
 
 import assert from '../common/assert';
 import { updateCategoryTemplate } from '../common/LogCategory';
+import { getLogTagType } from '../common/LogTag';
 
 const Actions = {
     'log-category-list': async function () {
@@ -88,7 +89,7 @@ const Actions = {
     },
     'log-category-delete': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const logCategory = await this.database.delete('LogCategory', input, transaction);
+            const logCategory = await this.database.delete('LogCategory', { id: input.id }, transaction);
             return { id: logCategory.id };
         });
     },
@@ -194,6 +195,58 @@ const Actions = {
             data: logValue.data,
             logKey,
         }));
+    },
+    'log-tag-list': async function () {
+        return this.database.sequelize.transaction(async (transaction) => {
+            const { LogTag } = this.database.models;
+            const logTags = await LogTag.findAll({ transaction });
+            return logTags.map((logTag) => ({
+                id: logTag.id,
+                type: logTag.type,
+                name: logTag.name,
+            }));
+        });
+    },
+    'log-tag-typeahead': async function (input) {
+        return this.database.sequelize.transaction(async (transaction) => {
+            const { LogTag } = this.database.models;
+            const logTagType = getLogTagType(input.trigger);
+            const where = {
+                type: logTagType.value,
+                name: { [this.database.Op.like]: `${input.value}%` },
+            };
+            const logTags = await LogTag.findAll({ where, transaction });
+            const outputLogTags = logTags.map((logTag) => ({
+                id: logTag.id,
+                type: logTag.type,
+                name: logTagType.prefix + logTag.name,
+            }));
+            return outputLogTags;
+        });
+    },
+    'log-tag-upsert': async function (inputLogTag) {
+        return this.database.sequelize.transaction(async (transaction) => {
+            const fields = {
+                id: inputLogTag.id,
+                type: inputLogTag.type,
+                name: inputLogTag.name,
+            };
+            const logTag = await this.database.createOrUpdate(
+                'LogTag', fields, transaction,
+            );
+            // TODO: Trigger consistency update if name change.
+            return {
+                id: logTag.id,
+                type: logTag.type,
+                name: logTag.name,
+            };
+        });
+    },
+    'log-tag-delete': async function (input) {
+        return this.database.sequelize.transaction(async (transaction) => {
+            const logTag = await this.database.delete('LogTag', { id: input.id }, transaction);
+            return { id: logTag.id };
+        });
     },
 };
 

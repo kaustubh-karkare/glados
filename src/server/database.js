@@ -205,8 +205,75 @@ function createModels(sequelize) {
         onUpdate: 'restrict',
     });
 
+    const LogTag = sequelize.define(
+        'log_tags',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            type: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['type', 'name'] },
+            ],
+        },
+    );
+
+    const LogEntryToLogTag = sequelize.define(
+        'log_entries_to_log_values',
+        {
+            entry_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogEntry,
+                    key: 'id',
+                },
+            },
+            tag_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogTag,
+                    key: 'id',
+                },
+            },
+        },
+        options,
+    );
+
+    LogEntry.belongsToMany(LogTag, {
+        through: LogEntryToLogTag,
+        foreignKey: 'entry_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    LogTag.belongsToMany(LogEntry, {
+        through: LogEntryToLogTag,
+        foreignKey: 'tag_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     return {
-        LogCategory, LogKey, LogCategoryToLogKey, LogValue, LogEntry, LogEntryToLogValue,
+        LogCategory,
+        LogKey,
+        LogCategoryToLogKey,
+        LogValue,
+        LogEntry,
+        LogEntryToLogValue,
+        LogTag,
+        LogEntryToLogTag,
     };
 }
 
@@ -236,6 +303,7 @@ class Database {
             options,
         );
         this.models = createModels(this.sequelize);
+        this.Op = Sequelize.Op;
     }
 
     async close() {
