@@ -87,36 +87,31 @@ class LogCategoryEditor extends React.Component {
         return (
             <>
                 <InputGroup className="my-1" size="sm">
-                    <InputGroup.Prepend>
-                        <InputGroup.Text style={{ width: 100 }}>
-                            Category
-                        </InputGroup.Text>
-                    </InputGroup.Prepend>
+                    <InputGroup.Text style={{ width: 100 }}>
+                        Category
+                    </InputGroup.Text>
                     <Form.Control
                         placeholder="Category Name"
                         type="text"
                         value={this.state.category.name}
                         onChange={(event) => this.onNameUpdate(event.target.value)}
                     />
-                    <InputGroup.Append>
-                        <Button
-                            onClick={() => this.onKeyCreate()}
-                            variant="secondary"
-                        >
-                            <MdAddCircleOutline />
-                        </Button>
-                    </InputGroup.Append>
+                    <Button
+                        onClick={() => this.onKeyCreate()}
+                        size="sm"
+                        variant="secondary"
+                    >
+                        <MdAddCircleOutline />
+                    </Button>
                 </InputGroup>
                 <LogKeyListEditor
                     logKeys={this.state.category.logKeys}
                     onUpdate={(logKeys) => this.onLogKeysUpdate(logKeys)}
                 />
                 <InputGroup className="my-1" size="sm">
-                    <InputGroup.Prepend>
-                        <InputGroup.Text style={{ width: 100 }}>
-                            Template
-                        </InputGroup.Text>
-                    </InputGroup.Prepend>
+                    <InputGroup.Text style={{ height: 'inherit', width: 99 }}>
+                        Template
+                    </InputGroup.Text>
                     <TextEditor
                         value={this.state.category.template}
                         sources={[

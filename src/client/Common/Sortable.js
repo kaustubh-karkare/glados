@@ -1,15 +1,20 @@
 import { GrDrag } from 'react-icons/gr';
-import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 
 import arrayMove from 'array-move';
 
-const SortableDragHandle = SortableHandle(() => (
-    <InputGroup.Text style={{ cursor: 'grab', padding: '4px' }}>
+const SortableDragHandle = SortableHandle((props) => (
+    <Button
+        className="sortableDragHandle"
+        disabled={props.disabled}
+        size="sm"
+        variant="secondary"
+    >
         <GrDrag />
-    </InputGroup.Text>
+    </Button>
 ));
 
 const SortableList = SortableContainer(({ children }) => <div>{children}</div>);
@@ -42,6 +47,7 @@ class GenericSortableList extends React.Component {
         const { SortableElementType } = this.state;
         return (
             <SortableList
+                helperClass="sortableDraggedItem"
                 useDragHandle
                 onSortEnd={(values) => this.onReorder(values)}
             >
@@ -51,7 +57,8 @@ class GenericSortableList extends React.Component {
                         ...this.props,
                         key: value.id,
                         index, // consumed by SortableElement
-                        disabled: !this.props.allowReordering, // consumed by SortableElement
+                        disabled: this.props.disabled, // consumed by SortableElement
+                        sortableListItemDisabled: this.props.disabled,
                         sortableListItemIndex: index,
                         [this.props.itemKey]: value,
                         onUpdate: (updatedValue) => this.onUpdate(index, updatedValue),
@@ -64,12 +71,16 @@ class GenericSortableList extends React.Component {
 }
 
 GenericSortableList.propTypes = {
-    allowReordering: PropTypes.bool,
+    disabled: PropTypes.bool,
     type: PropTypes.func.isRequired,
     itemKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     values: PropTypes.arrayOf(PropTypes.any.isRequired).isRequired,
     onUpdate: PropTypes.func.isRequired,
+};
+
+GenericSortableList.defaultProps = {
+    disabled: false,
 };
 
 export { GenericSortableList, SortableDragHandle };

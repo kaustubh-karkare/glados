@@ -43,13 +43,11 @@ class LogTagEditor extends React.Component {
         const { logTag } = this.props;
         return (
             <InputGroup className="mb-1" size="sm">
-                <InputGroup.Prepend>
-                    <Dropdown
-                        value={logTag.type}
-                        options={getLogTagTypes()}
-                        onUpdate={(type) => this.props.onUpdate({ ...logTag, type })}
-                    />
-                </InputGroup.Prepend>
+                <Dropdown
+                    value={logTag.type}
+                    options={getLogTagTypes()}
+                    onUpdate={(type) => this.props.onUpdate({ ...logTag, type })}
+                />
                 <Typeahead
                     allowUpdate
                     id="log_tag"
@@ -57,9 +55,7 @@ class LogTagEditor extends React.Component {
                     value={this.props.logTag}
                     onUpdate={this.props.onUpdate}
                 />
-                <InputGroup.Append>
-                    {this.renderSaveOrDeleteButton()}
-                </InputGroup.Append>
+                {this.renderSaveOrDeleteButton()}
             </InputGroup>
         );
     }

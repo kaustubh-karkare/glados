@@ -20,36 +20,33 @@ class LogKeyEditor extends React.Component {
         const { logKey } = this.props;
         return (
             <InputGroup className="mb-1" size="sm">
-                <InputGroup.Prepend>
-                    <SortableDragHandle />
-                    <Dropdown
-                        value={logKey.type}
-                        options={getLogKeyTypes()}
-                        onUpdate={(type) => this.props.onUpdate({ ...logKey, type })}
-                    />
-                </InputGroup.Prepend>
+                <SortableDragHandle disabled={this.props.sortableListItemDisabled} />
+                <Dropdown
+                    value={logKey.type}
+                    options={getLogKeyTypes()}
+                    onUpdate={(type) => this.props.onUpdate({ ...logKey, type })}
+                />
                 <Typeahead
                     allowUpdate
                     rpcName="log-key-list"
                     value={logKey}
                     onUpdate={this.props.onUpdate}
                 />
-                <InputGroup.Append>
-                    <Button
-                        onClick={this.props.onDelete}
-                        size="sm"
-                        title="Delete LogValue"
-                        variant="secondary"
-                    >
-                        <FaRegTrashAlt />
-                    </Button>
-                </InputGroup.Append>
+                <Button
+                    onClick={this.props.onDelete}
+                    size="sm"
+                    title="Delete LogValue"
+                    variant="secondary"
+                >
+                    <FaRegTrashAlt />
+                </Button>
             </InputGroup>
         );
     }
 }
 
 LogKeyEditor.propTypes = {
+    sortableListItemDisabled: PropTypes.bool,
     sortableListItemIndex: PropTypes.number,
     logKey: PropTypes.Custom.LogKey.isRequired,
     filterBy: PropTypes.func,

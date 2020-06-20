@@ -1,12 +1,42 @@
+.input-group > * {
+    border-radius: 0;
+    height: 29px;
+}
+
+.input-group > :first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.input-group > :last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.input-group > .btn {
+    width: 29px;
+}
+
+.input-group > .dropdown > .btn {
+    border-radius: 0;
+    width: 100px;
+}
+
+.input-group > .dropdown:not(:first-child) > .btn {
+    width: 79px;
+}
+
+.input-group > .text-editor {
+    height: auto;
+}
+
+/* Misc */
+
 .input-group-text {
     border: none;
     display: block;
+    padding: 3px;
     text-align: center;
-}
-
-.dropdown > button {
-    border-radius: 0;
-    width: 79px;
 }
 
 .btn.dropdown-toggle {
@@ -16,6 +46,20 @@
 .form-control:disabled {
     background-color: #ccc;
 }
+
+/* Sortable */
+
+button.sortableDragHandle.btn {
+    cursor: grab;
+    padding: 4px 0;
+    width: 20px;
+}
+
+.sortableDraggedItem {
+   z-index: 10000;
+}
+
+/* Text Editor */
 
 .text-editor {
     flex-grow: 1;
@@ -27,7 +71,7 @@
     border: 1px solid #222;
     border-radius: 0 0.2rem 0.2rem 0;
     color: #444;
-    min-height: 27px;
+    min-height: 29px;
     padding: 1px 5px;
 }
 

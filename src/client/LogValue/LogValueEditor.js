@@ -37,9 +37,7 @@ class LogValueEditor extends React.Component {
         const { logKey } = this.props.logValue;
         return (
             <InputGroup className="mb-1" size="sm">
-                <InputGroup.Prepend>
-                    <SortableDragHandle />
-                </InputGroup.Prepend>
+                <SortableDragHandle disabled={this.props.sortableListItemDisabled} />
                 <Dropdown
                     disabled={logKey.id > 0}
                     value={logKey.type}
@@ -57,6 +55,7 @@ class LogValueEditor extends React.Component {
                     allowUpdate
                     allowDelete={this.props.logValue.id > 0}
                     logValue={this.props.logValue}
+                    rpcName="log-value-typeahead"
                     onUpdate={this.props.onUpdate}
                     onDelete={(logValue) => this.props.onUpdate(
                         createEmptyLogValue(logValue.logKey),
@@ -69,6 +68,7 @@ class LogValueEditor extends React.Component {
 }
 
 LogValueEditor.propTypes = {
+    sortableListItemDisabled: PropTypes.bool,
     isNewCategory: PropTypes.bool.isRequired,
     logValue: PropTypes.Custom.LogValue.isRequired,
     onUpdate: PropTypes.func.isRequired,
