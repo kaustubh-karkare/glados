@@ -76,6 +76,7 @@ class LogCategoryList extends React.Component {
                 show={!!this.state.editCategory}
                 size="lg"
                 onHide={() => this.setState({ editCategory: null })}
+                keyboard={false}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Category Editor</Modal.Title>

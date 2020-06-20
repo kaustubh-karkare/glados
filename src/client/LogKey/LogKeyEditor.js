@@ -3,17 +3,13 @@ import { FaRegTrashAlt } from 'react-icons/fa';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import LogKeyNameTypeahead from './LogKeyNameTypeahead';
-import LogKeyTypeDropdown from './LogKeyTypeDropdown';
 import PropTypes from '../prop-types';
-import { SortableDragHandle } from '../Common';
+import { Dropdown, SortableDragHandle } from '../Common';
+
+import { getLogKeyTypes } from '../../common/LogKey';
+
 
 class LogKeyEditor extends React.Component {
-    onUpdate(name, value) {
-        const logKey = { ...this.props.logKey };
-        logKey[name] = value;
-        this.props.onUpdate(logKey);
-    }
-
     filterBy(option) {
         return (
             !this.props.filterBy
@@ -26,9 +22,10 @@ class LogKeyEditor extends React.Component {
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
                     <SortableDragHandle />
-                    <LogKeyTypeDropdown
-                        logKey={this.props.logKey}
-                        onUpdate={this.props.onUpdate}
+                    <Dropdown
+                        value={this.props.logKey.type}
+                        options={getLogKeyTypes()}
+                        onUpdate={(type) => this.props.onUpdate({ ...this.props.logKey, type })}
                     />
                 </InputGroup.Prepend>
                 <LogKeyNameTypeahead

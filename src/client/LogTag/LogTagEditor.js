@@ -2,9 +2,10 @@ import Button from 'react-bootstrap/Button';
 import { FaSave, FaRegTrashAlt } from 'react-icons/fa';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import LogTagTypeDropdown from './LogTagTypeDropdown';
 import PropTypes from '../prop-types';
-import { Typeahead } from '../Common';
+import { Dropdown, Typeahead } from '../Common';
+
+import { getLogTagTypes } from '../../common/LogTag';
 
 class LogTagEditor extends React.Component {
     onUpdate(method) {
@@ -39,12 +40,14 @@ class LogTagEditor extends React.Component {
     }
 
     render() {
+        const { logTag } = this.props;
         return (
             <InputGroup className="mb-1" size="sm">
                 <InputGroup.Prepend>
-                    <LogTagTypeDropdown
-                        logTag={this.props.logTag}
-                        onUpdate={this.props.onUpdate}
+                    <Dropdown
+                        value={logTag.type}
+                        options={getLogTagTypes()}
+                        onUpdate={(type) => this.props.onUpdate({ ...logTag, type })}
                     />
                 </InputGroup.Prepend>
                 <Typeahead
