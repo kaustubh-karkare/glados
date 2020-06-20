@@ -2,6 +2,7 @@
 
 import assert from '../common/assert';
 import { updateCategoryTemplate } from '../common/LogCategory';
+import extractLogTags from '../common/LogEntry';
 import { getLogTagType } from '../common/LogTag';
 
 const Actions = {
@@ -166,6 +167,19 @@ const Actions = {
                 logValues.reduce((result, logValue, index) => {
                     // eslint-disable-next-line no-param-reassign
                     result[logValue.id] = { ordering_index: index };
+                    return result;
+                }, {}),
+                transaction,
+            );
+            const logTags = extractLogTags(logEntry.details);
+            await this.database.setEdges(
+                'LogEntryToLogTag',
+                'entry_id',
+                logEntry.id,
+                'tag_id',
+                logTags.reduce((result, logTag) => {
+                    // eslint-disable-next-line no-param-reassign
+                    result[logTag.id] = {};
                     return result;
                 }, {}),
                 transaction,

@@ -231,7 +231,7 @@ function createModels(sequelize) {
     );
 
     const LogEntryToLogTag = sequelize.define(
-        'log_entries_to_log_values',
+        'log_entries_to_log_tags',
         {
             entry_id: {
                 type: Sequelize.INTEGER,

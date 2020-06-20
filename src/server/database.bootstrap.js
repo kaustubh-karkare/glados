@@ -58,6 +58,20 @@ const data = {
             template: 'Article: $1',
         },
     ],
+    logTags: [
+        {
+            type: 'person',
+            name: 'Anurag Dubey',
+        },
+        {
+            type: 'person',
+            name: 'Kaustubh Karkare',
+        },
+        {
+            type: 'person',
+            name: 'Vishnu Mohandas',
+        },
+    ],
 };
 
 function awaitSequence(items, method) {
@@ -89,6 +103,10 @@ async function bootstrap(actions, database) {
         );
         category.template = createCategoryTemplate(category.template, category.logKeys);
         return actions['log-category-upsert'].call({ database }, category);
+    });
+    await awaitSequence(data.logTags, async (logTag, logTagIndex) => {
+        logTag.id = -logTagIndex - 1;
+        return actions['log-tag-upsert'].call({ database }, logTag);
     });
 }
 
