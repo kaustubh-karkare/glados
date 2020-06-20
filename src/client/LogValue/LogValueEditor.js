@@ -2,10 +2,9 @@ import Button from 'react-bootstrap/Button';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { LogKeyNameTypeahead } from '../LogKey';
 import LogValueDataTypeahead from './LogValueDataTypeahead';
 import PropTypes from '../prop-types';
-import { Dropdown, SortableDragHandle } from '../Common';
+import { Dropdown, SortableDragHandle, Typeahead } from '../Common';
 
 import { createEmptyLogKey, createEmptyLogValue } from '../Data';
 import { getLogKeyTypes } from '../../common/LogKey';
@@ -42,15 +41,16 @@ class LogValueEditor extends React.Component {
                     <SortableDragHandle />
                 </InputGroup.Prepend>
                 <Dropdown
-                    disabled={logKey.id < 0}
+                    disabled={logKey.id > 0}
                     value={logKey.type}
                     options={getLogKeyTypes()}
                     onUpdate={(type) => this.updateLogKey({ ...logKey, type })}
                 />
-                <LogKeyNameTypeahead
-                    logKey={this.props.logValue.logKey}
-                    allowDelete={this.props.isNewCategory}
+                <Typeahead
+                    rpcName="log-key-list"
+                    value={logKey}
                     onUpdate={(updatedLogKey) => this.updateLogKey(updatedLogKey)}
+                    allowDelete={this.props.isNewCategory}
                     onDelete={() => this.updateLogKey(createEmptyLogKey())}
                 />
                 <LogValueDataTypeahead

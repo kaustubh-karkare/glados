@@ -73,7 +73,7 @@ class Typeahead extends React.Component {
             <>
                 <AsyncTypeahead
                     {...this.state}
-                    id={this.props.id}
+                    id={this.props.rpcName}
                     labelKey={this.props.labelKey}
                     size="small"
                     minLength={0}
@@ -113,7 +113,6 @@ Typeahead.propTypes = {
     allowUpdate: PropTypes.bool,
     allowDelete: PropTypes.bool,
     filterBy: PropTypes.func,
-    id: PropTypes.string.isRequired,
     labelKey: PropTypes.string,
     onUpdate: PropTypes.func.isRequired,
     onDelete: PropTypes.func,

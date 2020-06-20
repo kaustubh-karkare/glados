@@ -19,7 +19,7 @@ const TabKeys = {
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { activeTab: TabKeys.LOG_TAGS };
+        this.state = { activeTab: TabKeys.LOG_ENTRIES };
     }
 
     render() {
