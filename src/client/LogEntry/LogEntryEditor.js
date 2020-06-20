@@ -126,6 +126,10 @@ class LogEntryEditor extends React.Component {
                 </InputGroup.Prepend>
                 <TextEditor
                     value={this.state.logEntry.details}
+                    sources={[
+                        { trigger: '@', rpcName: 'log-tag-typeahead' },
+                        { trigger: '#', rpcName: 'log-tag-typeahead' },
+                    ]}
                     onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;

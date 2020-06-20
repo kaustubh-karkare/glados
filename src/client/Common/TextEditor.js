@@ -32,13 +32,6 @@ const SerializationUtils = {
     },
 };
 
-// [{name, link, avatar}]
-const mentions = [
-    { name: 'Anurag Dubey' },
-    { name: 'Kaustubh Karkare' },
-    { name: 'Vishnu Mohandas' },
-];
-
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
         // eslint-disable-next-line no-param-reassign
@@ -53,7 +46,7 @@ class TextEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            suggestions: mentions,
+            suggestions: [], // [{name, link, avatar}]
             open: false,
             plugins: [],
         };
@@ -64,7 +57,7 @@ class TextEditor extends React.Component {
         }
 
         this.mentionPlugin = createMentionPlugin({
-            mentionTriggers: this.props.suggestions.map((suggestion) => suggestion.trigger),
+            mentionTriggers: this.props.sources.map((suggestion) => suggestion.trigger),
         });
         this.state.plugins.push(this.mentionPlugin);
 
@@ -77,12 +70,21 @@ class TextEditor extends React.Component {
     }
 
     onSearchChange({ trigger, value }) {
-        const selectedSuggestions = this.props.suggestions
+        const selectedSource = this.props.sources
             .find((suggestion) => suggestion.trigger === trigger);
-        assert(selectedSuggestions, 'unknown suggestion for trigger');
-        this.setState({
-            suggestions: defaultSuggestionsFilter(value, selectedSuggestions.source),
-        });
+        assert(selectedSource, 'unknown suggestion for trigger');
+        if (selectedSource.options) {
+            this.setState({
+                suggestions: defaultSuggestionsFilter(value, selectedSource.options),
+            });
+        } else if (selectedSource.rpcName) {
+            window.api.send(selectedSource.rpcName, { trigger, value })
+                .then((options) => this.setState({
+                    suggestions: defaultSuggestionsFilter(value, options),
+                }));
+        } else {
+            assert(false, 'missing source');
+        }
     }
 
     onChange(editorState) {
@@ -142,10 +144,14 @@ TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
     isMarkdown: PropTypes.bool,
     isSingleLine: PropTypes.bool,
-    suggestions: PropTypes.arrayOf(
+    sources: PropTypes.arrayOf(
         PropTypes.shape({
             trigger: PropTypes.string.isRequired,
-            source: PropTypes.any.isRequired,
+            options: PropTypes.arrayOf(PropTypes.shape({
+                id: PropTypes.number.isRequired,
+                name: PropTypes.string.isRequired,
+            }).isRequired),
+            rpcName: PropTypes.string,
         }).isRequired,
     ),
     onUpdate: PropTypes.func.isRequired,
@@ -154,7 +160,7 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
     isSingleLine: false,
     isMarkdown: false,
-    suggestions: [],
+    sources: [],
 };
 
 export default TextEditor;

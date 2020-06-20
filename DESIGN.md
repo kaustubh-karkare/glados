@@ -98,15 +98,6 @@
     * Reference Lists
         * Food Recipes / Accomplishments.
         * Bucket List
-    * Left Sidebar
-        * List of projects.
-        * Periodic Items
-        * Random pending Suggestions. Button to load log entry.
-    * Right Sidebar (analytics)
-        * Exercise Graphs
-        * Random Motivation Quotes.
-        * Time since last backup.
-        * Time since last consistency checks.
     * Generic
         * Collapsable section.
         * Graph?

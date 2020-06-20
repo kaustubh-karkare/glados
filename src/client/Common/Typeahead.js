@@ -107,18 +107,24 @@ class Typeahead extends React.Component {
     }
 }
 
+Typeahead.isUpdating = (value) => !!value[UPDATE_KEY];
+
 Typeahead.propTypes = {
     allowUpdate: PropTypes.bool,
     allowDelete: PropTypes.bool,
     filterBy: PropTypes.func,
     id: PropTypes.string.isRequired,
-    labelKey: PropTypes.string.isRequired,
+    labelKey: PropTypes.string,
     onUpdate: PropTypes.func.isRequired,
     onDelete: PropTypes.func,
     placeholder: PropTypes.string,
     rpcName: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.any.isRequired,
+};
+
+Typeahead.defaultProps = {
+    labelKey: 'name',
 };
 
 export default Typeahead;

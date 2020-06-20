@@ -119,8 +119,8 @@ class LogCategoryEditor extends React.Component {
                     </InputGroup.Prepend>
                     <TextEditor
                         value={this.state.category.template}
-                        suggestions={[
-                            { trigger: '@', source: this.state.category.logKeys },
+                        sources={[
+                            { trigger: '@', options: this.state.category.logKeys },
                         ]}
                         onUpdate={(value) => this.updateCategory((category) => {
                             // eslint-disable-next-line no-param-reassign

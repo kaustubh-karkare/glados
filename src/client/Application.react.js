@@ -7,17 +7,19 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { LogEntryList } from './LogEntry';
 import { LogCategoryList } from './LogCategory';
+import { LogTagListEditor } from './LogTag';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
-    CATEGORIES: 'categories',
-    LSD_KEYS: 'lsd_keys',
+    LOG_CATEGORIES: 'log_categories',
+    LOG_KEYS: 'log_keys',
+    LOG_TAGS: 'log_tags',
 };
 
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { activeTab: TabKeys.LOG_ENTRIES };
+        this.state = { activeTab: TabKeys.LOG_TAGS };
     }
 
     render() {
@@ -25,7 +27,8 @@ class Applicaton extends React.Component {
             <Container fluid>
                 <Row>
                     <Col md={2}>
-                        Left
+                        <li>Project List</li>
+                        <li>Todo Items</li>
                     </Col>
                     <Col md={8} className="mt-2">
                         <Tabs
@@ -35,16 +38,22 @@ class Applicaton extends React.Component {
                             <Tab eventKey={TabKeys.LOG_ENTRIES} title="Entries">
                                 <LogEntryList />
                             </Tab>
-                            <Tab eventKey={TabKeys.CATEGORIES} title="Categories">
+                            <Tab eventKey={TabKeys.LOG_CATEGORIES} title="Categories">
                                 <LogCategoryList />
                             </Tab>
-                            <Tab eventKey={TabKeys.LSD_KEYS} title="Keys">
-                                LSD Keys
+                            <Tab eventKey={TabKeys.LOG_KEYS} title="Keys">
+                                Log Keys
+                            </Tab>
+                            <Tab eventKey={TabKeys.LOG_TAGS} title="Tags">
+                                <LogTagListEditor />
                             </Tab>
                         </Tabs>
                     </Col>
                     <Col md={2}>
-                        Right
+                        <li>Exercise Graphs</li>
+                        <li>Random Motivation Quotes.</li>
+                        <li>Time since last backup.</li>
+                        <li>Time since last consistency checks.</li>
                     </Col>
                 </Row>
             </Container>

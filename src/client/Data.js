@@ -41,9 +41,18 @@ function createEmptyLogEntry(logCategory) {
     };
 }
 
+function createEmptyLogTag() {
+    return {
+        id: getNegativeID(),
+        type: 'hashtag',
+        name: '',
+    };
+}
+
 export {
     createEmptyLogKey,
     createEmptyLogValue,
     createEmptyLogCategory,
     createEmptyLogEntry,
+    createEmptyLogTag,
 };

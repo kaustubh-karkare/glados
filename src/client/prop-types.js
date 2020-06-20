@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { getLogKeyTypes } from '../common/LogKey';
+import { getLogTagTypes } from '../common/LogTag';
 
 const LogKeyType = PropTypes.oneOf(
     getLogKeyTypes().map((item) => item.value),
@@ -23,6 +24,16 @@ const LogValue = PropTypes.shape({
     data: PropTypes.string.isRequired,
 });
 
+const LogTagType = PropTypes.oneOf(
+    getLogTagTypes().map((item) => item.value),
+);
+
+const LogTag = PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    type: LogTagType.isRequired,
+    name: PropTypes.string.isRequired,
+});
+
 const LogEntry = PropTypes.shape({
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
@@ -31,6 +42,6 @@ const LogEntry = PropTypes.shape({
 });
 
 PropTypes.Custom = {
-    LogKeyType, LogKey, LogCategory, LogValue, LogEntry,
+    LogKeyType, LogKey, LogCategory, LogValue, LogTag, LogEntry,
 };
 export default PropTypes;
