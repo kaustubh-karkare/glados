@@ -3,8 +3,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
-import { TextEditor } from '../Common';
-import { LogCategoryTypeahead } from '../LogCategory';
+import { TextEditor, Typeahead } from '../Common';
 import { LogValueListEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
@@ -92,9 +91,9 @@ class LogEntryEditor extends React.Component {
                         Category
                     </InputGroup.Text>
                 </InputGroup.Prepend>
-                <LogCategoryTypeahead
-                    allowDelete
-                    logCategory={this.state.logEntry.logCategory}
+                <Typeahead
+                    rpcName="log-category-list"
+                    value={this.state.logEntry.logCategory}
                     onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = logCategory;
@@ -102,6 +101,7 @@ class LogEntryEditor extends React.Component {
                             (logKey) => createEmptyLogValue(logKey),
                         );
                     })}
+                    allowDelete
                     onDelete={() => this.updateLogEntry((logEntry) => {
                         if (logEntry.logCategory.template) {
                             logEntry.title = '';

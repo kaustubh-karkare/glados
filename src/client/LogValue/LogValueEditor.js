@@ -2,7 +2,6 @@ import Button from 'react-bootstrap/Button';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import LogValueDataTypeahead from './LogValueDataTypeahead';
 import PropTypes from '../prop-types';
 import { Dropdown, SortableDragHandle, Typeahead } from '../Common';
 
@@ -51,12 +50,12 @@ class LogValueEditor extends React.Component {
                     allowDelete={this.props.isNewCategory}
                     onDelete={() => this.updateLogKey(createEmptyLogKey())}
                 />
-                <LogValueDataTypeahead
-                    allowUpdate
-                    allowDelete={this.props.logValue.id > 0}
-                    logValue={this.props.logValue}
+                <Typeahead
+                    labelKey="data"
                     rpcName="log-value-typeahead"
+                    value={this.props.logValue}
                     onUpdate={this.props.onUpdate}
+                    allowDelete={this.props.logValue.id > 0}
                     onDelete={(logValue) => this.props.onUpdate(
                         createEmptyLogValue(logValue.logKey),
                     )}
