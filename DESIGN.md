@@ -96,15 +96,10 @@
             * Allows creation of new category and editting of existing ones.
         * Category List (ordered by name)
     * Reference Lists
-        * Books
-        * Movies
-        * Anime
-        * Television
-        * Articles
-        * Exercise
         * Food Recipes / Accomplishments.
         * Bucket List
-    * Left Sidebar (specific item suggestions)
+    * Left Sidebar
+        * List of projects.
         * Periodic Items
         * Random pending Suggestions. Button to load log entry.
     * Right Sidebar (analytics)
@@ -118,18 +113,8 @@
         * Markdown Editor with Tagging Support.
         * Datetime Edtior.
 * Random Thoughts
-    * Category 0 is Uncategorized.
     * Monospace font (Consolas), small size, black & green/blue/red theme.
-    * Category Ideas
-        * Exercise > Cycling. Time (minutes), Distance (miles), Calories.
-        * Exercise > Suryanamaskar. Count.
-        * Entertainment > Movie
-        * Reading > Literature. Name? Summary.
-        * Reading > Education. Link is necessary.
-        * Writing > Story Ideas.
-        * Writing > Blogs.
-        * Travel Logs
-    * Certain entrie are associated with time, and others are not.
+    * Certain entries are associated with time, and others are not.
         * It might be useful to track when an item was created.
         * Certain items are timeless.
         * Separation of creation time vs completion time?

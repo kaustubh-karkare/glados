@@ -28,7 +28,13 @@ const Actions = {
     },
     'log-category-upsert': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const fields = { id: input.id, name: input.name, template: input.template };
+            const fields = {
+                id: input.id,
+                name: input.name,
+                // TODO: This should not be needed, given the defaultValue.
+                // It is set properly later.
+                template: input.template,
+            };
             let logCategory = await this.database.createOrUpdate(
                 'LogCategory', fields, transaction,
             );

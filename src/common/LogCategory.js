@@ -52,6 +52,51 @@ import assert from './assert';
 }
 */
 
+function createCategoryTemplate(value, logKeys) {
+    // Used for bootstrap only.
+
+    const editorContent = {
+        blocks: [
+            {
+                key: 'key00',
+                text: '',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+            },
+        ],
+        entityMap: {},
+    };
+    const block = editorContent.blocks[0];
+    let nextEntityKey = 0;
+
+    Array.from(value.matchAll(/(?:\$\d+|[^$]+)/g)).forEach(([part]) => {
+        if (part.startsWith('$')) {
+            const logKeyIndex = parseInt(part.substring(1), 10) - 1;
+            const logKey = logKeys[logKeyIndex];
+            const entityKey = nextEntityKey;
+            nextEntityKey += 1;
+            block.entityRanges.push({
+                key: entityKey,
+                offset: block.text.length,
+                length: logKey.name.length,
+            });
+            editorContent.entityMap[entityKey] = {
+                type: 'mention',
+                mutability: 'SEGMENTED',
+                data: { mention: logKey },
+            };
+            block.text += logKey.name;
+        } else {
+            block.text += part;
+        }
+    });
+
+    return JSON.stringify(editorContent);
+}
+
 function updateCategoryTemplate(value, before, after) {
     if (!value) {
         return value;
@@ -123,4 +168,4 @@ function materializeCategoryTemplate(template, logValues) {
     return result;
 }
 
-export { updateCategoryTemplate, materializeCategoryTemplate };
+export { createCategoryTemplate, updateCategoryTemplate, materializeCategoryTemplate };
