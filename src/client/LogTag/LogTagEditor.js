@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { Dropdown, Typeahead } from '../Common';
 
-import LogTag from '../../common/LogTag';
+import LogTag from '../../data/LogTag';
 
 class LogTagEditor extends React.Component {
     onUpdate(method) {

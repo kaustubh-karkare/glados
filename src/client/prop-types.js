@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-named-default
-import { default as LogKeyClass } from '../common/LogKey';
+import { default as LogKeyClass } from '../data/LogKey';
 // eslint-disable-next-line import/no-named-default
-import { default as LogTagClass } from '../common/LogTag';
+import { default as LogTagClass } from '../data/LogTag';
 
 const LogKeyType = PropTypes.oneOf(
     LogKeyClass.getTypes().map((item) => item.value),

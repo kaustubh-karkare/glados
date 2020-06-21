@@ -7,11 +7,9 @@ import { LogValueListEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
 import {
-    getNegativeID, createEmptyLogCategory, createEmptyLogEntry, createEmptyLogValue,
-} from '../Data';
+    getNegativeID, LogCategory, LogEntry, LogValue,
+} from '../../data';
 import deepcopy from '../../common/deepcopy';
-
-import { materializeCategoryTemplate } from '../../common/LogCategory';
 
 const textEditorSources = [
     { trigger: '@', rpcName: 'log-tag-typeahead' },
@@ -21,19 +19,10 @@ const textEditorSources = [
 ];
 
 class LogEntryEditor extends React.Component {
-    static afterUpdate(logEntry) {
-        if (logEntry.logCategory.template) {
-            logEntry.title = materializeCategoryTemplate(
-                logEntry.logCategory.template,
-                logEntry.logValues,
-            );
-        }
-    }
-
     constructor(props) {
         super(props);
         this.state = {
-            logEntry: this.props.logEntry || createEmptyLogEntry(),
+            logEntry: this.props.logEntry || LogEntry.createEmpty(),
         };
     }
 
@@ -46,7 +35,7 @@ class LogEntryEditor extends React.Component {
         this.setState((state) => {
             const logEntry = deepcopy(state.logEntry);
             method(logEntry, state);
-            LogEntryEditor.afterUpdate(logEntry);
+            LogEntry.trigger(logEntry);
             return { logEntry };
         });
     }
@@ -68,7 +57,7 @@ class LogEntryEditor extends React.Component {
                     onSelectSuggestion={(option) => {
                         if (typeof option.title === 'undefined') return;
                         const logEntry = option;
-                        LogEntryEditor.afterUpdate(logEntry);
+                        LogEntry.trigger(logEntry);
                         logEntry.id = getNegativeID();
                         this.setState({ logEntry });
                     }}
@@ -87,7 +76,7 @@ class LogEntryEditor extends React.Component {
                     onClick={() => this.setState((state) => {
                         const logEntry = { ...state.logEntry };
                         logEntry.logValues = [...logEntry.logValues];
-                        logEntry.logValues.push(createEmptyLogValue());
+                        logEntry.logValues.push(LogValue.createEmpty());
                         return { logEntry };
                     })}
                     size="sm"
@@ -112,7 +101,7 @@ class LogEntryEditor extends React.Component {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = logCategory;
                         logEntry.logValues = logCategory.logKeys.map(
-                            (logKey) => createEmptyLogValue(logKey),
+                            (logKey) => LogValue.createEmpty(logKey),
                         );
                     })}
                     allowDelete
@@ -121,7 +110,7 @@ class LogEntryEditor extends React.Component {
                             logEntry.title = '';
                         }
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.logCategory = createEmptyLogCategory();
+                        logEntry.logCategory = LogCategory.createEmpty();
                         logEntry.logValues = [];
                     })}
                 />
@@ -172,7 +161,7 @@ class LogEntryEditor extends React.Component {
                     onUpdate={(logValues) => this.setState((state) => {
                         const logEntry = { ...state.logEntry };
                         logEntry.logValues = logValues;
-                        LogEntryEditor.afterUpdate(logEntry);
+                        LogEntry.trigger(logEntry);
                         return { logEntry };
                     })}
                 />

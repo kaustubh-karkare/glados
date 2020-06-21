@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { Dropdown, SortableDragHandle, Typeahead } from '../Common';
 
-import LogKey from '../../common/LogKey';
+import LogKey from '../../data/LogKey';
 
 
 class LogKeyEditor extends React.Component {

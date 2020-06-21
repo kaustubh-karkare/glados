@@ -5,8 +5,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { Dropdown, SortableDragHandle, Typeahead } from '../Common';
 
-import { createEmptyLogKey, createEmptyLogValue } from '../Data';
-import LogKey from '../../common/LogKey';
+import { LogKey, LogValue } from '../../data';
 
 class LogValueEditor extends React.Component {
     updateLogKey(logKey) {
@@ -48,7 +47,7 @@ class LogValueEditor extends React.Component {
                     value={logKey}
                     onUpdate={(updatedLogKey) => this.updateLogKey(updatedLogKey)}
                     allowDelete={this.props.isNewCategory}
-                    onDelete={() => this.updateLogKey(createEmptyLogKey())}
+                    onDelete={() => this.updateLogKey(LogKey.createEmpty())}
                 />
                 <Typeahead
                     labelKey="data"
@@ -57,7 +56,7 @@ class LogValueEditor extends React.Component {
                     onUpdate={this.props.onUpdate}
                     allowDelete={this.props.logValue.id > 0}
                     onDelete={(logValue) => this.props.onUpdate(
-                        createEmptyLogValue(logValue.logKey),
+                        LogValue.createEmpty(logValue.logKey),
                     )}
                 />
                 {this.renderDeleteButton()}

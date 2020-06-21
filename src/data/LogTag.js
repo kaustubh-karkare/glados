@@ -1,4 +1,6 @@
 
+import Utils from './Utils';
+
 const LogTagTypes = {
     person: {
         label: 'Person',
@@ -13,6 +15,14 @@ const LogTagTypes = {
 };
 
 class LogTag {
+    static createEmpty() {
+        return {
+            id: Utils.getNegativeID(),
+            type: 'hashtag',
+            name: '',
+        };
+    }
+
     static getTypes() {
         return Object.keys(LogTagTypes).map(
             (type) => ({ ...LogTagTypes[type], value: type }),

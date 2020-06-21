@@ -1,10 +1,31 @@
 
-import assert from './assert';
-import LogCategory from './LogCategory';
+import assert from '../common/assert';
+import LogCategory, { materializeCategoryTemplate } from './LogCategory';
 import LogValue from './LogValue';
-import TextEditorUtils from './TextEditorUtils';
+import TextEditorUtils from '../common/TextEditorUtils';
+import Utils from './Utils';
+
 
 class LogEntry {
+    static createEmpty(logCategory) {
+        return {
+            id: Utils.getNegativeID(),
+            title: '',
+            logCategory: logCategory || LogCategory.createEmpty(),
+            logValues: [],
+            details: '',
+        };
+    }
+
+    static trigger(logEntry) {
+        if (logEntry.logCategory.template) {
+            logEntry.title = materializeCategoryTemplate(
+                logEntry.logCategory.template,
+                logEntry.logValues,
+            );
+        }
+    }
+
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         // TODO: Parallelize the following operations.

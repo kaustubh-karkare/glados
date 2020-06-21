@@ -1,13 +1,13 @@
 import React from 'react';
 import LogTagEditor from './LogTagEditor';
-import { createEmptyLogTag } from '../Data';
+import { LogTag } from '../../data';
 
 class LogTagListEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             logTags: null,
-            logTag: createEmptyLogTag(),
+            logTag: LogTag.createEmpty(),
         };
     }
 
@@ -23,7 +23,7 @@ class LogTagListEditor extends React.Component {
     saveLogTag(logTag) {
         window.api.send('log-tag-upsert', logTag)
             .then(() => {
-                this.setState({ logTag: createEmptyLogTag() });
+                this.setState({ logTag: LogTag.createEmpty() });
                 this.reload();
             });
     }

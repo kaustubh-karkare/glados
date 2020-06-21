@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 
-import { updateCategoryTemplate } from '../common/LogCategory';
-import LogEntry from '../common/LogEntry';
-import LogTag from '../common/LogTag';
+import { updateCategoryTemplate } from '../data/LogCategory';
+import LogEntry from '../data/LogEntry';
+import LogTag from '../data/LogTag';
 
 const Actions = {
     'log-category-list': async function () {

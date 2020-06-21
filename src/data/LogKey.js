@@ -1,4 +1,6 @@
 
+import Utils from './Utils';
+
 const LogKeyTypes = {
     string: {
         label: 'String',
@@ -15,6 +17,14 @@ class LogKey {
         return Object.keys(LogKeyTypes).map(
             (type) => ({ ...LogKeyTypes[type], value: type }),
         );
+    }
+
+    static createEmpty() {
+        return {
+            id: Utils.getNegativeID(),
+            name: '',
+            type: 'string',
+        };
     }
 
     static async load(id) {

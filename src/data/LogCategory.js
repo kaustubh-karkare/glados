@@ -1,7 +1,8 @@
 
-import assert from './assert';
+import assert from '../common/assert';
 import LogKey from './LogKey';
-import TextEditorUtils from './TextEditorUtils';
+import TextEditorUtils from '../common/TextEditorUtils';
+import Utils from './Utils';
 
 /*
 {
@@ -171,6 +172,15 @@ function materializeCategoryTemplate(template, logValues) {
 }
 
 class LogCategory {
+    static createEmpty() {
+        return {
+            id: Utils.getNegativeID(),
+            name: '',
+            logKeys: [],
+            template: '',
+        };
+    }
+
     static async load(id) {
         const [logCategory, outputLogKeys] = await Promise.all([
             this.database.findByPk('LogCategory', id, this.transaction),

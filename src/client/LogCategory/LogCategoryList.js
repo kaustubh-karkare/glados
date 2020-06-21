@@ -6,7 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import { LeftRight } from '../Common';
 import LogCategoryEditor from './LogCategoryEditor';
 
-import { createEmptyLogCategory } from '../Data';
+import { LogCategory } from '../../data';
 
 
 class LogCategoryList extends React.Component {
@@ -106,7 +106,7 @@ class LogCategoryList extends React.Component {
                     <span />
                     <Button
                         onClick={() => this.setState({
-                            editCategory: createEmptyLogCategory(),
+                            editCategory: LogCategory.createEmpty(),
                         })}
                         size="sm"
                         variant="secondary"

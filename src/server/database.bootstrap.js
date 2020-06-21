@@ -1,4 +1,4 @@
-import { createCategoryTemplate } from '../common/LogCategory';
+import { createCategoryTemplate } from '../data/LogCategory';
 
 const data = {
     categories: [

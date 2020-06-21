@@ -11,7 +11,7 @@ import { LeftRight, TextEditor } from '../Common';
 import { LogKeyListEditor } from '../LogKey';
 
 
-import { createEmptyLogKey } from '../Data';
+import { LogKey } from '../../data';
 
 class LogCategoryEditor extends React.Component {
     constructor(props) {
@@ -43,7 +43,7 @@ class LogCategoryEditor extends React.Component {
                 index = category.logKeys.length;
             }
             // eslint-disable-next-line no-param-reassign
-            category.logKeys[index] = createEmptyLogKey();
+            category.logKeys[index] = LogKey.createEmpty();
         });
     }
 
