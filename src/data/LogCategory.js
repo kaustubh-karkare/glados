@@ -181,27 +181,87 @@ class LogCategory {
         };
     }
 
+    static async loadCategoryEdges(id) {
+        const edges = await this.database.getEdges(
+            'LogCategoryToLogKey',
+            'category_id',
+            id,
+            this.transaction,
+        );
+        return Promise.all(
+            edges.map((edge) => LogKey.load.call(this, edge.key_id)),
+        );
+    }
+
     static async load(id) {
-        const [logCategory, outputLogKeys] = await Promise.all([
-            this.database.findByPk('LogCategory', id, this.transaction),
-            async () => {
-                const edges = await this.database.getEdges(
-                    'LogCategoryToLogKey',
-                    'category_id',
-                    id,
-                    this.transaction,
-                );
-                return Promise.all(
-                    edges.map((edge) => LogKey.load.call(this, edge.key_id)),
-                );
-            },
-        ]);
+        const logCategory = await this.database.findByPk('LogCategory', id, this.transaction);
+        const logCategoryEdges = await this.database.getEdges(
+            'LogCategoryToLogKey',
+            'category_id',
+            id,
+            this.transaction,
+        );
+        const outputLogKeys = await Promise.all(
+            logCategoryEdges.map((edge) => LogKey.load.call(this, edge.key_id)),
+        );
         return {
             id: logCategory.id,
             name: logCategory.name,
             logKeys: outputLogKeys,
             template: logCategory.template,
         };
+    }
+
+    static async save(inputLogCategory) {
+        const logKeys = await Promise.all(
+            inputLogCategory.logKeys.map(async (inputLogKey) => {
+                let logKey;
+                if (inputLogKey.id < 0) {
+                    logKey = await this.database.createOrFind(
+                        'LogKey',
+                        { name: inputLogKey.name },
+                        { type: inputLogKey.type },
+                        this.transaction,
+                    );
+                } else {
+                    logKey = await this.database.update(
+                        'LogKey',
+                        { id: inputLogKey.id, name: inputLogKey.name },
+                        this.transaction,
+                    );
+                }
+                return {
+                    id: logKey.id,
+                    name: logKey.name,
+                    type: logKey.type,
+                };
+            }),
+        );
+        const fields = {
+            id: inputLogCategory.id,
+            name: inputLogCategory.name,
+            template: updateCategoryTemplate(
+                inputLogCategory.template,
+                inputLogCategory.logKeys,
+                logKeys,
+            ),
+        };
+        const logCategory = await this.database.createOrUpdate(
+            'LogCategory', fields, this.transaction,
+        );
+        await this.database.setEdges(
+            'LogCategoryToLogKey',
+            'category_id',
+            logCategory.id,
+            'key_id',
+            logKeys.reduce((result, logKey, index) => {
+                // eslint-disable-next-line no-param-reassign
+                result[logKey.id] = { ordering_index: index };
+                return result;
+            }, {}),
+            this.transaction,
+        );
+        return logCategory.id;
     }
 }
 

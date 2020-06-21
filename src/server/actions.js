@@ -1,90 +1,28 @@
 /* eslint-disable func-names */
 
-import { updateCategoryTemplate } from '../data/LogCategory';
-import LogEntry from '../data/LogEntry';
-import LogTag from '../data/LogTag';
+import { LogCategory, LogEntry, LogTag } from '../data';
 
 const Actions = {
     'log-category-list': async function () {
         return this.database.sequelize.transaction(async (transaction) => {
-            const { LogCategory, LogKey } = this.database.models;
-            const categories = await LogCategory.findAll({
-                include: { model: LogKey },
-                transaction,
-            });
-            return categories.map((logCategory) => ({
-                id: logCategory.id,
-                name: logCategory.name,
-                logKeys: logCategory.log_keys.sort(
-                    (left, right) => left.log_categories_to_log_keys.ordering_index
-                        - right.log_categories_to_log_keys.ordering_index,
-                ).map((key) => ({
-                    id: key.id,
-                    name: key.name,
-                    type: key.type,
-                })),
-                template: logCategory.template,
-            }));
+            const context = { database: this.database, transaction };
+            const logCategories = await this.database.findAll(
+                'LogCategory', {}, transaction,
+            );
+            const outputLogCategories = await Promise.all(
+                logCategories.map(
+                    (logCategory) => LogCategory.load.call(context, logCategory.id),
+                ),
+            );
+            return outputLogCategories;
         });
     },
     'log-category-upsert': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const fields = {
-                id: input.id,
-                name: input.name,
-                // TODO: This should not be needed, given the defaultValue.
-                // It is set properly later.
-                template: input.template,
-            };
-            let logCategory = await this.database.createOrUpdate(
-                'LogCategory', fields, transaction,
-            );
-            const logKeys = await Promise.all(
-                input.logKeys.map(async (inputLogKey) => {
-                    let logKey;
-                    if (inputLogKey.id < 0) {
-                        logKey = await this.database.createOrFind(
-                            'LogKey',
-                            { name: inputLogKey.name },
-                            { type: inputLogKey.type },
-                            transaction,
-                        );
-                    } else {
-                        logKey = await this.database.update(
-                            'LogKey',
-                            { id: inputLogKey.id, name: inputLogKey.name },
-                            transaction,
-                        );
-                    }
-                    return {
-                        id: logKey.id,
-                        name: logKey.name,
-                        type: logKey.type,
-                    };
-                }),
-            );
-            const template = updateCategoryTemplate(input.template, input.logKeys, logKeys);
-            logCategory = await this.database.update(
-                'LogCategory', { id: logCategory.id, template }, transaction,
-            );
-            await this.database.setEdges(
-                'LogCategoryToLogKey',
-                'category_id',
-                logCategory.id,
-                'key_id',
-                logKeys.reduce((result, logKey, index) => {
-                    // eslint-disable-next-line no-param-reassign
-                    result[logKey.id] = { ordering_index: index };
-                    return result;
-                }, {}),
-                transaction,
-            );
-            return {
-                id: logCategory.id,
-                name: logCategory.name,
-                logKeys,
-                template: logCategory.template,
-            };
+            const context = { database: this.database, transaction };
+            const id = await LogCategory.save.call(context, input);
+            const outputLogCategory = await LogCategory.load.call(context, id);
+            return outputLogCategory;
         });
     },
     'log-category-delete': async function (input) {
@@ -162,20 +100,10 @@ const Actions = {
     },
     'log-tag-upsert': async function (inputLogTag) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const fields = {
-                id: inputLogTag.id,
-                type: inputLogTag.type,
-                name: inputLogTag.name,
-            };
-            const logTag = await this.database.createOrUpdate(
-                'LogTag', fields, transaction,
-            );
-            // TODO: Trigger consistency update if name change.
-            return {
-                id: logTag.id,
-                type: logTag.type,
-                name: logTag.name,
-            };
+            const context = { database: this.database, transaction };
+            const id = await LogTag.save.call(context, inputLogTag);
+            const outputLogTag = await LogTag.load.call(context, id);
+            return outputLogTag;
         });
     },
     'log-tag-delete': async function (input) {
