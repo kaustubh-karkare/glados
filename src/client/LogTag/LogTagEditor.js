@@ -50,8 +50,7 @@ class LogTagEditor extends React.Component {
                 />
                 <Typeahead
                     allowUpdate
-                    id="log_tag"
-                    rpcName="log-tag-list"
+                    dataType="log-tag"
                     value={this.props.logTag}
                     onUpdate={this.props.onUpdate}
                 />

@@ -6,8 +6,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
+import Utils from '../../data/Utils';
 
-const UPDATE_KEY = '__update_key__';
 
 class Typeahead extends React.Component {
     constructor(props) {
@@ -22,11 +22,20 @@ class Typeahead extends React.Component {
 
     onSearch(query) {
         this.setState({ isLoading: true }, () => {
-            window.api.send(this.props.rpcName, this.props.value, query)
+            window.api.send(`${this.props.dataType}-typeahead`, this.props.value, query)
                 .then((options) => {
                     this.setState({ isLoading: false, options });
                 });
         });
+    }
+
+    onUpdate(option) {
+        if (option[Utils.INCOMPLETE_KEY]) {
+            window.api.send(`${this.props.dataType}-load`, option)
+                .then((result) => this.props.onUpdate(result));
+        } else {
+            this.props.onUpdate(option);
+        }
     }
 
     renderUpdateButton() {
@@ -36,17 +45,17 @@ class Typeahead extends React.Component {
         return (
             <Button
                 onClick={() => {
-                    if (this.props.value[UPDATE_KEY]) {
-                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: false });
+                    if (this.props.value[Utils.UPDATE_KEY]) {
+                        this.props.onUpdate({ ...this.props.value, [Utils.UPDATE_KEY]: false });
                     } else {
-                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: true });
+                        this.props.onUpdate({ ...this.props.value, [Utils.UPDATE_KEY]: true });
                     }
                 }}
                 size="sm"
                 title="Edit"
                 variant="secondary"
             >
-                {this.props.value[UPDATE_KEY] ? <GiCancel /> : <FaRegEdit />}
+                {this.props.value[Utils.UPDATE_KEY] ? <GiCancel /> : <FaRegEdit />}
             </Button>
         );
     }
@@ -73,13 +82,13 @@ class Typeahead extends React.Component {
             <>
                 <AsyncTypeahead
                     {...this.state}
-                    id={this.props.rpcName}
+                    id={this.props.dataType}
                     labelKey={this.props.labelKey}
                     size="small"
                     minLength={0}
                     disabled={
                         this.props.value.id > 0
-                        && !this.props.value[UPDATE_KEY]
+                        && !this.props.value[Utils.UPDATE_KEY]
                     }
                     onFocus={() => this.onSearch(selectedOptionLabel)}
                     onSearch={(query) => this.onSearch(query)}
@@ -89,12 +98,12 @@ class Typeahead extends React.Component {
                     onInputChange={(text) => this.onInputChange(text)}
                     onChange={(selected) => {
                         if (selected.length) {
-                            this.props.onUpdate(selected[0]);
+                            this.onUpdate(selected[0]);
                         }
                     }}
                     renderMenuItemChildren={
                         (option) => (
-                            <div onMouseDown={() => this.props.onUpdate(option)}>
+                            <div onMouseDown={() => this.onUpdate(option)}>
                                 {option[this.props.labelKey]}
                             </div>
                         )
@@ -107,7 +116,7 @@ class Typeahead extends React.Component {
     }
 }
 
-Typeahead.isUpdating = (value) => !!value[UPDATE_KEY];
+Typeahead.isUpdating = (value) => !!value[Utils.UPDATE_KEY];
 
 Typeahead.propTypes = {
     allowUpdate: PropTypes.bool,
@@ -117,7 +126,7 @@ Typeahead.propTypes = {
     onUpdate: PropTypes.func.isRequired,
     onDelete: PropTypes.func,
     placeholder: PropTypes.string,
-    rpcName: PropTypes.string.isRequired,
+    dataType: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.any.isRequired,
 };

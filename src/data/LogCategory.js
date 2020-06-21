@@ -193,6 +193,17 @@ class LogCategory {
         );
     }
 
+    static async typeahead() {
+        const logCategories = await this.database.findAll(
+            'LogCategory', {}, this.transaction,
+        );
+        return logCategories.map((logCategory) => ({
+            id: logCategory.id,
+            name: logCategory.name,
+            [Utils.INCOMPLETE_KEY]: true,
+        }));
+    }
+
     static async load(id) {
         const logCategory = await this.database.findByPk('LogCategory', id, this.transaction);
         const logCategoryEdges = await this.database.getEdges(

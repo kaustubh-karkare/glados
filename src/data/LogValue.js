@@ -12,11 +12,11 @@ class LogValue {
     }
 
     static async typeahead({ logKey }) {
-        const matchingLogValues = await this.database.findAll(
+        const logValues = await this.database.findAll(
             'LogValue',
-            { where: { key_id: logKey.id } },
+            { key_id: logKey.id },
         );
-        return matchingLogValues.map((logValue) => ({
+        return logValues.map((logValue) => ({
             id: logValue.id,
             data: logValue.data,
             logKey,

@@ -27,6 +27,15 @@ class LogKey {
         };
     }
 
+    static async typeahead() {
+        const logKeys = await this.database.findAll('LogKey', {}, this.transaction);
+        return logKeys.map((logKey) => ({
+            id: logKey.id,
+            name: logKey.name,
+            type: logKey.type,
+        }));
+    }
+
     static async load(id) {
         const logKey = await this.database.findByPk('LogKey', id, this.transaction);
         return {

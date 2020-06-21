@@ -95,7 +95,7 @@ class LogEntryEditor extends React.Component {
                     Category
                 </InputGroup.Text>
                 <Typeahead
-                    rpcName="log-category-list"
+                    dataType="log-category"
                     value={this.state.logEntry.logCategory}
                     onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign

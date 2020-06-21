@@ -14,14 +14,6 @@ const ActionsRegistry = {
         );
         return outputLogCategories;
     },
-    'log-key-list': async function () {
-        const logKeys = await this.database.findAll('LogKey', {}, this.transaction);
-        return logKeys.map((logKey) => ({
-            id: logKey.id,
-            name: logKey.name,
-            type: logKey.type,
-        }));
-    },
     'log-tag-list': async function () {
         const logTags = await this.database.findAll('LogTag', {}, this.transaction);
         return logTags.map((logTag) => ({
@@ -34,19 +26,19 @@ const ActionsRegistry = {
 
 Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;
-    ActionsRegistry[name + '-typeahead'] = async function(input) {
+    ActionsRegistry[`${name}-typeahead`] = async function (input) {
         return DataType.typeahead.call(this, input);
     };
-    ActionsRegistry[name + '-load'] = async function(input) {
+    ActionsRegistry[`${name}-load`] = async function (input) {
         return DataType.load.call(this, input.id);
     };
-    ActionsRegistry[name + '-upsert'] = async function(input) {
+    ActionsRegistry[`${name}-upsert`] = async function (input) {
         const id = await DataType.save.call(this, input);
         return DataType.load.call(this, id);
     };
-    ActionsRegistry[name + '-delete'] = async function(input) {
+    ActionsRegistry[`${name}-delete`] = async function (input) {
         const item = await this.database.delete(
-            DataType.name, { id: input.id }, this.transaction
+            DataType.name, { id: input.id }, this.transaction,
         );
         return { id: item.id };
     };

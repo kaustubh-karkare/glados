@@ -28,7 +28,7 @@ class LogKeyEditor extends React.Component {
                 />
                 <Typeahead
                     allowUpdate
-                    rpcName="log-key-list"
+                    dataType="log-key"
                     value={logKey}
                     onUpdate={this.props.onUpdate}
                 />

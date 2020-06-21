@@ -72,6 +72,14 @@ const data = {
             type: 'person',
             name: 'Vishnu Mohandas',
         },
+        {
+            type: 'hashtag',
+            name: 'philosophy',
+        },
+        {
+            type: 'hashtag',
+            name: 'productivity',
+        },
     ],
     logEnties: [
         {

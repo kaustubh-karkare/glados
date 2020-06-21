@@ -60,11 +60,11 @@ class TextEditor extends React.Component {
         const selectedSource = this.props.sources
             .find((suggestion) => suggestion.trigger === trigger);
         assert(selectedSource, 'unknown suggestion for trigger');
-        this.setState({selectedSource});
+        this.setState({ selectedSource });
         if (selectedSource.options) {
             this.setSuggestions(selectedSource, query, selectedSource.options);
         } else if (selectedSource.dataType) {
-            window.api.send(selectedSource.dataType + '-typeahead', { trigger, query })
+            window.api.send(`${selectedSource.dataType}-typeahead`, { trigger, query })
                 .then((options) => this.setSuggestions(selectedSource, query, options));
         } else {
             assert(false, 'missing source');
@@ -75,8 +75,8 @@ class TextEditor extends React.Component {
         if (this.props.onSelectSuggestion) {
             if (option[Utils.INCOMPLETE_KEY]) {
                 assert(this.state.selectedSource.dataType);
-                window.api.send(this.state.selectedSource.dataType + '-load', option)
-                    .then((logEntry) => this.props.onSelectSuggestion(logEntry));
+                window.api.send(`${this.state.selectedSource.dataType}-load`, option)
+                    .then((result) => this.props.onSelectSuggestion(result));
             } else {
                 this.props.onSelectSuggestion(option);
             }

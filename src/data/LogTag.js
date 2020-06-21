@@ -28,7 +28,7 @@ class LogTag {
     }
 
     static async typeahead({ trigger, query }) {
-        const logTagType = LogTag.getTypes().find((item) => item.trigger == trigger);
+        const logTagType = LogTag.getTypes().find((item) => item.trigger === trigger);
         const where = {
             type: logTagType.value,
             name: { [this.database.Op.like]: `${query}%` },

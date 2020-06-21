@@ -43,7 +43,7 @@ class LogValueEditor extends React.Component {
                     onUpdate={(type) => this.updateLogKey({ ...logKey, type })}
                 />
                 <Typeahead
-                    rpcName="log-key-list"
+                    dataType="log-key"
                     value={logKey}
                     onUpdate={(updatedLogKey) => this.updateLogKey(updatedLogKey)}
                     allowDelete={this.props.isNewCategory}
@@ -51,7 +51,7 @@ class LogValueEditor extends React.Component {
                 />
                 <Typeahead
                     labelKey="data"
-                    rpcName="log-value-typeahead"
+                    dataType="log-value"
                     value={this.props.logValue}
                     onUpdate={this.props.onUpdate}
                     allowDelete={this.props.logValue.id > 0}
