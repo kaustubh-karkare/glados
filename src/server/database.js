@@ -307,7 +307,7 @@ class Database {
             config.password,
             options,
         );
-        this.models = createModels(this.sequelize);
+        this._models = createModels(this.sequelize);
         this.Op = Sequelize.Op;
     }
 
@@ -317,7 +317,7 @@ class Database {
 
     async create(name, fields, transaction) {
         const { id, ...remainingFields } = fields;
-        const Model = this.models[name];
+        const Model = this._models[name];
         return Model.create(
             remainingFields,
             // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
@@ -327,7 +327,7 @@ class Database {
 
     async update(name, fields, transaction) {
         const { id, ...remainingFields } = fields;
-        const Model = this.models[name];
+        const Model = this._models[name];
         const instance = await Model.findByPk(id, { transaction });
         return instance.update(remainingFields, { transaction });
     }
@@ -340,22 +340,22 @@ class Database {
     }
 
     async findAll(name, where, transaction) {
-        const Model = this.models[name];
+        const Model = this._models[name];
         return Model.findAll({ where, transaction });
     }
 
     async findOne(name, where, transaction) {
-        const Model = this.models[name];
+        const Model = this._models[name];
         return Model.findOne({ where, transaction });
     }
 
     async findByPk(name, id, transaction) {
-        const Model = this.models[name];
+        const Model = this._models[name];
         return Model.findByPk(id, { transaction });
     }
 
     async createOrFind(name, where, updateFields, transaction) {
-        const Model = this.models[name];
+        const Model = this._models[name];
         const instance = await Model.findOne({ where, transaction });
         if (!instance) {
             return this.create(name, { ...where, ...updateFields }, transaction);
@@ -364,14 +364,14 @@ class Database {
     }
 
     async delete(name, fields, transaction) {
-        const Model = this.models[name];
+        const Model = this._models[name];
         const { id } = fields;
         const instance = await Model.findByPk(id);
         return instance.destroy({ transaction });
     }
 
     async getEdges(edgeName, leftName, leftId, transaction) {
-        const EdgeModel = this.models[edgeName];
+        const EdgeModel = this._models[edgeName];
         return EdgeModel.findAll({
             where: { [leftName]: leftId },
             transaction,
@@ -380,7 +380,7 @@ class Database {
 
     async getNodesByEdge(edgeName, leftName, leftId, rightName, rightType, transaction) {
         const edges = await this.getEdges(edgeName, leftName, leftId, transaction);
-        const NodeModel = this.models[rightType];
+        const NodeModel = this._models[rightType];
         const nodes = await Promise.all(
             edges.map((edge) => NodeModel.findByPk(edge[rightName]), { transaction }),
         );
@@ -388,7 +388,7 @@ class Database {
     }
 
     async setEdges(edgeName, leftName, leftId, rightName, right, transaction) {
-        const Model = this.models[edgeName];
+        const Model = this._models[edgeName];
         const existingEdges = await Model.findAll({ where: { [leftName]: leftId } });
         const existingIDs = existingEdges.map((edge) => edge[rightName].toString());
         // Why specify fields? https://github.com/sequelize/sequelize/issues/11417

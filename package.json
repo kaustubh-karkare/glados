@@ -7,11 +7,11 @@
     "client": "webpack --watch --progress --config webpack.config.js",
     "server": "nodemon -w index.js -w src/server/ -w src/data/ -w src/common/ --exec babel-node --trace-warnings index.js",
     "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix .",
-    "test": "jest"
+    "test": "jest --testPathPattern='test.js'"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn run lint"
+      "pre-commit": "yarn run lint && yarn run test"
     }
   },
   "repository": {

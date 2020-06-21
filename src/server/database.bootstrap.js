@@ -82,7 +82,7 @@ const data = {
             categoryName: 'Cycling',
             logValues: ['20', '70', '1000'],
         },
-    ]
+    ],
 };
 
 function awaitSequence(items, method) {
@@ -106,8 +106,7 @@ function awaitSequence(items, method) {
     });
 }
 
-async function bootstrap(actions, database) {
-    const context = { database };
+async function bootstrap(actions) {
     const categoryMap = {};
 
     await awaitSequence(data.categories, async (inputLogCategory) => {
@@ -116,30 +115,31 @@ async function bootstrap(actions, database) {
             (logKey) => ({ ...logKey, id: getNegativeID() }),
         );
         inputLogCategory.template = createCategoryTemplate(
-            inputLogCategory.template, inputLogCategory.logKeys
+            inputLogCategory.template, inputLogCategory.logKeys,
         );
-        const outputLogCategory = await actions['log-category-upsert']
-            .call(context, inputLogCategory);
+        const outputLogCategory = await actions.invoke('log-category-upsert', inputLogCategory);
         categoryMap[outputLogCategory.name] = outputLogCategory;
     });
+
     await awaitSequence(data.logTags, async (logTag) => {
         logTag.id = getNegativeID();
-        return actions['log-tag-upsert'].call(context, logTag);
+        return actions.invoke('log-tag-upsert', logTag);
     });
-    await awaitSequence(data.logEnties, async (inputLogEntry, index) => {
+
+    await awaitSequence(data.logEnties, async (inputLogEntry) => {
         inputLogEntry.id = getNegativeID();
         inputLogEntry.logCategory = categoryMap[inputLogEntry.categoryName];
+        // generate values after category is set
         inputLogEntry.logValues = inputLogEntry.logValues.map(
-            (data, index) => ({
+            (logValueData, index) => ({
                 id: getNegativeID(),
                 logKey: inputLogEntry.logCategory.logKeys[index],
-                data,
-            })
+                data: logValueData,
+            }),
         );
+        LogEntry.trigger(inputLogEntry); // set title, after values
         inputLogEntry.details = '';
-        LogEntry.trigger(inputLogEntry); // set title
-        const outputLogEntry = await actions['log-entry-upsert']
-            .call(context, inputLogEntry);
+        await actions.invoke('log-entry-upsert', inputLogEntry);
     });
 }
 

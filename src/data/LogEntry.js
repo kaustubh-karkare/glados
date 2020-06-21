@@ -25,7 +25,9 @@ class LogEntry {
                 logEntry.logCategory.template,
                 logEntry.logValues,
             );
-            didChange |= (originalTitle != logEntry.title);
+            if (originalTitle !== logEntry.title) {
+                didChange = true;
+            }
         }
         return didChange;
     }
