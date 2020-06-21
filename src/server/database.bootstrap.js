@@ -1,4 +1,5 @@
 import { createCategoryTemplate } from '../data/LogCategory';
+import { LogEntry, getNegativeID } from '../data';
 
 const data = {
     categories: [
@@ -72,6 +73,16 @@ const data = {
             name: 'Vishnu Mohandas',
         },
     ],
+    logEnties: [
+        {
+            categoryName: 'Cycling',
+            logValues: ['15', '55', '750'],
+        },
+        {
+            categoryName: 'Cycling',
+            logValues: ['20', '70', '1000'],
+        },
+    ]
 };
 
 function awaitSequence(items, method) {
@@ -96,17 +107,39 @@ function awaitSequence(items, method) {
 }
 
 async function bootstrap(actions, database) {
-    await awaitSequence(data.categories, async (category, categoryIndex) => {
-        category.id = -categoryIndex - 1;
-        category.logKeys = category.logKeys.map(
-            (logKey, logKeyIndex) => ({ ...logKey, id: -logKeyIndex - 1 }),
+    const context = { database };
+    const categoryMap = {};
+
+    await awaitSequence(data.categories, async (inputLogCategory) => {
+        inputLogCategory.id = getNegativeID();
+        inputLogCategory.logKeys = inputLogCategory.logKeys.map(
+            (logKey) => ({ ...logKey, id: getNegativeID() }),
         );
-        category.template = createCategoryTemplate(category.template, category.logKeys);
-        return actions['log-category-upsert'].call({ database }, category);
+        inputLogCategory.template = createCategoryTemplate(
+            inputLogCategory.template, inputLogCategory.logKeys
+        );
+        const outputLogCategory = await actions['log-category-upsert']
+            .call(context, inputLogCategory);
+        categoryMap[outputLogCategory.name] = outputLogCategory;
     });
-    await awaitSequence(data.logTags, async (logTag, logTagIndex) => {
-        logTag.id = -logTagIndex - 1;
-        return actions['log-tag-upsert'].call({ database }, logTag);
+    await awaitSequence(data.logTags, async (logTag) => {
+        logTag.id = getNegativeID();
+        return actions['log-tag-upsert'].call(context, logTag);
+    });
+    await awaitSequence(data.logEnties, async (inputLogEntry, index) => {
+        inputLogEntry.id = getNegativeID();
+        inputLogEntry.logCategory = categoryMap[inputLogEntry.categoryName];
+        inputLogEntry.logValues = inputLogEntry.logValues.map(
+            (data, index) => ({
+                id: getNegativeID(),
+                logKey: inputLogEntry.logCategory.logKeys[index],
+                data,
+            })
+        );
+        inputLogEntry.details = '';
+        LogEntry.trigger(inputLogEntry); // set title
+        const outputLogEntry = await actions['log-entry-upsert']
+            .call(context, inputLogEntry);
     });
 }
 

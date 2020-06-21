@@ -18,12 +18,16 @@ class LogEntry {
     }
 
     static trigger(logEntry) {
+        let didChange = false;
         if (logEntry.logCategory.template) {
+            const originalTitle = logEntry.title;
             logEntry.title = materializeCategoryTemplate(
                 logEntry.logCategory.template,
                 logEntry.logValues,
             );
+            didChange |= (originalTitle != logEntry.title);
         }
+        return didChange;
     }
 
     static async load(id) {
@@ -70,6 +74,7 @@ class LogEntry {
                 }\nActual = ${inputLogEntry.logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
             );
         }
+        assert(!LogEntry.trigger(inputLogEntry));
         const fields = {
             id: inputLogEntry.id,
             name: TextEditorUtils.extractPlainText(inputLogEntry.title),
