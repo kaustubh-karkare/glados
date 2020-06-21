@@ -50,6 +50,7 @@ function createEmptyLogTag() {
 }
 
 export {
+    getNegativeID,
     createEmptyLogKey,
     createEmptyLogValue,
     createEmptyLogCategory,

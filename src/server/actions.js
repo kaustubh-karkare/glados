@@ -1,9 +1,8 @@
 /* eslint-disable func-names */
 
-import assert from '../common/assert';
 import { updateCategoryTemplate } from '../common/LogCategory';
-import extractLogTags from '../common/LogEntry';
-import { getLogTagType } from '../common/LogTag';
+import LogEntry from '../common/LogEntry';
+import LogTag from '../common/LogTag';
 
 const Actions = {
     'log-category-list': async function () {
@@ -95,125 +94,49 @@ const Actions = {
         });
     },
     'log-key-list': async function () {
-        const logKeys = await this.database.getAll('LogKey');
+        const logKeys = await this.database.findAll('LogKey', {});
         return logKeys.map((logKey) => ({
             id: logKey.id,
             name: logKey.name,
             type: logKey.type,
         }));
     },
+    'log-entry-typeahead': async function (input) {
+        return this.database.sequelize.transaction(async (transaction) => {
+            const where = {
+                name: { [this.database.Op.like]: `${input.value}%` },
+            };
+            const logEntries = await this.database.findAll('LogEntry', where, transaction);
+            const outputLogEntries = await Promise.all(
+                logEntries.map((logEntry) => LogEntry.load.call(
+                    { database: this.database, transaction }, logEntry.id,
+                )),
+            );
+            return outputLogEntries;
+        });
+    },
     'log-entry-upsert': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            let logCategory = null;
-            if (input.logCategory.id > 0) {
-                logCategory = await this.database.find('LogCategory', { id: input.logCategory.id });
-            }
-            const fields = {
-                id: input.id,
-                title: input.title,
-                category_id: logCategory ? logCategory.id : null,
-                details: input.details,
-            };
-            const logEntry = await this.database.createOrUpdate('LogEntry', fields, transaction);
-            const logValues = await Promise.all(
-                input.logValues.map(async (inputLogValue) => {
-                    const logKey = await this.database.createOrFind(
-                        'LogKey',
-                        { name: inputLogValue.logKey.name },
-                        { type: inputLogValue.logKey.type },
-                        transaction,
-                    );
-                    assert(logKey.type === inputLogValue.logKey.type, 'Mismatched key type!');
-                    const logValue = await this.database.createOrFind(
-                        'LogValue',
-                        { key_id: logKey.id, data: inputLogValue.data },
-                        {},
-                        transaction,
-                    );
-                    return {
-                        id: logValue.id,
-                        logKey: {
-                            id: logKey.id,
-                            name: logKey.name,
-                            type: logKey.type,
-                        },
-                        data: logValue.data,
-                    };
-                }),
-            );
-            if (logCategory) {
-                const logCategoryKeys = await this.database.getNodesByEdge(
-                    'LogCategoryToLogKey',
-                    'category_id',
-                    logCategory.id,
-                    'key_id',
-                    'LogKey',
-                    transaction,
-                );
-                assert(
-                    logCategoryKeys.map((logKey) => logKey.id).equals(
-                        logValues.map((logValue) => logValue.logKey.id),
-                    ),
-                    `${'Missing keys for selected category!'
-                        + '\nExpected = '}${logCategoryKeys.map((logKey) => logKey.name).join(', ')
-                    }\nActual = ${logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
-                );
-            }
-            await this.database.setEdges(
-                'LogEntryToLogValue',
-                'entry_id',
-                logEntry.id,
-                'value_id',
-                logValues.reduce((result, logValue, index) => {
-                    // eslint-disable-next-line no-param-reassign
-                    result[logValue.id] = { ordering_index: index };
-                    return result;
-                }, {}),
-                transaction,
-            );
-            const logTags = extractLogTags(logEntry.details);
-            await this.database.setEdges(
-                'LogEntryToLogTag',
-                'entry_id',
-                logEntry.id,
-                'tag_id',
-                logTags.reduce((result, logTag) => {
-                    // eslint-disable-next-line no-param-reassign
-                    result[logTag.id] = {};
-                    return result;
-                }, {}),
-                transaction,
-            );
-            return {
-                id: logEntry.id,
-                title: logEntry.title,
-                details: logEntry.details,
-                logCategory: logEntry.category_id ? ({
-                    id: logCategory.id,
-                    name: logCategory.name,
-                    logKeys: logValues.map((logValue) => logValue.logKey),
-                    template: logCategory.template,
-                }) : input.logCategory,
-                logValues,
-            };
+            const context = { database: this.database, transaction };
+            const id = await LogEntry.save.call(context, input);
+            const outputLogEntry = await LogEntry.load.call(context, id);
+            return outputLogEntry;
         });
     },
     'log-value-typeahead': async function (inputLogValue) {
-        const { LogValue } = this.database.models;
-        const { logKey } = inputLogValue;
-        const matchingLogValues = await LogValue.findAll({
-            where: { key_id: inputLogValue.logKey.id },
-        });
+        const matchingLogValues = await this.database.findAll(
+            'LogValue',
+            { where: { key_id: inputLogValue.logKey.id } },
+        );
         return matchingLogValues.map((logValue) => ({
             id: logValue.id,
             data: logValue.data,
-            logKey,
+            logKey: inputLogValue.logKey,
         }));
     },
     'log-tag-list': async function () {
         return this.database.sequelize.transaction(async (transaction) => {
-            const { LogTag } = this.database.models;
-            const logTags = await LogTag.findAll({ transaction });
+            const logTags = await this.database.findAll('LogTag', {}, transaction);
             return logTags.map((logTag) => ({
                 id: logTag.id,
                 type: logTag.type,
@@ -223,13 +146,12 @@ const Actions = {
     },
     'log-tag-typeahead': async function (input) {
         return this.database.sequelize.transaction(async (transaction) => {
-            const { LogTag } = this.database.models;
-            const logTagType = getLogTagType(input.trigger);
+            const logTagType = LogTag.getTypes()[1]; // TODO: Use input.trigger
             const where = {
                 type: logTagType.value,
                 name: { [this.database.Op.like]: `${input.value}%` },
             };
-            const logTags = await LogTag.findAll({ where, transaction });
+            const logTags = await this.database.findAll('LogTag', where, transaction);
             const outputLogTags = logTags.map((logTag) => ({
                 id: logTag.id,
                 type: logTag.type,

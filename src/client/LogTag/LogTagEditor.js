@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { Dropdown, Typeahead } from '../Common';
 
-import { getLogTagTypes } from '../../common/LogTag';
+import LogTag from '../../common/LogTag';
 
 class LogTagEditor extends React.Component {
     onUpdate(method) {
@@ -45,7 +45,7 @@ class LogTagEditor extends React.Component {
             <InputGroup className="mb-1" size="sm">
                 <Dropdown
                     value={logTag.type}
-                    options={getLogTagTypes()}
+                    options={LogTag.getTypes()}
                     onUpdate={(type) => this.props.onUpdate({ ...logTag, type })}
                 />
                 <Typeahead

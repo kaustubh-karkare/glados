@@ -1,5 +1,6 @@
 
 import assert from './assert';
+import LogKey from './LogKey';
 import TextEditorUtils from './TextEditorUtils';
 
 /*
@@ -169,4 +170,30 @@ function materializeCategoryTemplate(template, logValues) {
     return TextEditorUtils.serialize(result);
 }
 
+class LogCategory {
+    static async load(id) {
+        const [logCategory, outputLogKeys] = await Promise.all([
+            this.database.findByPk('LogCategory', id, this.transaction),
+            async () => {
+                const edges = await this.database.getEdges(
+                    'LogCategoryToLogKey',
+                    'category_id',
+                    id,
+                    this.transaction,
+                );
+                return Promise.all(
+                    edges.map((edge) => LogKey.load.call(this, edge.key_id)),
+                );
+            },
+        ]);
+        return {
+            id: logCategory.id,
+            name: logCategory.name,
+            logKeys: outputLogKeys,
+            template: logCategory.template,
+        };
+    }
+}
+
 export { createCategoryTemplate, updateCategoryTemplate, materializeCategoryTemplate };
+export default LogCategory;

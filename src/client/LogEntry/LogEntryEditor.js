@@ -6,7 +6,9 @@ import { TextEditor, Typeahead } from '../Common';
 import { LogValueListEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
-import { createEmptyLogCategory, createEmptyLogEntry, createEmptyLogValue } from '../Data';
+import {
+    getNegativeID, createEmptyLogCategory, createEmptyLogEntry, createEmptyLogValue,
+} from '../Data';
 import deepcopy from '../../common/deepcopy';
 
 import { materializeCategoryTemplate } from '../../common/LogCategory';
@@ -14,6 +16,8 @@ import { materializeCategoryTemplate } from '../../common/LogCategory';
 const textEditorSources = [
     { trigger: '@', rpcName: 'log-tag-typeahead' },
     { trigger: '#', rpcName: 'log-tag-typeahead' },
+    // TODO: Move this to CompactEditor.
+    { trigger: '!', rpcName: 'log-entry-typeahead' },
 ];
 
 class LogEntryEditor extends React.Component {
@@ -61,6 +65,13 @@ class LogEntryEditor extends React.Component {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.title = value;
                     })}
+                    onSelectSuggestion={(option) => {
+                        if (typeof option.title === 'undefined') return;
+                        const logEntry = option;
+                        LogEntryEditor.afterUpdate(logEntry);
+                        logEntry.id = getNegativeID();
+                        this.setState({ logEntry });
+                    }}
                 />
             </InputGroup>
         );

@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
-import { getLogKeyTypes } from '../common/LogKey';
-import { getLogTagTypes } from '../common/LogTag';
+// eslint-disable-next-line import/no-named-default
+import { default as LogKeyClass } from '../common/LogKey';
+// eslint-disable-next-line import/no-named-default
+import { default as LogTagClass } from '../common/LogTag';
 
 const LogKeyType = PropTypes.oneOf(
-    getLogKeyTypes().map((item) => item.value),
+    LogKeyClass.getTypes().map((item) => item.value),
 );
 
 const LogKey = PropTypes.shape({
@@ -25,7 +27,7 @@ const LogValue = PropTypes.shape({
 });
 
 const LogTagType = PropTypes.oneOf(
-    getLogTagTypes().map((item) => item.value),
+    LogTagClass.getTypes().map((item) => item.value),
 );
 
 const LogTag = PropTypes.shape({

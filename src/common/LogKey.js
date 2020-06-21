@@ -10,14 +10,21 @@ const LogKeyTypes = {
     },
 };
 
-function getLogKeyType(type) {
-    return LogKeyTypes[type];
+class LogKey {
+    static getTypes() {
+        return Object.keys(LogKeyTypes).map(
+            (type) => ({ ...LogKeyTypes[type], value: type }),
+        );
+    }
+
+    static async load(id) {
+        const logKey = await this.database.findByPk('LogKey', id, this.transaction);
+        return {
+            id: logKey.id,
+            name: logKey.name,
+            type: logKey.type,
+        };
+    }
 }
 
-function getLogKeyTypes() {
-    return Object.keys(LogKeyTypes).map(
-        (type) => ({ ...LogKeyTypes[type], value: type }),
-    );
-}
-
-export { getLogKeyType, getLogKeyTypes };
+export default LogKey;

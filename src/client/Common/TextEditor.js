@@ -32,7 +32,7 @@ class TextEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            suggestions: [], // [{name, link, avatar}]
+            suggestions: [],
             open: false,
             plugins: [],
         };
@@ -60,18 +60,18 @@ class TextEditor extends React.Component {
             .find((suggestion) => suggestion.trigger === trigger);
         assert(selectedSource, 'unknown suggestion for trigger');
         if (selectedSource.options) {
-            this.setState({
-                open: true,
-                suggestions: defaultSuggestionsFilter(value, selectedSource.options),
-            });
+            this.setSuggestions(selectedSource, value, selectedSource.options);
         } else if (selectedSource.rpcName) {
             window.api.send(selectedSource.rpcName, { trigger, value })
-                .then((options) => this.setState({
-                    open: true,
-                    suggestions: defaultSuggestionsFilter(value, options),
-                }));
+                .then((options) => this.setSuggestions(selectedSource, value, options));
         } else {
             assert(false, 'missing source');
+        }
+    }
+
+    onAddMention(option) {
+        if (this.props.onSelectSuggestion) {
+            this.props.onSelectSuggestion(option);
         }
     }
 
@@ -84,6 +84,14 @@ class TextEditor extends React.Component {
         if (oldValue === newValue) {
             this.props.onUpdate(newValue);
         }
+    }
+
+    setSuggestions(source, value, options) {
+        // Excepted Structure = [{name, link, avatar}]
+        this.setState({
+            open: true,
+            suggestions: defaultSuggestionsFilter(value, options),
+        });
     }
 
     handleKeyCommand(command, editorState) {
@@ -118,6 +126,7 @@ class TextEditor extends React.Component {
                         open={this.state.open}
                         onOpenChange={(open) => this.setState({ open })}
                         onSearchChange={(data) => this.onSearchChange(data)}
+                        onAddMention={(option) => this.onAddMention(option)}
                         suggestions={this.state.suggestions}
                     />
                 </div>
@@ -141,6 +150,7 @@ TextEditor.propTypes = {
             rpcName: PropTypes.string,
         }).isRequired,
     ),
+    onSelectSuggestion: PropTypes.func,
     onUpdate: PropTypes.func.isRequired,
 };
 

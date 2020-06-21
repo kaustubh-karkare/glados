@@ -1,6 +1,4 @@
 
-import assert from './assert';
-
 const LogTagTypes = {
     person: {
         label: 'Person',
@@ -14,19 +12,12 @@ const LogTagTypes = {
     },
 };
 
-function getLogTagTypes() {
-    return Object.keys(LogTagTypes).map(
-        (type) => ({ ...LogTagTypes[type], value: type }),
-    );
-}
-
-function getLogTagType(typeOrTrigger) {
-    let logTagType = LogTagTypes[typeOrTrigger];
-    if (!logTagType) {
-        logTagType = getLogTagTypes().find((item) => item.trigger === typeOrTrigger);
+class LogTag {
+    static getTypes() {
+        return Object.keys(LogTagTypes).map(
+            (type) => ({ ...LogTagTypes[type], value: type }),
+        );
     }
-    assert(logTagType);
-    return logTagType;
 }
 
-export { getLogTagType, getLogTagTypes };
+export default LogTag;

@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { Dropdown, SortableDragHandle, Typeahead } from '../Common';
 
-import { getLogKeyTypes } from '../../common/LogKey';
+import LogKey from '../../common/LogKey';
 
 
 class LogKeyEditor extends React.Component {
@@ -23,7 +23,7 @@ class LogKeyEditor extends React.Component {
                 <SortableDragHandle disabled={this.props.sortableListItemDisabled} />
                 <Dropdown
                     value={logKey.type}
-                    options={getLogKeyTypes()}
+                    options={LogKey.getTypes()}
                     onUpdate={(type) => this.props.onUpdate({ ...logKey, type })}
                 />
                 <Typeahead

@@ -144,8 +144,13 @@ function createModels(sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
-            title: {
+            name: {
                 type: Sequelize.STRING,
+                allowNull: false,
+                comment: 'Derived from Title, used for Search.',
+            },
+            title: {
+                type: Sequelize.TEXT,
                 allowNull: false,
             },
             details: {
@@ -334,9 +339,19 @@ class Database {
         return this.update(name, fields, transaction);
     }
 
-    async find(name, where, transaction) {
+    async findAll(name, where, transaction) {
+        const Model = this.models[name];
+        return Model.findAll({ where, transaction });
+    }
+
+    async findOne(name, where, transaction) {
         const Model = this.models[name];
         return Model.findOne({ where, transaction });
+    }
+
+    async findByPk(name, id, transaction) {
+        const Model = this.models[name];
+        return Model.findByPk(id, { transaction });
     }
 
     async createOrFind(name, where, updateFields, transaction) {
@@ -355,15 +370,19 @@ class Database {
         return instance.destroy({ transaction });
     }
 
-    async getNodesByEdge(edgeName, leftName, leftId, rightName, rightType, transaction) {
+    async getEdges(edgeName, leftName, leftId, transaction) {
         const EdgeModel = this.models[edgeName];
-        const edges = await EdgeModel.findAll({
+        return EdgeModel.findAll({
             where: { [leftName]: leftId },
             transaction,
         });
+    }
+
+    async getNodesByEdge(edgeName, leftName, leftId, rightName, rightType, transaction) {
+        const edges = await this.getEdges(edgeName, leftName, leftId, transaction);
         const NodeModel = this.models[rightType];
         const nodes = await Promise.all(
-            edges.map((edge) => NodeModel.findByPk(edge[rightName])),
+            edges.map((edge) => NodeModel.findByPk(edge[rightName]), { transaction }),
         );
         return nodes;
     }
@@ -401,11 +420,6 @@ class Database {
             ),
         ]);
         return [...createdEdges, ...updatedEdges];
-    }
-
-    async getAll(name, transaction) {
-        const Model = this.models[name];
-        return Model.findAll({ transaction });
     }
 }
 
