@@ -1,5 +1,4 @@
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
@@ -12,7 +11,21 @@ import deepcopy from '../../common/deepcopy';
 
 import { materializeCategoryTemplate } from '../../common/LogCategory';
 
+const textEditorSources = [
+    { trigger: '@', rpcName: 'log-tag-typeahead' },
+    { trigger: '#', rpcName: 'log-tag-typeahead' },
+];
+
 class LogEntryEditor extends React.Component {
+    static afterUpdate(logEntry) {
+        if (logEntry.logCategory.template) {
+            logEntry.title = materializeCategoryTemplate(
+                logEntry.logCategory.template,
+                logEntry.logValues,
+            );
+        }
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -29,12 +42,7 @@ class LogEntryEditor extends React.Component {
         this.setState((state) => {
             const logEntry = deepcopy(state.logEntry);
             method(logEntry, state);
-            if (logEntry.logCategory.template) {
-                logEntry.title = materializeCategoryTemplate(
-                    logEntry.logCategory.template,
-                    logEntry.logValues,
-                );
-            }
+            LogEntryEditor.afterUpdate(logEntry);
             return { logEntry };
         });
     }
@@ -42,20 +50,17 @@ class LogEntryEditor extends React.Component {
     renderTitleRow() {
         return (
             <InputGroup className="my-1" size="sm">
-                <InputGroup.Prepend>
-                    <InputGroup.Text style={{ width: 100 }}>
-                        Title
-                    </InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                    type="text"
+                <InputGroup.Text>
+                    Title
+                </InputGroup.Text>
+                <TextEditor
                     value={this.state.logEntry.title}
+                    sources={textEditorSources}
                     disabled={!!this.state.logEntry.logCategory.template}
-                    onChange={(event) => {
-                        const { value } = event.target;
+                    onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
-                        this.updateLogEntry((logEntry) => { logEntry.title = value; });
-                    }}
+                        logEntry.title = value;
+                    })}
                 />
             </InputGroup>
         );
@@ -86,11 +91,9 @@ class LogEntryEditor extends React.Component {
     renderCategoryRow() {
         return (
             <InputGroup className="my-1" size="sm">
-                <InputGroup.Prepend>
-                    <InputGroup.Text style={{ width: 100 }}>
-                        Category
-                    </InputGroup.Text>
-                </InputGroup.Prepend>
+                <InputGroup.Text>
+                    Category
+                </InputGroup.Text>
                 <Typeahead
                     rpcName="log-category-list"
                     value={this.state.logEntry.logCategory}
@@ -119,17 +122,12 @@ class LogEntryEditor extends React.Component {
     renderDetailsRow() {
         return (
             <InputGroup className="my-1" size="sm">
-                <InputGroup.Prepend>
-                    <InputGroup.Text style={{ width: 99 }}>
-                        Details
-                    </InputGroup.Text>
-                </InputGroup.Prepend>
+                <InputGroup.Text>
+                    Details
+                </InputGroup.Text>
                 <TextEditor
                     value={this.state.logEntry.details}
-                    sources={[
-                        { trigger: '@', rpcName: 'log-tag-typeahead' },
-                        { trigger: '#', rpcName: 'log-tag-typeahead' },
-                    ]}
+                    sources={textEditorSources}
                     onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
@@ -163,6 +161,7 @@ class LogEntryEditor extends React.Component {
                     onUpdate={(logValues) => this.setState((state) => {
                         const logEntry = { ...state.logEntry };
                         logEntry.logValues = logValues;
+                        LogEntryEditor.afterUpdate(logEntry);
                         return { logEntry };
                     })}
                 />

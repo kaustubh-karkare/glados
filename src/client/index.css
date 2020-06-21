@@ -13,6 +13,14 @@
     border-bottom-right-radius: 2px;
 }
 
+.input-group > .input-group-text {
+    border: none;
+    display: block;
+    padding: 3px;
+    text-align: center;
+    width: 100px;
+}
+
 .input-group > .btn {
     width: 29px;
 }
@@ -23,7 +31,7 @@
 }
 
 .input-group > .dropdown:not(:first-child) > .btn {
-    width: 79px;
+    width: 80px;
 }
 
 .input-group > .text-editor {
@@ -31,13 +39,6 @@
 }
 
 /* Misc */
-
-.input-group-text {
-    border: none;
-    display: block;
-    padding: 3px;
-    text-align: center;
-}
 
 .btn.dropdown-toggle {
     box-shadow: none !important;
@@ -66,13 +67,18 @@ button.sortableDragHandle.btn {
     width: 1px;
 }
 
+.text-editor.text-editor-disabled .public-DraftEditor-content {
+    background: #ccc;
+}
+
 .text-editor .public-DraftEditor-content {
     background: white;
-    border: 1px solid #222;
     border-radius: 0 0.2rem 0.2rem 0;
     color: #444;
+    font-family: Lato;
+    font-size: 13.125px;
     min-height: 29px;
-    padding: 1px 5px;
+    padding: 5px 8px;
 }
 
 .text-editor .public-DraftStyleDefault-ul,

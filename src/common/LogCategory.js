@@ -1,5 +1,6 @@
 
 import assert from './assert';
+import TextEditorUtils from './TextEditorUtils';
 
 /*
 {
@@ -94,7 +95,7 @@ function createCategoryTemplate(value, logKeys) {
         }
     });
 
-    return JSON.stringify(editorContent);
+    return TextEditorUtils.serialize(editorContent);
 }
 
 function updateCategoryTemplate(value, before, after) {
@@ -106,7 +107,7 @@ function updateCategoryTemplate(value, before, after) {
         mapping[item.id] = after[index];
     });
 
-    const editorContent = JSON.parse(value);
+    const editorContent = TextEditorUtils.deserialize(value);
 
     const block = editorContent.blocks[0];
     let prevIndex = 0;
@@ -128,7 +129,7 @@ function updateCategoryTemplate(value, before, after) {
     block.entityRanges = entityRanges;
     block.text = text + block.text.substr(prevIndex);
 
-    return JSON.stringify(editorContent);
+    return TextEditorUtils.serialize(editorContent);
 }
 
 function materializeCategoryTemplate(template, logValues) {
@@ -137,7 +138,7 @@ function materializeCategoryTemplate(template, logValues) {
         mapping[logValue.logKey.id] = logValue.data || '???';
     });
 
-    const editorContent = JSON.parse(template);
+    const editorContent = TextEditorUtils.deserialize(template);
     const block = editorContent.blocks[0];
     let prevIndex = 0;
     let result = '';
@@ -165,7 +166,7 @@ function materializeCategoryTemplate(template, logValues) {
         })
         .join('');
 
-    return result;
+    return TextEditorUtils.serialize(result);
 }
 
 export { createCategoryTemplate, updateCategoryTemplate, materializeCategoryTemplate };

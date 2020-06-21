@@ -1,8 +1,6 @@
 
 import Editor from 'draft-js-plugins-editor';
-import {
-    EditorState, RichUtils, convertFromRaw, convertToRaw,
-} from 'draft-js';
+import { RichUtils } from 'draft-js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -14,31 +12,19 @@ import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 
 import assert from '../../common/assert';
+import TextEditorUtils from '../../common/TextEditorUtils';
 
 import 'draft-js/dist/Draft.css';
 
-const SerializationUtils = {
-    deserialize(text) {
-        if (!text) {
-            return convertToRaw(EditorState.createEmpty().getCurrentContent());
-        }
-        return JSON.parse(text);
-    },
-    serialize(rawContent, isEmpty) {
-        if (isEmpty) {
-            return '';
-        }
-        return JSON.stringify(rawContent);
-    },
-};
-
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
-        // eslint-disable-next-line no-param-reassign
-        state.rawContent = SerializationUtils.deserialize(props.value);
-        if (!state.editorState) { // first time only
+        if (!state.editorState || props.value !== state.value) {
             // eslint-disable-next-line no-param-reassign
-            state.editorState = EditorState.createWithContent(convertFromRaw(state.rawContent));
+            state.value = props.value;
+            // eslint-disable-next-line no-param-reassign
+            state.editorState = TextEditorUtils.toEditorState(
+                TextEditorUtils.deserialize(props.value),
+            );
         }
         return state;
     }
@@ -75,11 +61,13 @@ class TextEditor extends React.Component {
         assert(selectedSource, 'unknown suggestion for trigger');
         if (selectedSource.options) {
             this.setState({
+                open: true,
                 suggestions: defaultSuggestionsFilter(value, selectedSource.options),
             });
         } else if (selectedSource.rpcName) {
             window.api.send(selectedSource.rpcName, { trigger, value })
                 .then((options) => this.setState({
+                    open: true,
                     suggestions: defaultSuggestionsFilter(value, options),
                 }));
         } else {
@@ -89,16 +77,13 @@ class TextEditor extends React.Component {
 
     onChange(editorState) {
         this.setState({ editorState });
-        const rawContent = convertToRaw(editorState.getCurrentContent());
-        const isEmpty = !editorState.getCurrentContent().hasText();
-        if (
-            SerializationUtils.serialize(this.state.rawContent)
-                === SerializationUtils.serialize(rawContent)
-        ) {
-            return;
+        const oldValue = this.props.value;
+        const newValue = TextEditorUtils.serialize(
+            TextEditorUtils.fromEditorState(editorState),
+        );
+        if (oldValue === newValue) {
+            this.props.onUpdate(newValue);
         }
-        const value = SerializationUtils.serialize(rawContent, isEmpty);
-        this.props.onUpdate(value);
     }
 
     handleKeyCommand(command, editorState) {
@@ -113,8 +98,9 @@ class TextEditor extends React.Component {
     render() {
         const { MentionSuggestions } = this.mentionPlugin;
         return (
-            <div className="text-editor">
+            <div className={`text-editor ${this.props.disabled ? 'text-editor-disabled' : ''}`}>
                 <Editor
+                    readOnly={this.props.disabled}
                     editorState={this.state.editorState}
                     handleKeyCommand={
                         (command, editorState) => this.handleKeyCommand(command, editorState)
@@ -141,6 +127,7 @@ class TextEditor extends React.Component {
 }
 
 TextEditor.propTypes = {
+    disabled: PropTypes.bool,
     value: PropTypes.string.isRequired,
     isMarkdown: PropTypes.bool,
     isSingleLine: PropTypes.bool,
@@ -158,6 +145,7 @@ TextEditor.propTypes = {
 };
 
 TextEditor.defaultProps = {
+    disabled: false,
     isSingleLine: false,
     isMarkdown: false,
     sources: [],
