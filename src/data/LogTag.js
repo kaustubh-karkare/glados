@@ -5,12 +5,10 @@ const LogTagTypes = {
     person: {
         label: 'Person',
         trigger: '@',
-        prefix: '',
     },
     hashtag: {
         label: 'Hashtag',
         trigger: '#',
-        prefix: '#',
     },
 };
 
@@ -27,6 +25,19 @@ class LogTag {
         return Object.keys(LogTagTypes).map(
             (type) => ({ ...LogTagTypes[type], value: type }),
         );
+    }
+
+    static async typeahead({ trigger, query }) {
+        const logTagType = LogTag.getTypes().find((item) => item.trigger == trigger);
+        const where = {
+            type: logTagType.value,
+            name: { [this.database.Op.like]: `${query}%` },
+        };
+        const logTags = await this.database.findAll('LogTag', where, this.transaction);
+        return logTags.map((logTag) => ({
+            id: logTag.id,
+            name: logTag.name,
+        }));
     }
 
     static async load(id) {

@@ -13,6 +13,7 @@ import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mentio
 
 import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
+import Utils from '../../data/Utils';
 
 import 'draft-js/dist/Draft.css';
 
@@ -55,15 +56,16 @@ class TextEditor extends React.Component {
         }
     }
 
-    onSearchChange({ trigger, value }) {
+    onSearchChange({ trigger, value: query }) {
         const selectedSource = this.props.sources
             .find((suggestion) => suggestion.trigger === trigger);
         assert(selectedSource, 'unknown suggestion for trigger');
+        this.setState({selectedSource});
         if (selectedSource.options) {
-            this.setSuggestions(selectedSource, value, selectedSource.options);
-        } else if (selectedSource.rpcName) {
-            window.api.send(selectedSource.rpcName, { trigger, value })
-                .then((options) => this.setSuggestions(selectedSource, value, options));
+            this.setSuggestions(selectedSource, query, selectedSource.options);
+        } else if (selectedSource.dataType) {
+            window.api.send(selectedSource.dataType + '-typeahead', { trigger, query })
+                .then((options) => this.setSuggestions(selectedSource, query, options));
         } else {
             assert(false, 'missing source');
         }
@@ -71,7 +73,13 @@ class TextEditor extends React.Component {
 
     onAddMention(option) {
         if (this.props.onSelectSuggestion) {
-            this.props.onSelectSuggestion(option);
+            if (option[Utils.INCOMPLETE_KEY]) {
+                assert(this.state.selectedSource.dataType);
+                window.api.send(this.state.selectedSource.dataType + '-load', option)
+                    .then((logEntry) => this.props.onSelectSuggestion(logEntry));
+            } else {
+                this.props.onSelectSuggestion(option);
+            }
         }
     }
 
@@ -86,11 +94,11 @@ class TextEditor extends React.Component {
         }
     }
 
-    setSuggestions(source, value, options) {
+    setSuggestions(source, query, options) {
         // Excepted Structure = [{name, link, avatar}]
         this.setState({
             open: true,
-            suggestions: defaultSuggestionsFilter(value, options),
+            suggestions: defaultSuggestionsFilter(query, options),
         });
     }
 
@@ -147,7 +155,7 @@ TextEditor.propTypes = {
                 id: PropTypes.number.isRequired,
                 name: PropTypes.string.isRequired,
             }).isRequired),
-            rpcName: PropTypes.string,
+            dataType: PropTypes.string,
         }).isRequired,
     ),
     onSelectSuggestion: PropTypes.func,

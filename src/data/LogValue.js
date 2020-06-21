@@ -11,6 +11,18 @@ class LogValue {
         };
     }
 
+    static async typeahead({ logKey }) {
+        const matchingLogValues = await this.database.findAll(
+            'LogValue',
+            { where: { key_id: logKey.id } },
+        );
+        return matchingLogValues.map((logValue) => ({
+            id: logValue.id,
+            data: logValue.data,
+            logKey,
+        }));
+    }
+
     static async load(id) {
         const logValue = await this.database.findByPk('LogValue', id, this.transaction);
         const outputLogKey = await LogKey.load.call(this, logValue.key_id);

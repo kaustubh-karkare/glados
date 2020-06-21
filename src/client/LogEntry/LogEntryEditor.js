@@ -12,10 +12,10 @@ import {
 import deepcopy from '../../common/deepcopy';
 
 const textEditorSources = [
-    { trigger: '@', rpcName: 'log-tag-typeahead' },
-    { trigger: '#', rpcName: 'log-tag-typeahead' },
+    { trigger: '@', dataType: 'log-tag' },
+    { trigger: '#', dataType: 'log-tag' },
     // TODO: Move this to CompactEditor.
-    { trigger: '!', rpcName: 'log-entry-typeahead' },
+    { trigger: '!', dataType: 'log-entry' },
 ];
 
 class LogEntryEditor extends React.Component {

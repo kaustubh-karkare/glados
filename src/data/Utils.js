@@ -8,4 +8,8 @@ class Utils {
     }
 }
 
+// This is attached to typeahead suggestions, telling the client-side
+// that the item must be loaded before usage.
+Utils.INCOMPLETE_KEY = '__incomplete_key__';
+
 export default Utils;

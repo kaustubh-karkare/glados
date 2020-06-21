@@ -32,6 +32,18 @@ class LogEntry {
         return didChange;
     }
 
+    static async typeahead({ query }) {
+        const where = {
+            name: { [this.database.Op.like]: `${query}%` },
+        };
+        const logEntries = await this.database.findAll('LogEntry', where, this.transaction);
+        return logEntries.map((logEntry) => ({
+            id: logEntry.id,
+            name: logEntry.name,
+            [Utils.INCOMPLETE_KEY]: true,
+        }));
+    }
+
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         // TODO: Parallelize the following operations.
