@@ -1,13 +1,30 @@
 import Button from 'react-bootstrap/Button';
+import { GoPrimitiveDot } from 'react-icons/go';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { TiMinus, TiPlus } from 'react-icons/ti';
 import { MdAddCircleOutline } from 'react-icons/md';
-import BulletListAdder from './BulletListAdder';
 import BulletListItem from './BulletListItem';
 import { getDataTypeMapping } from '../../data';
+
+
+function AdderWrapper(props) {
+    // eslint-disable-next-line react/prop-types
+    const { children } = props;
+    return (
+        <InputGroup size="sm">
+            <div className="icon" />
+            <div className="icon">
+                <GoPrimitiveDot />
+            </div>
+            <div className="mx-1">
+                {children}
+            </div>
+        </InputGroup>
+    );
+}
 
 
 class BulletList extends React.Component {
@@ -26,7 +43,7 @@ class BulletList extends React.Component {
                 size="sm"
                 variant="secondary"
             >
-                Save
+                {label}
             </Button>
         );
     }
@@ -94,6 +111,7 @@ class BulletList extends React.Component {
                         .findIndex((existingItem) => existingItem.id === item.id);
                     state.items.splice(index, 1);
                     delete state.isExpanded[item.id];
+                    state.deleteItem = null;
                     return state;
                 });
             })
@@ -241,12 +259,12 @@ class BulletList extends React.Component {
             return null;
         }
         return (
-            <BulletListAdder>
+            <AdderWrapper>
                 <AdderComponent
                     onEdit={(item) => this.editItem(item)}
                     onSave={(item) => this.saveItem(item)}
                 />
-            </BulletListAdder>
+            </AdderWrapper>
         );
     }
 

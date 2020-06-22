@@ -13,10 +13,23 @@ import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mentio
 import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from '../../data/Utils';
-import TextEditorMention from './TextEditorMention';
 import { combineClassNames } from './Utils';
 
 import 'draft-js/dist/Draft.css';
+
+
+function TextEditorMention(props) {
+    const item = props.mention;
+    return <span className="mention" title={item.name}>{props.children}</span>;
+}
+
+TextEditorMention.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    mention: PropTypes.any.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    children: PropTypes.any,
+};
+
 
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
