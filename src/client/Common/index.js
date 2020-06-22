@@ -1,9 +1,6 @@
-import LeftRight from './LeftRight';
-import TextEditor from './TextEditor';
-import Typeahead from './Typeahead';
-import Dropdown from './Dropdown';
-
-export {
-    LeftRight, TextEditor, Typeahead, Dropdown,
-};
+export { default as LeftRight } from './LeftRight';
+export { default as TextEditor } from './TextEditor';
+export { default as Typeahead } from './Typeahead';
+export { default as Dropdown } from './Dropdown';
+export { default as BulletList } from './BulletList';
 export * from './Sortable';

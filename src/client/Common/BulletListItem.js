@@ -1,15 +1,15 @@
+/* eslint-disable react/prop-types */
+
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { MdFormatLineSpacing, MdEdit } from 'react-icons/md';
 import { TiMinus, TiPlus } from 'react-icons/ti';
-
 import React from 'react';
-import PropTypes from '../prop-types';
-import { TextEditor } from '../Common';
-import { TextEditorSources } from './LogEntryTitleEditor';
+import PropTypes from 'prop-types';
 
-class LogEntryViewer extends React.Component {
+
+class BulletListItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = { hover: false };
@@ -42,37 +42,29 @@ class LogEntryViewer extends React.Component {
     }
 
     renderSuffix() {
-        if (this.state.hover) {
-            return (
-                <>
-                    <div className="icon mr-1" onClick={this.props.onEditButtonClick}>
-                        <MdEdit />
-                    </div>
-                    <div className="icon" onClick={this.props.onDeleteButtonClick}>
-                        <FaRegTrashAlt />
-                    </div>
-                </>
-            );
+        if (!this.state.hover) {
+            return null;
         }
-        return null;
+        return (
+            <>
+                <div className="icon mr-1" onClick={this.props.onEditButtonClick}>
+                    <MdEdit />
+                </div>
+                <div className="icon" onClick={this.props.onDeleteButtonClick}>
+                    <FaRegTrashAlt />
+                </div>
+            </>
+        );
     }
 
     renderExpanded() {
         if (!this.props.isExpanded) {
             return null;
         }
-        if (!this.props.logEntry.details) {
-            return null;
-        }
         // 30 = 13*2 (options) + mx-1 (title)
         return (
             <div style={{ marginLeft: 30 }}>
-                <TextEditor
-                    unstyled
-                    disabled
-                    sources={TextEditorSources}
-                    value={this.props.logEntry.details}
-                />
+                {this.props.children[1]}
             </div>
         );
     }
@@ -82,17 +74,12 @@ class LogEntryViewer extends React.Component {
             <div>
                 <InputGroup
                     onMouseEnter={() => this.setState({ hover: true })}
+                    onMouseOver={() => this.setState({ hover: true })}
                     onMouseLeave={() => this.setState({ hover: false })}
-                    size="sm"
                 >
                     {this.renderPrefix()}
                     <div className="mx-1">
-                        <TextEditor
-                            unstyled
-                            disabled
-                            sources={TextEditorSources}
-                            value={this.props.logEntry.title}
-                        />
+                        {this.props.children[0]}
                     </div>
                     {this.renderSuffix()}
                 </InputGroup>
@@ -102,9 +89,7 @@ class LogEntryViewer extends React.Component {
     }
 }
 
-LogEntryViewer.propTypes = {
-    logEntry: PropTypes.Custom.LogEntry.isRequired,
-
+BulletListItem.propTypes = {
     // prefix
     isExpanded: PropTypes.bool,
     onToggleExpansion: PropTypes.func.isRequired,
@@ -114,4 +99,4 @@ LogEntryViewer.propTypes = {
     onDeleteButtonClick: PropTypes.func.isRequired,
 };
 
-export default LogEntryViewer;
+export default BulletListItem;

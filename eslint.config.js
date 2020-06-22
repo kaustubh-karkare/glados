@@ -35,6 +35,7 @@ module.exports = {
         // Need to add role attribute for accessibility on HTML elements.
         'jsx-a11y/no-static-element-interactions': [0],
         'jsx-a11y/click-events-have-key-events': [0],
+        'jsx-a11y/mouse-events-have-key-events': [0],
         'no-param-reassign': [0],
         'no-underscore-dangle': [0, 'allowAfterThis'],
         'react/jsx-indent': ['error', 4],

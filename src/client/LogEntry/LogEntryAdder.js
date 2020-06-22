@@ -1,5 +1,3 @@
-import { GoPrimitiveDot } from 'react-icons/go';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { LogEntry } from '../../data';
@@ -29,22 +27,14 @@ class LogEntryAdder extends React.Component {
 
     render() {
         return (
-            <InputGroup size="sm">
-                <div className="icon" />
-                <div className="icon">
-                    {this.state.logEntry.name ? <GoPrimitiveDot /> : null}
-                </div>
-                <div className="mx-1">
-                    <LogEntryTitleEditor
-                        logEntry={this.state.logEntry}
-                        onUpdate={(logEntry) => this.setState({ logEntry })}
-                        onMajorUpdate={(logEntry) => this.onEdit(logEntry)}
-                        unstyled
-                        onEnter={() => this.onSave(this.state.logEntry)}
-                        placeholder="Add Entry ..."
-                    />
-                </div>
-            </InputGroup>
+            <LogEntryTitleEditor
+                logEntry={this.state.logEntry}
+                onUpdate={(logEntry) => this.setState({ logEntry })}
+                onMajorUpdate={(logEntry) => this.onEdit(logEntry)}
+                unstyled
+                onEnter={() => this.onSave(this.state.logEntry)}
+                placeholder="Add Entry ..."
+            />
         );
     }
 }
