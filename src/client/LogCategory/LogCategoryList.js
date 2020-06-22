@@ -1,124 +1,63 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import Modal from 'react-bootstrap/Modal';
-
-import { LeftRight } from '../Common';
+import PropTypes from '../prop-types';
+import { BulletList, TextEditor } from '../Common';
 import LogCategoryEditor from './LogCategoryEditor';
 
-import { LogCategory } from '../../data';
 
-
-class LogCategoryList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { editCategory: null };
-    }
-
-    componentDidMount() {
-        this.reload();
-    }
-
-    onSave(category) {
-        window.api.send('log-category-upsert', category)
-            .then(() => {
-                this.setState({ editCategory: null });
-                this.reload();
-            });
-    }
-
-    onDelete(category) {
-        window.api.send('log-category-delete', category)
-            .then(() => {
-                this.setState({ editCategory: null });
-                this.reload();
-            });
-    }
-
-    reload() {
-        window.api.send('log-category-list')
-            .then((categories) => this.setState({ categories }));
-    }
-
-    renderCategory(category) {
+function ViewerComponent(props) {
+    const logCategory = props.value;
+    if (!props.isExpanded) {
         return (
-            <Card key={category.id} className="p-2 mt-2">
-                <LeftRight>
-                    <div>
-                        <b>{category.name}</b>
-                        {category.logKeys.map((logKey) => (
-                            <Button
-                                className="ml-2"
-                                disabled
-                                key={logKey.id}
-                                size="sm"
-                                variant="secondary"
-                            >
-                                {logKey.name}
-                            </Button>
-                        ))}
-                    </div>
-                    <Button
-                        onClick={() => this.setState({ editCategory: category })}
-                        size="sm"
-                        variant="secondary"
-                    >
-                        Edit
-                    </Button>
-                </LeftRight>
-            </Card>
-        );
-    }
-
-    renderEditorModal() {
-        return (
-            <Modal
-                show={!!this.state.editCategory}
-                size="lg"
-                onHide={() => this.setState({ editCategory: null })}
-                keyboard={false}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Category Editor</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {this.state.editCategory
-                        ? (
-                            <LogCategoryEditor
-                                category={this.state.editCategory}
-                                onSave={(category) => this.onSave(category)}
-                                onDelete={(category) => this.onDelete(category)}
-                            />
-                        )
-                        : null}
-                </Modal.Body>
-            </Modal>
-        );
-    }
-
-    render() {
-        if (!this.state.categories) {
-            return <div>Loading Categories ...</div>;
-        }
-        return (
-            <div>
-                <LeftRight className="mt-2">
-                    <span />
-                    <Button
-                        onClick={() => this.setState({
-                            editCategory: LogCategory.createEmpty(),
-                        })}
-                        size="sm"
-                        variant="secondary"
-                    >
-                        Create
-                    </Button>
-                </LeftRight>
-                {this.state.categories.map((category) => this.renderCategory(category))}
-                {this.renderEditorModal()}
+            <div className="log-class-viewer">
+                {logCategory.name}
+                <span>
+                    {logCategory.logKeys.map((logKey, index) => (
+                        <span key={logKey.id}>
+                            {index ? ', ' : ': '}
+                            <span title={logKey.type}>{logKey.name}</span>
+                        </span>
+                    ))}
+                </span>
             </div>
         );
     }
+    return (
+        <TextEditor
+            unstyled
+            disabled
+            value={logCategory.template}
+        />
+    );
+}
+
+ViewerComponent.propTypes = {
+    value: PropTypes.Custom.LogCategory.isRequired,
+    isExpanded: PropTypes.bool.isRequired,
+};
+
+function EditorComponent(props) {
+    return (
+        <LogCategoryEditor
+            logCategory={props.value}
+            onChange={(logCategory) => props.onChange(logCategory)}
+        />
+    );
+}
+
+EditorComponent.propTypes = {
+    value: PropTypes.Custom.LogCategory.isRequired,
+    onChange: PropTypes.func.isRequired,
+};
+
+function LogCategoryList() {
+    return (
+        <BulletList
+            name="Categories"
+            dataType="log-category"
+            EditorComponent={EditorComponent}
+            ViewerComponent={ViewerComponent}
+        />
+    );
 }
 
 export default LogCategoryList;

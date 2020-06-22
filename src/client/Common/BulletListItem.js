@@ -47,10 +47,18 @@ class BulletListItem extends React.Component {
         }
         return (
             <>
-                <div className="icon mr-1" onClick={this.props.onEditButtonClick}>
+                <div
+                    className="icon mr-1"
+                    title="Edit"
+                    onClick={this.props.onEditButtonClick}
+                >
                     <MdEdit />
                 </div>
-                <div className="icon" onClick={this.props.onDeleteButtonClick}>
+                <div
+                    className="icon"
+                    title="Delete"
+                    onClick={this.props.onDeleteButtonClick}
+                >
                     <FaRegTrashAlt />
                 </div>
             </>

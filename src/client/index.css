@@ -90,6 +90,10 @@ body {
     font-family: Lato;
 }
 
+.log-class-viewer > span {
+    color: #9197a3;
+}
+
 /* Sortable */
 
 button.sortableDragHandle.btn {

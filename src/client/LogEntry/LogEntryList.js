@@ -8,23 +8,24 @@ import LogEntryEditor from './LogEntryEditor';
 
 
 function ViewerComponent(props) {
+    const logEntry = props.value;
     if (!props.isExpanded) {
         return (
             <TextEditor
                 unstyled
                 disabled
-                value={props.value.title}
+                value={logEntry.title}
             />
         );
     }
-    if (!props.value.details) {
+    if (!logEntry.details) {
         return null;
     }
     return (
         <TextEditor
             unstyled
             disabled
-            value={props.value.details}
+            value={logEntry.details}
         />
     );
 }

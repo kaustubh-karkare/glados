@@ -4,8 +4,10 @@ import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { TiMinus, TiPlus } from 'react-icons/ti';
+import { MdAddCircleOutline } from 'react-icons/md';
 import BulletListAdder from './BulletListAdder';
 import BulletListItem from './BulletListItem';
+import { getDataTypeMapping } from '../../data';
 
 
 class BulletList extends React.Component {
@@ -120,11 +122,12 @@ class BulletList extends React.Component {
         );
     }
 
-    renderListExpansion() {
+    renderListToggleButton() {
         if (this.state.areAllExpanded) {
             return (
                 <div
-                    className="icon"
+                    className="icon ml-1"
+                    title="Collapse All"
                     onClick={() => this.setState({ isExpanded: {} })}
                 >
                     <TiMinus />
@@ -133,7 +136,8 @@ class BulletList extends React.Component {
         }
         return (
             <div
-                className="icon"
+                className="icon ml-1"
+                title="Expand All"
                 onClick={() => this.setState((state) => ({
                     isExpanded: Object.fromEntries(
                         state.items.map((item) => [item.id, true]),
@@ -141,6 +145,20 @@ class BulletList extends React.Component {
                 }))}
             >
                 <TiPlus />
+            </div>
+        );
+    }
+
+    renderAddButton() {
+        return (
+            <div
+                className="icon ml-1"
+                title="Create New"
+                onClick={() => this.setState({
+                    editItem: getDataTypeMapping()[this.props.dataType].createEmpty(),
+                })}
+            >
+                <MdAddCircleOutline />
             </div>
         );
     }
@@ -189,10 +207,9 @@ class BulletList extends React.Component {
             <div>
                 {this.renderEditorModal()}
                 <InputGroup>
-                    <div className="mr-1">
-                        {this.props.name}
-                    </div>
-                    {this.renderListExpansion()}
+                    <div>{this.props.name}</div>
+                    {this.renderListToggleButton()}
+                    {this.renderAddButton()}
                 </InputGroup>
                 {this.renderItems()}
                 {this.renderAdder()}
