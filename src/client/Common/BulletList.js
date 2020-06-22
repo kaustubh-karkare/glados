@@ -78,10 +78,15 @@ class BulletList extends React.Component {
                     state.editItem = null;
                     return state;
                 });
-            });
+            })
+            .catch((error) => this.setState({ error }));
     }
 
-    deleteItem(item) {
+    deleteItem(item, event) {
+        if (event && !event.shiftKey) {
+            this.setState({ deleteItem: item });
+            return;
+        }
         window.api.send(`${this.props.dataType}-delete`, item)
             .then(() => {
                 this.setState((state) => {
@@ -91,7 +96,8 @@ class BulletList extends React.Component {
                     delete state.isExpanded[item.id];
                     return state;
                 });
-            });
+            })
+            .catch((error) => this.setState({ error }));
     }
 
     renderEditorModal() {
@@ -102,7 +108,6 @@ class BulletList extends React.Component {
         return (
             <Modal
                 show
-                size="lg"
                 onHide={() => this.setState({ editItem: null })}
                 keyboard={false}
             >
@@ -118,6 +123,52 @@ class BulletList extends React.Component {
                 <Modal.Footer>
                     {BulletList.renderButton('Save', () => this.saveItem(this.state.editItem))}
                 </Modal.Footer>
+            </Modal>
+        );
+    }
+
+    renderDeleteConfirmationModal() {
+        if (!this.state.deleteItem) {
+            return null;
+        }
+        const { ViewerComponent } = this.props;
+        return (
+            <Modal
+                show
+                onHide={() => this.setState({ deleteItem: null })}
+                keyboard={false}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm deletion?</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <ViewerComponent value={this.state.deleteItem} isExpanded={false} />
+                </Modal.Body>
+                <Modal.Footer>
+                    {BulletList.renderButton('Delete', () => this.deleteItem(this.state.deleteItem))}
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+
+    renderErrorModal() {
+        if (!this.state.error) {
+            return null;
+        }
+        return (
+            <Modal
+                show
+                onHide={() => this.setState({ error: null })}
+                keyboard={false}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Error</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <pre>
+                        {this.state.error}
+                    </pre>
+                </Modal.Body>
             </Modal>
         );
     }
@@ -171,7 +222,7 @@ class BulletList extends React.Component {
                 isExpanded={this.state.isExpanded[item.id]}
                 onToggleExpansion={() => this.toggleItem(item)}
                 onEditButtonClick={() => this.editItem(item)}
-                onDeleteButtonClick={() => this.deleteItem(item)}
+                onDeleteButtonClick={(event) => this.deleteItem(item, event)}
             >
                 <ViewerComponent value={item} isExpanded={false} />
                 {
@@ -206,6 +257,8 @@ class BulletList extends React.Component {
         return (
             <div>
                 {this.renderEditorModal()}
+                {this.renderDeleteConfirmationModal()}
+                {this.renderErrorModal()}
                 <InputGroup>
                     <div>{this.props.name}</div>
                     {this.renderListToggleButton()}
