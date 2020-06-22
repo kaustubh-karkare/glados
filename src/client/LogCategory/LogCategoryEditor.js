@@ -86,7 +86,7 @@ class LogCategoryEditor extends React.Component {
     render() {
         return (
             <>
-                <InputGroup className="my-1" size="sm">
+                <InputGroup className="my-1">
                     <InputGroup.Text style={{ width: 100 }}>
                         Category
                     </InputGroup.Text>
@@ -98,7 +98,6 @@ class LogCategoryEditor extends React.Component {
                     />
                     <Button
                         onClick={() => this.onKeyCreate()}
-                        size="sm"
                         variant="secondary"
                     >
                         <MdAddCircleOutline />
@@ -108,11 +107,12 @@ class LogCategoryEditor extends React.Component {
                     logKeys={this.state.category.logKeys}
                     onUpdate={(logKeys) => this.onLogKeysUpdate(logKeys)}
                 />
-                <InputGroup className="my-1" size="sm">
+                <InputGroup className="my-1">
                     <InputGroup.Text style={{ height: 'inherit', width: 99 }}>
                         Template
                     </InputGroup.Text>
                     <TextEditor
+                        isSingleLine
                         value={this.state.category.template}
                         sources={[
                             { trigger: '@', options: this.state.category.logKeys },
@@ -131,7 +131,6 @@ class LogCategoryEditor extends React.Component {
                                 <Button
                                     className="ml-1"
                                     onClick={() => this.setState({ showDeleteDialog: true })}
-                                    size="sm"
                                     style={{ width: 80 }}
                                     variant="secondary"
                                 >
@@ -142,7 +141,6 @@ class LogCategoryEditor extends React.Component {
                         <Button
                             className="ml-1"
                             onClick={() => this.setState({ category: this.props.category })}
-                            size="sm"
                             style={{ width: 80 }}
                             variant="secondary"
                         >
@@ -151,7 +149,6 @@ class LogCategoryEditor extends React.Component {
                         <Button
                             className="ml-1"
                             onClick={() => this.props.onSave(this.state.category)}
-                            size="sm"
                             style={{ width: 80 }}
                             variant="secondary"
                         >

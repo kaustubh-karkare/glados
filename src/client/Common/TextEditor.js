@@ -13,6 +13,7 @@ import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mentio
 import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from '../../data/Utils';
+import TextEditorMention from './TextEditorMention';
 import { combineClassNames } from './Utils';
 
 import 'draft-js/dist/Draft.css';
@@ -48,6 +49,7 @@ class TextEditor extends React.Component {
         }
 
         this.mentionPlugin = createMentionPlugin({
+            mentionComponent: TextEditorMention,
             mentionTriggers: this.props.sources.map((suggestion) => suggestion.trigger),
         });
         this.state.plugins.push(this.mentionPlugin);
@@ -86,13 +88,12 @@ class TextEditor extends React.Component {
         const newValue = TextEditorUtils.serialize(
             TextEditorUtils.fromEditorState(editorState),
         );
-        if (oldValue !== newValue) {
+        if (oldValue !== newValue && this.props.onUpdate) {
             this.setState({ newValue }, () => this.props.onUpdate(newValue));
         }
     }
 
     setSuggestions(source, query, options) {
-        // Excepted Structure = [{name, link, avatar}]
         this.setState({
             open: true,
             suggestions: defaultSuggestionsFilter(query, options),
@@ -114,18 +115,22 @@ class TextEditor extends React.Component {
         return 'not-handled';
     }
 
-    render() {
-        if (this.props.unstyled && this.props.disabled) {
-            return (
-                <Editor
-                    readOnly
-                    editorState={this.state.editorState}
-                    plugins={this.state.plugins}
-                    onChange={() => null}
-                />
-            );
-        }
+    renderSuggestions() {
         const { MentionSuggestions } = this.mentionPlugin;
+        return (
+            <div className="mention-suggestions">
+                <MentionSuggestions
+                    open={this.state.open}
+                    onOpenChange={(open) => this.setState({ open })}
+                    onSearchChange={(data) => this.onSearchChange(data)}
+                    onAddMention={(option) => this.onAddMention(option)}
+                    suggestions={this.state.suggestions}
+                />
+            </div>
+        );
+    }
+
+    render() {
         return (
             <div className={combineClassNames({
                 'text-editor': true,
@@ -143,15 +148,7 @@ class TextEditor extends React.Component {
                     onChange={(editorState) => this.onChange(editorState)}
                     placeholder={this.props.placeholder}
                 />
-                <div className="mention-suggestions">
-                    <MentionSuggestions
-                        open={this.state.open}
-                        onOpenChange={(open) => this.setState({ open })}
-                        onSearchChange={(data) => this.onSearchChange(data)}
-                        onAddMention={(option) => this.onAddMention(option)}
-                        suggestions={this.state.suggestions}
-                    />
-                </div>
+                {this.props.disabled ? null : this.renderSuggestions()}
             </div>
         );
     }
@@ -163,7 +160,7 @@ TextEditor.propTypes = {
     placeholder: PropTypes.string,
 
     value: PropTypes.string.isRequired,
-    onUpdate: PropTypes.func, // required if not disabled
+    onUpdate: PropTypes.func,
 
     isSingleLine: PropTypes.bool,
     onEnter: PropTypes.func, // called if isSingleLine

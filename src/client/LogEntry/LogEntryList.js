@@ -12,7 +12,7 @@ import LogEntryViewer from './LogEntryViewer';
 class LogEntryList extends React.Component {
     static getDerivedStateFromProps(props, state) {
         if (state.logEntries) {
-            state.isGroupExpanded = state.logEntries
+            state.areAllExpanded = state.logEntries
                 .every((logEntry) => state.isExpanded[logEntry.id]);
         }
         return state;
@@ -59,9 +59,13 @@ class LogEntryList extends React.Component {
                 this.setState((state) => {
                     if (logEntry.id < 0) {
                         state.logEntries.push(savedLogEntry);
-                        if (state.isGroupExpanded) {
+                        if (state.areAllExpanded) {
                             state.isExpanded[savedLogEntry.id] = true;
                         }
+                    } else {
+                        const index = state.logEntries
+                            .findIndex((item) => item.id === logEntry.id);
+                        state.logEntries[index] = savedLogEntry;
                     }
                     state.editLogEntry = null;
                     return state;
@@ -104,8 +108,8 @@ class LogEntryList extends React.Component {
         );
     }
 
-    renderIsGroupExpanded() {
-        if (this.state.isGroupExpanded) {
+    renderareAllExpanded() {
+        if (this.state.areAllExpanded) {
             return (
                 <div
                     className="icon"
@@ -140,7 +144,7 @@ class LogEntryList extends React.Component {
                     <div className="mr-1">
                         2020-06-21 (Sunday)
                     </div>
-                    {this.renderIsGroupExpanded()}
+                    {this.renderareAllExpanded()}
                 </InputGroup>
                 {this.state.logEntries.map((logEntry) => (
                     <LogEntryViewer

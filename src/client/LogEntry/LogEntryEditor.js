@@ -19,7 +19,7 @@ class LogEntryEditor extends React.Component {
 
     renderTitleRow() {
         return (
-            <InputGroup className="my-1" size="sm">
+            <InputGroup className="my-1">
                 <InputGroup.Text>
                     Title
                 </InputGroup.Text>
@@ -40,7 +40,6 @@ class LogEntryEditor extends React.Component {
                 onClick={() => this.updateLogEntry((logEntry) => {
                     logEntry.logValues = [...logEntry.logValues, LogValue.createEmpty()];
                 })}
-                size="sm"
                 variant="secondary"
             >
                 <MdAddCircleOutline />
@@ -50,7 +49,7 @@ class LogEntryEditor extends React.Component {
 
     renderCategoryRow() {
         return (
-            <InputGroup className="my-1" size="sm">
+            <InputGroup className="my-1">
                 <InputGroup.Text>
                     Category
                 </InputGroup.Text>
@@ -81,7 +80,7 @@ class LogEntryEditor extends React.Component {
 
     renderDetailsRow() {
         return (
-            <InputGroup className="my-1" size="sm">
+            <InputGroup className="my-1">
                 <InputGroup.Text>
                     Details
                 </InputGroup.Text>

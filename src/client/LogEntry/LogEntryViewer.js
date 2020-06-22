@@ -81,7 +81,6 @@ class LogEntryViewer extends React.Component {
         return (
             <div>
                 <InputGroup
-                    onDoubleClick={this.props.onToggleExpansion}
                     onMouseEnter={() => this.setState({ hover: true })}
                     onMouseLeave={() => this.setState({ hover: false })}
                     size="sm"

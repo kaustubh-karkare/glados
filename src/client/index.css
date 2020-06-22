@@ -58,7 +58,9 @@
 }
 
 .input-group > input.form-control {
+    font-size: 13px;
     height: 20px;
+    padding: 0 4px;
 }
 
 .input-group > .rbt input:first-child {
@@ -119,7 +121,18 @@ button.sortableDragHandle.btn {
 }
 
 .text-editor .public-DraftEditor-content {
-    min-width: 200px;
+    min-width: 100px;
+}
+
+.text-editor .mention {
+    background: #444;
+    cursor: pointer;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+.text-editor.text-editor-normal .mention {
+    background: #bdf;
 }
 
 .text-editor.text-editor-normal .public-DraftEditor-content {
