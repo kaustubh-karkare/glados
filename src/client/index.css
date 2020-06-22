@@ -49,6 +49,10 @@
     width: 80px;
 }
 
+.input-group > input.form-control {
+    height: 20px;
+}
+
 .input-group > .rbt input:first-child {
     padding: 0 4px;
     height: 20px;
@@ -106,16 +110,20 @@ button.sortableDragHandle.btn {
     margin: 0;
 }
 
-.text-editor.text-editor-disabled .public-DraftEditor-content {
-    background: #ccc;
+.text-editor .public-DraftEditor-content {
+    min-width: 200px;
 }
 
-.text-editor .public-DraftEditor-content {
+.text-editor.text-editor-normal .public-DraftEditor-content {
     background: white;
     border-radius: 0 0.2rem 0.2rem 0;
     color: #444;
     min-height: 20px;
     padding: 1px 4px 0;
+}
+
+.text-editor.text-editor-normal.text-editor-disabled .public-DraftEditor-content {
+    background: #ccc;
 }
 
 .text-editor > .mention-suggestions > div {

@@ -22,7 +22,7 @@ class Typeahead extends React.Component {
 
     onSearch(query) {
         this.setState({ isLoading: true }, () => {
-            window.api.send(`${this.props.dataType}-typeahead`, this.props.value, query)
+            window.api.send(`${this.props.dataType}-typeahead`, { item: this.props.value }, query)
                 .then((options) => {
                     this.setState({ isLoading: false, options });
                 });

@@ -8,12 +8,12 @@ import React from 'react';
 // https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
 // cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
-import createSingleLinePlugin from 'textio-draft-js-single-line-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
 
 import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from '../../data/Utils';
+import { combineClassNames } from './Utils';
 
 import 'draft-js/dist/Draft.css';
 
@@ -51,13 +51,6 @@ class TextEditor extends React.Component {
             mentionTriggers: this.props.sources.map((suggestion) => suggestion.trigger),
         });
         this.state.plugins.push(this.mentionPlugin);
-
-        if (this.props.isSingleLine) {
-            this.singleLinePlugin = createSingleLinePlugin({
-                stripEntities: false,
-            });
-            this.state.plugins.push(this.singleLinePlugin);
-        }
     }
 
     onSearchChange({ trigger, value: query }) {
@@ -112,19 +105,21 @@ class TextEditor extends React.Component {
             this.onChange(newState);
             return 'handled';
         }
+        if (this.props.isSingleLine && command === 'split-block') {
+            if (this.props.onEnter) {
+                this.props.onEnter();
+            }
+            return 'handled';
+        }
         return 'not-handled';
     }
 
     render() {
-        const blockRenderMap = this.props.isSingleLine
-            ? this.singleLinePlugin.blockRenderMap
-            : undefined;
-        if (this.props.readOnly) {
+        if (this.props.unstyled && this.props.disabled) {
             return (
                 <Editor
                     readOnly
                     editorState={this.state.editorState}
-                    blockRenderMap={blockRenderMap}
                     plugins={this.state.plugins}
                     onChange={() => null}
                 />
@@ -132,16 +127,21 @@ class TextEditor extends React.Component {
         }
         const { MentionSuggestions } = this.mentionPlugin;
         return (
-            <div className={`text-editor ${this.props.disabled ? 'text-editor-disabled' : ''}`}>
+            <div className={combineClassNames({
+                'text-editor': true,
+                'text-editor-normal': !this.props.unstyled,
+                'text-editor-disabled': this.props.disabled,
+            })}
+            >
                 <Editor
                     readOnly={this.props.disabled}
                     editorState={this.state.editorState}
                     handleKeyCommand={
                         (command, editorState) => this.handleKeyCommand(command, editorState)
                     }
-                    blockRenderMap={blockRenderMap}
                     plugins={this.state.plugins}
                     onChange={(editorState) => this.onChange(editorState)}
+                    placeholder={this.props.placeholder}
                 />
                 <div className="mention-suggestions">
                     <MentionSuggestions
@@ -158,14 +158,17 @@ class TextEditor extends React.Component {
 }
 
 TextEditor.propTypes = {
-    readOnly: PropTypes.bool, // does not look editable
-    disabled: PropTypes.bool, // looks editable, but grayed out
+    unstyled: PropTypes.bool,
+    disabled: PropTypes.bool,
+    placeholder: PropTypes.string,
 
     value: PropTypes.string.isRequired,
-    onUpdate: PropTypes.func, // required if not readOnly
+    onUpdate: PropTypes.func, // required if not disabled
+
+    isSingleLine: PropTypes.bool,
+    onEnter: PropTypes.func, // called if isSingleLine
 
     isMarkdown: PropTypes.bool,
-    isSingleLine: PropTypes.bool,
 
     sources: PropTypes.arrayOf(
         PropTypes.shape({
@@ -181,7 +184,7 @@ TextEditor.propTypes = {
 };
 
 TextEditor.defaultProps = {
-    readOnly: false,
+    unstyled: false,
     disabled: false,
     isSingleLine: false,
     isMarkdown: false,

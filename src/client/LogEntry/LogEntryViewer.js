@@ -93,7 +93,8 @@ class LogEntryViewer extends React.Component {
                     {this.renderPrefix()}
                     <div className="mx-1">
                         <TextEditor
-                            readOnly
+                            unstyled
+                            disabled
                             value={this.props.logEntry.title}
                         />
                     </div>
@@ -107,8 +108,8 @@ class LogEntryViewer extends React.Component {
 
 LogEntryViewer.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
-    onEditButtonClick: PropTypes.func,
-    onDeleteButtonClick: PropTypes.func,
+    onEditButtonClick: PropTypes.func.isRequired,
+    onDeleteButtonClick: PropTypes.func.isRequired,
 };
 
 export default LogEntryViewer;

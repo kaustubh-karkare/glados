@@ -3,21 +3,17 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import { TextEditor, Typeahead } from '../Common';
-import { LogCategory, LogValue } from '../../data';
+import { LogEntry, LogCategory, LogValue } from '../../data';
+import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
 import { LogValueListEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
-const textEditorSources = [
-    { trigger: '@', dataType: 'log-tag' },
-    { trigger: '#', dataType: 'log-tag' },
-    // TODO: Move this to CompactEditor.
-    { trigger: '!', dataType: 'log-entry' },
-];
 
 class LogEntryEditor extends React.Component {
     updateLogEntry(method) {
         const logEntry = { ...this.props.logEntry };
         method(logEntry);
+        LogEntry.trigger(logEntry);
         this.props.onUpdate(logEntry);
     }
 
@@ -27,20 +23,9 @@ class LogEntryEditor extends React.Component {
                 <InputGroup.Text>
                     Title
                 </InputGroup.Text>
-                <TextEditor
-                    value={this.props.logEntry.title}
-                    sources={textEditorSources}
-                    disabled={!!this.props.logEntry.logCategory.template}
-                    onUpdate={(value) => this.updateLogEntry((logEntry) => {
-                        // eslint-disable-next-line no-param-reassign
-                        logEntry.title = value;
-                    })}
-                    onSelectSuggestion={(option) => {
-                        if (typeof option.title === 'undefined') return;
-                        const logEntry = option;
-                        logEntry.id = this.props.logEntry.id;
-                        this.props.onUpdate(logEntry);
-                    }}
+                <LogEntryTitleEditor
+                    logEntry={this.props.logEntry}
+                    onUpdate={this.props.onUpdate}
                 />
             </InputGroup>
         );
@@ -106,7 +91,7 @@ class LogEntryEditor extends React.Component {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
                     })}
-                    sources={textEditorSources}
+                    sources={TextEditorSources}
                     isMarkdown
                 />
             </InputGroup>

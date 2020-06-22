@@ -2,6 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import React from 'react';
 import { LogEntry } from '../../data';
+import LogEntryAdder from './LogEntryAdder';
 import LogEntryEditor from './LogEntryEditor';
 import LogEntryViewer from './LogEntryViewer';
 
@@ -32,13 +33,16 @@ class LogEntryList extends React.Component {
     reset() {
         this.setState({
             editLogEntry: null,
-            newLogEntry: LogEntry.createEmpty(),
         });
     }
 
     reload() {
         window.api.send('log-entry-list')
             .then((entries) => this.setState({ entries }));
+    }
+
+    editLogEntry(logEntry) {
+        this.setState({ editLogEntry: logEntry });
     }
 
     saveLogEntry(logEntry) {
@@ -96,18 +100,14 @@ class LogEntryList extends React.Component {
                     <LogEntryViewer
                         key={logEntry.id}
                         logEntry={logEntry}
-                        onEditButtonClick={() => this.setState({ editLogEntry: logEntry })}
+                        onEditButtonClick={() => this.editLogEntry(logEntry)}
                         onDeleteButtonClick={() => this.deleteLogEntry(logEntry)}
                     />
                 ))}
-                <LogEntryEditor
-                    logEntry={this.state.newLogEntry}
-                    onUpdate={(logEntry) => {
-                        LogEntry.trigger(logEntry);
-                        this.setState({ newLogEntry: logEntry });
-                    }}
+                <LogEntryAdder
+                    onEdit={(logEntry) => this.editLogEntry(logEntry)}
+                    onSave={(logEntry) => this.saveLogEntry(logEntry)}
                 />
-                {LogEntryList.renderButton('Save', () => this.saveLogEntry(this.state.newLogEntry))}
             </div>
         );
     }
