@@ -7,7 +7,8 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { LogEntryList } from './LogEntry';
 import { LogCategoryList } from './LogCategory';
-import { LogTagListEditor } from './LogTag';
+import { LogKeyList } from './LogKey';
+import { LogTagList } from './LogTag';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
@@ -42,10 +43,10 @@ class Applicaton extends React.Component {
                                 <LogCategoryList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_KEYS} title="Keys">
-                                Log Keys
+                                <LogKeyList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_TAGS} title="Tags">
-                                <LogTagListEditor />
+                                <LogTagList />
                             </Tab>
                         </Tabs>
                     </Col>

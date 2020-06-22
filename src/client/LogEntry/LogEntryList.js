@@ -55,7 +55,7 @@ EditorComponent.propTypes = {
 function LogEntryList() {
     return (
         <BulletList
-            name="2020-06-21 (Sunday)"
+            name="Entries"
             dataType="log-entry"
             EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}

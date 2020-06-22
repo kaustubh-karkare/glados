@@ -8,7 +8,7 @@ function ViewerComponent(props) {
     const logCategory = props.value;
     if (!props.isExpanded) {
         return (
-            <div className="log-class-viewer">
+            <div className="log-viewer">
                 {logCategory.name}
                 <span>
                     {logCategory.logKeys.map((logKey, index) => (

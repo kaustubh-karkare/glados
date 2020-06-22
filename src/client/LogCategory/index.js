@@ -1,4 +1,2 @@
-import LogCategoryEditor from './LogCategoryEditor';
-import LogCategoryList from './LogCategoryList';
-
-export { LogCategoryEditor, LogCategoryList };
+export { default as LogCategoryEditor } from './LogCategoryEditor';
+export { default as LogCategoryList } from './LogCategoryList';

@@ -1,4 +1,2 @@
-import LogTagEditor from './LogTagEditor';
-import LogTagListEditor from './LogTagListEditor';
-
-export { LogTagEditor, LogTagListEditor };
+// eslint-disable-next-line import/prefer-default-export
+export { default as LogTagList } from './LogTagList';

@@ -1,38 +1,15 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping, LogEntry, LogCategory } from '../data';
+import { getDataTypeMapping } from '../data';
 
-const ActionsRegistry = {
-    'log-category-list': async function () {
-        const logCategories = await this.database.findAll(
-            'LogCategory', {}, this.transaction,
-        );
-        const outputLogCategories = await Promise.all(
-            logCategories.map(
-                (logCategory) => LogCategory.load.call(this, logCategory.id),
-            ),
-        );
-        return outputLogCategories;
-    },
-    'log-entry-list': async function () {
-        const logEntries = await this.database.findAll('LogEntry', {}, this.transaction);
-        const outputLogEntries = await Promise.all(
-            logEntries.map((logEntry) => LogEntry.load.call(this, logEntry.id)),
-        );
-        return outputLogEntries;
-    },
-    'log-tag-list': async function () {
-        const logTags = await this.database.findAll('LogTag', {}, this.transaction);
-        return logTags.map((logTag) => ({
-            id: logTag.id,
-            type: logTag.type,
-            name: logTag.name,
-        }));
-    },
-};
+const ActionsRegistry = {};
 
 Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;
+    ActionsRegistry[`${name}-list`] = async function () {
+        const items = await this.database.findAll(DataType.name, {}, this.transaction);
+        return Promise.all(items.map((item) => DataType.load.call(this, item.id)));
+    };
     ActionsRegistry[`${name}-typeahead`] = async function (input) {
         return DataType.typeahead.call(this, input);
     };

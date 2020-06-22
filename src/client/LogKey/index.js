@@ -1,4 +1,3 @@
-import LogKeyEditor from './LogKeyEditor';
-import LogKeyListEditor from './LogKeyListEditor';
-
-export { LogKeyEditor, LogKeyListEditor };
+export { default as LogKeyEditor } from './LogKeyEditor';
+export { default as LogKeyListEditor } from './LogKeyListEditor';
+export { default as LogKeyList } from './LogKeyList';

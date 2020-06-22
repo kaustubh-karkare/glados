@@ -40,6 +40,7 @@ class LogEntryEditor extends React.Component {
                 onClick={() => this.updateLogEntry((logEntry) => {
                     logEntry.logValues = [...logEntry.logValues, LogValue.createEmpty()];
                 })}
+                size="sm"
                 variant="secondary"
             >
                 <MdAddCircleOutline />
