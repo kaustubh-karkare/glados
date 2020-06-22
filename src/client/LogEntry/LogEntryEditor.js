@@ -2,10 +2,10 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
-import { TextEditor, Typeahead } from '../Common';
+import { SortableList, TextEditor, Typeahead } from '../Common';
 import { LogEntry, LogCategory, LogValue } from '../../data';
 import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
-import { LogValueListEditor } from '../LogValue';
+import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
 
@@ -103,13 +103,14 @@ class LogEntryEditor extends React.Component {
             <div>
                 {this.renderTitleRow()}
                 {this.renderCategoryRow()}
-                <LogValueListEditor
-                    disabled={this.props.logEntry.logCategory.id > 0}
-                    isNewCategory={this.props.logEntry.logCategory.id < 0}
-                    logValues={this.props.logEntry.logValues}
-                    onUpdate={(logValues) => this.updateLogEntry((logEntry) => {
+                <SortableList
+                    items={this.props.logEntry.logValues}
+                    onChange={(logValues) => this.updateLogEntry((logEntry) => {
                         logEntry.logValues = logValues;
                     })}
+                    type={LogValueEditor}
+                    disabled={this.props.logEntry.logCategory.id > 0}
+                    isNewCategory={this.props.logEntry.logCategory.id < 0}
                 />
                 {this.renderDetailsRow()}
             </div>

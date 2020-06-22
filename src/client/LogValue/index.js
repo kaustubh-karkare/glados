@@ -1,6 +1,2 @@
-import LogValueEditor from './LogValueEditor';
-import LogValueListEditor from './LogValueListEditor';
-
-export {
-    LogValueEditor, LogValueListEditor,
-};
+// eslint-disable-next-line import/prefer-default-export
+export { default as LogValueEditor } from './LogValueEditor';

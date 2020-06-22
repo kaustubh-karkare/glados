@@ -5,8 +5,8 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
 import deepcopy from '../../common/deepcopy';
-import { TextEditor } from '../Common';
-import { LogKeyListEditor } from '../LogKey';
+import { SortableList, TextEditor } from '../Common';
+import { LogKeyEditor } from '../LogKey';
 import { LogKey } from '../../data';
 
 class LogCategoryEditor extends React.Component {
@@ -58,9 +58,10 @@ class LogCategoryEditor extends React.Component {
                         <MdAddCircleOutline />
                     </Button>
                 </InputGroup>
-                <LogKeyListEditor
-                    logKeys={this.props.logCategory.logKeys}
-                    onUpdate={(logKeys) => this.onLogKeysUpdate(logKeys)}
+                <SortableList
+                    items={this.props.logCategory.logKeys}
+                    onChange={(logKeys) => this.onLogKeysUpdate(logKeys)}
+                    type={LogKeyEditor}
                 />
                 <InputGroup className="my-1">
                     <InputGroup.Text style={{ height: 'inherit', width: 99 }}>

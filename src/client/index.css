@@ -98,11 +98,11 @@ body {
 
 button.sortableDragHandle.btn {
     cursor: grab;
-    width: 20px;
 }
 
 .sortableDraggedItem {
-   z-index: 10000;
+    cursor: grab;
+    z-index: 10000;
 }
 
 /* Dropdown */

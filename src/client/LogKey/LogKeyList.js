@@ -23,7 +23,7 @@ ViewerComponent.propTypes = {
 function EditorComponent(props) {
     const logKey = props.value;
     return (
-        <InputGroup>
+        <InputGroup className="my-1">
             <Dropdown
                 value={logKey.type}
                 options={LogKey.getTypes()}
@@ -55,4 +55,5 @@ function LogKeyList() {
     );
 }
 
+export { EditorComponent as LogKeyEditor };
 export default LogKeyList;

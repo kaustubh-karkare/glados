@@ -1,74 +1,53 @@
-import Button from 'react-bootstrap/Button';
-import { FaRegTrashAlt } from 'react-icons/fa';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { Dropdown, SortableDragHandle, Typeahead } from '../Common';
+import { Dropdown, Typeahead } from '../Common';
 
 import { LogKey, LogValue } from '../../data';
 
-class LogValueEditor extends React.Component {
-    updateLogKey(logKey) {
-        const logValue = { ...this.props.logValue };
-        logValue.logKey = logKey;
-        this.props.onUpdate(logValue);
-    }
+function LogValueEditor(props) {
+    const logValue = props.value;
 
-    renderDeleteButton() {
-        if (this.props.isNewCategory) {
-            return (
-                <Button
-                    onClick={this.props.onDelete}
-                    size="sm"
-                    variant="secondary"
-                >
-                    <FaRegTrashAlt />
-                </Button>
-            );
-        }
-        return null;
-    }
+    const { logKey } = logValue;
+    const updateLogKey = (updatedLogKey) => {
+        const updatedLogValue = { ...logValue };
+        updatedLogValue.logKey = updatedLogKey;
+        props.onChange(updatedLogValue);
+    };
 
-    render() {
-        const { logKey } = this.props.logValue;
-        return (
-            <InputGroup className="mb-1" size="sm">
-                <SortableDragHandle disabled={this.props.sortableListItemDisabled} />
-                <Dropdown
-                    disabled={logKey.id > 0}
-                    value={logKey.type}
-                    options={LogKey.getTypes()}
-                    onUpdate={(type) => this.updateLogKey({ ...logKey, type })}
-                />
-                <Typeahead
-                    dataType="log-key"
-                    value={logKey}
-                    onUpdate={(updatedLogKey) => this.updateLogKey(updatedLogKey)}
-                    allowDelete={this.props.isNewCategory}
-                    onDelete={() => this.updateLogKey(LogKey.createEmpty())}
-                />
-                <Typeahead
-                    labelKey="data"
-                    dataType="log-value"
-                    value={this.props.logValue}
-                    onUpdate={this.props.onUpdate}
-                    allowDelete={this.props.logValue.id > 0}
-                    onDelete={(logValue) => this.props.onUpdate(
-                        LogValue.createEmpty(logValue.logKey),
-                    )}
-                />
-                {this.renderDeleteButton()}
-            </InputGroup>
-        );
-    }
+    return (
+        <InputGroup className="my-1">
+            <Dropdown
+                disabled={logKey.id > 0}
+                value={logKey.type}
+                options={LogKey.getTypes()}
+                onUpdate={(type) => updateLogKey({ ...logKey, type })}
+            />
+            <Typeahead
+                dataType="log-key"
+                value={logKey}
+                onUpdate={(updatedLogKey) => updateLogKey(updatedLogKey)}
+                allowDelete={props.isNewCategory}
+                onDelete={() => updateLogKey(LogKey.createEmpty())}
+            />
+            <Typeahead
+                labelKey="data"
+                dataType="log-value"
+                value={logValue}
+                onUpdate={props.onChange}
+                allowDelete={logValue.id > 0}
+                onDelete={(updatedLogValue) => props.onChange(
+                    LogValue.createEmpty(updatedLogValue.logKey),
+                )}
+            />
+        </InputGroup>
+    );
 }
 
 LogValueEditor.propTypes = {
-    sortableListItemDisabled: PropTypes.bool,
     isNewCategory: PropTypes.bool.isRequired,
-    logValue: PropTypes.Custom.LogValue.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
+    value: PropTypes.Custom.LogValue.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default LogValueEditor;
