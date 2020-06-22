@@ -1,47 +1,41 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { GoPrimitiveDot } from 'react-icons/go';
-import { GrDrag } from 'react-icons/gr';
+import { MdFormatLineSpacing, MdEdit } from 'react-icons/md';
 import { TiMinus, TiPlus } from 'react-icons/ti';
-import { MdEdit } from 'react-icons/md';
+
 import React from 'react';
 import PropTypes from '../prop-types';
 import { TextEditor } from '../Common';
+import { TextEditorSources } from './LogEntryTitleEditor';
 
 class LogEntryViewer extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            hover: false,
-            isExpanded: false,
-        };
-    }
-
-    toggleIsExpanded() {
-        this.setState((state) => ({ isExpanded: !state.isExpanded }));
+        this.state = { hover: false };
     }
 
     renderPrefix() {
         if (this.state.hover) {
             return (
                 <>
-                    <div className="compact-option sortableDragHandle">
-                        <GrDrag />
+                    <div className="icon sortableDragHandle" style={{ cursor: 'grab' }}>
+                        <MdFormatLineSpacing />
                     </div>
                     <div
-                        className="compact-option"
-                        onClick={() => this.toggleIsExpanded()}
+                        className="icon icon-white"
+                        onClick={this.props.onToggleExpansion}
                     >
-                        {this.state.isExpanded ? <TiMinus /> : <TiPlus />}
+                        {this.props.isExpanded ? <TiMinus /> : <TiPlus />}
                     </div>
                 </>
             );
         }
         return (
             <>
-                <div className="compact-option" />
-                <div className="compact-option">
-                    {this.state.isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
+                <div className="icon" />
+                <div className="icon icon-white">
+                    {this.props.isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
                 </div>
             </>
         );
@@ -51,10 +45,10 @@ class LogEntryViewer extends React.Component {
         if (this.state.hover) {
             return (
                 <>
-                    <div className="compact-option mr-1" onClick={this.props.onEditButtonClick}>
+                    <div className="icon mr-1" onClick={this.props.onEditButtonClick}>
                         <MdEdit />
                     </div>
-                    <div className="compact-option" onClick={this.props.onDeleteButtonClick}>
+                    <div className="icon" onClick={this.props.onDeleteButtonClick}>
                         <FaRegTrashAlt />
                     </div>
                 </>
@@ -64,7 +58,7 @@ class LogEntryViewer extends React.Component {
     }
 
     renderExpanded() {
-        if (!this.state.isExpanded) {
+        if (!this.props.isExpanded) {
             return null;
         }
         if (!this.props.logEntry.details) {
@@ -74,7 +68,9 @@ class LogEntryViewer extends React.Component {
         return (
             <div style={{ marginLeft: 30 }}>
                 <TextEditor
-                    readOnly
+                    unstyled
+                    disabled
+                    sources={TextEditorSources}
                     value={this.props.logEntry.details}
                 />
             </div>
@@ -85,7 +81,7 @@ class LogEntryViewer extends React.Component {
         return (
             <div>
                 <InputGroup
-                    onDoubleClick={() => this.toggleIsExpanded()}
+                    onDoubleClick={this.props.onToggleExpansion}
                     onMouseEnter={() => this.setState({ hover: true })}
                     onMouseLeave={() => this.setState({ hover: false })}
                     size="sm"
@@ -95,6 +91,7 @@ class LogEntryViewer extends React.Component {
                         <TextEditor
                             unstyled
                             disabled
+                            sources={TextEditorSources}
                             value={this.props.logEntry.title}
                         />
                     </div>
@@ -108,6 +105,12 @@ class LogEntryViewer extends React.Component {
 
 LogEntryViewer.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
+
+    // prefix
+    isExpanded: PropTypes.bool,
+    onToggleExpansion: PropTypes.func.isRequired,
+
+    // suffix
     onEditButtonClick: PropTypes.func.isRequired,
     onDeleteButtonClick: PropTypes.func.isRequired,
 };

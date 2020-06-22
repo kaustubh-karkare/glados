@@ -25,10 +25,18 @@
     width: 100px;
 }
 
-.input-group > .compact-option {
+.input-group > .icon {
     cursor: pointer;
     height: 20px;
     width: 13px;
+}
+
+.input-group > .icon > svg {
+    fill: #888;
+}
+
+.input-group > .icon.icon-white > svg {
+    fill: white;
 }
 
 .input-group > .btn {

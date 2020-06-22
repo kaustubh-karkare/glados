@@ -259,8 +259,10 @@ function createModels(sequelize) {
     LogEntry.belongsToMany(LogTag, {
         through: LogEntryToLogTag,
         foreignKey: 'entry_id',
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
+        // Deleteing an Entry is allowed!
+        // The links will be broken, and the Tags could be cleaned up.
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
     });
 
     LogTag.belongsToMany(LogEntry, {

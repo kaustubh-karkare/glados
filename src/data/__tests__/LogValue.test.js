@@ -7,8 +7,11 @@ test('test_typeahead', async () => {
     const actions = Utils.getActions();
     let logValues;
 
-    logValues = await actions.invoke('log-value-typeahead', { logKey: { id: 1 } });
+    const item = {logKey: { id: 1 }};
+    logValues = await actions.invoke('log-value-typeahead', { item });
     expect(logValues.length).toEqual(2);
-    logValues = await actions.invoke('log-value-typeahead', { logKey: { id: 4 } });
+
+    item.logKey.id = 4;
+    logValues = await actions.invoke('log-value-typeahead', { item });
     expect(logValues.length).toEqual(0);
 });

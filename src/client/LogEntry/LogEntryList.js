@@ -1,6 +1,8 @@
 import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import React from 'react';
+import { TiMinus, TiPlus } from 'react-icons/ti';
 import { LogEntry } from '../../data';
 import LogEntryAdder from './LogEntryAdder';
 import LogEntryEditor from './LogEntryEditor';
@@ -8,6 +10,14 @@ import LogEntryViewer from './LogEntryViewer';
 
 
 class LogEntryList extends React.Component {
+    static getDerivedStateFromProps(props, state) {
+        if (state.logEntries) {
+            state.isGroupExpanded = state.logEntries
+                .every((logEntry) => state.isExpanded[logEntry.id]);
+        }
+        return state;
+    }
+
     static renderButton(label, method) {
         return (
             <Button
@@ -22,23 +32,21 @@ class LogEntryList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { entries: null };
+        this.state = {};
     }
 
     componentDidMount() {
-        this.reset();
         this.reload();
-    }
-
-    reset() {
-        this.setState({
-            editLogEntry: null,
-        });
     }
 
     reload() {
         window.api.send('log-entry-list')
-            .then((entries) => this.setState({ entries }));
+            .then((logEntries) => {
+                this.setState((state) => ({
+                    logEntries,
+                    isExpanded: state.isExpanded || {},
+                }));
+            });
     }
 
     editLogEntry(logEntry) {
@@ -47,9 +55,17 @@ class LogEntryList extends React.Component {
 
     saveLogEntry(logEntry) {
         window.api.send('log-entry-upsert', logEntry)
-            .then(() => {
-                this.reset();
-                this.reload();
+            .then((savedLogEntry) => {
+                this.setState((state) => {
+                    if (logEntry.id < 0) {
+                        state.logEntries.push(savedLogEntry);
+                        if (state.isGroupExpanded) {
+                            state.isExpanded[savedLogEntry.id] = true;
+                        }
+                    }
+                    state.editLogEntry = null;
+                    return state;
+                });
             });
     }
 
@@ -88,18 +104,55 @@ class LogEntryList extends React.Component {
         );
     }
 
+    renderIsGroupExpanded() {
+        if (this.state.isGroupExpanded) {
+            return (
+                <div
+                    className="icon"
+                    onClick={() => this.setState({ isExpanded: {} })}
+                >
+                    <TiMinus />
+                </div>
+            );
+        }
+        return (
+            <div
+                className="icon"
+                onClick={() => this.setState((state) => ({
+                    isExpanded: Object.fromEntries(
+                        state.logEntries.map((logEntry) => [logEntry.id, true]),
+                    ),
+                }))}
+            >
+                <TiPlus />
+            </div>
+        );
+    }
+
     render() {
-        if (this.state.entries === null) {
-            return <div>Loading Entries ...</div>;
+        if (!this.state.logEntries) {
+            return <div>Loading Log Entries ...</div>;
         }
         return (
             <div>
                 {this.renderEditorModal()}
-                2020-06-21 (Sunday)
-                {this.state.entries.map((logEntry) => (
+                <InputGroup className="mt-2">
+                    <div className="mr-1">
+                        2020-06-21 (Sunday)
+                    </div>
+                    {this.renderIsGroupExpanded()}
+                </InputGroup>
+                {this.state.logEntries.map((logEntry) => (
                     <LogEntryViewer
                         key={logEntry.id}
                         logEntry={logEntry}
+                        isExpanded={this.state.isExpanded[logEntry.id]}
+                        onToggleExpansion={() => {
+                            this.setState((state) => {
+                                state.isExpanded[logEntry.id] = !state.isExpanded[logEntry.id];
+                                return state;
+                            });
+                        }}
                         onEditButtonClick={() => this.editLogEntry(logEntry)}
                         onDeleteButtonClick={() => this.deleteLogEntry(logEntry)}
                     />

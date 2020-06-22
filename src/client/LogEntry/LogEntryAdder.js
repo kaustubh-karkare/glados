@@ -30,8 +30,8 @@ class LogEntryAdder extends React.Component {
     render() {
         return (
             <InputGroup size="sm">
-                <div className="compact-option" />
-                <div className="compact-option">
+                <div className="icon" />
+                <div className="icon">
                     {this.state.logEntry.name ? <GoPrimitiveDot /> : null}
                 </div>
                 <div className="mx-1">

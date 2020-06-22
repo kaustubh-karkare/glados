@@ -11,15 +11,15 @@ class LogValue {
         };
     }
 
-    static async typeahead({ logKey }) {
+    static async typeahead({ item }) {
         const logValues = await this.database.findAll(
             'LogValue',
-            { key_id: logKey.id },
+            { key_id: item.logKey.id },
         );
         return logValues.map((logValue) => ({
             id: logValue.id,
             data: logValue.data,
-            logKey,
+            logKey: item.logKey,
         }));
     }
 
