@@ -17,15 +17,13 @@ class LogValueEditor extends React.Component {
     renderDeleteButton() {
         if (this.props.isNewCategory) {
             return (
-                <InputGroup.Append>
-                    <Button
-                        onClick={this.props.onDelete}
-                        size="sm"
-                        variant="secondary"
-                    >
-                        <FaRegTrashAlt />
-                    </Button>
-                </InputGroup.Append>
+                <Button
+                    onClick={this.props.onDelete}
+                    size="sm"
+                    variant="secondary"
+                >
+                    <FaRegTrashAlt />
+                </Button>
             );
         }
         return null;

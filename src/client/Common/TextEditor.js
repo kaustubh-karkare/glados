@@ -19,9 +19,13 @@ import 'draft-js/dist/Draft.css';
 
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
-        if (!state.editorState || props.value !== state.value) {
-            // eslint-disable-next-line no-param-reassign
-            state.value = props.value;
+        if (props.value === state.value) {
+            return state;
+        }
+        // eslint-disable-next-line no-param-reassign
+        state.value = props.value;
+
+        if (state.value !== state.newValue) {
             // eslint-disable-next-line no-param-reassign
             state.editorState = TextEditorUtils.toEditorState(
                 TextEditorUtils.deserialize(props.value),
@@ -89,8 +93,8 @@ class TextEditor extends React.Component {
         const newValue = TextEditorUtils.serialize(
             TextEditorUtils.fromEditorState(editorState),
         );
-        if (oldValue === newValue) {
-            this.props.onUpdate(newValue);
+        if (oldValue !== newValue) {
+            this.setState({ newValue }, () => this.props.onUpdate(newValue));
         }
     }
 
@@ -112,6 +116,20 @@ class TextEditor extends React.Component {
     }
 
     render() {
+        const blockRenderMap = this.props.isSingleLine
+            ? this.singleLinePlugin.blockRenderMap
+            : undefined;
+        if (this.props.readOnly) {
+            return (
+                <Editor
+                    readOnly
+                    editorState={this.state.editorState}
+                    blockRenderMap={blockRenderMap}
+                    plugins={this.state.plugins}
+                    onChange={() => null}
+                />
+            );
+        }
         const { MentionSuggestions } = this.mentionPlugin;
         return (
             <div className={`text-editor ${this.props.disabled ? 'text-editor-disabled' : ''}`}>
@@ -121,11 +139,7 @@ class TextEditor extends React.Component {
                     handleKeyCommand={
                         (command, editorState) => this.handleKeyCommand(command, editorState)
                     }
-                    blockRenderMap={
-                        this.props.isSingleLine
-                            ? this.singleLinePlugin.blockRenderMap
-                            : undefined
-                    }
+                    blockRenderMap={blockRenderMap}
                     plugins={this.state.plugins}
                     onChange={(editorState) => this.onChange(editorState)}
                 />
@@ -144,10 +158,15 @@ class TextEditor extends React.Component {
 }
 
 TextEditor.propTypes = {
-    disabled: PropTypes.bool,
+    readOnly: PropTypes.bool, // does not look editable
+    disabled: PropTypes.bool, // looks editable, but grayed out
+
     value: PropTypes.string.isRequired,
+    onUpdate: PropTypes.func, // required if not readOnly
+
     isMarkdown: PropTypes.bool,
     isSingleLine: PropTypes.bool,
+
     sources: PropTypes.arrayOf(
         PropTypes.shape({
             trigger: PropTypes.string.isRequired,
@@ -159,10 +178,10 @@ TextEditor.propTypes = {
         }).isRequired,
     ),
     onSelectSuggestion: PropTypes.func,
-    onUpdate: PropTypes.func.isRequired,
 };
 
 TextEditor.defaultProps = {
+    readOnly: false,
     disabled: false,
     isSingleLine: false,
     isMarkdown: false,

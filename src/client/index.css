@@ -1,6 +1,6 @@
 .input-group > * {
     border-radius: 0;
-    height: 29px;
+    height: 20px;
 }
 
 .input-group > :first-child {
@@ -14,19 +14,34 @@
 }
 
 .input-group > .input-group-text {
+    font-size: 13px;
+}
+
+.input-group > .input-group-text {
     border: none;
     display: block;
-    padding: 3px;
+    padding: 1px;
     text-align: center;
     width: 100px;
 }
 
+.input-group > .compact-option {
+    cursor: pointer;
+    height: 20px;
+    width: 13px;
+}
+
 .input-group > .btn {
-    width: 29px;
+    width: 20px;
+    padding: 0px;
 }
 
 .input-group > .dropdown > .btn {
     border-radius: 0;
+    height: 20px;
+    padding: 0;
+    position: relative;
+    top: -1px;
     width: 100px;
 }
 
@@ -34,7 +49,15 @@
     width: 80px;
 }
 
+.input-group > .rbt input:first-child {
+    padding: 0 4px;
+    height: 20px;
+    border-width: 0 1px;
+}
+
 .input-group > .text-editor {
+    flex-grow: 1;
+    width: 1px;
     height: auto;
 }
 
@@ -48,11 +71,15 @@
     background-color: #ccc;
 }
 
+body {
+    font-size: 13px;
+    font-family: Lato;
+}
+
 /* Sortable */
 
 button.sortableDragHandle.btn {
     cursor: grab;
-    padding: 4px 0;
     width: 20px;
 }
 
@@ -60,12 +87,19 @@ button.sortableDragHandle.btn {
    z-index: 10000;
 }
 
-/* Text Editor */
+/* Dropdown */
 
-.text-editor {
-    flex-grow: 1;
-    width: 1px;
+.dropdown-menu {
+    font-size: 13px;
+    font-family: Lato;
+    min-width: 100px;
 }
+
+.dropdown-item {
+    padding: 1px 16px;
+}
+
+/* Text Editor */
 
 .text-editor.text-editor-disabled .public-DraftEditor-content {
     background: #ccc;
@@ -75,10 +109,8 @@ button.sortableDragHandle.btn {
     background: white;
     border-radius: 0 0.2rem 0.2rem 0;
     color: #444;
-    font-family: Lato;
-    font-size: 13.125px;
-    min-height: 29px;
-    padding: 5px 8px;
+    min-height: 20px;
+    padding: 1px 4px 0;
 }
 
 .text-editor .public-DraftStyleDefault-ul,

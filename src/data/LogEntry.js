@@ -10,6 +10,7 @@ class LogEntry {
     static createEmpty(logCategory) {
         return {
             id: Utils.getNegativeID(),
+            name: '',
             title: '',
             logCategory: logCategory || LogCategory.createEmpty(),
             logValues: [],
@@ -18,18 +19,13 @@ class LogEntry {
     }
 
     static trigger(logEntry) {
-        let didChange = false;
         if (logEntry.logCategory.template) {
-            const originalTitle = logEntry.title;
             logEntry.title = materializeCategoryTemplate(
                 logEntry.logCategory.template,
                 logEntry.logValues,
             );
-            if (originalTitle !== logEntry.title) {
-                didChange = true;
-            }
         }
-        return didChange;
+        logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
     }
 
     static async typeahead({ query }) {
@@ -47,7 +43,12 @@ class LogEntry {
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         // TODO: Parallelize the following operations.
-        const outputLogCategory = await LogCategory.load.call(this, logEntry.category_id);
+        let outputLogCategory;
+        if (logEntry.category_id) {
+            outputLogCategory = await LogCategory.load.call(this, logEntry.category_id);
+        } else {
+            outputLogCategory = LogCategory.createEmpty();
+        }
         const edges = await this.database.getEdges(
             'LogEntryToLogValue',
             'entry_id',
@@ -88,10 +89,10 @@ class LogEntry {
                 }\nActual = ${inputLogEntry.logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
             );
         }
-        assert(!LogEntry.trigger(inputLogEntry));
+        LogEntry.trigger(inputLogEntry);
         const fields = {
             id: inputLogEntry.id,
-            name: TextEditorUtils.extractPlainText(inputLogEntry.title),
+            name: inputLogEntry.name,
             title: inputLogEntry.title,
             category_id: logCategory ? logCategory.id : null,
             details: inputLogEntry.details,

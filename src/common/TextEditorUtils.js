@@ -20,8 +20,8 @@ class TextEditorUtils {
         } if (value.startsWith(StorageType.DRAFTJS)) {
             const payload = value.substring(StorageType.DRAFTJS.length);
             const content = JSON.parse(payload);
-            assert(content.blocks.length === 1);
-            return content.text;
+            // assert(content.blocks.length === 1);
+            return content.blocks[0].text;
         }
         assert(false, value);
     }

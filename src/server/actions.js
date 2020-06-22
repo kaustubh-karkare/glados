@@ -1,6 +1,6 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping, LogCategory } from '../data';
+import { getDataTypeMapping, LogEntry, LogCategory } from '../data';
 
 const ActionsRegistry = {
     'log-category-list': async function () {
@@ -13,6 +13,13 @@ const ActionsRegistry = {
             ),
         );
         return outputLogCategories;
+    },
+    'log-entry-list': async function () {
+        const logEntries = await this.database.findAll('LogEntry', {}, this.transaction);
+        const outputLogEntries = await Promise.all(
+            logEntries.map((logEntry) => LogEntry.load.call(this, logEntry.id)),
+        );
+        return outputLogEntries;
     },
     'log-tag-list': async function () {
         const logTags = await this.database.findAll('LogTag', {}, this.transaction);

@@ -3,13 +3,9 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import { TextEditor, Typeahead } from '../Common';
+import { LogCategory, LogValue } from '../../data';
 import { LogValueListEditor } from '../LogValue';
 import PropTypes from '../prop-types';
-
-import {
-    getNegativeID, LogCategory, LogEntry, LogValue,
-} from '../../data';
-import deepcopy from '../../common/deepcopy';
 
 const textEditorSources = [
     { trigger: '@', dataType: 'log-tag' },
@@ -19,25 +15,10 @@ const textEditorSources = [
 ];
 
 class LogEntryEditor extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            logEntry: this.props.logEntry || LogEntry.createEmpty(),
-        };
-    }
-
-    saveLogEntry(logEntry) {
-        window.api.send('log-entry-upsert', logEntry)
-            .then((result) => this.setState({ logEntry: result }));
-    }
-
     updateLogEntry(method) {
-        this.setState((state) => {
-            const logEntry = deepcopy(state.logEntry);
-            method(logEntry, state);
-            LogEntry.trigger(logEntry);
-            return { logEntry };
-        });
+        const logEntry = { ...this.props.logEntry };
+        method(logEntry);
+        this.props.onUpdate(logEntry);
     }
 
     renderTitleRow() {
@@ -47,9 +28,9 @@ class LogEntryEditor extends React.Component {
                     Title
                 </InputGroup.Text>
                 <TextEditor
-                    value={this.state.logEntry.title}
+                    value={this.props.logEntry.title}
                     sources={textEditorSources}
-                    disabled={!!this.state.logEntry.logCategory.template}
+                    disabled={!!this.props.logEntry.logCategory.template}
                     onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.title = value;
@@ -57,9 +38,8 @@ class LogEntryEditor extends React.Component {
                     onSelectSuggestion={(option) => {
                         if (typeof option.title === 'undefined') return;
                         const logEntry = option;
-                        LogEntry.trigger(logEntry);
-                        logEntry.id = getNegativeID();
-                        this.setState({ logEntry });
+                        logEntry.id = this.props.logEntry.id;
+                        this.props.onUpdate(logEntry);
                     }}
                 />
             </InputGroup>
@@ -67,24 +47,19 @@ class LogEntryEditor extends React.Component {
     }
 
     renderAddLogValueButton() {
-        if (this.state.logEntry.logCategory.id > 0) {
+        if (this.props.logEntry.logCategory.id > 0) {
             return null;
         }
         return (
-            <InputGroup.Append>
-                <Button
-                    onClick={() => this.setState((state) => {
-                        const logEntry = { ...state.logEntry };
-                        logEntry.logValues = [...logEntry.logValues];
-                        logEntry.logValues.push(LogValue.createEmpty());
-                        return { logEntry };
-                    })}
-                    size="sm"
-                    variant="secondary"
-                >
-                    <MdAddCircleOutline />
-                </Button>
-            </InputGroup.Append>
+            <Button
+                onClick={() => this.updateLogEntry((logEntry) => {
+                    logEntry.logValues = [...logEntry.logValues, LogValue.createEmpty()];
+                })}
+                size="sm"
+                variant="secondary"
+            >
+                <MdAddCircleOutline />
+            </Button>
         );
     }
 
@@ -96,7 +71,7 @@ class LogEntryEditor extends React.Component {
                 </InputGroup.Text>
                 <Typeahead
                     dataType="log-category"
-                    value={this.state.logEntry.logCategory}
+                    value={this.props.logEntry.logCategory}
                     onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = logCategory;
@@ -126,7 +101,7 @@ class LogEntryEditor extends React.Component {
                     Details
                 </InputGroup.Text>
                 <TextEditor
-                    value={this.state.logEntry.details}
+                    value={this.props.logEntry.details}
                     sources={textEditorSources}
                     onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
@@ -137,43 +112,28 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    renderSaveButton() {
-        return (
-            <Button
-                onClick={() => this.saveLogEntry(this.state.logEntry)}
-                size="sm"
-                variant="secondary"
-            >
-                Save
-            </Button>
-        );
-    }
-
     render() {
         return (
             <div>
                 {this.renderTitleRow()}
                 {this.renderCategoryRow()}
                 <LogValueListEditor
-                    disabled={this.state.logEntry.logCategory.id > 0}
-                    isNewCategory={this.state.logEntry.logCategory.id < 0}
-                    logValues={this.state.logEntry.logValues}
-                    onUpdate={(logValues) => this.setState((state) => {
-                        const logEntry = { ...state.logEntry };
+                    disabled={this.props.logEntry.logCategory.id > 0}
+                    isNewCategory={this.props.logEntry.logCategory.id < 0}
+                    logValues={this.props.logEntry.logValues}
+                    onUpdate={(logValues) => this.updateLogEntry((logEntry) => {
                         logEntry.logValues = logValues;
-                        LogEntry.trigger(logEntry);
-                        return { logEntry };
                     })}
                 />
                 {this.renderDetailsRow()}
-                {this.renderSaveButton()}
             </div>
         );
     }
 }
 
 LogEntryEditor.propTypes = {
-    logEntry: PropTypes.Custom.LogEntry,
+    logEntry: PropTypes.Custom.LogEntry.isRequired,
+    onUpdate: PropTypes.func.isRequired,
 };
 
 export default LogEntryEditor;
