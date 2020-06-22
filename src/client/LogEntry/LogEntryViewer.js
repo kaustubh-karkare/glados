@@ -13,29 +13,12 @@ class LogEntryViewer extends React.Component {
         super(props);
         this.state = {
             hover: false,
-            expanded: false,
+            isExpanded: false,
         };
     }
 
-    renderExpansionButton() {
-        if (this.state.expanded) {
-            return (
-                <div
-                    className="compact-option"
-                    onClick={() => this.setState({ expanded: false })}
-                >
-                    <TiMinus />
-                </div>
-            );
-        }
-        return (
-            <div
-                className="compact-option"
-                onClick={() => this.setState({ expanded: true })}
-            >
-                <TiPlus />
-            </div>
-        );
+    toggleIsExpanded() {
+        this.setState((state) => ({ isExpanded: !state.isExpanded }));
     }
 
     renderPrefix() {
@@ -45,7 +28,12 @@ class LogEntryViewer extends React.Component {
                     <div className="compact-option sortableDragHandle">
                         <GrDrag />
                     </div>
-                    {this.renderExpansionButton()}
+                    <div
+                        className="compact-option"
+                        onClick={() => this.toggleIsExpanded()}
+                    >
+                        {this.state.isExpanded ? <TiMinus /> : <TiPlus />}
+                    </div>
                 </>
             );
         }
@@ -53,7 +41,7 @@ class LogEntryViewer extends React.Component {
             <>
                 <div className="compact-option" />
                 <div className="compact-option">
-                    {this.state.expanded ? <TiMinus /> : <GoPrimitiveDot />}
+                    {this.state.isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
                 </div>
             </>
         );
@@ -75,22 +63,44 @@ class LogEntryViewer extends React.Component {
         return null;
     }
 
+    renderExpanded() {
+        if (!this.state.isExpanded) {
+            return null;
+        }
+        if (!this.props.logEntry.details) {
+            return null;
+        }
+        // 30 = 13*2 (options) + mx-1 (title)
+        return (
+            <div style={{ marginLeft: 30 }}>
+                <TextEditor
+                    readOnly
+                    value={this.props.logEntry.details}
+                />
+            </div>
+        );
+    }
+
     render() {
         return (
-            <InputGroup
-                onMouseEnter={() => this.setState({ hover: true })}
-                onMouseLeave={() => this.setState({ hover: false })}
-                size="sm"
-            >
-                {this.renderPrefix()}
-                <div className="mx-1">
-                    <TextEditor
-                        readOnly
-                        value={this.props.logEntry.title}
-                    />
-                </div>
-                {this.renderSuffix()}
-            </InputGroup>
+            <div>
+                <InputGroup
+                    onDoubleClick={() => this.toggleIsExpanded()}
+                    onMouseEnter={() => this.setState({ hover: true })}
+                    onMouseLeave={() => this.setState({ hover: false })}
+                    size="sm"
+                >
+                    {this.renderPrefix()}
+                    <div className="mx-1">
+                        <TextEditor
+                            readOnly
+                            value={this.props.logEntry.title}
+                        />
+                    </div>
+                    {this.renderSuffix()}
+                </InputGroup>
+                {this.renderExpanded()}
+            </div>
         );
     }
 }

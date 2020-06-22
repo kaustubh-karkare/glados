@@ -101,6 +101,11 @@ button.sortableDragHandle.btn {
 
 /* Text Editor */
 
+.public-DraftStyleDefault-ul,
+.public-DraftStyleDefault-ol {
+    margin: 0;
+}
+
 .text-editor.text-editor-disabled .public-DraftEditor-content {
     background: #ccc;
 }
@@ -111,11 +116,6 @@ button.sortableDragHandle.btn {
     color: #444;
     min-height: 20px;
     padding: 1px 4px 0;
-}
-
-.text-editor .public-DraftStyleDefault-ul,
-.text-editor .public-DraftStyleDefault-ol {
-    margin: 0;
 }
 
 .text-editor > .mention-suggestions > div {

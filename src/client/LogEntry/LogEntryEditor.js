@@ -102,11 +102,12 @@ class LogEntryEditor extends React.Component {
                 </InputGroup.Text>
                 <TextEditor
                     value={this.props.logEntry.details}
-                    sources={textEditorSources}
                     onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
                     })}
+                    sources={textEditorSources}
+                    isMarkdown
                 />
             </InputGroup>
         );

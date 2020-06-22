@@ -372,10 +372,14 @@ class Database {
 
     async getEdges(edgeName, leftName, leftId, transaction) {
         const EdgeModel = this._models[edgeName];
-        return EdgeModel.findAll({
+        const edges = await EdgeModel.findAll({
             where: { [leftName]: leftId },
             transaction,
         });
+        if (edges.length > 1 && typeof edges[0].ordering_index !== 'undefined') {
+            edges.sort((left, right) => left.ordering_index - right.ordering_index);
+        }
+        return edges;
     }
 
     async getNodesByEdge(edgeName, leftName, leftId, rightName, rightType, transaction) {

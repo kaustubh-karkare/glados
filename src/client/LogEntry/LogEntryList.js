@@ -1,4 +1,5 @@
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import React from 'react';
 import { LogEntry } from '../../data';
 import LogEntryEditor from './LogEntryEditor';
@@ -6,16 +7,33 @@ import LogEntryViewer from './LogEntryViewer';
 
 
 class LogEntryList extends React.Component {
+    static renderButton(label, method) {
+        return (
+            <Button
+                onClick={method}
+                size="sm"
+                variant="secondary"
+            >
+                Save
+            </Button>
+        );
+    }
+
     constructor(props) {
         super(props);
-        this.state = {
-            entries: null,
-            newLogEntry: LogEntry.createEmpty(),
-        };
+        this.state = { entries: null };
     }
 
     componentDidMount() {
+        this.reset();
         this.reload();
+    }
+
+    reset() {
+        this.setState({
+            editLogEntry: null,
+            newLogEntry: LogEntry.createEmpty(),
+        });
     }
 
     reload() {
@@ -25,12 +43,9 @@ class LogEntryList extends React.Component {
 
     saveLogEntry(logEntry) {
         window.api.send('log-entry-upsert', logEntry)
-            .then((result) => {
+            .then(() => {
+                this.reset();
                 this.reload();
-                this.setState({
-                    logEntry: result,
-                    newLogEntry: LogEntry.createEmpty(),
-                });
             });
     }
 
@@ -39,15 +54,33 @@ class LogEntryList extends React.Component {
             .then(() => this.reload());
     }
 
-    renderSaveButton() {
+    renderEditorModal() {
+        if (!this.state.editLogEntry) {
+            return null;
+        }
         return (
-            <Button
-                onClick={() => this.saveLogEntry(this.state.newLogEntry)}
-                size="sm"
-                variant="secondary"
+            <Modal
+                show
+                size="lg"
+                onHide={() => this.setState({ editLogEntry: null })}
+                keyboard={false}
             >
-                Save
-            </Button>
+                <Modal.Header closeButton>
+                    <Modal.Title>Log Entry Editor</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <LogEntryEditor
+                        logEntry={this.state.editLogEntry}
+                        onUpdate={(logEntry) => {
+                            LogEntry.trigger(logEntry);
+                            this.setState({ editLogEntry: logEntry });
+                        }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    {LogEntryList.renderButton('Save', () => this.saveLogEntry(this.state.editLogEntry))}
+                </Modal.Footer>
+            </Modal>
         );
     }
 
@@ -57,11 +90,13 @@ class LogEntryList extends React.Component {
         }
         return (
             <div>
+                {this.renderEditorModal()}
                 2020-06-21 (Sunday)
                 {this.state.entries.map((logEntry) => (
                     <LogEntryViewer
                         key={logEntry.id}
                         logEntry={logEntry}
+                        onEditButtonClick={() => this.setState({ editLogEntry: logEntry })}
                         onDeleteButtonClick={() => this.deleteLogEntry(logEntry)}
                     />
                 ))}
@@ -72,7 +107,7 @@ class LogEntryList extends React.Component {
                         this.setState({ newLogEntry: logEntry });
                     }}
                 />
-                {this.renderSaveButton()}
+                {LogEntryList.renderButton('Save', () => this.saveLogEntry(this.state.newLogEntry))}
             </div>
         );
     }
