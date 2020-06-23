@@ -83,7 +83,6 @@ class TextEditor extends React.Component {
         const selectedSource = this.props.sources
             .find((suggestion) => suggestion.trigger === trigger);
         assert(selectedSource, 'unknown suggestion for trigger');
-        this.setState({ selectedSource });
         if (selectedSource.options) {
             this.setSuggestions(selectedSource, query, selectedSource.options);
         } else if (selectedSource.dataType) {
@@ -97,8 +96,7 @@ class TextEditor extends React.Component {
     onAddMention(option) {
         if (this.props.onSelectSuggestion) {
             if (option[Utils.INCOMPLETE_KEY]) {
-                assert(this.state.selectedSource.dataType);
-                window.api.send(`${this.state.selectedSource.dataType}-load`, option)
+                window.api.send(`${option.__type__}-load`, option)
                     .then((result) => this.props.onSelectSuggestion(result));
             } else {
                 this.props.onSelectSuggestion(option);
@@ -118,10 +116,10 @@ class TextEditor extends React.Component {
     }
 
     setSuggestions(source, query, options) {
-        this.setState({
-            open: true,
-            suggestions: defaultSuggestionsFilter(query, options),
-        });
+        this.setState(
+            { suggestions: defaultSuggestionsFilter(query, options) },
+            () => this.mentionPlugin.onChange(this.state.editorState),
+        );
     }
 
     handleKeyCommand(command, editorState) {

@@ -30,11 +30,17 @@ function LogEntryTitleEditor(props) {
                 onUpdate(updatedLogEntry);
             }}
             onSelectSuggestion={(option) => {
-                if (typeof option.title === 'undefined') return;
-                const updatedLogEntry = option;
-                updatedLogEntry.id = logEntry.id;
-                LogEntry.trigger(logEntry);
-                (onMajorUpdate || onUpdate)(updatedLogEntry);
+                if (option.__type__ === 'log-entry') {
+                    const updatedLogEntry = option;
+                    updatedLogEntry.id = logEntry.id;
+                    LogEntry.trigger(updatedLogEntry);
+                    (onMajorUpdate || onUpdate)(updatedLogEntry);
+                } else if (option.__type__ === 'log-category') {
+                    const logCategory = option;
+                    const updatedLogEntry = LogEntry.createEmpty(logCategory);
+                    LogEntry.trigger(updatedLogEntry);
+                    (onMajorUpdate || onUpdate)(updatedLogEntry);
+                }
             }}
             {...moreProps}
         />

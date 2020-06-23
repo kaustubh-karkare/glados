@@ -55,7 +55,7 @@ const bootstrapData = {
             template: 'Article: $1',
         },
     ],
-    logEnties: [
+    logEntries: [
         {
             category: 'Cycling',
             logValues: ['15', '55'],

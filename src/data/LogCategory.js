@@ -175,6 +175,7 @@ function materializeCategoryTemplate(template, logValues) {
 class LogCategory extends Base {
     static createEmpty() {
         return {
+            __type__: 'log-category',
             id: Utils.getNegativeID(),
             name: '',
             logKeys: [],
@@ -199,6 +200,7 @@ class LogCategory extends Base {
             'LogCategory', {}, this.transaction,
         );
         return logCategories.map((logCategory) => ({
+            __type__: 'log-category',
             id: logCategory.id,
             name: logCategory.name,
             [Utils.INCOMPLETE_KEY]: true,
@@ -225,6 +227,7 @@ class LogCategory extends Base {
             logCategoryEdges.map((edge) => LogKey.load.call(this, edge.key_id)),
         );
         return {
+            __type__: 'log-category',
             id: logCategory.id,
             name: logCategory.name,
             logKeys: outputLogKeys,

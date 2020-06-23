@@ -31,7 +31,7 @@ class Typeahead extends React.Component {
 
     onUpdate(option) {
         if (option[Utils.INCOMPLETE_KEY]) {
-            window.api.send(`${this.props.dataType}-load`, option)
+            window.api.send(`${option.__type__}-load`, option)
                 .then((result) => this.props.onUpdate(result));
         } else {
             this.props.onUpdate(option);
@@ -103,9 +103,7 @@ class Typeahead extends React.Component {
                     }}
                     renderMenuItemChildren={
                         (option) => (
-                            <div onMouseDown={() => this.onUpdate(option)}>
-                                {option[this.props.labelKey]}
-                            </div>
+                            <div>{option[this.props.labelKey]}</div>
                         )
                     }
                 />

@@ -105,16 +105,31 @@ button.sortableDragHandle.btn {
     z-index: 10000;
 }
 
-/* Dropdown */
+/* Dropdown & Mention Suggestions */
 
-.dropdown-menu {
+.dropdown-menu,
+.mention-suggestions > div {
+    background-color: #222;
+    border: 1px solid #444;
+    box-shadow: 0px 4px 30px 0px #222;
     font-size: 13px;
     font-family: Lato;
     min-width: 100px;
 }
 
-.dropdown-item {
+.dropdown-item,
+.mention-suggestions > div > div {
     padding: 1px 16px;
+}
+
+.mention-suggestions > div > div > span {
+    font-size: inherit;
+    margin: 0;
+    overflow: inherit;
+}
+
+.mention-suggestions > div > div[aria-selected="true"] {
+    background-color: #375a7f;
 }
 
 /* Text Editor */
@@ -161,16 +176,6 @@ button.sortableDragHandle.btn {
 
 .text-editor.text-editor-normal.text-editor-disabled .public-DraftEditor-content {
     background: #ccc;
-}
-
-.text-editor > .mention-suggestions > div {
-    background-color: #222;
-    border: 1px solid #444;
-    box-shadow: 0px 4px 30px 0px #222;
-}
-
-.text-editor > .mention-suggestions > div > div[aria-selected="true"] {
-    background-color: #444;
 }
 
 /* Modal */

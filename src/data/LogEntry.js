@@ -9,12 +9,14 @@ import Utils from './Utils';
 
 class LogEntry extends Base {
     static createEmpty(logCategory) {
+        logCategory = logCategory || LogCategory.createEmpty();
         return {
+            __type__: 'log-entry',
             id: Utils.getNegativeID(),
             name: '',
             title: '',
-            logCategory: logCategory || LogCategory.createEmpty(),
-            logValues: [],
+            logCategory,
+            logValues: logCategory.logKeys.map((logKey) => LogValue.createEmpty(logKey)),
             details: '',
         };
     }
@@ -30,11 +32,15 @@ class LogEntry extends Base {
     }
 
     static async typeahead({ query }) {
+        if (!query) {
+            return LogCategory.typeahead.call(this, { query });
+        }
         const where = {
             name: { [this.database.Op.like]: `${query}%` },
         };
         const logEntries = await this.database.findAll('LogEntry', where, this.transaction);
         return logEntries.map((logEntry) => ({
+            __type__: 'log-entry',
             id: logEntry.id,
             name: logEntry.name,
             [Utils.INCOMPLETE_KEY]: true,
@@ -77,6 +83,7 @@ class LogEntry extends Base {
             edges.map((edge) => LogValue.load.call(this, edge.value_id)),
         );
         return {
+            __type__: 'log-entry',
             id: logEntry.id,
             name: logEntry.name,
             title: logEntry.title,
