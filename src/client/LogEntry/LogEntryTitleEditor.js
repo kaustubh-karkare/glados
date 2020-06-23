@@ -20,6 +20,7 @@ function LogEntryTitleEditor(props) {
     return (
         <TextEditor
             isSingleLine
+            focusOnLoad
             value={logEntry.title}
             sources={AugmentedTextEditorSources}
             disabled={!!logEntry.logCategory.template}

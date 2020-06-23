@@ -8,6 +8,7 @@ import { TiMinus, TiPlus } from 'react-icons/ti';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { KeyCodes } from './Utils';
 
 
 const SortableDragHandle = SortableHandle(() => (
@@ -20,11 +21,25 @@ const SortableDragHandle = SortableHandle(() => (
 class BulletListItem extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hover: false };
+        this.state = { hasFocus: false };
+    }
+
+    onKeyDown(event) {
+        if (event.keyCode === KeyCodes.ENTER) {
+            this.props.onEditButtonClick(event);
+        } else if (event.keyCode === KeyCodes.SPACE) {
+            this.props.onToggleExpansion(event);
+        } else if (event.keyCode === KeyCodes.DELETE) {
+            this.props.onDeleteButtonClick(event);
+        } else if (event.keyCode === KeyCodes.UP_ARROW) {
+            this.props.onMoveUp(event);
+        } else if (event.keyCode === KeyCodes.DOWN_ARROW) {
+            this.props.onMoveDown(event);
+        }
     }
 
     renderPrefix() {
-        if (this.state.hover) {
+        if (this.state.hasFocus) {
             return (
                 <>
                     <SortableDragHandle />
@@ -48,7 +63,7 @@ class BulletListItem extends React.Component {
     }
 
     renderSuffix() {
-        if (!this.state.hover) {
+        if (!this.state.hasFocus) {
             return null;
         }
         return (
@@ -87,9 +102,14 @@ class BulletListItem extends React.Component {
         return (
             <div>
                 <InputGroup
-                    onMouseEnter={() => this.setState({ hover: true })}
-                    onMouseOver={() => this.setState({ hover: true })}
-                    onMouseLeave={() => this.setState({ hover: false })}
+                    className={this.state.hasFocus ? 'focus' : null}
+                    tabIndex={0}
+                    onMouseEnter={() => this.setState({ hasFocus: true })}
+                    onMouseOver={() => this.setState({ hasFocus: true })}
+                    onMouseLeave={() => this.setState({ hasFocus: false })}
+                    onFocus={() => this.setState({ hasFocus: true })}
+                    onBlur={() => this.setState({ hasFocus: false })}
+                    onKeyDown={(event) => this.onKeyDown(event)}
                 >
                     {this.renderPrefix()}
                     <div className="mx-1">
@@ -104,11 +124,12 @@ class BulletListItem extends React.Component {
 }
 
 BulletListItem.propTypes = {
-    // prefix
+    onMoveUp: PropTypes.func.isRequired,
+    onMoveDown: PropTypes.func.isRequired,
+
     isExpanded: PropTypes.bool,
     onToggleExpansion: PropTypes.func.isRequired,
 
-    // suffix
     onEditButtonClick: PropTypes.func.isRequired,
     onDeleteButtonClick: PropTypes.func.isRequired,
 };

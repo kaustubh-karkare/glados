@@ -1,3 +1,11 @@
+.input-group:focus {
+    outline: none;
+}
+
+.input-group.focus {
+    background-color: #444;
+}
+
 .input-group > * {
     border-radius: 0;
     height: 20px;
@@ -35,6 +43,16 @@
     fill: #9197a3;
 }
 
+.input-group > .icon:focus {
+    outline: none;
+}
+
+.input-group > .icon.focus {
+    background: #444;
+}
+
+.input-group > .icon:focus > svg,
+.input-group > .icon.focus > svg,
 .input-group > .icon.icon-white > svg {
     fill: white;
 }

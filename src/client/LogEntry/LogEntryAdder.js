@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { LogEntry } from '../../data';
 import LogEntryTitleEditor from './LogEntryTitleEditor';
+import { KeyCodes } from '../Common';
 
 class LogEntryAdder extends React.Component {
     constructor(props) {
@@ -32,7 +33,11 @@ class LogEntryAdder extends React.Component {
                 onUpdate={(logEntry) => this.setState({ logEntry })}
                 onMajorUpdate={(logEntry) => this.onEdit(logEntry)}
                 unstyled
-                onEnter={() => this.onSave(this.state.logEntry)}
+                onSpecialKeys={(event) => {
+                    if (event.keyCode === KeyCodes.ENTER) {
+                        this.onSave(this.state.logEntry);
+                    }
+                }}
                 placeholder="Add Entry ..."
             />
         );

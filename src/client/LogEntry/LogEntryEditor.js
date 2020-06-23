@@ -28,6 +28,7 @@ class LogEntryEditor extends React.Component {
                 <LogEntryTitleEditor
                     logEntry={this.props.logEntry}
                     onUpdate={this.props.onUpdate}
+                    onSpecialKeys={this.props.onSpecialKeys}
                 />
             </InputGroup>
         );
@@ -123,6 +124,7 @@ class LogEntryEditor extends React.Component {
 LogEntryEditor.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
     onUpdate: PropTypes.func.isRequired,
+    onSpecialKeys: PropTypes.func,
 };
 
 export default LogEntryEditor;

@@ -9,9 +9,10 @@ import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
 import LeftRight from './LeftRight';
+import BulletListIcon from './BulletListIcon';
 import BulletListItem from './BulletListItem';
 import { getDataTypeMapping, isVirtualItem } from '../../data';
-import { debounce } from './Utils';
+import { KeyCodes, debounce } from './Utils';
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
@@ -31,6 +32,12 @@ function AdderWrapper(props) {
             </div>
         </InputGroup>
     );
+}
+
+function suppressUnlessShiftKey(event) {
+    if (!event.shiftKey) {
+        event.preventDefault();
+    }
 }
 
 
@@ -59,6 +66,17 @@ class BulletList extends React.Component {
         }));
     }
 
+    onMove(index, delta, event) {
+        if (!event.shiftKey) return;
+        this.setState((state) => {
+            const otherIndex = index + delta;
+            if (otherIndex < 0 || otherIndex === state.items.length) return {};
+            const items = [...state.items];
+            [items[index], items[otherIndex]] = [items[otherIndex], items[index]];
+            return { items };
+        });
+    }
+
     reload() {
         window.api.send(`${this.props.dataType}-list`)
             .then((items) => {
@@ -76,7 +94,11 @@ class BulletList extends React.Component {
         });
     }
 
-    editItem(item) {
+    editItem(item, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         this.setState({ editItem: item });
         this.validateItem(item);
     }
@@ -158,7 +180,7 @@ class BulletList extends React.Component {
             <Modal
                 show
                 onHide={() => this.setState({ editItem: null })}
-                keyboard={false}
+                onEscapeKeyDown={suppressUnlessShiftKey}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Editor</Modal.Title>
@@ -169,6 +191,14 @@ class BulletList extends React.Component {
                         onChange={(editItem) => {
                             this.setState({ editItem, validationErrors: null });
                             this.validateItem(editItem);
+                        }}
+                        onSpecialKeys={(event) => {
+                            if (!event.shiftKey) return;
+                            if (event.keyCode === KeyCodes.ENTER) {
+                                this.saveItem(this.state.editItem);
+                            } else if (event.keyCode === KeyCodes.ESCAPE) {
+                                this.setState({ editItem: null });
+                            }
                         }}
                     />
                 </Modal.Body>
@@ -204,7 +234,7 @@ class BulletList extends React.Component {
             <Modal
                 show
                 onHide={() => this.setState({ deleteItem: null })}
-                keyboard={false}
+                onEscapeKeyDown={suppressUnlessShiftKey}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm deletion?</Modal.Title>
@@ -233,7 +263,7 @@ class BulletList extends React.Component {
             <Modal
                 show
                 onHide={() => this.setState({ error: null })}
-                keyboard={false}
+                onEscapeKeyDown={suppressUnlessShiftKey}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Error</Modal.Title>
@@ -250,18 +280,16 @@ class BulletList extends React.Component {
     renderListToggleButton() {
         if (this.state.areAllExpanded) {
             return (
-                <div
-                    className="icon ml-1"
+                <BulletListIcon
                     title="Collapse All"
                     onClick={() => this.setState({ isExpanded: {} })}
                 >
                     <TiMinus />
-                </div>
+                </BulletListIcon>
             );
         }
         return (
-            <div
-                className="icon ml-1"
+            <BulletListIcon
                 title="Expand All"
                 onClick={() => this.setState((state) => ({
                     isExpanded: Object.fromEntries(
@@ -270,21 +298,19 @@ class BulletList extends React.Component {
                 }))}
             >
                 <TiPlus />
-            </div>
+            </BulletListIcon>
         );
     }
 
     renderAddButton() {
+        const DataType = getDataTypeMapping()[this.props.dataType];
         return (
-            <div
-                className="icon ml-1"
+            <BulletListIcon
                 title="Create New"
-                onClick={() => this.editItem(
-                    getDataTypeMapping()[this.props.dataType].createVirtual(),
-                )}
+                onClick={(event) => this.editItem(DataType.createVirtual(), event)}
             >
                 <MdAddCircleOutline />
-            </div>
+            </BulletListIcon>
         );
     }
 
@@ -296,8 +322,10 @@ class BulletList extends React.Component {
                 key={item.id}
                 isExpanded={this.state.isExpanded[item.id]}
                 onToggleExpansion={() => this.toggleItem(item)}
-                onEditButtonClick={() => this.editItem(item)}
+                onEditButtonClick={(event) => this.editItem(item, event)}
                 onDeleteButtonClick={(event) => this.deleteItem(item, event)}
+                onMoveUp={(event) => this.onMove(index, -1, event)}
+                onMoveDown={(event) => this.onMove(index, 1, event)}
             >
                 <ViewerComponent value={item} isExpanded={false} />
                 {

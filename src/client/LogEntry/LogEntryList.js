@@ -46,6 +46,7 @@ function EditorComponent(props) {
                 LogEntry.trigger(logEntry);
                 props.onChange(logEntry);
             }}
+            onSpecialKeys={props.onSpecialKeys}
         />
     );
 }
@@ -53,6 +54,7 @@ function EditorComponent(props) {
 EditorComponent.propTypes = {
     value: PropTypes.Custom.LogEntry.isRequired,
     onChange: PropTypes.func.isRequired,
+    onSpecialKeys: PropTypes.func.isRequired,
 };
 
 function LogEntryList() {

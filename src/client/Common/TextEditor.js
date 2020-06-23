@@ -1,6 +1,6 @@
 
 import Editor from 'draft-js-plugins-editor';
-import { RichUtils } from 'draft-js';
+import { getDefaultKeyBinding, RichUtils } from 'draft-js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -13,7 +13,7 @@ import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mentio
 import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import { INCOMPLETE_KEY } from '../../data';
-import { combineClassNames } from './Utils';
+import { KeyCodes, combineClassNames } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 
 import 'draft-js/dist/Draft.css';
@@ -77,6 +77,14 @@ class TextEditor extends React.Component {
             mentionTriggers: this.props.sources.map((suggestion) => suggestion.trigger),
         });
         this.state.plugins.push(this.mentionPlugin);
+
+        this.textEditorRef = React.createRef();
+    }
+
+    componentDidMount() {
+        if (this.props.focusOnLoad && this.textEditorRef.current) {
+            this.textEditorRef.current.focus();
+        }
     }
 
     onSearchChange({ trigger, value: query }) {
@@ -122,6 +130,17 @@ class TextEditor extends React.Component {
         );
     }
 
+    keyBindingFn(event) {
+        if (
+            this.props.isSingleLine &&
+            [KeyCodes.ESCAPE, KeyCodes.ENTER].includes(event.keyCode) &&
+            this.props.onSpecialKeys
+        ) {
+            this.props.onSpecialKeys(event);
+        }
+        return getDefaultKeyBinding(event);
+    }
+
     handleKeyCommand(command, editorState) {
         const newState = RichUtils.handleKeyCommand(editorState, command);
         if (newState) {
@@ -129,9 +148,6 @@ class TextEditor extends React.Component {
             return 'handled';
         }
         if (this.props.isSingleLine && command === 'split-block') {
-            if (this.props.onEnter) {
-                this.props.onEnter();
-            }
             return 'handled';
         }
         return 'not-handled';
@@ -163,12 +179,14 @@ class TextEditor extends React.Component {
                 <Editor
                     readOnly={this.props.disabled}
                     editorState={this.state.editorState}
+                    keyBindingFn={(event) => this.keyBindingFn(event)}
                     handleKeyCommand={
                         (command, editorState) => this.handleKeyCommand(command, editorState)
                     }
                     plugins={this.state.plugins}
                     onChange={(editorState) => this.onChange(editorState)}
                     placeholder={this.props.placeholder}
+                    ref={this.textEditorRef}
                 />
                 {this.props.disabled ? null : this.renderSuggestions()}
             </div>
@@ -184,8 +202,9 @@ TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
     onUpdate: PropTypes.func,
 
+    focusOnLoad: PropTypes.bool,
     isSingleLine: PropTypes.bool,
-    onEnter: PropTypes.func, // called if isSingleLine
+    onSpecialKeys: PropTypes.func,
 
     isMarkdown: PropTypes.bool,
 

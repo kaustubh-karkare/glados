@@ -21,5 +21,14 @@ function debounce(func, wait, immediate) {
     };
 }
 
+const KeyCodes = {
+    DELETE: 8,
+    ENTER: 13,
+    ESCAPE: 27,
+    SPACE: 32,
+    UP_ARROW: 38,
+    DOWN_ARROW: 40,
+};
+
 // eslint-disable-next-line import/prefer-default-export
-export { combineClassNames, debounce };
+export { combineClassNames, debounce, KeyCodes };

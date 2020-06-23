@@ -73,7 +73,8 @@ class TextEditorUtils {
     }
 
     static toEditorState(value) {
-        return EditorState.createWithContent(convertFromRaw(value));
+        const editorState = EditorState.createWithContent(convertFromRaw(value));
+        return EditorState.moveSelectionToEnd(editorState);
     }
 }
 
