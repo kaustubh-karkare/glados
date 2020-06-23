@@ -1,5 +1,5 @@
 const bootstrapData = {
-    categories: [
+    logCategories: [
         {
             name: 'Cycling',
             logKeys: [
@@ -55,35 +55,13 @@ const bootstrapData = {
             template: 'Article: $1',
         },
     ],
-    logTags: [
-        {
-            type: 'person',
-            name: 'Anurag Dubey',
-        },
-        {
-            type: 'person',
-            name: 'Kaustubh Karkare',
-        },
-        {
-            type: 'person',
-            name: 'Vishnu Mohandas',
-        },
-        {
-            type: 'hashtag',
-            name: 'philosophy',
-        },
-        {
-            type: 'hashtag',
-            name: 'productivity',
-        },
-    ],
     logEnties: [
         {
-            categoryName: 'Cycling',
+            category: 'Cycling',
             logValues: ['15', '55'],
         },
         {
-            categoryName: 'Cycling',
+            category: 'Cycling',
             logValues: ['15', '60'],
         },
     ],

@@ -2,12 +2,11 @@ import '../../common/polyfill';
 import Actions from '../Actions';
 import { bootstrap } from '../Bootstrap';
 import Database from '../Database';
-import { bootstrapData } from '../../server/database.bootstrap';
 
 let actions = null;
 
 export default class Utils {
-    static async beforeAll() {
+    static async beforeEach() {
         const config = {
             type: 'sqlite',
             host: 'localhost',
@@ -17,14 +16,17 @@ export default class Utils {
         };
         const database = await Database.init(config);
         actions = new Actions(database);
-        await bootstrap(actions, bootstrapData);
+    }
+
+    static async bootstrap(data) {
+        await bootstrap(actions, data);
     }
 
     static getActions() {
         return actions;
     }
 
-    static async afterAll() {
+    static async afterEach() {
         if (actions) await actions.database.close();
     }
 }

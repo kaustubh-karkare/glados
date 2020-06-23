@@ -1,9 +1,19 @@
 import Utils from './Utils';
 
-beforeAll(Utils.beforeAll);
-afterAll(Utils.afterAll);
+beforeEach(Utils.beforeEach);
+afterEach(Utils.afterEach);
 
 test('test_typeahead', async () => {
+    await Utils.bootstrap({
+        logTags: [
+            { type: 'person', name: 'Anurag Dubey' },
+            { type: 'person', name: 'Kaustubh Karkare' },
+            { type: 'person', name: 'Vishnu Mohandas' },
+            { type: 'hashtag', name: 'philosophy' },
+            { type: 'hashtag', name: 'productivity' },
+        ],
+    });
+
     const actions = Utils.getActions();
     let logTags;
 
