@@ -28,7 +28,9 @@ function LogValueEditor(props) {
                 value={logKey}
                 onUpdate={(updatedLogKey) => updateLogKey(updatedLogKey)}
                 allowDelete={props.isNewCategory}
-                onDelete={() => updateLogKey(LogKey.createVirtual())}
+                onDelete={(updatedLogKey) => updateLogKey(
+                    LogKey.createVirtual(updatedLogKey.logKey.name),
+                )}
             />
             <Typeahead
                 labelKey="data"
@@ -37,7 +39,7 @@ function LogValueEditor(props) {
                 onUpdate={props.onChange}
                 allowDelete={isRealItem(logValue)}
                 onDelete={(updatedLogValue) => props.onChange(
-                    LogValue.createVirtual(updatedLogValue.logKey),
+                    LogValue.createVirtual(updatedLogValue.logKey, updatedLogValue.data),
                 )}
             />
         </InputGroup>

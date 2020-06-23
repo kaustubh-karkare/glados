@@ -132,9 +132,9 @@ class TextEditor extends React.Component {
 
     keyBindingFn(event) {
         if (
-            this.props.isSingleLine &&
-            [KeyCodes.ESCAPE, KeyCodes.ENTER].includes(event.keyCode) &&
-            this.props.onSpecialKeys
+            this.props.isSingleLine
+            && [KeyCodes.ESCAPE, KeyCodes.ENTER].includes(event.keyCode)
+            && this.props.onSpecialKeys
         ) {
             this.props.onSpecialKeys(event);
         }

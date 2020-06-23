@@ -3,10 +3,10 @@ import LogKey from './LogKey';
 import { getVirtualID } from './Utils';
 
 class LogValue extends Base {
-    static createVirtual(logKey) {
+    static createVirtual(logKey, data) {
         return {
             id: getVirtualID(),
-            data: '',
+            data: data || '',
             logKey: logKey || LogKey.createVirtual(),
         };
     }
@@ -24,7 +24,11 @@ class LogValue extends Base {
     }
 
     static async validateInternal(inputValue) {
-        const logKeyResults = await this.validateRecursive(LogKey, '.logKey', inputValue.logKey);
+        const logKeyResults = await this.validateRecursive(
+            LogKey,
+            '.logKey',
+            inputValue.logKey,
+        );
         return [
             ...logKeyResults,
             this.validateUsingLambda(
