@@ -1,10 +1,10 @@
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { GrDrag } from 'react-icons/gr';
-import Button from 'react-bootstrap/Button';
-import React from 'react';
-import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
+import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 
 const SortableDragHandle = SortableHandle((props) => (
@@ -18,7 +18,9 @@ const SortableDragHandle = SortableHandle((props) => (
     </Button>
 ));
 
+
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
+
 
 const WrappedRow = SortableElement((props) => {
     const { children, ...otherProps } = props.original.props;
@@ -44,6 +46,7 @@ const WrappedRow = SortableElement((props) => {
         ],
     );
 });
+
 
 class SortableList extends React.Component {
     onReorder({ oldIndex, newIndex }) {
@@ -87,7 +90,7 @@ class SortableList extends React.Component {
             <WrappedContainer
                 helperClass="sortableDraggedItem"
                 useDragHandle
-                onSortEnd={(items) => this.onReorder(items)}
+                onSortEnd={(data) => this.onReorder(data)}
             >
                 {this.props.items.map((item, index) => this.renderRow(item, index))}
             </WrappedContainer>

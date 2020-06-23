@@ -1,15 +1,20 @@
-import Button from 'react-bootstrap/Button';
 import { GoPrimitiveDot } from 'react-icons/go';
+import { MdAddCircleOutline } from 'react-icons/md';
+import { SortableContainer } from 'react-sortable-hoc';
+import { TiMinus, TiPlus } from 'react-icons/ti';
+import arrayMove from 'array-move';
+import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { TiMinus, TiPlus } from 'react-icons/ti';
-import { MdAddCircleOutline } from 'react-icons/md';
 import LeftRight from './LeftRight';
 import BulletListItem from './BulletListItem';
 import { getDataTypeMapping } from '../../data';
 import { debounce } from './Utils';
+
+
+const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
 
 
 function AdderWrapper(props) {
@@ -46,6 +51,12 @@ class BulletList extends React.Component {
 
     componentDidMount() {
         this.reload();
+    }
+
+    onReorder({ oldIndex, newIndex }) {
+        this.setState((state) => ({
+            items: arrayMove(state.items, oldIndex, newIndex),
+        }));
     }
 
     reload() {
@@ -279,8 +290,9 @@ class BulletList extends React.Component {
 
     renderItems() {
         const { ViewerComponent } = this.props;
-        return this.state.items.map((item) => (
+        return this.state.items.map((item, index) => (
             <BulletListItem
+                index={index}
                 key={item.id}
                 isExpanded={this.state.isExpanded[item.id]}
                 onToggleExpansion={() => this.toggleItem(item)}
@@ -327,7 +339,13 @@ class BulletList extends React.Component {
                     {this.renderListToggleButton()}
                     {this.renderAddButton()}
                 </InputGroup>
-                {this.renderItems()}
+                <WrappedContainer
+                    helperClass="sortableDraggedItem"
+                    useDragHandle
+                    onSortEnd={(data) => this.onReorder(data)}
+                >
+                    {this.renderItems()}
+                </WrappedContainer>
                 {this.renderAdder()}
             </div>
         );

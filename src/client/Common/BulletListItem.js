@@ -1,12 +1,20 @@
 /* eslint-disable react/prop-types */
 
-import InputGroup from 'react-bootstrap/InputGroup';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { MdFormatLineSpacing, MdEdit } from 'react-icons/md';
+import { SortableElement, SortableHandle } from 'react-sortable-hoc';
 import { TiMinus, TiPlus } from 'react-icons/ti';
-import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
+import React from 'react';
+
+
+const SortableDragHandle = SortableHandle(() => (
+    <div className="icon sortableDragHandle">
+        <MdFormatLineSpacing />
+    </div>
+));
 
 
 class BulletListItem extends React.Component {
@@ -19,9 +27,7 @@ class BulletListItem extends React.Component {
         if (this.state.hover) {
             return (
                 <>
-                    <div className="icon sortableDragHandle" style={{ cursor: 'grab' }}>
-                        <MdFormatLineSpacing />
-                    </div>
+                    <SortableDragHandle />
                     <div
                         className="icon icon-white"
                         onClick={this.props.onToggleExpansion}
@@ -107,4 +113,5 @@ BulletListItem.propTypes = {
     onDeleteButtonClick: PropTypes.func.isRequired,
 };
 
-export default BulletListItem;
+
+export default SortableElement(BulletListItem);
