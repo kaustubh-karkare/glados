@@ -14,13 +14,22 @@ import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from '../../data/Utils';
 import { combineClassNames } from './Utils';
+import AddLinkPlugin from './AddLinkPlugin';
 
 import 'draft-js/dist/Draft.css';
 
 
 function TextEditorMention(props) {
     const item = props.mention;
-    return <span className="mention" title={item.name}>{props.children}</span>;
+    return (
+        <a
+            className="mention"
+            title={item.name}
+            href="#"
+        >
+            {props.children}
+        </a>
+    );
 }
 
 TextEditorMention.propTypes = {
@@ -55,6 +64,8 @@ class TextEditor extends React.Component {
             open: false,
             plugins: [],
         };
+
+        this.state.plugins.push(AddLinkPlugin);
 
         if (this.props.isMarkdown) {
             this.markdownShortcutsPlugin = createMarkdownShortcutsPlugin();

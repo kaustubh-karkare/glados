@@ -5,6 +5,7 @@ import { BulletList, TextEditor } from '../Common';
 import { LogEntry } from '../../data';
 import LogEntryAdder from './LogEntryAdder';
 import LogEntryEditor from './LogEntryEditor';
+import { TextEditorSources } from './LogEntryTitleEditor';
 
 
 function ViewerComponent(props) {
@@ -14,6 +15,7 @@ function ViewerComponent(props) {
             <TextEditor
                 unstyled
                 disabled
+                sources={TextEditorSources}
                 value={logEntry.title}
             />
         );
@@ -25,6 +27,7 @@ function ViewerComponent(props) {
         <TextEditor
             unstyled
             disabled
+            sources={TextEditorSources}
             value={logEntry.details}
         />
     );

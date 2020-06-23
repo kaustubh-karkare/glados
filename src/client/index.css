@@ -128,15 +128,27 @@ button.sortableDragHandle.btn {
     min-width: 100px;
 }
 
+.text-editor .link {
+    color: #3498DB;
+}
+
+.text-editor.text-editor-normal .link {
+    background: rgba(80, 151, 213, 0.4);
+}
+
 .text-editor .mention {
-    background: #444;
-    cursor: pointer;
-    padding: 1px 2px;
-    border-radius: 2px;
+    color: #00bc8c;
 }
 
 .text-editor.text-editor-normal .mention {
-    background: #bdf;
+    background: rgba(108, 235, 182, 0.4);
+}
+
+.text-editor.text-editor-normal .link,
+.text-editor.text-editor-normal .mention {
+    color: black;
+    border-radius: 2px;
+    padding: 0 2px;
 }
 
 .text-editor.text-editor-normal .public-DraftEditor-content {
