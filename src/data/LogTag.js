@@ -1,5 +1,5 @@
 import Base from './Base';
-import Utils from './Utils';
+import { getVirtualID } from './Utils';
 
 const LogTagTypes = {
     person: {
@@ -13,9 +13,9 @@ const LogTagTypes = {
 };
 
 class LogTag extends Base {
-    static createEmpty() {
+    static createVirtual() {
         return {
-            id: Utils.getNegativeID(),
+            id: getVirtualID(),
             type: 'hashtag',
             name: '',
         };

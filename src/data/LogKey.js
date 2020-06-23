@@ -1,5 +1,5 @@
 import Base from './Base';
-import Utils from './Utils';
+import { getVirtualID } from './Utils';
 
 const LogKeyTypes = {
     string: {
@@ -26,9 +26,9 @@ class LogKey extends Base {
         return null;
     }
 
-    static createEmpty() {
+    static createVirtual() {
         return {
-            id: Utils.getNegativeID(),
+            id: getVirtualID(),
             name: '',
             type: 'string',
         };

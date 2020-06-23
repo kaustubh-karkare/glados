@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { Dropdown, Typeahead } from '../Common';
 
-import { LogKey, LogValue } from '../../data';
+import { LogKey, LogValue, isRealItem } from '../../data';
 
 function LogValueEditor(props) {
     const logValue = props.value;
@@ -18,7 +18,7 @@ function LogValueEditor(props) {
     return (
         <InputGroup className="my-1">
             <Dropdown
-                disabled={logKey.id > 0}
+                disabled={isRealItem(logKey)}
                 value={logKey.type}
                 options={LogKey.getTypes()}
                 onUpdate={(type) => updateLogKey({ ...logKey, type })}
@@ -28,16 +28,16 @@ function LogValueEditor(props) {
                 value={logKey}
                 onUpdate={(updatedLogKey) => updateLogKey(updatedLogKey)}
                 allowDelete={props.isNewCategory}
-                onDelete={() => updateLogKey(LogKey.createEmpty())}
+                onDelete={() => updateLogKey(LogKey.createVirtual())}
             />
             <Typeahead
                 labelKey="data"
                 dataType="log-value"
                 value={logValue}
                 onUpdate={props.onChange}
-                allowDelete={logValue.id > 0}
+                allowDelete={isRealItem(logValue)}
                 onDelete={(updatedLogValue) => props.onChange(
-                    LogValue.createEmpty(updatedLogValue.logKey),
+                    LogValue.createVirtual(updatedLogValue.logKey),
                 )}
             />
         </InputGroup>

@@ -10,7 +10,7 @@ module.exports = (io, appConfig) => new Promise((resolve) => {
             // eslint-disable-next-line no-console
             .then(() => console.info('Bootstrap complete!'))
             // eslint-disable-next-line no-console
-            .catch(() => console.error('Bootstrap failed!'));
+            .catch((e) => console.error('Bootstrap failed!', e));
 
         io.on('connection', (socket) => {
             const api = new SocketRPC(socket);

@@ -3,7 +3,7 @@
 import ValidationBase from './ValidationBase';
 
 class Base extends ValidationBase {
-    static createEmpty() {
+    static createVirtual() {
         throw new Exception('not implemented');
     }
 

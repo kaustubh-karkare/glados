@@ -3,7 +3,7 @@ import assert from '../common/assert';
 import LogKey from './LogKey';
 import TextEditorUtils from '../common/TextEditorUtils';
 import Base from './Base';
-import Utils from './Utils';
+import { INCOMPLETE_KEY, getVirtualID, isVirtualItem } from './Utils';
 
 /*
 {
@@ -173,10 +173,10 @@ function materializeCategoryTemplate(template, logValues) {
 }
 
 class LogCategory extends Base {
-    static createEmpty() {
+    static createVirtual() {
         return {
             __type__: 'log-category',
-            id: Utils.getNegativeID(),
+            id: getVirtualID(),
             name: '',
             logKeys: [],
             template: '',
@@ -203,7 +203,7 @@ class LogCategory extends Base {
             __type__: 'log-category',
             id: logCategory.id,
             name: logCategory.name,
-            [Utils.INCOMPLETE_KEY]: true,
+            [INCOMPLETE_KEY]: true,
         }));
     }
 
@@ -239,7 +239,7 @@ class LogCategory extends Base {
         const logKeys = await Promise.all(
             inputLogCategory.logKeys.map(async (inputLogKey) => {
                 let logKey;
-                if (inputLogKey.id < 0) {
+                if (isVirtualItem(inputLogKey)) {
                     logKey = await this.database.createOrFind(
                         'LogKey',
                         { name: inputLogKey.name },

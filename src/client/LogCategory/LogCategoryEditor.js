@@ -27,7 +27,7 @@ class LogCategoryEditor extends React.Component {
     onKeyCreate() {
         this.updateCategory((category) => {
             // eslint-disable-next-line no-param-reassign
-            category.logKeys.push(LogKey.createEmpty());
+            category.logKeys.push(LogKey.createVirtual());
         });
     }
 

@@ -6,7 +6,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
-import Utils from '../../data/Utils';
+import {
+    INCOMPLETE_KEY, UPDATE_KEY, isRealItem, isVirtualItem,
+} from '../../data';
 
 
 class Typeahead extends React.Component {
@@ -30,7 +32,7 @@ class Typeahead extends React.Component {
     }
 
     onUpdate(option) {
-        if (option[Utils.INCOMPLETE_KEY]) {
+        if (option[INCOMPLETE_KEY]) {
             window.api.send(`${option.__type__}-load`, option)
                 .then((result) => this.props.onUpdate(result));
         } else {
@@ -39,29 +41,29 @@ class Typeahead extends React.Component {
     }
 
     renderUpdateButton() {
-        if (this.props.value.id < 0 || !this.props.allowUpdate) {
+        if (isVirtualItem(this.props.value) || !this.props.allowUpdate) {
             return null;
         }
         return (
             <Button
                 onClick={() => {
-                    if (this.props.value[Utils.UPDATE_KEY]) {
-                        this.props.onUpdate({ ...this.props.value, [Utils.UPDATE_KEY]: false });
+                    if (this.props.value[UPDATE_KEY]) {
+                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: false });
                     } else {
-                        this.props.onUpdate({ ...this.props.value, [Utils.UPDATE_KEY]: true });
+                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: true });
                     }
                 }}
                 size="sm"
                 title="Edit"
                 variant="secondary"
             >
-                {this.props.value[Utils.UPDATE_KEY] ? <GiCancel /> : <FaRegEdit />}
+                {this.props.value[UPDATE_KEY] ? <GiCancel /> : <FaRegEdit />}
             </Button>
         );
     }
 
     renderDeleteButton() {
-        if (!this.props.allowDelete || this.props.value.id < 0) {
+        if (!this.props.allowDelete || isVirtualItem(this.props.value)) {
             return null;
         }
         return (
@@ -87,8 +89,8 @@ class Typeahead extends React.Component {
                     size="small"
                     minLength={0}
                     disabled={
-                        this.props.value.id > 0
-                        && !this.props.value[Utils.UPDATE_KEY]
+                        isRealItem(this.props.value)
+                        && !this.props.value[UPDATE_KEY]
                     }
                     onFocus={() => this.onSearch(selectedOptionLabel)}
                     onSearch={(query) => this.onSearch(query)}
@@ -113,8 +115,6 @@ class Typeahead extends React.Component {
         );
     }
 }
-
-Typeahead.isUpdating = (value) => !!value[Utils.UPDATE_KEY];
 
 Typeahead.propTypes = {
     allowUpdate: PropTypes.bool,

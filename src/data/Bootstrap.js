@@ -1,6 +1,6 @@
 import LogCategory, { createCategoryTemplate } from './LogCategory';
 import TextEditorUtils from '../common/TextEditorUtils';
-import Utils from './Utils';
+import { getVirtualID } from './Utils';
 
 
 function awaitSequence(items, method) {
@@ -32,9 +32,9 @@ async function bootstrap(actions, data) {
     const categoryMap = {};
 
     await awaitSequence(data.logCategories, async (inputLogCategory) => {
-        inputLogCategory.id = Utils.getNegativeID();
+        inputLogCategory.id = getVirtualID();
         inputLogCategory.logKeys = inputLogCategory.logKeys.map(
-            (logKey) => ({ ...logKey, id: Utils.getNegativeID() }),
+            (logKey) => ({ ...logKey, id: getVirtualID() }),
         );
         if (inputLogCategory.template) {
             inputLogCategory.template = createCategoryTemplate(
@@ -46,25 +46,25 @@ async function bootstrap(actions, data) {
     });
 
     await awaitSequence(data.logTags, async (logTag) => {
-        logTag.id = Utils.getNegativeID();
+        logTag.id = getVirtualID();
         return actions.invoke('log-tag-upsert', logTag);
     });
 
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
-        inputLogEntry.id = Utils.getNegativeID();
+        inputLogEntry.id = getVirtualID();
         inputLogEntry.title = TextEditorUtils.serialize(inputLogEntry.title);
         if (inputLogEntry.category) {
             inputLogEntry.logCategory = categoryMap[inputLogEntry.category];
             // generate values after category is set
             inputLogEntry.logValues = inputLogEntry.logValues.map(
                 (logValueData, index) => ({
-                    id: Utils.getNegativeID(),
+                    id: getVirtualID(),
                     logKey: inputLogEntry.logCategory.logKeys[index],
                     data: logValueData,
                 }),
             );
         } else {
-            inputLogEntry.logCategory = LogCategory.createEmpty();
+            inputLogEntry.logCategory = LogCategory.createVirtual();
             inputLogEntry.logValues = [];
         }
         inputLogEntry.details = '';

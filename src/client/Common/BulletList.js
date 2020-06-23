@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import LeftRight from './LeftRight';
 import BulletListItem from './BulletListItem';
-import { getDataTypeMapping } from '../../data';
+import { getDataTypeMapping, isVirtualItem } from '../../data';
 import { debounce } from './Utils';
 
 
@@ -97,7 +97,7 @@ class BulletList extends React.Component {
         window.api.send(`${this.props.dataType}-upsert`, item)
             .then((savedItem) => {
                 this.setState((state) => {
-                    if (item.id < 0) {
+                    if (isVirtualItem(item)) {
                         state.items.push(savedItem);
                         if (state.areAllExpanded) {
                             state.isExpanded[savedItem.id] = true;
@@ -280,7 +280,7 @@ class BulletList extends React.Component {
                 className="icon ml-1"
                 title="Create New"
                 onClick={() => this.editItem(
-                    getDataTypeMapping()[this.props.dataType].createEmpty(),
+                    getDataTypeMapping()[this.props.dataType].createVirtual(),
                 )}
             >
                 <MdAddCircleOutline />

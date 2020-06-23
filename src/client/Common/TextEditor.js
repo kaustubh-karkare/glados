@@ -12,7 +12,7 @@ import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mentio
 
 import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
-import Utils from '../../data/Utils';
+import { INCOMPLETE_KEY } from '../../data';
 import { combineClassNames } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 
@@ -95,7 +95,7 @@ class TextEditor extends React.Component {
 
     onAddMention(option) {
         if (this.props.onSelectSuggestion) {
-            if (option[Utils.INCOMPLETE_KEY]) {
+            if (option[INCOMPLETE_KEY]) {
                 window.api.send(`${option.__type__}-load`, option)
                     .then((result) => this.props.onSelectSuggestion(result));
             } else {

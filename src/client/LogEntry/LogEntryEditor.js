@@ -3,7 +3,9 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import { SortableList, TextEditor, Typeahead } from '../Common';
-import { LogEntry, LogCategory, LogValue } from '../../data';
+import {
+    LogEntry, LogCategory, LogValue, isRealItem, isVirtualItem,
+} from '../../data';
 import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
@@ -32,13 +34,13 @@ class LogEntryEditor extends React.Component {
     }
 
     renderAddLogValueButton() {
-        if (this.props.logEntry.logCategory.id > 0) {
+        if (isRealItem(this.props.logEntry.logCategory)) {
             return null;
         }
         return (
             <Button
                 onClick={() => this.updateLogEntry((logEntry) => {
-                    logEntry.logValues = [...logEntry.logValues, LogValue.createEmpty()];
+                    logEntry.logValues = [...logEntry.logValues, LogValue.createVirtual()];
                 })}
                 size="sm"
                 variant="secondary"
@@ -61,7 +63,7 @@ class LogEntryEditor extends React.Component {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logCategory = logCategory;
                         logEntry.logValues = logCategory.logKeys.map(
-                            (logKey) => LogValue.createEmpty(logKey),
+                            (logKey) => LogValue.createVirtual(logKey),
                         );
                     })}
                     allowDelete
@@ -70,7 +72,7 @@ class LogEntryEditor extends React.Component {
                             logEntry.title = '';
                         }
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.logCategory = LogCategory.createEmpty();
+                        logEntry.logCategory = LogCategory.createVirtual();
                         logEntry.logValues = [];
                     })}
                 />
@@ -109,8 +111,8 @@ class LogEntryEditor extends React.Component {
                         logEntry.logValues = logValues;
                     })}
                     type={LogValueEditor}
-                    disabled={this.props.logEntry.logCategory.id > 0}
-                    isNewCategory={this.props.logEntry.logCategory.id < 0}
+                    disabled={isRealItem(this.props.logEntry.logCategory.id)}
+                    isNewCategory={isVirtualItem(this.props.logEntry.logCategory.id)}
                 />
                 {this.renderDetailsRow()}
             </div>

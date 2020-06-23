@@ -7,17 +7,17 @@ class LogEntryAdder extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            logEntry: LogEntry.createEmpty(),
+            logEntry: LogEntry.createVirtual(),
         };
     }
 
     onEdit(logEntry) {
-        this.setState({ logEntry: LogEntry.createEmpty() });
+        this.setState({ logEntry: LogEntry.createVirtual() });
         this.props.onEdit(logEntry);
     }
 
     onSave(logEntry) {
-        this.setState({ logEntry: LogEntry.createEmpty() });
+        this.setState({ logEntry: LogEntry.createVirtual() });
         if (logEntry.name) {
             this.props.onSave(logEntry);
         } else {

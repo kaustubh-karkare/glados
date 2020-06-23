@@ -1,13 +1,13 @@
 import Base from './Base';
 import LogKey from './LogKey';
-import Utils from './Utils';
+import { getVirtualID } from './Utils';
 
 class LogValue extends Base {
-    static createEmpty(logKey) {
+    static createVirtual(logKey) {
         return {
-            id: Utils.getNegativeID(),
+            id: getVirtualID(),
             data: '',
-            logKey: logKey || LogKey.createEmpty(),
+            logKey: logKey || LogKey.createVirtual(),
         };
     }
 

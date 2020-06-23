@@ -37,7 +37,7 @@ function LogEntryTitleEditor(props) {
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 } else if (option.__type__ === 'log-category') {
                     const logCategory = option;
-                    const updatedLogEntry = LogEntry.createEmpty(logCategory);
+                    const updatedLogEntry = LogEntry.createVirtual(logCategory);
                     LogEntry.trigger(updatedLogEntry);
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 }

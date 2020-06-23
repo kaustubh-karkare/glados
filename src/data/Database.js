@@ -1,5 +1,6 @@
 import assert from '../common/assert';
 import defineModels from './Models';
+import { isVirtualItem } from './Utils';
 
 const Sequelize = require('sequelize');
 
@@ -54,7 +55,7 @@ class Database {
     }
 
     async createOrUpdate(name, fields, transaction) {
-        if (typeof fields.id === 'undefined' || fields.id < 0) {
+        if (typeof fields.id === 'undefined' || isVirtualItem(fields)) {
             return this.create(name, fields, transaction);
         }
         return this.update(name, fields, transaction);

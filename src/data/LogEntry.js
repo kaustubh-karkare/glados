@@ -4,19 +4,19 @@ import Base from './Base';
 import LogCategory, { materializeCategoryTemplate } from './LogCategory';
 import LogValue from './LogValue';
 import TextEditorUtils from '../common/TextEditorUtils';
-import Utils from './Utils';
+import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
 
 
 class LogEntry extends Base {
-    static createEmpty(logCategory) {
-        logCategory = logCategory || LogCategory.createEmpty();
+    static createVirtual(logCategory) {
+        logCategory = logCategory || LogCategory.createVirtual();
         return {
             __type__: 'log-entry',
-            id: Utils.getNegativeID(),
+            id: getVirtualID(),
             name: '',
             title: '',
             logCategory,
-            logValues: logCategory.logKeys.map((logKey) => LogValue.createEmpty(logKey)),
+            logValues: logCategory.logKeys.map((logKey) => LogValue.createVirtual(logKey)),
             details: '',
         };
     }
@@ -43,7 +43,7 @@ class LogEntry extends Base {
             __type__: 'log-entry',
             id: logEntry.id,
             name: logEntry.name,
-            [Utils.INCOMPLETE_KEY]: true,
+            [INCOMPLETE_KEY]: true,
         }));
     }
 
@@ -51,7 +51,7 @@ class LogEntry extends Base {
         const results = [
             this.validateNonEmptyString('.title', inputEntry.name),
         ];
-        if (inputEntry.logCategory.id > 0) {
+        if (isRealItem(inputEntry.logCategory)) {
             const logCategoryResults = await this.validateRecursive(
                 LogCategory, '.logCategory', inputEntry.logCategory,
             );
@@ -71,7 +71,7 @@ class LogEntry extends Base {
         if (logEntry.category_id) {
             outputLogCategory = await LogCategory.load.call(this, logEntry.category_id);
         } else {
-            outputLogCategory = LogCategory.createEmpty();
+            outputLogCategory = LogCategory.createVirtual();
         }
         const edges = await this.database.getEdges(
             'LogEntryToLogValue',
@@ -95,7 +95,7 @@ class LogEntry extends Base {
 
     static async save(inputLogEntry) {
         let logCategory = null;
-        if (inputLogEntry.logCategory.id > 0) {
+        if (isRealItem(inputLogEntry.logCategory)) {
             logCategory = await this.database.findByPk('LogCategory', inputLogEntry.logCategory.id);
             const logCategoryKeys = await this.database.getNodesByEdge(
                 'LogCategoryToLogKey',
