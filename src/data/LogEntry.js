@@ -107,6 +107,7 @@ class LogEntry extends Base {
                 }\nActual = ${inputLogEntry.logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
             );
         }
+
         LogEntry.trigger(inputLogEntry);
         const fields = {
             id: inputLogEntry.id,
@@ -116,6 +117,7 @@ class LogEntry extends Base {
             details: inputLogEntry.details,
         };
         const logEntry = await this.database.createOrUpdate('LogEntry', fields, this.transaction);
+
         const logValues = await Promise.all(
             inputLogEntry.logValues.map(async (inputLogValue) => {
                 const logKey = await this.database.createOrFind(
@@ -135,7 +137,8 @@ class LogEntry extends Base {
                 return logValue;
             }),
         );
-        await this.database.setEdges(
+
+        const deletedEdges = await this.database.setEdges(
             'LogEntryToLogValue',
             'entry_id',
             logEntry.id,
@@ -147,6 +150,8 @@ class LogEntry extends Base {
             }, {}),
             this.transaction,
         );
+        await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
+
         const logTags = {
             ...TextEditorUtils.extractLogTags(logEntry.title),
             ...TextEditorUtils.extractLogTags(logEntry.details),
@@ -163,7 +168,42 @@ class LogEntry extends Base {
             }, {}),
             this.transaction,
         );
+
         return logEntry.id;
+    }
+
+    static async delete(id) {
+        const deletedEdges = await this.database.getEdges(
+            'LogEntryToLogValue',
+            'entry_id',
+            id,
+            this.transaction,
+        );
+        const result = await Base.delete.call(this, id);
+        await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
+        return result;
+    }
+
+    static async deleteValues(logValueIds) {
+        const countResults = await this.database.count(
+            'LogEntryToLogValue',
+            {
+                value_id: {
+                    [this.database.Op.in]: logValueIds,
+                },
+            },
+            ['value_id'],
+            this.transaction,
+        );
+        await Promise.all(
+            countResults
+                .filter((countResult) => countResult.count === 0)
+                .map((countResult) => this.database.delete(
+                    'LogValue',
+                    countResult.value_id,
+                    this.transaction,
+                )),
+        );
     }
 }
 

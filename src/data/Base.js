@@ -28,6 +28,13 @@ class Base extends ValidationBase {
         // returns ID of the newly created item
         throw new Exception('not implemented');
     }
+
+    static async delete(id) {
+        const item = await this.database.deleteByPk(
+            this.DataType.name, id, this.transaction,
+        );
+        return { id: item.id };
+    }
 }
 
 export default Base;

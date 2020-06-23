@@ -108,7 +108,7 @@ class BulletList extends React.Component {
             this.setState({ deleteItem: item });
             return;
         }
-        window.api.send(`${this.props.dataType}-delete`, item)
+        window.api.send(`${this.props.dataType}-delete`, item.id)
             .then(() => {
                 this.setState((state) => {
                     const index = state.items

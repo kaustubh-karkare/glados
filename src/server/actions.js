@@ -24,11 +24,9 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         const id = await DataType.save.call(this, input);
         return DataType.load.call(this, id);
     };
-    ActionsRegistry[`${name}-delete`] = async function (input) {
-        const item = await this.database.delete(
-            DataType.name, { id: input.id }, this.transaction,
-        );
-        return { id: item.id };
+    ActionsRegistry[`${name}-delete`] = async function (id) {
+        const context = { ...this, DataType };
+        return DataType.delete.call(context, id);
     };
 });
 

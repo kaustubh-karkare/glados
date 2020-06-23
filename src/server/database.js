@@ -6,7 +6,7 @@ const Sequelize = require('sequelize');
 class Database {
     static async init(config) {
         const instance = new Database(config);
-        return instance.sequelize.sync({ force: false }).then(() => instance);
+        return instance.sequelize.sync({ force: true }).then(() => instance);
     }
 
     constructor(config) {
@@ -75,6 +75,11 @@ class Database {
         return Model.findByPk(id, { transaction });
     }
 
+    async count(name, where, group, transaction) {
+        const Model = this._models[name];
+        return Model.count({ where, group, transaction });
+    }
+
     async createOrFind(name, where, updateFields, transaction) {
         const Model = this._models[name];
         const instance = await Model.findOne({ where, transaction });
@@ -84,9 +89,13 @@ class Database {
         return instance;
     }
 
-    async delete(name, fields, transaction) {
+    async deleteAll(name, where, transaction) {
         const Model = this._models[name];
-        const { id } = fields;
+        return Model.destroy({ where, transaction });
+    }
+
+    async deleteByPk(name, id, transaction) {
+        const Model = this._models[name];
         const instance = await Model.findByPk(id);
         return instance.destroy({ transaction });
     }
@@ -144,7 +153,7 @@ class Database {
                     .map((edge) => edge.destroy({ transaction })),
             ),
         ]);
-        return [...createdEdges, ...updatedEdges];
+        return deletedEdges;
     }
 }
 

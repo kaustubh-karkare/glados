@@ -8,7 +8,6 @@ const data = {
             logKeys: [
                 { name: 'Distance (miles)', type: 'integer' },
                 { name: 'Time (minutes)', type: 'integer' },
-                { name: 'Calories', type: 'integer' },
             ],
             template: 'Cycling: $1 miles / $2 minutes ({Math.floor(100*$1*60/$2)/100} mph)',
         },
@@ -84,11 +83,11 @@ const data = {
     logEnties: [
         {
             categoryName: 'Cycling',
-            logValues: ['15', '55', '750'],
+            logValues: ['15', '55'],
         },
         {
             categoryName: 'Cycling',
-            logValues: ['20', '70', '1000'],
+            logValues: ['15', '60'],
         },
     ],
 };
