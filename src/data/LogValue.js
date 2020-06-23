@@ -1,8 +1,8 @@
-
+import Base from './Base';
 import LogKey from './LogKey';
 import Utils from './Utils';
 
-class LogValue {
+class LogValue extends Base {
     static createEmpty(logKey) {
         return {
             id: Utils.getNegativeID(),
@@ -21,6 +21,18 @@ class LogValue {
             data: logValue.data,
             logKey: item.logKey,
         }));
+    }
+
+    static async validateInternal(inputValue) {
+        const logKeyResults = await this.validateRecursive(LogKey, '.logKey', inputValue.logKey);
+        return [
+            ...logKeyResults,
+            this.validateUsingLambda(
+                '.data',
+                inputValue.data,
+                LogKey.getValidator(inputValue.logKey.type),
+            ),
+        ];
     }
 
     static async load(id) {

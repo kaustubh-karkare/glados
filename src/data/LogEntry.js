@@ -1,12 +1,13 @@
 
 import assert from '../common/assert';
+import Base from './Base';
 import LogCategory, { materializeCategoryTemplate } from './LogCategory';
 import LogValue from './LogValue';
 import TextEditorUtils from '../common/TextEditorUtils';
 import Utils from './Utils';
 
 
-class LogEntry {
+class LogEntry extends Base {
     static createEmpty(logCategory) {
         return {
             id: Utils.getNegativeID(),
@@ -38,6 +39,23 @@ class LogEntry {
             name: logEntry.name,
             [Utils.INCOMPLETE_KEY]: true,
         }));
+    }
+
+    static async validateInternal(inputEntry) {
+        const results = [
+            this.validateNonEmptyString('.title', inputEntry.name),
+        ];
+        if (inputEntry.logCategory.id > 0) {
+            const logCategoryResults = await this.validateRecursive(
+                LogCategory, '.logCategory', inputEntry.logCategory,
+            );
+            results.push(...logCategoryResults);
+        }
+        const logValuesResults = await this.validateRecursiveList(
+            LogValue, '.logValues', inputEntry.logValues,
+        );
+        results.push(...logValuesResults);
+        return results;
     }
 
     static async load(id) {

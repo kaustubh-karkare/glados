@@ -1,4 +1,4 @@
-
+import Base from './Base';
 import Utils from './Utils';
 
 const LogKeyTypes = {
@@ -12,11 +12,18 @@ const LogKeyTypes = {
     },
 };
 
-class LogKey {
+class LogKey extends Base {
     static getTypes() {
         return Object.keys(LogKeyTypes).map(
             (type) => ({ ...LogKeyTypes[type], value: type }),
         );
+    }
+
+    static getValidator(value) {
+        if (value in LogKeyTypes) {
+            return LogKeyTypes[value].validator;
+        }
+        return null;
     }
 
     static createEmpty() {
@@ -34,6 +41,13 @@ class LogKey {
             name: logKey.name,
             type: logKey.type,
         }));
+    }
+
+    static async validateInternal(inputLogKey) {
+        return [
+            this.validateNonEmptyString('.name', inputLogKey.name),
+            this.validateEnumValue('.type', inputLogKey.type, LogKeyTypes),
+        ];
     }
 
     static async load(id) {

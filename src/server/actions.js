@@ -13,6 +13,10 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     ActionsRegistry[`${name}-typeahead`] = async function (input) {
         return DataType.typeahead.call(this, input);
     };
+    ActionsRegistry[`${name}-validate`] = async function (input) {
+        const context = { ...this, DataType };
+        return DataType.validate.call(context, input);
+    };
     ActionsRegistry[`${name}-load`] = async function (input) {
         return DataType.load.call(this, input.id);
     };

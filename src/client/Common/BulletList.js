@@ -6,8 +6,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { TiMinus, TiPlus } from 'react-icons/ti';
 import { MdAddCircleOutline } from 'react-icons/md';
+import LeftRight from './LeftRight';
 import BulletListItem from './BulletListItem';
 import { getDataTypeMapping } from '../../data';
+import { debounce } from './Utils';
 
 
 function AdderWrapper(props) {
@@ -36,21 +38,10 @@ class BulletList extends React.Component {
         return state;
     }
 
-    static renderButton(label, method) {
-        return (
-            <Button
-                onClick={method}
-                size="sm"
-                variant="secondary"
-            >
-                {label}
-            </Button>
-        );
-    }
-
     constructor(props) {
         super(props);
         this.state = {};
+        this.validateItemDebounced = debounce(this.validateItemNotDebounced, 500);
     }
 
     componentDidMount() {
@@ -76,6 +67,19 @@ class BulletList extends React.Component {
 
     editItem(item) {
         this.setState({ editItem: item });
+        this.validateItem(item);
+    }
+
+    validateItem(item) {
+        this.setState({ validationStatus: 'Pending Validation ...' });
+        this.validateItemDebounced(item);
+    }
+
+    validateItemNotDebounced(item) {
+        this.setState({ validationStatus: 'Validating ...' });
+        window.api.send(`${this.props.dataType}-validate`, item)
+            .then((validationErrors) => this.setState({ validationStatus: null, validationErrors }))
+            .catch((error) => this.setState({ error }));
     }
 
     saveItem(item) {
@@ -118,6 +122,22 @@ class BulletList extends React.Component {
             .catch((error) => this.setState({ error }));
     }
 
+    renderValidationErrors() {
+        if (
+            this.state.validationErrors
+            && this.state.validationErrors.length
+        ) {
+            return (
+                <div style={{ whiteSpace: 'pre-wrap' }}>
+                    {this.state.validationErrors.join('\n')}
+                </div>
+            );
+        } if (this.state.validationStatus) {
+            return <div>{this.state.validationStatus}</div>;
+        }
+        return <div>No validation errors!</div>;
+    }
+
     renderEditorModal() {
         if (!this.state.editItem) {
             return null;
@@ -135,12 +155,31 @@ class BulletList extends React.Component {
                 <Modal.Body>
                     <EditorComponent
                         value={this.state.editItem}
-                        onChange={(editItem) => this.setState({ editItem })}
+                        onChange={(editItem) => {
+                            this.setState({ editItem, validationErrors: null });
+                            this.validateItem(editItem);
+                        }}
                     />
                 </Modal.Body>
-                <Modal.Footer>
-                    {BulletList.renderButton('Save', () => this.saveItem(this.state.editItem))}
-                </Modal.Footer>
+                <Modal.Body>
+                    <LeftRight>
+                        {this.renderValidationErrors()}
+                        <Button
+                            disabled={
+                                this.state.validationStatus
+                                || (
+                                    this.state.validationErrors
+                                    && this.state.validationErrors.length
+                                )
+                            }
+                            onClick={() => this.saveItem(this.state.editItem)}
+                            size="sm"
+                            variant="secondary"
+                        >
+                            Save
+                        </Button>
+                    </LeftRight>
+                </Modal.Body>
             </Modal>
         );
     }
@@ -163,7 +202,13 @@ class BulletList extends React.Component {
                     <ViewerComponent value={this.state.deleteItem} isExpanded={false} />
                 </Modal.Body>
                 <Modal.Footer>
-                    {BulletList.renderButton('Delete', () => this.deleteItem(this.state.deleteItem))}
+                    <Button
+                        onClick={() => this.deleteItem(this.state.deleteItem)}
+                        size="sm"
+                        variant="secondary"
+                    >
+                        Delete
+                    </Button>
                 </Modal.Footer>
             </Modal>
         );
@@ -223,9 +268,9 @@ class BulletList extends React.Component {
             <div
                 className="icon ml-1"
                 title="Create New"
-                onClick={() => this.setState({
-                    editItem: getDataTypeMapping()[this.props.dataType].createEmpty(),
-                })}
+                onClick={() => this.editItem(
+                    getDataTypeMapping()[this.props.dataType].createEmpty(),
+                )}
             >
                 <MdAddCircleOutline />
             </div>

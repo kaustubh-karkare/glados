@@ -160,3 +160,9 @@ button.sortableDragHandle.btn {
 .text-editor > .mention-suggestions > div > div[aria-selected="true"] {
     background-color: #444;
 }
+
+/* Modal */
+
+.modal-dialog {
+    max-width: 800px;
+}

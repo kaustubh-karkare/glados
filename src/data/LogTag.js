@@ -1,4 +1,4 @@
-
+import Base from './Base';
 import Utils from './Utils';
 
 const LogTagTypes = {
@@ -12,7 +12,7 @@ const LogTagTypes = {
     },
 };
 
-class LogTag {
+class LogTag extends Base {
     static createEmpty() {
         return {
             id: Utils.getNegativeID(),
@@ -43,6 +43,13 @@ class LogTag {
             id: logTag.id,
             name: logTag.name,
         }));
+    }
+
+    static async validateInternal(inputLogTag) {
+        return [
+            this.validateNonEmptyString('.name', inputLogTag.name),
+            this.validateEnumValue('.type', inputLogTag.type, LogTagTypes),
+        ];
     }
 
     static async load(id) {
