@@ -1,6 +1,6 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping } from '../data';
+import { getDataTypeMapping } from './Mapping';
 
 const ActionsRegistry = {};
 

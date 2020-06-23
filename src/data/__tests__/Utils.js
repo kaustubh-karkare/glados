@@ -1,7 +1,8 @@
 import '../../common/polyfill';
-import Database from '../../server/database';
-import bootstrap from '../../server/database.bootstrap';
-import Actions from '../../server/Actions';
+import Actions from '../Actions';
+import { bootstrap } from '../Bootstrap';
+import Database from '../Database';
+import { bootstrapData } from '../../server/database.bootstrap';
 
 let actions = null;
 
@@ -16,7 +17,7 @@ export default class Utils {
         };
         const database = await Database.init(config);
         actions = new Actions(database);
-        await bootstrap(actions);
+        await bootstrap(actions, bootstrapData);
     }
 
     static getActions() {

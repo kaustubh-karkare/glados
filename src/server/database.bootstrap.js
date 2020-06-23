@@ -1,7 +1,4 @@
-import { createCategoryTemplate } from '../data/LogCategory';
-import { LogEntry, getNegativeID } from '../data';
-
-const data = {
+const bootstrapData = {
     categories: [
         {
             name: 'Cycling',
@@ -92,62 +89,5 @@ const data = {
     ],
 };
 
-function awaitSequence(items, method) {
-    return new Promise((resolve, reject) => {
-        let index = 0;
-        const results = [];
-        const next = () => {
-            if (index === items.length) {
-                resolve(results);
-            } else {
-                method(items[index], index, items)
-                    .then((result) => {
-                        results.push(result);
-                        index += 1;
-                        next();
-                    })
-                    .catch((error) => reject(error));
-            }
-        };
-        next();
-    });
-}
-
-async function bootstrap(actions) {
-    const categoryMap = {};
-
-    await awaitSequence(data.categories, async (inputLogCategory) => {
-        inputLogCategory.id = getNegativeID();
-        inputLogCategory.logKeys = inputLogCategory.logKeys.map(
-            (logKey) => ({ ...logKey, id: getNegativeID() }),
-        );
-        inputLogCategory.template = createCategoryTemplate(
-            inputLogCategory.template, inputLogCategory.logKeys,
-        );
-        const outputLogCategory = await actions.invoke('log-category-upsert', inputLogCategory);
-        categoryMap[outputLogCategory.name] = outputLogCategory;
-    });
-
-    await awaitSequence(data.logTags, async (logTag) => {
-        logTag.id = getNegativeID();
-        return actions.invoke('log-tag-upsert', logTag);
-    });
-
-    await awaitSequence(data.logEnties, async (inputLogEntry) => {
-        inputLogEntry.id = getNegativeID();
-        inputLogEntry.logCategory = categoryMap[inputLogEntry.categoryName];
-        // generate values after category is set
-        inputLogEntry.logValues = inputLogEntry.logValues.map(
-            (logValueData, index) => ({
-                id: getNegativeID(),
-                logKey: inputLogEntry.logCategory.logKeys[index],
-                data: logValueData,
-            }),
-        );
-        LogEntry.trigger(inputLogEntry); // set title, after values
-        inputLogEntry.details = '';
-        await actions.invoke('log-entry-upsert', inputLogEntry);
-    });
-}
-
-export default bootstrap;
+// eslint-disable-next-line import/prefer-default-export
+export { bootstrapData };

@@ -1,5 +1,5 @@
 import assert from '../common/assert';
-import defineModels from '../data/Models';
+import defineModels from './Models';
 
 const Sequelize = require('sequelize');
 
