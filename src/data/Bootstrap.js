@@ -53,6 +53,7 @@ async function bootstrap(actions, data) {
 
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
         inputLogEntry.id = getVirtualID();
+        maybeSubstitute(inputLogEntry, 'date');
         inputLogEntry.title = TextEditorUtils.serialize(inputLogEntry.title);
         if (inputLogEntry.structure) {
             inputLogEntry.logStructure = structureMap[inputLogEntry.structure];

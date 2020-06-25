@@ -1,8 +1,11 @@
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
-import { SortableList, TextEditor, Typeahead } from '../Common';
+import {
+    DatePicker, SortableList, TextEditor, Typeahead,
+} from '../Common';
 import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
@@ -18,6 +21,33 @@ class LogEntryEditor extends React.Component {
         method(logEntry);
         LogEntry.trigger(logEntry);
         this.props.onUpdate(logEntry);
+    }
+
+    renderDateRow() {
+        let valueComponent;
+        if (this.props.logEntry.date === null) {
+            valueComponent = (
+                <Form.Control disabled value="Unspecified" />
+            );
+        } else {
+            valueComponent = (
+                <DatePicker
+                    value={this.props.logEntry.date}
+                    onChange={(newDate) => this.updateLogEntry((logEntry) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEntry.date = newDate;
+                    })}
+                />
+            );
+        }
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Date
+                </InputGroup.Text>
+                {valueComponent}
+            </InputGroup>
+        );
     }
 
     renderTitleRow() {
@@ -105,6 +135,9 @@ class LogEntryEditor extends React.Component {
     render() {
         return (
             <div>
+                <div className="my-3">
+                    {this.renderDateRow()}
+                </div>
                 {this.renderTitleRow()}
                 {this.renderDetailsRow()}
                 <div className="my-3">

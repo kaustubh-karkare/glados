@@ -142,6 +142,16 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
+            date: {
+                type: Sequelize.STRING,
+                allowNull: true,
+                comment: 'Used for grouping.',
+            },
+            date_ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+                comment: 'Used for ordering within a grouping.',
+            },
             name: {
                 type: Sequelize.STRING,
                 allowNull: false,

@@ -15,11 +15,42 @@ class ValidationBase {
         ];
     }
 
+    static validateIndex(name, value) {
+        if (typeof value !== 'number') {
+            return [
+                name,
+                false,
+                'must be a number.',
+            ];
+        }
+        return [
+            name,
+            value > 0,
+            'must be >= 0.',
+        ];
+    }
+
     static validateEnumValue(name, value, Enum) {
         return [
             name,
             !!Enum[value],
             'must be valid.',
+        ];
+    }
+
+    static validateDateLabel(name, label) {
+        return [
+            name,
+            !!label.match(/^\d[4]-\d[2]-\d[2]$/),
+            'is an invalid date.',
+        ];
+    }
+
+    static validateDuration(name, duration) {
+        return [
+            name,
+            !!duration.match(/(?:(\d+) days?)/),
+            'is an invalid duration.',
         ];
     }
 

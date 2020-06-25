@@ -6,8 +6,6 @@ import {
     getDurationValue,
     getTodayValue,
     maybeSubstitute,
-    validateDateLabel,
-    validateDuration,
 } from '../common/DateUtils';
 import Base from './Base';
 
@@ -131,13 +129,13 @@ class LogReminder extends Base {
             return [];
         } if (inputLogReminder.type === LogReminderType.DEADLINE) {
             return [
-                validateDateLabel('.deadline', inputLogReminder.deadline),
-                validateDuration('.warning', inputLogReminder.warning),
+                this.validateDateLabel('.deadline', inputLogReminder.deadline),
+                this.validateDuration('.warning', inputLogReminder.warning),
             ];
         } if (inputLogReminder.type === LogReminderType.PERIODIC) {
             return [
-                ['.frequency', FrequencyCheck[inputLogReminder.frequency], ' is unsupported!'],
-                validateDateLabel('.lastUpdate', inputLogReminder.deadline),
+                this.validateEnumValue('.frequency', inputLogReminder.frequency, FrequencyCheck),
+                this.validateDateLabel('.lastUpdate', inputLogReminder.deadline),
             ];
         }
         return ['.type', false, ' is invalid!'];

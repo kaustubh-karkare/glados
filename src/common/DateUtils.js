@@ -24,14 +24,6 @@ export function getDateValue(label) {
     return new Date(year, month - 1, day).valueOf();
 }
 
-export function validateDateLabel(name, label) {
-    return [
-        name,
-        !!label.match(/^\d[4]-\d[2]-\d[2]$/),
-        'is an invalid date.',
-    ];
-}
-
 // Section: Duration Utilities
 
 export function getDurationLabel(value) {
@@ -42,14 +34,6 @@ export function getDurationLabel(value) {
 export function getDurationValue(label) {
     const regex = label.match(/(?:(\d+) days?)/);
     return parseInt(regex[1], 10) * MS_IN_DAY;
-}
-
-export function validateDuration(name, duration) {
-    return [
-        name,
-        !!duration.match(/(?:(\d+) days?)/),
-        'is an invalid duration.',
-    ];
 }
 
 // Section: Template Utilities

@@ -48,20 +48,31 @@ class LogEntry extends Base {
         }));
     }
 
-    static async validateInternal(inputEntry) {
-        const results = [
-            this.validateNonEmptyString('.title', inputEntry.name),
-        ];
-        if (isRealItem(inputEntry.logStructure)) {
+    static async validateInternal(inputLogEntry) {
+        const results = [];
+        if (inputLogEntry.date !== null) {
+            results.push(this.validateDateLabel('.date', inputLogEntry.date));
+            results.push(
+                this.validateIndex('.dateOrderingIndex', inputLogEntry.dateOrderingIndex),
+            );
+        }
+        results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
+        if (isRealItem(inputLogEntry.logStructure)) {
             const logStructureResults = await this.validateRecursive(
-                LogStructure, '.logStructure', inputEntry.logStructure,
+                LogStructure, '.logStructure', inputLogEntry.logStructure,
             );
             results.push(...logStructureResults);
         }
         const logValuesResults = await this.validateRecursiveList(
-            LogValue, '.logValues', inputEntry.logValues,
+            LogValue, '.logValues', inputLogEntry.logValues,
         );
         results.push(...logValuesResults);
+        if (inputLogEntry.logReminder !== null) {
+            const logReminderResults = await this.validateRecursive(
+                LogReminder, '.logReminder', inputLogEntry.logReminder,
+            );
+            results.push(...logReminderResults);
+        }
         return results;
     }
 
@@ -92,6 +103,8 @@ class LogEntry extends Base {
         return {
             __type__: 'log-entry',
             id: logEntry.id,
+            date: logEntry.date,
+            dateOrderingIndex: logEntry.date_ordering_index,
             name: logEntry.name,
             title: logEntry.title,
             details: logEntry.details,
@@ -126,6 +139,8 @@ class LogEntry extends Base {
         LogEntry.trigger(inputLogEntry);
         const fields = {
             id: inputLogEntry.id,
+            date: inputLogEntry.date,
+            date_ordering_index: inputLogEntry.dateOrderingIndex,
             name: inputLogEntry.name,
             title: inputLogEntry.title,
             structure_id: logStructure ? logStructure.id : null,

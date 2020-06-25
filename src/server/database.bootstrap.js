@@ -57,14 +57,17 @@ const bootstrapData = {
     ],
     logEntries: [
         {
+            date: '{yesterday}',
             structure: 'Cycling',
             logValues: ['15', '55'],
         },
         {
+            date: '{today}',
             structure: 'Cycling',
             logValues: ['15', '60'],
         },
         {
+            date: '{today}',
             title: 'Call home!',
             logReminder: {
                 type: 'deadline',
