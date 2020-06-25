@@ -6,13 +6,13 @@ import Col from 'react-bootstrap/Col';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { LogEntryList } from './LogEntry';
-import { LogCategoryList } from './LogCategory';
+import { LogStructureList } from './LogStructure';
 import { LogKeyList } from './LogKey';
 import { LogTagList } from './LogTag';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
-    LOG_CATEGORIES: 'log_categories',
+    LOG_STRUCTURES: 'log_structures',
     LOG_KEYS: 'log_keys',
     LOG_TAGS: 'log_tags',
 };
@@ -39,8 +39,8 @@ class Applicaton extends React.Component {
                             <Tab eventKey={TabKeys.LOG_ENTRIES} title="Entries">
                                 <LogEntryList />
                             </Tab>
-                            <Tab eventKey={TabKeys.LOG_CATEGORIES} title="Categories">
-                                <LogCategoryList />
+                            <Tab eventKey={TabKeys.LOG_STRUCTURES} title="Structures">
+                                <LogStructureList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_KEYS} title="Keys">
                                 <LogKeyList />

@@ -9,32 +9,32 @@ import { SortableList, TextEditor } from '../Common';
 import { LogKeyEditor } from '../LogKey';
 import { LogKey } from '../../data';
 
-class LogCategoryEditor extends React.Component {
+class LogStructureEditor extends React.Component {
     onNameUpdate(value) {
-        this.updateCategory((category) => {
+        this.updateStructure((structure) => {
             // eslint-disable-next-line no-param-reassign
-            category.name = value;
+            structure.name = value;
         });
     }
 
     onLogKeysUpdate(logKeys) {
-        this.updateCategory((category) => {
+        this.updateStructure((structure) => {
             // eslint-disable-next-line no-param-reassign
-            category.logKeys = logKeys;
+            structure.logKeys = logKeys;
         });
     }
 
     onKeyCreate() {
-        this.updateCategory((category) => {
+        this.updateStructure((structure) => {
             // eslint-disable-next-line no-param-reassign
-            category.logKeys.push(LogKey.createVirtual());
+            structure.logKeys.push(LogKey.createVirtual());
         });
     }
 
-    updateCategory(method) {
-        const logCategory = deepcopy(this.props.logCategory);
-        method(logCategory);
-        this.props.onChange(logCategory);
+    updateStructure(method) {
+        const logStructure = deepcopy(this.props.logStructure);
+        method(logStructure);
+        this.props.onChange(logStructure);
     }
 
     render() {
@@ -42,12 +42,12 @@ class LogCategoryEditor extends React.Component {
             <>
                 <InputGroup className="my-1">
                     <InputGroup.Text style={{ width: 100 }}>
-                        Category
+                        Structure
                     </InputGroup.Text>
                     <Form.Control
-                        placeholder="Category Name"
+                        placeholder="Structure Name"
                         type="text"
-                        value={this.props.logCategory.name}
+                        value={this.props.logStructure.name}
                         onChange={(event) => this.onNameUpdate(event.target.value)}
                     />
                     <Button
@@ -59,7 +59,7 @@ class LogCategoryEditor extends React.Component {
                     </Button>
                 </InputGroup>
                 <SortableList
-                    items={this.props.logCategory.logKeys}
+                    items={this.props.logStructure.logKeys}
                     onChange={(logKeys) => this.onLogKeysUpdate(logKeys)}
                     type={LogKeyEditor}
                 />
@@ -69,13 +69,13 @@ class LogCategoryEditor extends React.Component {
                     </InputGroup.Text>
                     <TextEditor
                         isSingleLine
-                        value={this.props.logCategory.template}
+                        value={this.props.logStructure.template}
                         sources={[
-                            { trigger: '@', options: this.props.logCategory.logKeys },
+                            { trigger: '@', options: this.props.logStructure.logKeys },
                         ]}
-                        onUpdate={(value) => this.updateCategory((category) => {
+                        onUpdate={(value) => this.updateStructure((structure) => {
                             // eslint-disable-next-line no-param-reassign
-                            category.template = value;
+                            structure.template = value;
                         })}
                     />
                 </InputGroup>
@@ -84,9 +84,9 @@ class LogCategoryEditor extends React.Component {
     }
 }
 
-LogCategoryEditor.propTypes = {
-    logCategory: PropTypes.Custom.LogCategory.isRequired,
+LogStructureEditor.propTypes = {
+    logStructure: PropTypes.Custom.LogStructure.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-export default LogCategoryEditor;
+export default LogStructureEditor;

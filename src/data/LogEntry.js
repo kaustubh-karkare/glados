@@ -1,30 +1,30 @@
 
 import assert from '../common/assert';
 import Base from './Base';
-import LogCategory, { materializeCategoryTemplate } from './LogCategory';
+import LogStructure, { materializeStructureTemplate } from './LogStructure';
 import LogValue from './LogValue';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
 
 
 class LogEntry extends Base {
-    static createVirtual(logCategory) {
-        logCategory = logCategory || LogCategory.createVirtual();
+    static createVirtual(logStructure) {
+        logStructure = logStructure || LogStructure.createVirtual();
         return {
             __type__: 'log-entry',
             id: getVirtualID(),
             name: '',
             title: '',
-            logCategory,
-            logValues: logCategory.logKeys.map((logKey) => LogValue.createVirtual(logKey)),
+            logStructure,
+            logValues: logStructure.logKeys.map((logKey) => LogValue.createVirtual(logKey)),
             details: '',
         };
     }
 
     static trigger(logEntry) {
-        if (logEntry.logCategory.template) {
-            logEntry.title = materializeCategoryTemplate(
-                logEntry.logCategory.template,
+        if (logEntry.logStructure.template) {
+            logEntry.title = materializeStructureTemplate(
+                logEntry.logStructure.template,
                 logEntry.logValues,
             );
         }
@@ -33,7 +33,7 @@ class LogEntry extends Base {
 
     static async typeahead({ query }) {
         if (!query) {
-            return LogCategory.typeahead.call(this, { query });
+            return LogStructure.typeahead.call(this, { query });
         }
         const where = {
             name: { [this.database.Op.like]: `${query}%` },
@@ -51,11 +51,11 @@ class LogEntry extends Base {
         const results = [
             this.validateNonEmptyString('.title', inputEntry.name),
         ];
-        if (isRealItem(inputEntry.logCategory)) {
-            const logCategoryResults = await this.validateRecursive(
-                LogCategory, '.logCategory', inputEntry.logCategory,
+        if (isRealItem(inputEntry.logStructure)) {
+            const logStructureResults = await this.validateRecursive(
+                LogStructure, '.logStructure', inputEntry.logStructure,
             );
-            results.push(...logCategoryResults);
+            results.push(...logStructureResults);
         }
         const logValuesResults = await this.validateRecursiveList(
             LogValue, '.logValues', inputEntry.logValues,
@@ -67,11 +67,11 @@ class LogEntry extends Base {
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         // TODO: Parallelize the following operations.
-        let outputLogCategory;
-        if (logEntry.category_id) {
-            outputLogCategory = await LogCategory.load.call(this, logEntry.category_id);
+        let outputLogStructure;
+        if (logEntry.structure_id) {
+            outputLogStructure = await LogStructure.load.call(this, logEntry.structure_id);
         } else {
-            outputLogCategory = LogCategory.createVirtual();
+            outputLogStructure = LogStructure.createVirtual();
         }
         const edges = await this.database.getEdges(
             'LogEntryToLogValue',
@@ -88,29 +88,29 @@ class LogEntry extends Base {
             name: logEntry.name,
             title: logEntry.title,
             details: logEntry.details,
-            logCategory: outputLogCategory, // TODO: Create empty if needed.
+            logStructure: outputLogStructure, // TODO: Create empty if needed.
             logValues: outputLogValues,
         };
     }
 
     static async save(inputLogEntry) {
-        let logCategory = null;
-        if (isRealItem(inputLogEntry.logCategory)) {
-            logCategory = await this.database.findByPk('LogCategory', inputLogEntry.logCategory.id);
-            const logCategoryKeys = await this.database.getNodesByEdge(
-                'LogCategoryToLogKey',
-                'category_id',
-                logCategory.id,
+        let logStructure = null;
+        if (isRealItem(inputLogEntry.logStructure)) {
+            logStructure = await this.database.findByPk('LogStructure', inputLogEntry.logStructure.id);
+            const logStructureKeys = await this.database.getNodesByEdge(
+                'LogStructureToLogKey',
+                'structure_id',
+                logStructure.id,
                 'key_id',
                 'LogKey',
                 this.transaction,
             );
             assert(
-                logCategoryKeys.map((logKey) => logKey.id).equals(
+                logStructureKeys.map((logKey) => logKey.id).equals(
                     inputLogEntry.logValues.map((logValue) => logValue.logKey.id),
                 ),
-                `${'Missing keys for selected category!'
-                    + '\nExpected = '}${logCategoryKeys.map((logKey) => logKey.name).join(', ')
+                `${'Missing keys for selected structure!'
+                    + '\nExpected = '}${logStructureKeys.map((logKey) => logKey.name).join(', ')
                 }\nActual = ${inputLogEntry.logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
             );
         }
@@ -120,7 +120,7 @@ class LogEntry extends Base {
             id: inputLogEntry.id,
             name: inputLogEntry.name,
             title: inputLogEntry.title,
-            category_id: logCategory ? logCategory.id : null,
+            structure_id: logStructure ? logStructure.id : null,
             details: inputLogEntry.details,
         };
         const logEntry = await this.database.createOrUpdate('LogEntry', fields, this.transaction);

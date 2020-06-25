@@ -6,8 +6,8 @@ export default function (sequelize) {
         underscored: true,
     };
 
-    const LogCategory = sequelize.define(
-        'log_categories',
+    const LogStructure = sequelize.define(
+        'log_structures',
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -57,13 +57,13 @@ export default function (sequelize) {
         },
     );
 
-    const LogCategoryToLogKey = sequelize.define(
-        'log_categories_to_log_keys',
+    const LogStructureToLogKey = sequelize.define(
+        'log_structures_to_log_keys',
         {
-            category_id: {
+            structure_id: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: LogCategory,
+                    model: LogStructure,
                     key: 'id',
                 },
             },
@@ -82,19 +82,19 @@ export default function (sequelize) {
         options,
     );
 
-    LogCategory.belongsToMany(LogKey, {
-        through: LogCategoryToLogKey,
-        foreignKey: 'category_id',
-        // Allow the edge to be deleted with the category.
+    LogStructure.belongsToMany(LogKey, {
+        through: LogStructureToLogKey,
+        foreignKey: 'structure_id',
+        // Allow the edge to be deleted with the structure.
         onDelete: 'cascade',
         onUpdate: 'cascade',
     });
 
-    LogKey.belongsToMany(LogCategory, {
-        through: LogCategoryToLogKey,
+    LogKey.belongsToMany(LogStructure, {
+        through: LogStructureToLogKey,
         foreignKey: 'key_id',
         // Don't allow key to be deleted if there are
-        // categories that depend on it.
+        // structures that depend on it.
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -138,7 +138,7 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            category_id: {
+            structure_id: {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
@@ -160,8 +160,8 @@ export default function (sequelize) {
         options,
     );
 
-    LogCategory.hasMany(LogEntry, {
-        foreignKey: 'category_id',
+    LogStructure.hasMany(LogEntry, {
+        foreignKey: 'structure_id',
         allowNull: true,
         onDelete: 'restrict',
         onUpdate: 'restrict',
@@ -271,9 +271,9 @@ export default function (sequelize) {
     });
 
     return {
-        LogCategory,
+        LogStructure,
         LogKey,
-        LogCategoryToLogKey,
+        LogStructureToLogKey,
         LogValue,
         LogEntry,
         LogEntryToLogValue,

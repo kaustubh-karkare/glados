@@ -5,7 +5,7 @@ afterEach(Utils.afterEach);
 
 test('test_typeahead', async () => {
     await Utils.bootstrap({
-        logCategories: [
+        logStructures: [
             {
                 name: 'Animals',
                 logKeys: [
@@ -17,7 +17,7 @@ test('test_typeahead', async () => {
         logEntries: [
             {
                 title: 'Cat',
-                category: 'Animals',
+                structure: 'Animals',
                 logValues: ['small', '4'],
             },
         ],

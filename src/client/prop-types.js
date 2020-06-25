@@ -14,7 +14,7 @@ const LogKey = PropTypes.shape({
     type: LogKeyType.isRequired,
 });
 
-const LogCategory = PropTypes.shape({
+const LogStructure = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     logKeys: PropTypes.arrayOf(LogKey.isRequired).isRequired,
@@ -39,11 +39,11 @@ const LogTag = PropTypes.shape({
 const LogEntry = PropTypes.shape({
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
-    logCategory: LogCategory,
+    logStructure: LogStructure,
     logValues: PropTypes.arrayOf(LogValue.isRequired).isRequired,
 });
 
 PropTypes.Custom = {
-    LogKeyType, LogKey, LogCategory, LogValue, LogTag, LogEntry,
+    LogKeyType, LogKey, LogStructure, LogValue, LogTag, LogEntry,
 };
 export default PropTypes;

@@ -1,5 +1,5 @@
 const bootstrapData = {
-    logCategories: [
+    logStructures: [
         {
             name: 'Cycling',
             logKeys: [
@@ -57,11 +57,11 @@ const bootstrapData = {
     ],
     logEntries: [
         {
-            category: 'Cycling',
+            structure: 'Cycling',
             logValues: ['15', '55'],
         },
         {
-            category: 'Cycling',
+            structure: 'Cycling',
             logValues: ['15', '60'],
         },
     ],

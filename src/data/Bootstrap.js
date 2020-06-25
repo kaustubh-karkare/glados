@@ -1,4 +1,4 @@
-import LogCategory, { createCategoryTemplate } from './LogCategory';
+import LogStructure, { createStructureTemplate } from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
@@ -29,20 +29,20 @@ function awaitSequence(items, method) {
 
 
 async function bootstrap(actions, data) {
-    const categoryMap = {};
+    const structureMap = {};
 
-    await awaitSequence(data.logCategories, async (inputLogCategory) => {
-        inputLogCategory.id = getVirtualID();
-        inputLogCategory.logKeys = inputLogCategory.logKeys.map(
+    await awaitSequence(data.logStructures, async (inputLogStructure) => {
+        inputLogStructure.id = getVirtualID();
+        inputLogStructure.logKeys = inputLogStructure.logKeys.map(
             (logKey) => ({ ...logKey, id: getVirtualID() }),
         );
-        if (inputLogCategory.template) {
-            inputLogCategory.template = createCategoryTemplate(
-                inputLogCategory.template, inputLogCategory.logKeys,
+        if (inputLogStructure.template) {
+            inputLogStructure.template = createStructureTemplate(
+                inputLogStructure.template, inputLogStructure.logKeys,
             );
         }
-        const outputLogCategory = await actions.invoke('log-category-upsert', inputLogCategory);
-        categoryMap[outputLogCategory.name] = outputLogCategory;
+        const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
+        structureMap[outputLogStructure.name] = outputLogStructure;
     });
 
     await awaitSequence(data.logTags, async (logTag) => {
@@ -53,18 +53,18 @@ async function bootstrap(actions, data) {
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
         inputLogEntry.id = getVirtualID();
         inputLogEntry.title = TextEditorUtils.serialize(inputLogEntry.title);
-        if (inputLogEntry.category) {
-            inputLogEntry.logCategory = categoryMap[inputLogEntry.category];
-            // generate values after category is set
+        if (inputLogEntry.structure) {
+            inputLogEntry.logStructure = structureMap[inputLogEntry.structure];
+            // generate values after structure is set
             inputLogEntry.logValues = inputLogEntry.logValues.map(
                 (logValueData, index) => ({
                     id: getVirtualID(),
-                    logKey: inputLogEntry.logCategory.logKeys[index],
+                    logKey: inputLogEntry.logStructure.logKeys[index],
                     data: logValueData,
                 }),
             );
         } else {
-            inputLogEntry.logCategory = LogCategory.createVirtual();
+            inputLogEntry.logStructure = LogStructure.createVirtual();
             inputLogEntry.logValues = [];
         }
         inputLogEntry.details = '';

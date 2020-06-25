@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList, TextEditor } from '../Common';
-import LogCategoryEditor from './LogCategoryEditor';
+import LogStructureEditor from './LogStructureEditor';
 
 
 function ViewerComponent(props) {
-    const logCategory = props.value;
+    const logStructure = props.value;
     if (!props.isExpanded) {
         return (
             <div className="log-viewer">
-                {logCategory.name}
+                {logStructure.name}
                 <span>
-                    {logCategory.logKeys.map((logKey, index) => (
+                    {logStructure.logKeys.map((logKey, index) => (
                         <span key={logKey.id}>
                             {index ? ', ' : ': '}
                             <span title={logKey.type}>{logKey.name}</span>
@@ -25,39 +25,39 @@ function ViewerComponent(props) {
         <TextEditor
             unstyled
             disabled
-            value={logCategory.template}
+            value={logStructure.template}
         />
     );
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogCategory.isRequired,
+    value: PropTypes.Custom.LogStructure.isRequired,
     isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
     return (
-        <LogCategoryEditor
-            logCategory={props.value}
-            onChange={(logCategory) => props.onChange(logCategory)}
+        <LogStructureEditor
+            logStructure={props.value}
+            onChange={(logStructure) => props.onChange(logStructure)}
         />
     );
 }
 
 EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogCategory.isRequired,
+    value: PropTypes.Custom.LogStructure.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-function LogCategoryList() {
+function LogStructureList() {
     return (
         <BulletList
-            name="Categories"
-            dataType="log-category"
+            name="Structures"
+            dataType="log-structure"
             EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}
         />
     );
 }
 
-export default LogCategoryList;
+export default LogStructureList;

@@ -23,7 +23,7 @@ function LogEntryTitleEditor(props) {
             focusOnLoad
             value={logEntry.title}
             sources={AugmentedTextEditorSources}
-            disabled={!!logEntry.logCategory.template}
+            disabled={!!logEntry.logStructure.template}
             onUpdate={(value) => {
                 const updatedLogEntry = { ...logEntry };
                 updatedLogEntry.title = value;
@@ -36,9 +36,9 @@ function LogEntryTitleEditor(props) {
                     updatedLogEntry.id = logEntry.id;
                     LogEntry.trigger(updatedLogEntry);
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
-                } else if (option.__type__ === 'log-category') {
-                    const logCategory = option;
-                    const updatedLogEntry = LogEntry.createVirtual(logCategory);
+                } else if (option.__type__ === 'log-structure') {
+                    const logStructure = option;
+                    const updatedLogEntry = LogEntry.createVirtual(logStructure);
                     LogEntry.trigger(updatedLogEntry);
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 }

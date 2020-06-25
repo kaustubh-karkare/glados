@@ -4,7 +4,7 @@ import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import { SortableList, TextEditor, Typeahead } from '../Common';
 import {
-    LogEntry, LogCategory, LogValue, isRealItem, isVirtualItem,
+    LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
 import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
 import { LogValueEditor } from '../LogValue';
@@ -35,7 +35,7 @@ class LogEntryEditor extends React.Component {
     }
 
     renderAddLogValueButton() {
-        if (isRealItem(this.props.logEntry.logCategory)) {
+        if (isRealItem(this.props.logEntry.logStructure)) {
             return null;
         }
         return (
@@ -51,29 +51,29 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    renderCategoryRow() {
+    renderStructureRow() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Category
+                    Structure
                 </InputGroup.Text>
                 <Typeahead
-                    dataType="log-category"
-                    value={this.props.logEntry.logCategory}
-                    onUpdate={(logCategory) => this.updateLogEntry((logEntry) => {
+                    dataType="log-structure"
+                    value={this.props.logEntry.logStructure}
+                    onUpdate={(logStructure) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.logCategory = logCategory;
-                        logEntry.logValues = logCategory.logKeys.map(
+                        logEntry.logStructure = logStructure;
+                        logEntry.logValues = logStructure.logKeys.map(
                             (logKey) => LogValue.createVirtual(logKey),
                         );
                     })}
                     allowDelete
                     onDelete={() => this.updateLogEntry((logEntry) => {
-                        if (logEntry.logCategory.template) {
+                        if (logEntry.logStructure.template) {
                             logEntry.title = '';
                         }
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.logCategory = LogCategory.createVirtual();
+                        logEntry.logStructure = LogStructure.createVirtual();
                         logEntry.logValues = [];
                     })}
                 />
@@ -105,15 +105,15 @@ class LogEntryEditor extends React.Component {
         return (
             <div>
                 {this.renderTitleRow()}
-                {this.renderCategoryRow()}
+                {this.renderStructureRow()}
                 <SortableList
                     items={this.props.logEntry.logValues}
                     onChange={(logValues) => this.updateLogEntry((logEntry) => {
                         logEntry.logValues = logValues;
                     })}
                     type={LogValueEditor}
-                    disabled={isRealItem(this.props.logEntry.logCategory.id)}
-                    isNewCategory={isVirtualItem(this.props.logEntry.logCategory.id)}
+                    disabled={isRealItem(this.props.logEntry.logStructure.id)}
+                    isNewStructure={isVirtualItem(this.props.logEntry.logStructure.id)}
                 />
                 {this.renderDetailsRow()}
             </div>

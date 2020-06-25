@@ -56,7 +56,7 @@ import { INCOMPLETE_KEY, getVirtualID, isVirtualItem } from './Utils';
 }
 */
 
-function createCategoryTemplate(value, logKeys) {
+function createStructureTemplate(value, logKeys) {
     // Used for bootstrap only.
 
     const editorContent = {
@@ -101,7 +101,7 @@ function createCategoryTemplate(value, logKeys) {
     return TextEditorUtils.serialize(editorContent);
 }
 
-function updateCategoryTemplate(value, before, after) {
+function updateStructureTemplate(value, before, after) {
     if (!value) {
         return value;
     }
@@ -135,7 +135,7 @@ function updateCategoryTemplate(value, before, after) {
     return TextEditorUtils.serialize(editorContent);
 }
 
-function materializeCategoryTemplate(template, logValues) {
+function materializeStructureTemplate(template, logValues) {
     const mapping = {};
     logValues.forEach((logValue) => {
         mapping[logValue.logKey.id] = logValue.data || '???';
@@ -172,10 +172,10 @@ function materializeCategoryTemplate(template, logValues) {
     return TextEditorUtils.serialize(result);
 }
 
-class LogCategory extends Base {
+class LogStructure extends Base {
     static createVirtual() {
         return {
-            __type__: 'log-category',
+            __type__: 'log-structure',
             id: getVirtualID(),
             name: '',
             logKeys: [],
@@ -183,10 +183,10 @@ class LogCategory extends Base {
         };
     }
 
-    static async loadCategoryEdges(id) {
+    static async loadStructureEdges(id) {
         const edges = await this.database.getEdges(
-            'LogCategoryToLogKey',
-            'category_id',
+            'LogStructureToLogKey',
+            'structure_id',
             id,
             this.transaction,
         );
@@ -196,48 +196,48 @@ class LogCategory extends Base {
     }
 
     static async typeahead() {
-        const logCategories = await this.database.findAll(
-            'LogCategory', {}, this.transaction,
+        const logStructures = await this.database.findAll(
+            'LogStructure', {}, this.transaction,
         );
-        return logCategories.map((logCategory) => ({
-            __type__: 'log-category',
-            id: logCategory.id,
-            name: logCategory.name,
+        return logStructures.map((logStructure) => ({
+            __type__: 'log-structure',
+            id: logStructure.id,
+            name: logStructure.name,
             [INCOMPLETE_KEY]: true,
         }));
     }
 
-    static async validateInternal(inputLogCategory) {
-        const logKeysResults = await this.validateRecursiveList(LogKey, '.logKeys', inputLogCategory.logKeys);
+    static async validateInternal(inputLogStructure) {
+        const logKeysResults = await this.validateRecursiveList(LogKey, '.logKeys', inputLogStructure.logKeys);
         return [
-            this.validateNonEmptyString('.name', inputLogCategory.name),
+            this.validateNonEmptyString('.name', inputLogStructure.name),
             ...logKeysResults,
         ];
     }
 
     static async load(id) {
-        const logCategory = await this.database.findByPk('LogCategory', id, this.transaction);
-        const logCategoryEdges = await this.database.getEdges(
-            'LogCategoryToLogKey',
-            'category_id',
+        const logStructure = await this.database.findByPk('LogStructure', id, this.transaction);
+        const logStructureEdges = await this.database.getEdges(
+            'LogStructureToLogKey',
+            'structure_id',
             id,
             this.transaction,
         );
         const outputLogKeys = await Promise.all(
-            logCategoryEdges.map((edge) => LogKey.load.call(this, edge.key_id)),
+            logStructureEdges.map((edge) => LogKey.load.call(this, edge.key_id)),
         );
         return {
-            __type__: 'log-category',
-            id: logCategory.id,
-            name: logCategory.name,
+            __type__: 'log-structure',
+            id: logStructure.id,
+            name: logStructure.name,
             logKeys: outputLogKeys,
-            template: logCategory.template,
+            template: logStructure.template,
         };
     }
 
-    static async save(inputLogCategory) {
+    static async save(inputLogStructure) {
         const logKeys = await Promise.all(
-            inputLogCategory.logKeys.map(async (inputLogKey) => {
+            inputLogStructure.logKeys.map(async (inputLogKey) => {
                 let logKey;
                 if (isVirtualItem(inputLogKey)) {
                     logKey = await this.database.createOrFind(
@@ -261,21 +261,21 @@ class LogCategory extends Base {
             }),
         );
         const fields = {
-            id: inputLogCategory.id,
-            name: inputLogCategory.name,
-            template: updateCategoryTemplate(
-                inputLogCategory.template,
-                inputLogCategory.logKeys,
+            id: inputLogStructure.id,
+            name: inputLogStructure.name,
+            template: updateStructureTemplate(
+                inputLogStructure.template,
+                inputLogStructure.logKeys,
                 logKeys,
             ),
         };
-        const logCategory = await this.database.createOrUpdate(
-            'LogCategory', fields, this.transaction,
+        const logStructure = await this.database.createOrUpdate(
+            'LogStructure', fields, this.transaction,
         );
         await this.database.setEdges(
-            'LogCategoryToLogKey',
-            'category_id',
-            logCategory.id,
+            'LogStructureToLogKey',
+            'structure_id',
+            logStructure.id,
             'key_id',
             logKeys.reduce((result, logKey, index) => {
                 // eslint-disable-next-line no-param-reassign
@@ -284,9 +284,9 @@ class LogCategory extends Base {
             }, {}),
             this.transaction,
         );
-        return logCategory.id;
+        return logStructure.id;
     }
 }
 
-export { createCategoryTemplate, updateCategoryTemplate, materializeCategoryTemplate };
-export default LogCategory;
+export { createStructureTemplate, updateStructureTemplate, materializeStructureTemplate };
+export default LogStructure;

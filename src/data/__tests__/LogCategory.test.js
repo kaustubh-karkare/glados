@@ -5,7 +5,7 @@ afterEach(Utils.afterEach);
 
 test('test_key_constraint', async () => {
     await Utils.bootstrap({
-        logCategories: [
+        logStructures: [
             {
                 name: 'Name',
                 logKeys: [
@@ -17,13 +17,13 @@ test('test_key_constraint', async () => {
 
     const actions = Utils.getActions();
     await expect(() => actions.invoke('log-key-delete', 1)).rejects.toThrow();
-    await actions.invoke('log-category-delete', 1);
+    await actions.invoke('log-structure-delete', 1);
     await actions.invoke('log-key-delete', 1);
 });
 
 test('test_entry_constraint', async () => {
     await Utils.bootstrap({
-        logCategories: [
+        logStructures: [
             {
                 name: 'Animals',
                 logKeys: [
@@ -35,14 +35,14 @@ test('test_entry_constraint', async () => {
         logEntries: [
             {
                 title: 'Cat',
-                category: 'Animals',
+                structure: 'Animals',
                 logValues: ['small', '4'],
             },
         ],
     });
 
     const actions = Utils.getActions();
-    await expect(() => actions.invoke('log-category-delete', 1)).rejects.toThrow();
+    await expect(() => actions.invoke('log-structure-delete', 1)).rejects.toThrow();
     await actions.invoke('log-entry-delete', 1);
-    await actions.invoke('log-category-delete', 1);
+    await actions.invoke('log-structure-delete', 1);
 });

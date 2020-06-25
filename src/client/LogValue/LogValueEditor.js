@@ -27,7 +27,7 @@ function LogValueEditor(props) {
                 dataType="log-key"
                 value={logKey}
                 onUpdate={(updatedLogKey) => updateLogKey(updatedLogKey)}
-                allowDelete={props.isNewCategory}
+                allowDelete={props.isNewStructure}
                 onDelete={(updatedLogKey) => updateLogKey(
                     LogKey.createVirtual(updatedLogKey.logKey.name),
                 )}
@@ -47,7 +47,7 @@ function LogValueEditor(props) {
 }
 
 LogValueEditor.propTypes = {
-    isNewCategory: PropTypes.bool.isRequired,
+    isNewStructure: PropTypes.bool.isRequired,
     value: PropTypes.Custom.LogValue.isRequired,
     onChange: PropTypes.func.isRequired,
 };
