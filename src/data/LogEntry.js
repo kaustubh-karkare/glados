@@ -14,6 +14,7 @@ class LogEntry extends Base {
         return {
             __type__: 'log-entry',
             date: date || null,
+            dateOrderingIndex: 0,
             id: getVirtualID(),
             name: '',
             title: '',

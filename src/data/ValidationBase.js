@@ -41,7 +41,7 @@ class ValidationBase {
     static validateDateLabel(name, label) {
         return [
             name,
-            !!label.match(/^\d[4]-\d[2]-\d[2]$/),
+            !!label.match(/^\d{4}-\d{2}-\d{2}$/),
             'is an invalid date.',
         ];
     }

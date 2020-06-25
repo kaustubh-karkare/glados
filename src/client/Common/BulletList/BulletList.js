@@ -1,18 +1,16 @@
 import { GoPrimitiveDot } from 'react-icons/go';
-import { MdAddCircleOutline } from 'react-icons/md';
 import { SortableContainer } from 'react-sortable-hoc';
-import { TiMinus, TiPlus } from 'react-icons/ti';
 import arrayMove from 'array-move';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
-import LeftRight from './LeftRight';
-import BulletListIcon from './BulletListIcon';
+import LeftRight from '../LeftRight';
 import BulletListItem from './BulletListItem';
-import { getDataTypeMapping, isVirtualItem } from '../../data';
-import { KeyCodes, debounce } from './Utils';
+import BulletListTitle from './BulletListTitle';
+import { getDataTypeMapping, isVirtualItem } from '../../../data';
+import { KeyCodes, debounce } from '../Utils';
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
@@ -278,46 +276,6 @@ class BulletList extends React.Component {
         );
     }
 
-    renderListToggleButton() {
-        if (this.state.areAllExpanded) {
-            return (
-                <BulletListIcon
-                    title="Collapse All"
-                    onClick={() => this.setState({ isExpanded: {} })}
-                >
-                    <TiMinus />
-                </BulletListIcon>
-            );
-        }
-        return (
-            <BulletListIcon
-                title="Expand All"
-                onClick={() => this.setState((state) => ({
-                    isExpanded: Object.fromEntries(
-                        state.items.map((item) => [item.id, true]),
-                    ),
-                }))}
-            >
-                <TiPlus />
-            </BulletListIcon>
-        );
-    }
-
-    renderAddButton() {
-        const DataType = getDataTypeMapping()[this.props.dataType];
-        return (
-            <BulletListIcon
-                title="Create New"
-                onClick={(event) => this.editItem(
-                    DataType.createVirtual(this.props.selector),
-                    event,
-                )}
-            >
-                <MdAddCircleOutline />
-            </BulletListIcon>
-        );
-    }
-
     renderItems() {
         const { ViewerComponent } = this.props;
         return this.state.items.map((item, index) => (
@@ -362,16 +320,30 @@ class BulletList extends React.Component {
         if (!this.state.items) {
             return <div>Loading ...</div>;
         }
+        const DataType = getDataTypeMapping()[this.props.dataType];
         return (
             <div>
                 {this.renderEditorModal()}
                 {this.renderDeleteConfirmationModal()}
                 {this.renderErrorModal()}
-                <InputGroup>
-                    <div>{this.props.name}</div>
-                    {this.renderListToggleButton()}
-                    {this.renderAddButton()}
-                </InputGroup>
+                <BulletListTitle
+                    name={this.props.name}
+                    areAllExpanded={this.state.areAllExpanded}
+                    onToggleButtonClick={() => this.setState((state) => {
+                        if (state.areAllExpanded) {
+                            return { isExpanded: {} };
+                        }
+                        return {
+                            isExpanded: Object.fromEntries(
+                                state.items.map((item) => [item.id, true]),
+                            ),
+                        };
+                    })}
+                    onAddButtonClick={(event) => this.editItem(
+                        DataType.createVirtual(this.props.selector),
+                        event,
+                    )}
+                />
                 <WrappedContainer
                     helperClass="sortableDraggedItem"
                     useDragHandle

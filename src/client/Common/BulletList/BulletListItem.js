@@ -8,7 +8,7 @@ import { TiMinus, TiPlus } from 'react-icons/ti';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { KeyCodes } from './Utils';
+import { KeyCodes } from '../Utils';
 
 
 const SortableDragHandle = SortableHandle(() => (

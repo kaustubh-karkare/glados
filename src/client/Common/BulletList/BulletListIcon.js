@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { KeyCodes } from './Utils';
+import { KeyCodes } from '../Utils';
 
 
 class BulletListIcon extends React.Component {

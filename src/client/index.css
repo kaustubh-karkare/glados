@@ -40,15 +40,15 @@
 }
 
 .input-group > .icon > svg {
+    fill: #222;
+}
+
+.input-group.focus > .icon > svg {
     fill: #9197a3;
 }
 
 .input-group > .icon:focus {
     outline: none;
-}
-
-.input-group > .icon.focus {
-    background: #444;
 }
 
 .input-group > .icon:focus > svg,
