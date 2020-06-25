@@ -42,7 +42,7 @@ class LogEntryReminderEditor extends React.Component {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Reminder Type
+                    Reminder
                 </InputGroup.Text>
                 <Select
                     value={this.getType()}

@@ -2,8 +2,11 @@ import assert from './assert';
 
 const MS_IN_DAY = 86400 * 1000;
 
+// Section: Date Utilities
+
 export function getTodayValue() {
-    return new Date().valueOf();
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
 }
 
 export function getDateLabel(value) {
@@ -47,4 +50,25 @@ export function validateDuration(name, duration) {
         !!duration.match(/(?:(\d+) days?)/),
         'is an invalid duration.',
     ];
+}
+
+// Section: Template Utilities
+
+export function maybeSubstitute(path, name) {
+    if (typeof path[name] !== 'string') {
+        // do nothing
+    } else if (path[name] === '{yesterday}') {
+        path[name] = getDateLabel(getTodayValue() - getDurationValue('1 day'));
+    } else if (path[name] === '{today}') {
+        path[name] = getDateLabel(getTodayValue());
+    } else if (path[name] === '{tomorrow}') {
+        path[name] = getDateLabel(getTodayValue() + getDurationValue('1 day'));
+    } else {
+        const match = path[name].match(/^\{([-+])(.+)\}$/);
+        if (match) {
+            const direction = match[1] === '+' ? 1 : -1;
+            const duration = match[2];
+            path[name] = getDateLabel(getTodayValue() + direction * getDurationValue(duration));
+        }
+    }
 }

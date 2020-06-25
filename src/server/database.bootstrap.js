@@ -64,6 +64,14 @@ const bootstrapData = {
             structure: 'Cycling',
             logValues: ['15', '60'],
         },
+        {
+            title: 'Call home!',
+            logReminder: {
+                type: 'deadline',
+                deadline: '2020-08-12',
+                warning: '2 days',
+            },
+        },
     ],
 };
 

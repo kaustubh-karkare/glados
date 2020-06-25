@@ -1,4 +1,5 @@
 import LogStructure, { createStructureTemplate } from './LogStructure';
+import { maybeSubstitute } from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
@@ -68,6 +69,10 @@ async function bootstrap(actions, data) {
             inputLogEntry.logValues = [];
         }
         inputLogEntry.details = '';
+        if (inputLogEntry.logReminder) {
+            maybeSubstitute(inputLogEntry.logReminder, 'deadline');
+            maybeSubstitute(inputLogEntry.logReminder, 'lastUpdate');
+        }
         await actions.invoke('log-entry-upsert', inputLogEntry);
     });
 }

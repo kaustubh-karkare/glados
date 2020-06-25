@@ -2,10 +2,10 @@ import assert from '../common/assert';
 import deepcopy from '../common/deepcopy';
 import range from '../common/range';
 import {
-    getDateLabel,
     getDateValue,
     getDurationValue,
     getTodayValue,
+    maybeSubstitute,
     validateDateLabel,
     validateDuration,
 } from '../common/DateUtils';
@@ -85,20 +85,11 @@ class LogReminder extends Base {
         options.forEach((option) => {
             option.default.type = option.value;
         });
-        const maybeUpdate = (path, name) => {
-            if (path[name] === '{yesterday}') {
-                path[name] = getDateLabel(getTodayValue() - getDurationValue('1 day'));
-            } else if (path[name] === '{today}') {
-                path[name] = getDateLabel(getTodayValue());
-            } else if (path[name] === '{tomorrow}') {
-                path[name] = getDateLabel(getTodayValue() + getDurationValue('1 day'));
-            }
-        };
-        maybeUpdate(
+        maybeSubstitute(
             options.find((option) => option.value === LogReminderType.DEADLINE).default,
             'deadline',
         );
-        maybeUpdate(
+        maybeSubstitute(
             options.find((option) => option.value === LogReminderType.PERIODIC).default,
             'lastUpdate',
         );
@@ -117,12 +108,12 @@ class LogReminder extends Base {
     static check(value) {
         if (!value) {
             return false;
-        } if (value === LogReminderType.UNSPECIFIED) {
+        } if (value.type === LogReminderType.UNSPECIFIED) {
             return true;
-        } if (value === LogReminderType.DEADLINE) {
+        } if (value.type === LogReminderType.DEADLINE) {
             return getTodayValue() >= getDateValue(value.deadline)
                 - getDurationValue(value.warning);
-        } if (value === LogReminderType.PERIODIC) {
+        } if (value.type === LogReminderType.PERIODIC) {
             return getTodayValue() > getDateValue(value.lastUpdate)
                 ? FrequencyCheck[value.frequency]()
                 : false;
