@@ -37,6 +37,11 @@ class Database {
         await this.sequelize.close();
     }
 
+    async build(name) {
+        const Model = this._models[name];
+        return Model.build({});
+    }
+
     async create(name, fields, transaction) {
         const { id, ...remainingFields } = fields;
         const Model = this._models[name];

@@ -1,6 +1,7 @@
 
 import assert from '../common/assert';
 import Base from './Base';
+import LogReminder from './LogReminder';
 import LogStructure, { materializeStructureTemplate } from './LogStructure';
 import LogValue from './LogValue';
 import TextEditorUtils from '../common/TextEditorUtils';
@@ -82,6 +83,12 @@ class LogEntry extends Base {
         const outputLogValues = await Promise.all(
             edges.map((edge) => LogValue.load.call(this, edge.value_id)),
         );
+        const logReminder = await this.database.findOne('LogReminder', { entry_id: id }, this.transaction);
+        let outputLogReminder = null;
+        if (logReminder) {
+            outputLogReminder = await LogReminder.load.call(this, logReminder.id);
+            delete outputLogReminder.entry_id;
+        }
         return {
             __type__: 'log-entry',
             id: logEntry.id,
@@ -90,6 +97,7 @@ class LogEntry extends Base {
             details: logEntry.details,
             logStructure: outputLogStructure, // TODO: Create empty if needed.
             logValues: outputLogValues,
+            logReminder: outputLogReminder,
         };
     }
 
@@ -175,6 +183,21 @@ class LogEntry extends Base {
             }, {}),
             this.transaction,
         );
+
+        const logReminder = await this.database.findOne(
+            'LogReminder',
+            { entry_id: logEntry.id },
+            this.transaction,
+        );
+        if (inputLogEntry.logReminder) {
+            await LogReminder.save.call(this, {
+                id: logReminder ? logReminder.id : getVirtualID(),
+                entry_id: logEntry.id,
+                ...inputLogEntry.logReminder,
+            });
+        } else if (logReminder) {
+            await LogReminder.delete.call(this, logReminder.id);
+        }
 
         return logEntry.id;
     }

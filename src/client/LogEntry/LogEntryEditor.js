@@ -7,6 +7,7 @@ import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
 import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
+import LogEntryReminderEditor from './LogEntryReminderEditor';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
@@ -77,7 +78,7 @@ class LogEntryEditor extends React.Component {
                         logEntry.logValues = [];
                     })}
                 />
-                {this.renderAddLogValueButton()}
+                {false && this.renderAddLogValueButton()}
             </InputGroup>
         );
     }
@@ -105,17 +106,27 @@ class LogEntryEditor extends React.Component {
         return (
             <div>
                 {this.renderTitleRow()}
-                {this.renderStructureRow()}
-                <SortableList
-                    items={this.props.logEntry.logValues}
-                    onChange={(logValues) => this.updateLogEntry((logEntry) => {
-                        logEntry.logValues = logValues;
-                    })}
-                    type={LogValueEditor}
-                    disabled={isRealItem(this.props.logEntry.logStructure.id)}
-                    isNewStructure={isVirtualItem(this.props.logEntry.logStructure.id)}
-                />
                 {this.renderDetailsRow()}
+                <div className="my-3">
+                    {this.renderStructureRow()}
+                    <SortableList
+                        items={this.props.logEntry.logValues}
+                        onChange={(logValues) => this.updateLogEntry((logEntry) => {
+                            logEntry.logValues = logValues;
+                        })}
+                        type={LogValueEditor}
+                        disabled={isRealItem(this.props.logEntry.logStructure.id)}
+                        isNewStructure={isVirtualItem(this.props.logEntry.logStructure.id)}
+                    />
+                </div>
+                <div className="my-3">
+                    <LogEntryReminderEditor
+                        logReminder={this.props.logEntry.logReminder}
+                        onChange={(newReminder) => this.updateLogEntry((logEntry) => {
+                            logEntry.logReminder = newReminder;
+                        })}
+                    />
+                </div>
             </div>
         );
     }

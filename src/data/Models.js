@@ -270,6 +270,49 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    const LogReminder = sequelize.define(
+        'log_reminders',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            entry_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            type: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            deadline: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
+            warning: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
+            frequency: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
+            last_update: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
+        },
+        options,
+    );
+
+    LogReminder.hasOne(LogEntry, {
+        foreignKey: 'structure_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     return {
         LogStructure,
         LogKey,
@@ -279,5 +322,6 @@ export default function (sequelize) {
         LogEntryToLogValue,
         LogTag,
         LogEntryToLogTag,
+        LogReminder,
     };
 }
