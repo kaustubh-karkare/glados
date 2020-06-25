@@ -65,17 +65,17 @@ class LogStructureEditor extends React.Component {
                 />
                 <InputGroup className="my-1">
                     <InputGroup.Text style={{ height: 'inherit', width: 99 }}>
-                        Template
+                        Title Template
                     </InputGroup.Text>
                     <TextEditor
                         isSingleLine
-                        value={this.props.logStructure.template}
+                        value={this.props.logStructure.titleTemplate}
                         sources={[
                             { trigger: '@', options: this.props.logStructure.logKeys },
                         ]}
                         onUpdate={(value) => this.updateStructure((structure) => {
                             // eslint-disable-next-line no-param-reassign
-                            structure.template = value;
+                            structure.titleTemplate = value;
                         })}
                     />
                 </InputGroup>

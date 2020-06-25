@@ -18,7 +18,7 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            template: {
+            title_template: {
                 type: Sequelize.TEXT,
                 allowNull: false,
                 defaultValue: '',

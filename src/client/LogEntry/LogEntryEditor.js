@@ -70,7 +70,7 @@ class LogEntryEditor extends React.Component {
                     })}
                     allowDelete
                     onDelete={() => this.updateLogEntry((logEntry) => {
-                        if (logEntry.logStructure.template) {
+                        if (logEntry.logStructure.titleTemplate) {
                             logEntry.title = '';
                         }
                         // eslint-disable-next-line no-param-reassign

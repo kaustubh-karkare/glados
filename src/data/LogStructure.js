@@ -179,7 +179,7 @@ class LogStructure extends Base {
             id: getVirtualID(),
             name: '',
             logKeys: [],
-            template: '',
+            titleTemplate: '',
         };
     }
 
@@ -231,7 +231,7 @@ class LogStructure extends Base {
             id: logStructure.id,
             name: logStructure.name,
             logKeys: outputLogKeys,
-            template: logStructure.template,
+            titleTemplate: logStructure.title_template,
         };
     }
 
@@ -263,8 +263,8 @@ class LogStructure extends Base {
         const fields = {
             id: inputLogStructure.id,
             name: inputLogStructure.name,
-            template: updateStructureTemplate(
-                inputLogStructure.template,
+            title_template: updateStructureTemplate(
+                inputLogStructure.titleTemplate,
                 inputLogStructure.logKeys,
                 logKeys,
             ),

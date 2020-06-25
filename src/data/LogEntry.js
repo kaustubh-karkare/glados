@@ -23,9 +23,9 @@ class LogEntry extends Base {
     }
 
     static trigger(logEntry) {
-        if (logEntry.logStructure.template) {
+        if (logEntry.logStructure.titleTemplate) {
             logEntry.title = materializeStructureTemplate(
-                logEntry.logStructure.template,
+                logEntry.logStructure.titleTemplate,
                 logEntry.logValues,
             );
         }

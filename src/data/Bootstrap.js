@@ -36,9 +36,9 @@ async function bootstrap(actions, data) {
         inputLogStructure.logKeys = inputLogStructure.logKeys.map(
             (logKey) => ({ ...logKey, id: getVirtualID() }),
         );
-        if (inputLogStructure.template) {
-            inputLogStructure.template = createStructureTemplate(
-                inputLogStructure.template, inputLogStructure.logKeys,
+        if (inputLogStructure.titleTemplate) {
+            inputLogStructure.titleTemplate = createStructureTemplate(
+                inputLogStructure.titleTemplate, inputLogStructure.logKeys,
             );
         }
         const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);

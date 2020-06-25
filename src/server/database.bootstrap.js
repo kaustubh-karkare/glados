@@ -6,14 +6,14 @@ const bootstrapData = {
                 { name: 'Distance (miles)', type: 'integer' },
                 { name: 'Time (minutes)', type: 'integer' },
             ],
-            template: 'Cycling: $1 miles / $2 minutes ({Math.floor(100*$1*60/$2)/100} mph)',
+            titleTemplate: 'Cycling: $1 miles / $2 minutes ({Math.floor(100*$1*60/$2)/100} mph)',
         },
         {
             name: 'Surya Namaskar',
             logKeys: [
                 { name: 'Surya Namaskar Count', type: 'integer' },
             ],
-            template: 'Surya Namaskar: $1',
+            titleTemplate: 'Surya Namaskar: $1',
         },
         {
             name: 'Food',
@@ -21,7 +21,7 @@ const bootstrapData = {
                 { name: 'Food Name', type: 'string' },
                 { name: 'Food Quantity', type: 'string' },
             ],
-            template: 'Food: $1 ($2)',
+            titleTemplate: 'Food: $1 ($2)',
         },
         {
             name: 'Book',
@@ -29,14 +29,14 @@ const bootstrapData = {
                 { name: 'Book Name', type: 'string' },
                 { name: 'Progress', type: 'string' },
             ],
-            template: 'Book: $1 ($2)',
+            titleTemplate: 'Book: $1 ($2)',
         },
         {
             name: 'Movie',
             logKeys: [
                 { name: 'Movie Name', type: 'string' },
             ],
-            template: 'Movie: $1',
+            titleTemplate: 'Movie: $1',
         },
         {
             name: 'Television',
@@ -44,7 +44,7 @@ const bootstrapData = {
                 { name: 'Show Name', type: 'string' },
                 { name: 'Progress', type: 'string' },
             ],
-            template: 'TV: $1 ($2)',
+            titleTemplate: 'TV: $1 ($2)',
         },
         {
             name: 'Article',
@@ -52,7 +52,7 @@ const bootstrapData = {
                 { name: 'Name', type: 'string' },
                 { name: 'Link', type: 'string' },
             ],
-            template: 'Article: $1',
+            titleTemplate: 'Article: $1',
         },
     ],
     logEntries: [
