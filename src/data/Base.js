@@ -7,6 +7,11 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
+    static async list(input) {
+        const items = await this.database.findAll(this.DataType.name, input, this.transaction);
+        return Promise.all(items.map((item) => this.DataType.load.call(this, item.id)));
+    }
+
     // eslint-disable-next-line no-unused-vars
     static async typeahead({ trigger, query, item }) {
         // trigger & query are provided by TextEditor.

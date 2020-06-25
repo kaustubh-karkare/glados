@@ -76,6 +76,28 @@ const bootstrapData = {
             },
         },
     ],
+    logTags: [
+        {
+            type: 'person',
+            name: 'Anurag Dubey',
+        },
+        {
+            type: 'person',
+            name: 'Kaustubh Karkare',
+        },
+        {
+            type: 'person',
+            name: 'Vishnu Mohandas',
+        },
+        {
+            type: 'hashtag',
+            name: 'philosophy',
+        },
+        {
+            type: 'hashtag',
+            name: 'productivity',
+        },
+    ],
 };
 
 // eslint-disable-next-line import/prefer-default-export

@@ -78,7 +78,7 @@ class BulletList extends React.Component {
     }
 
     reload() {
-        window.api.send(`${this.props.dataType}-list`)
+        window.api.send(`${this.props.dataType}-list`, this.props.selector)
             .then((items) => {
                 this.setState((state) => ({
                     items,
@@ -187,6 +187,7 @@ class BulletList extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <EditorComponent
+                        selector={this.props.selector}
                         value={this.state.editItem}
                         onChange={(editItem) => {
                             this.setState({ editItem, validationErrors: null });
@@ -307,7 +308,10 @@ class BulletList extends React.Component {
         return (
             <BulletListIcon
                 title="Create New"
-                onClick={(event) => this.editItem(DataType.createVirtual(), event)}
+                onClick={(event) => this.editItem(
+                    DataType.createVirtual(this.props.selector),
+                    event,
+                )}
             >
                 <MdAddCircleOutline />
             </BulletListIcon>
@@ -346,6 +350,7 @@ class BulletList extends React.Component {
         return (
             <AdderWrapper>
                 <AdderComponent
+                    selector={this.props.selector}
                     onEdit={(item) => this.editItem(item)}
                     onSave={(item) => this.saveItem(item)}
                 />
@@ -383,6 +388,8 @@ class BulletList extends React.Component {
 BulletList.propTypes = {
     name: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.object,
     EditorComponent: PropTypes.func.isRequired,
     ViewerComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,

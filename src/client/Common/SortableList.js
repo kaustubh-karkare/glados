@@ -23,6 +23,10 @@ const WrappedContainer = SortableContainer(({ children }) => <div>{children}</di
 
 
 const WrappedRow = SortableElement((props) => {
+    const disabled = props.wrappedRowDisabled;
+    if (disabled) {
+        return props.original;
+    }
     const { children, ...otherProps } = props.original.props;
     return React.createElement(
         props.original.type,
@@ -30,7 +34,6 @@ const WrappedRow = SortableElement((props) => {
         [
             <SortableDragHandle
                 key="drag"
-                disabled={props.handleDisabled}
                 title="Reorder"
             />,
             ...children,
@@ -73,14 +76,14 @@ class SortableList extends React.Component {
             key: item.id,
             // Consumed by SortableElement
             index,
-            disabled: this.props.disabled,
+            disabled,
             // Forwarded to the WrappedRow.
             original: this.props.type({
                 value: item,
                 onChange: (updatedItem) => this.onChange(index, updatedItem),
                 ...moreProps,
             }),
-            handleDisabled: this.props.disabled,
+            wrappedRowDisabled: disabled,
             onDelete: () => this.onDelete(index),
         });
     }

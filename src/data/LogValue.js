@@ -3,7 +3,7 @@ import LogKey from './LogKey';
 import { getVirtualID } from './Utils';
 
 class LogValue extends Base {
-    static createVirtual(logKey, data) {
+    static createVirtual({ logKey, data } = {}) {
         return {
             id: getVirtualID(),
             data: data || '',

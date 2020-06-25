@@ -8,7 +8,7 @@ class LogEntryAdder extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            logEntry: LogEntry.createVirtual(),
+            logEntry: LogEntry.createVirtual(this.props.selector),
         };
     }
 
@@ -45,6 +45,8 @@ class LogEntryAdder extends React.Component {
 }
 
 LogEntryAdder.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.object,
     onSave: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
 };

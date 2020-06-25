@@ -38,7 +38,7 @@ function LogEntryTitleEditor(props) {
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 } else if (option.__type__ === 'log-structure') {
                     const logStructure = option;
-                    const updatedLogEntry = LogEntry.createVirtual(logStructure);
+                    const updatedLogEntry = LogEntry.createVirtual({ logStructure });
                     LogEntry.trigger(updatedLogEntry);
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 }

@@ -26,7 +26,7 @@ class LogKey extends Base {
         return null;
     }
 
-    static createVirtual(name) {
+    static createVirtual({ name } = {}) {
         return {
             id: getVirtualID(),
             name: name || '',

@@ -9,16 +9,18 @@ import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
 
 
 class LogEntry extends Base {
-    static createVirtual(logStructure) {
+    static createVirtual({ date, logStructure } = {}) {
         logStructure = logStructure || LogStructure.createVirtual();
         return {
             __type__: 'log-entry',
+            date: date || null,
             id: getVirtualID(),
             name: '',
             title: '',
-            logStructure,
-            logValues: logStructure.logKeys.map((logKey) => LogValue.createVirtual(logKey)),
             details: '',
+            logStructure,
+            logValues: logStructure.logKeys.map((logKey) => LogValue.createVirtual({ logKey })),
+            logReminder: null,
         };
     }
 

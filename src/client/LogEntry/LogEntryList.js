@@ -57,16 +57,40 @@ EditorComponent.propTypes = {
     onSpecialKeys: PropTypes.func.isRequired,
 };
 
-function LogEntryList() {
-    return (
-        <BulletList
-            name="Entries"
-            dataType="log-entry"
-            EditorComponent={EditorComponent}
-            ViewerComponent={ViewerComponent}
-            AdderComponent={LogEntryAdder}
-        />
-    );
+class LogEntryList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { dates: null };
+    }
+
+    componentDidMount() {
+        this.reload();
+    }
+
+    reload() {
+        window.api.send('log-entry-dates')
+            .then((dates) => this.setState({ dates }));
+    }
+
+    render() {
+        if (this.state.dates === null) {
+            return 'Loading ...';
+        }
+        return this.state.dates.map((date, index, list) => {
+            const isLastItem = index === list.length - 1;
+            return (
+                <BulletList
+                    key={date}
+                    name={date}
+                    selector={{ date }}
+                    dataType="log-entry"
+                    EditorComponent={EditorComponent}
+                    ViewerComponent={ViewerComponent}
+                    AdderComponent={isLastItem ? LogEntryAdder : null}
+                />
+            );
+        });
+    }
 }
 
 export default LogEntryList;

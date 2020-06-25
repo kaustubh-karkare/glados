@@ -6,29 +6,38 @@ const ActionsRegistry = {};
 
 Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;
-    ActionsRegistry[`${name}-list`] = async function () {
-        const items = await this.database.findAll(DataType.name, {}, this.transaction);
-        return Promise.all(items.map((item) => DataType.load.call(this, item.id)));
+    ActionsRegistry[`${name}-list`] = async function (input) {
+        const context = { ...this, DataType };
+        return DataType.list.call(context, input);
     };
     ActionsRegistry[`${name}-typeahead`] = async function (input) {
-        return DataType.typeahead.call(this, input);
+        const context = { ...this, DataType };
+        return DataType.typeahead.call(context, input);
     };
     ActionsRegistry[`${name}-validate`] = async function (input) {
         const context = { ...this, DataType };
         return DataType.validate.call(context, input);
     };
     ActionsRegistry[`${name}-load`] = async function (input) {
-        return DataType.load.call(this, input.id);
+        const context = { ...this, DataType };
+        return DataType.load.call(context, input.id);
     };
     ActionsRegistry[`${name}-upsert`] = async function (input) {
-        const id = await DataType.save.call(this, input);
-        return DataType.load.call(this, id);
+        const context = { ...this, DataType };
+        const id = await DataType.save.call(context, input);
+        return DataType.load.call(context, id);
     };
     ActionsRegistry[`${name}-delete`] = async function (id) {
         const context = { ...this, DataType };
         return DataType.delete.call(context, id);
     };
 });
+
+ActionsRegistry['log-entry-dates'] = async function () {
+    const results = await this.database.count('LogEntry', {}, ['date'], this.transaction);
+    const dates = results.filter((result) => result.date).map((result) => result.date).sort();
+    return dates;
+};
 
 export default class {
     constructor(database) {
