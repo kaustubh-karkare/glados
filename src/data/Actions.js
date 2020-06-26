@@ -1,6 +1,7 @@
 /* eslint-disable func-names */
 
 import { getDataTypeMapping } from './Mapping';
+import { getTodayLabel } from '../common/DateUtils';
 
 const ActionsRegistry = {};
 
@@ -35,8 +36,9 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
 
 ActionsRegistry['log-entry-dates'] = async function () {
     const results = await this.database.count('LogEntry', {}, ['date'], this.transaction);
-    const dates = results.filter((result) => result.date).map((result) => result.date).sort();
-    return dates;
+    const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
+    dates.add(getTodayLabel());
+    return Array.from(dates).sort();
 };
 
 export default class {

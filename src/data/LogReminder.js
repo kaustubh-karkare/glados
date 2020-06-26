@@ -135,7 +135,7 @@ class LogReminder extends Base {
         } if (inputLogReminder.type === LogReminderType.PERIODIC) {
             return [
                 this.validateEnumValue('.frequency', inputLogReminder.frequency, FrequencyCheck),
-                this.validateDateLabel('.lastUpdate', inputLogReminder.deadline),
+                this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate),
             ];
         }
         return ['.type', false, ' is invalid!'];

@@ -57,12 +57,12 @@ const bootstrapData = {
     ],
     logEntries: [
         {
-            date: '{yesterday}',
+            date: '{-4 days}',
             structure: 'Cycling',
             logValues: ['15', '55'],
         },
         {
-            date: '{today}',
+            date: '{-2 days}',
             structure: 'Cycling',
             logValues: ['15', '60'],
         },

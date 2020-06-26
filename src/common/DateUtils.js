@@ -19,9 +19,31 @@ export function getDateLabel(value) {
     return result;
 }
 
-export function getDateValue(label) {
+function getRawDate(label) {
     const [year, month, day] = label.split('-').map((num) => parseInt(num, 10));
-    return new Date(year, month - 1, day).valueOf();
+    return new Date(year, month - 1, day);
+}
+
+export function getDateValue(label) {
+    return getRawDate(label).valueOf();
+}
+
+export function getTodayLabel() {
+    return getDateLabel(getTodayValue());
+}
+
+const DaysOfTheWeek = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+];
+
+export function getDayOfTheWeek(label) {
+    return DaysOfTheWeek[getRawDate(label).getDay()];
 }
 
 // Section: Duration Utilities
