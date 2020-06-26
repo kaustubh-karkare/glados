@@ -43,7 +43,7 @@ class Database {
     }
 
     async create(name, fields, transaction) {
-        const { id, ...remainingFields } = fields;
+        const { id: _id, ...remainingFields } = fields;
         const Model = this._models[name];
         return Model.create(
             remainingFields,

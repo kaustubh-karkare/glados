@@ -114,7 +114,7 @@ class LogStructure extends Base {
         const logStructure = await this.database.createOrUpdate(
             'LogStructure', fields, this.transaction,
         );
-        await this.database.setEdges(
+        const deletedEdges = await this.database.setEdges(
             'LogStructureToLogKey',
             'structure_id',
             logStructure.id,
@@ -126,7 +126,65 @@ class LogStructure extends Base {
             }, {}),
             this.transaction,
         );
+        await LogStructure.deleteKeys.call(this, deletedEdges.map((edge) => edge.key_id));
         return logStructure.id;
+    }
+
+    static async delete(id) {
+        const deletedEdges = await this.database.getEdges(
+            'LogStructureToLogKey',
+            'structure_id',
+            id,
+            this.transaction,
+        );
+        const result = await Base.delete.call(this, id);
+        await LogStructure.deleteKeys.call(this, deletedEdges.map((edge) => edge.key_id));
+        return result;
+    }
+
+    static async deleteKeys(logKeyIds) {
+        if (!logKeyIds.length) {
+            return;
+        }
+        const countResults = {};
+        logKeyIds.forEach((keyId) => {
+            countResults[keyId] = 0;
+        });
+        const logKeyCounts = await this.database.count(
+            'LogStructureToLogKey',
+            {
+                key_id: {
+                    [this.database.Op.in]: logKeyIds,
+                },
+            },
+            ['key_id'],
+            this.transaction,
+        );
+        logKeyCounts.forEach((item) => {
+            countResults[item.key_id] += item.count;
+        });
+        const logValueCounts = await this.database.count(
+            'LogValue',
+            {
+                key_id: {
+                    [this.database.Op.in]: logKeyIds,
+                },
+            },
+            ['key_id'],
+            this.transaction,
+        );
+        logValueCounts.forEach((item) => {
+            countResults[item.key_id] += item.count;
+        });
+        await Promise.all(
+            Object.entries(countResults)
+                .filter(([_, count]) => count === 0)
+                .map(([keyId]) => this.database.deleteByPk(
+                    'LogKey',
+                    keyId,
+                    this.transaction,
+                )),
+        );
     }
 }
 

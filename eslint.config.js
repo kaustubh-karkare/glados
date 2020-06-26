@@ -40,6 +40,7 @@ module.exports = {
         'jsx-a11y/no-noninteractive-tabindex': [0],
         'no-param-reassign': [0],
         'no-underscore-dangle': [0, 'allowAfterThis'],
+        'no-unused-vars': ['error', { args: 'none', varsIgnorePattern: '^_' }],
         'react/jsx-indent': ['error', 4],
         'react/jsx-indent-props': ['error', 4],
         'react/destructuring-assignment': [0],

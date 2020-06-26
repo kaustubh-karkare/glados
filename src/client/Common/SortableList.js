@@ -70,7 +70,7 @@ class SortableList extends React.Component {
 
     renderRow(item, index) {
         const {
-            items, onChange, type, disabled, ...moreProps
+            items: _items, onChange: _onChange, type: _type, disabled, ...moreProps
         } = this.props;
         return React.createElement(WrappedRow, {
             key: item.id,
