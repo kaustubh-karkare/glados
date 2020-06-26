@@ -54,10 +54,12 @@ class LogEntry extends Base {
     static async validateInternal(inputLogEntry) {
         const results = [];
         if (inputLogEntry.date !== null) {
+            /*
             results.push(this.validateDateLabel('.date', inputLogEntry.date));
             results.push(
                 this.validateIndex('.dateOrderingIndex', inputLogEntry.dateOrderingIndex),
             );
+            */
         }
         results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
         if (isRealItem(inputLogEntry.logStructure)) {

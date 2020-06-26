@@ -1,6 +1,6 @@
 
 import Editor from 'draft-js-plugins-editor';
-import { getDefaultKeyBinding, RichUtils } from 'draft-js';
+import { RichUtils } from 'draft-js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -42,13 +42,17 @@ TextEditorMention.propTypes = {
 
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
-        if (props.value === state.value) {
+        if (state.onUpdate) {
+            // This component is being updated because onChange is about to be called,
+            // and we want to remember the expected new value.
+            delete state.onUpdate;
             return state;
         }
-        // eslint-disable-next-line no-param-reassign
-        state.value = props.value;
-
-        if (state.value !== state.newValue) {
+        // WARNING: Even if props.value isis equivalent to state.value, they might
+        // not be in the same format, and that could lead to an infinite loop!
+        if (props.value !== state.value) {
+            state.value = props.value;
+            // The new value is not what we expected. Reset editor state.
             // eslint-disable-next-line no-param-reassign
             state.editorState = TextEditorUtils.toEditorState(
                 TextEditorUtils.deserialize(props.value),
@@ -83,7 +87,8 @@ class TextEditor extends React.Component {
 
     componentDidMount() {
         if (this.props.focusOnLoad && this.textEditorRef.current) {
-            this.textEditorRef.current.focus();
+            // https://github.com/draft-js-plugins/draft-js-plugins/issues/800
+            window.setTimeout(this.textEditorRef.current.focus, 0);
         }
     }
 
@@ -113,13 +118,17 @@ class TextEditor extends React.Component {
     }
 
     onChange(editorState) {
+        editorState = TextEditorUtils.fixCursorBug(this.state.editorState, editorState);
         this.setState({ editorState });
         const oldValue = this.props.value;
         const newValue = TextEditorUtils.serialize(
             TextEditorUtils.fromEditorState(editorState),
         );
         if (oldValue !== newValue && this.props.onUpdate) {
-            this.setState({ newValue }, () => this.props.onUpdate(newValue));
+            this.setState(
+                { onUpdate: true, value: newValue },
+                () => this.props.onUpdate(newValue),
+            );
         }
     }
 
@@ -138,7 +147,8 @@ class TextEditor extends React.Component {
         ) {
             this.props.onSpecialKeys(event);
         }
-        return getDefaultKeyBinding(event);
+        // https://github.com/draft-js-plugins/draft-js-plugins/issues/1117
+        // Do not invoke getDefaultKeyBinding here!
     }
 
     handleKeyCommand(command, editorState) {

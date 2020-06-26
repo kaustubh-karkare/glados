@@ -76,6 +76,26 @@ class TextEditorUtils {
         const editorState = EditorState.createWithContent(convertFromRaw(value));
         return EditorState.moveSelectionToEnd(editorState);
     }
+
+    static fixCursorBug(prevEditorState, nextEditorState) {
+        // https://github.com/facebook/draft-js/issues/1198
+        const prevSelection = prevEditorState.getSelection();
+        const nextSelection = nextEditorState.getSelection();
+        if (
+            prevSelection.getAnchorKey() === nextSelection.getAnchorKey()
+            && prevSelection.getAnchorOffset() === 0
+            && nextSelection.getAnchorOffset() === 1
+            && prevSelection.getFocusKey() === nextSelection.getFocusKey()
+            && prevSelection.getFocusOffset() === 0
+            && nextSelection.getFocusOffset() === 1
+            && prevSelection.getHasFocus() === false
+            && nextSelection.getHasFocus() === false
+        ) {
+            const fixedSelection = nextSelection.merge({ hasFocus: true });
+            return EditorState.forceSelection(nextEditorState, fixedSelection);
+        }
+        return nextEditorState;
+    }
 }
 
 export default TextEditorUtils;

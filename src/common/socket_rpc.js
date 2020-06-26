@@ -11,6 +11,7 @@ class SocketRPC {
 
     send(name, request) {
         return new Promise((resolve, reject) => {
+            this.counter += 1;
             const { counter } = this;
             const requestName = name + requestSuffix;
             const responseName = name + responseSuffix + counter;

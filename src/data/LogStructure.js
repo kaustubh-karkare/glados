@@ -169,7 +169,7 @@ function materializeStructureTemplate(template, logValues) {
         })
         .join('');
 
-    return TextEditorUtils.serialize(result);
+    return createStructureTemplate(result, []);
 }
 
 class LogStructure extends Base {
