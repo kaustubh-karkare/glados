@@ -283,7 +283,7 @@ class BulletList extends React.Component {
                 index={index}
                 key={item.id}
                 isExpanded={this.state.isExpanded[item.id]}
-                onToggleExpansion={() => this.toggleItem(item)}
+                onToggleButtonClick={() => this.toggleItem(item)}
                 onEditButtonClick={(event) => this.editItem(item, event)}
                 onDeleteButtonClick={(event) => this.deleteItem(item, event)}
                 onMoveUp={(event) => this.onMove(index, -1, event)}

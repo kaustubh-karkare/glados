@@ -6,6 +6,7 @@ import { LogEntry } from '../../data';
 import LogEntryAdder from './LogEntryAdder';
 import LogEntryEditor from './LogEntryEditor';
 import { TextEditorSources } from './LogEntryTitleEditor';
+import { getTodayLabel, getDayOfTheWeek } from '../../common/DateUtils';
 
 
 function ViewerComponent(props) {
@@ -76,20 +77,18 @@ class LogEntryList extends React.Component {
         if (this.state.dates === null) {
             return 'Loading ...';
         }
-        return this.state.dates.map((date, index, list) => {
-            const isLastItem = index === list.length - 1;
-            return (
-                <BulletList
-                    key={date}
-                    name={date}
-                    selector={{ date }}
-                    dataType="log-entry"
-                    EditorComponent={EditorComponent}
-                    ViewerComponent={ViewerComponent}
-                    AdderComponent={isLastItem ? LogEntryAdder : null}
-                />
-            );
-        });
+        const today = getTodayLabel();
+        return this.state.dates.map((date) => (
+            <BulletList
+                key={date}
+                name={`${date} : ${getDayOfTheWeek(date)}`}
+                selector={{ date }}
+                dataType="log-entry"
+                EditorComponent={EditorComponent}
+                ViewerComponent={ViewerComponent}
+                AdderComponent={date === today ? LogEntryAdder : null}
+            />
+        ));
     }
 }
 

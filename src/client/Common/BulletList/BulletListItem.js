@@ -28,7 +28,7 @@ class BulletListItem extends React.Component {
         if (event.keyCode === KeyCodes.ENTER) {
             this.props.onEditButtonClick(event);
         } else if (event.keyCode === KeyCodes.SPACE) {
-            this.props.onToggleExpansion(event);
+            this.props.onToggleButtonClick(event);
         } else if (event.keyCode === KeyCodes.DELETE) {
             this.props.onDeleteButtonClick(event);
         } else if (event.keyCode === KeyCodes.UP_ARROW) {
@@ -45,7 +45,7 @@ class BulletListItem extends React.Component {
                     <SortableDragHandle />
                     <div
                         className="icon icon-white"
-                        onClick={this.props.onToggleExpansion}
+                        onClick={this.props.onToggleButtonClick}
                     >
                         {this.props.isExpanded ? <TiMinus /> : <TiPlus />}
                     </div>
@@ -128,7 +128,7 @@ BulletListItem.propTypes = {
     onMoveDown: PropTypes.func.isRequired,
 
     isExpanded: PropTypes.bool,
-    onToggleExpansion: PropTypes.func.isRequired,
+    onToggleButtonClick: PropTypes.func.isRequired,
 
     onEditButtonClick: PropTypes.func.isRequired,
     onDeleteButtonClick: PropTypes.func.isRequired,

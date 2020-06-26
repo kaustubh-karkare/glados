@@ -25,7 +25,7 @@ function ViewerComponent(props) {
         <TextEditor
             unstyled
             disabled
-            value={logStructure.template}
+            value={logStructure.titleTemplate}
         />
     );
 }

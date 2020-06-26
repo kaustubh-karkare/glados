@@ -40,10 +40,6 @@
 }
 
 .input-group > .icon > svg {
-    fill: #222;
-}
-
-.input-group.focus > .icon > svg {
     fill: #9197a3;
 }
 

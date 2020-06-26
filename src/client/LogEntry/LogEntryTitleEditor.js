@@ -23,7 +23,7 @@ function LogEntryTitleEditor(props) {
             focusOnLoad
             value={logEntry.title}
             sources={AugmentedTextEditorSources}
-            disabled={!!logEntry.logStructure.template}
+            disabled={!!logEntry.logStructure.titleTemplate}
             onUpdate={(value) => {
                 const updatedLogEntry = { ...logEntry };
                 updatedLogEntry.title = value;
