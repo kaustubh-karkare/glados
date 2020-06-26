@@ -5,7 +5,7 @@ beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
 test('test_deadline', async () => {
-    await Utils.bootstrap({
+    await Utils.loadData({
         logEntries: [
             {
                 title: 'Important thing!',
@@ -37,7 +37,7 @@ test('test_deadline', async () => {
 });
 
 test('test_periodic', async () => {
-    await Utils.bootstrap({
+    await Utils.loadData({
         logEntries: [
             {
                 title: '',

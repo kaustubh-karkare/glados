@@ -1,6 +1,6 @@
 import '../../common/polyfill';
 import Actions from '../Actions';
-import { bootstrap } from '../Bootstrap';
+import { loadData, saveData } from '../Bootstrap';
 import Database from '../Database';
 
 let actions = null;
@@ -18,8 +18,12 @@ export default class Utils {
         actions = new Actions(database);
     }
 
-    static async bootstrap(data) {
-        await bootstrap(actions, data);
+    static async loadData(data) {
+        await loadData(actions, data);
+    }
+
+    static async saveData() {
+        return saveData(actions);
     }
 
     static getActions() {

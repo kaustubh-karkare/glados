@@ -48,14 +48,14 @@ class TextEditor extends React.Component {
             delete state.onUpdate;
             return state;
         }
-        // WARNING: Even if props.value isis equivalent to state.value, they might
+        // WARNING: Even if props.value is equivalent to state.value, they might
         // not be in the same format, and that could lead to an infinite loop!
         if (props.value !== state.value) {
             state.value = props.value;
             // The new value is not what we expected. Reset editor state.
             // eslint-disable-next-line no-param-reassign
             state.editorState = TextEditorUtils.toEditorState(
-                TextEditorUtils.deserialize(props.value),
+                TextEditorUtils.deserialize(props.value, TextEditorUtils.StorageType.DRAFTJS),
             );
         }
         return state;
@@ -123,6 +123,7 @@ class TextEditor extends React.Component {
         const oldValue = this.props.value;
         const newValue = TextEditorUtils.serialize(
             TextEditorUtils.fromEditorState(editorState),
+            TextEditorUtils.StorageType.DRAFTJS,
         );
         if (oldValue !== newValue && this.props.onUpdate) {
             this.setState(

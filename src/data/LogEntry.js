@@ -2,8 +2,9 @@
 import assert from '../common/assert';
 import Base from './Base';
 import LogReminder from './LogReminder';
-import LogStructure, { materializeStructureTemplate } from './LogStructure';
+import LogStructure from './LogStructure';
 import LogValue from './LogValue';
+import { extractLogTags, substituteValuesIntoDraftContent } from '../common/TemplateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
 
@@ -27,9 +28,17 @@ class LogEntry extends Base {
 
     static trigger(logEntry) {
         if (logEntry.logStructure.titleTemplate) {
-            logEntry.title = materializeStructureTemplate(
+            const content = TextEditorUtils.deserialize(
                 logEntry.logStructure.titleTemplate,
+                TextEditorUtils.StorageType.DRAFTJS,
+            );
+            const plaintext = substituteValuesIntoDraftContent(
+                content,
                 logEntry.logValues,
+            );
+            logEntry.title = TextEditorUtils.serialize(
+                plaintext,
+                TextEditorUtils.StorageType.PLAINTEXT,
             );
         }
         logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
@@ -188,8 +197,18 @@ class LogEntry extends Base {
         await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
 
         const logTags = {
-            ...TextEditorUtils.extractLogTags(logEntry.title),
-            ...TextEditorUtils.extractLogTags(logEntry.details),
+            ...extractLogTags(
+                TextEditorUtils.deserialize(
+                    logEntry.title,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                ),
+            ),
+            ...extractLogTags(
+                TextEditorUtils.deserialize(
+                    logEntry.details,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                ),
+            ),
         };
         await this.database.setEdges(
             'LogEntryToLogTag',

@@ -57,17 +57,17 @@ const bootstrapData = {
     ],
     logEntries: [
         {
-            date: '{-4 days}',
+            date: '2020-06-22',
             structure: 'Cycling',
             logValues: ['15', '55'],
         },
         {
-            date: '{-2 days}',
+            date: '2020-06-24',
             structure: 'Cycling',
             logValues: ['15', '60'],
         },
         {
-            date: '{today}',
+            date: '2020-06-26',
             title: 'Call home!',
             logReminder: {
                 type: 'deadline',

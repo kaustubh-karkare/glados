@@ -4,7 +4,7 @@ beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
 test('test_key_constraint', async () => {
-    await Utils.bootstrap({
+    await Utils.loadData({
         logStructures: [
             {
                 name: 'Name',
@@ -22,7 +22,7 @@ test('test_key_constraint', async () => {
 });
 
 test('test_entry_constraint', async () => {
-    await Utils.bootstrap({
+    await Utils.loadData({
         logStructures: [
             {
                 name: 'Animals',

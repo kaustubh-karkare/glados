@@ -10,6 +10,13 @@ const StorageType = {
     DRAFTJS: 'draftjs:',
 };
 
+function toString(value) {
+    if (typeof value === 'undefined') {
+        return 'undefined';
+    }
+    return JSON.stringify(value, null, 4);
+}
+
 class TextEditorUtils {
     // eslint-disable-next-line consistent-return
     static extractPlainText(value) {
@@ -26,46 +33,58 @@ class TextEditorUtils {
         assert(false, value);
     }
 
-    static extractLogTags(value) {
-        const content = TextEditorUtils.deserialize(value);
-        const logTags = {};
-        Object.values(content.entityMap)
-            .filter((entity) => entity.type === 'mention' || entity.type === '#mention')
-            .forEach((entity) => {
-                const logTag = entity.data.mention;
-                logTags[logTag.id] = logTag;
-            });
-        return logTags;
-    }
-
     // eslint-disable-next-line consistent-return
-    static deserialize(value) {
+    static deserialize(value, type) {
         if (!value) {
-            return convertToRaw(EditorState.createEmpty().getCurrentContent());
+            if (type === StorageType.PLAINTEXT) {
+                return '';
+            } if (type === StorageType.DRAFTJS) {
+                return convertToRaw(EditorState.createEmpty().getCurrentContent());
+            }
         } if (value.startsWith(StorageType.PLAINTEXT)) {
             const payload = value.substring(StorageType.PLAINTEXT.length);
-            const editorState = EditorState.createWithContent(ContentState.createFromText(payload));
-            return convertToRaw(editorState.getCurrentContent());
-        } if (value.startsWith(StorageType.DRAFTJS)) {
+            if (type === StorageType.PLAINTEXT) {
+                return payload;
+            } if (type === StorageType.DRAFTJS) {
+                const editorState = EditorState.createWithContent(
+                    ContentState.createFromText(payload),
+                );
+                return convertToRaw(editorState.getCurrentContent());
+            }
+        } else if (value.startsWith(StorageType.DRAFTJS)) {
             const payload = value.substring(StorageType.DRAFTJS.length);
-            return JSON.parse(payload);
+            if (type === StorageType.PLAINTEXT) {
+                assert(false, `Cannot deserialize draftjs to plaintext: ${toString(payload)}`);
+            } else if (type === StorageType.DRAFTJS) {
+                return JSON.parse(payload);
+            }
         }
-        assert(false, value);
+        assert(false, `Invalid deserialize type: ${toString(type)} for ${toString(value)}`);
     }
 
     // eslint-disable-next-line consistent-return
-    static serialize(value) {
+    static serialize(value, type) {
         if (!value) {
             return '';
-        } if (typeof value === 'string') {
-            return StorageType.PLAINTEXT + value;
-        } if (typeof value === 'object') {
-            if (value.blocks.length > 1 || value.blocks[0].text.length > 0) {
-                return StorageType.DRAFTJS + JSON.stringify(value);
+        } if (type === StorageType.PLAINTEXT) {
+            if (typeof value === 'string') {
+                return StorageType.PLAINTEXT + value;
+            } if (typeof value === 'object') {
+                assert(false, `Cannot serialize draftjs to plaintext: ${toString(value)}`);
             }
-            return '';
+            assert(false, value);
+        } else if (type === StorageType.DRAFTJS) {
+            if (typeof value === 'string') {
+                assert(false, `Cannot serialize plaintext to draftjs: ${toString(value)}`);
+            } else if (typeof value === 'object') {
+                if (value.blocks.length > 1 || value.blocks[0].text.length > 0) {
+                    return StorageType.DRAFTJS + JSON.stringify(value);
+                }
+                return '';
+            }
+            assert(false, value);
         }
-        assert(false, value);
+        assert(false, `Invalid serialize type: ${toString(type)}`);
     }
 
     static fromEditorState(editorState) {
@@ -97,5 +116,7 @@ class TextEditorUtils {
         return nextEditorState;
     }
 }
+
+TextEditorUtils.StorageType = StorageType;
 
 export default TextEditorUtils;

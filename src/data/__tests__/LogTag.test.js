@@ -4,7 +4,7 @@ beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
 test('test_typeahead', async () => {
-    await Utils.bootstrap({
+    await Utils.loadData({
         logTags: [
             { type: 'person', name: 'Anurag Dubey' },
             { type: 'person', name: 'Kaustubh Karkare' },
