@@ -95,6 +95,7 @@ class LogStructure extends Base {
         const fields = {
             id: inputLogStructure.id,
             name: inputLogStructure.name,
+            title_template: '',
         };
         if (inputLogStructure.titleTemplate) {
             let content = TextEditorUtils.deserialize(

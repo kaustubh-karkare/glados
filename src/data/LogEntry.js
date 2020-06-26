@@ -254,12 +254,9 @@ class LogEntry extends Base {
     }
 
     static async deleteValues(logValueIds) {
-        if (!logValueIds.length) {
-            return;
-        }
         const countResults = {};
-        logValueIds.forEach((valueId) => {
-            countResults[valueId] = 0;
+        logValueIds.forEach((keyId) => {
+            countResults[keyId] = 0;
         });
         const logValueCounts = await this.database.count(
             'LogEntryToLogValue',
@@ -272,9 +269,9 @@ class LogEntry extends Base {
             this.transaction,
         );
         logValueCounts.forEach((item) => {
-            countResults[item.value_id] += item.count;
+            countResults[item.key_id] += item.count;
         });
-        const deletedLogValues = await Promise.all(
+        await Promise.all(
             Object.entries(countResults)
                 .filter(([_, count]) => count === 0)
                 .map(([valueId]) => this.database.deleteByPk(
@@ -283,8 +280,6 @@ class LogEntry extends Base {
                     this.transaction,
                 )),
         );
-        const logKeyIds = deletedLogValues.map((logValue) => logValue.key_id);
-        await LogStructure.deleteKeys.call(this, logKeyIds);
     }
 }
 

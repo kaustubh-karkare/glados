@@ -48,15 +48,22 @@ class TextEditor extends React.Component {
             delete state.onUpdate;
             return state;
         }
+        const isFirstTime = !('value' in state);
         // WARNING: Even if props.value is equivalent to state.value, they might
         // not be in the same format, and that could lead to an infinite loop!
-        if (props.value !== state.value) {
+        const oldContent = TextEditorUtils.deserialize(
+            state.value,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
+        const newContent = TextEditorUtils.deserialize(
+            props.value,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
+        if (isFirstTime || !TextEditorUtils.equals(oldContent, newContent)) {
             state.value = props.value;
             // The new value is not what we expected. Reset editor state.
             // eslint-disable-next-line no-param-reassign
-            state.editorState = TextEditorUtils.toEditorState(
-                TextEditorUtils.deserialize(props.value, TextEditorUtils.StorageType.DRAFTJS),
-            );
+            state.editorState = TextEditorUtils.toEditorState(newContent);
         }
         return state;
     }

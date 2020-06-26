@@ -33,6 +33,18 @@ class TextEditorUtils {
         assert(false, value);
     }
 
+    static equals(left, right) {
+        assert(typeof left === 'object');
+        assert(typeof right === 'object');
+        // Directly comparing 2 objects is not possible because the blockKeys
+        // are randomly generated and will most likely not match.
+        return (
+            left.blocks.length === 1
+            && right.blocks.length === 1
+            && left.blocks[0].text === right.blocks[0].text
+        );
+    }
+
     // eslint-disable-next-line consistent-return
     static deserialize(value, type) {
         if (!value) {

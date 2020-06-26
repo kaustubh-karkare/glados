@@ -152,7 +152,7 @@ function substituteValuesIntoDraftContent(value, logValues) {
 
     const mapping = {};
     logValues.forEach((logValue) => {
-        mapping[logValue.logKey.id] = logValue.data;
+        mapping[logValue.logKey.id] = logValue.data || '???';
     });
 
     let previous = 0;

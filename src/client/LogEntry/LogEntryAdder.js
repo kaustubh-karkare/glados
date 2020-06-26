@@ -13,12 +13,12 @@ class LogEntryAdder extends React.Component {
     }
 
     onEdit(logEntry) {
-        this.setState({ logEntry: LogEntry.createVirtual() });
+        this.setState((state) => ({ logEntry: LogEntry.createVirtual(state.selector) }));
         this.props.onEdit(logEntry);
     }
 
     onSave(logEntry) {
-        this.setState({ logEntry: LogEntry.createVirtual() });
+        this.setState((state) => ({ logEntry: LogEntry.createVirtual(state.selector) }));
         if (logEntry.name) {
             this.props.onSave(logEntry);
         } else {
@@ -30,6 +30,7 @@ class LogEntryAdder extends React.Component {
         return (
             <LogEntryTitleEditor
                 logEntry={this.state.logEntry}
+                selector={this.props.selector}
                 onUpdate={(logEntry) => this.setState({ logEntry })}
                 onMajorUpdate={(logEntry) => this.onEdit(logEntry)}
                 unstyled

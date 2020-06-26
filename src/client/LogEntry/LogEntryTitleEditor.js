@@ -38,7 +38,8 @@ function LogEntryTitleEditor(props) {
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 } else if (option.__type__ === 'log-structure') {
                     const logStructure = option;
-                    const updatedLogEntry = LogEntry.createVirtual({ logStructure });
+                    const selector = props.selector || {};
+                    const updatedLogEntry = LogEntry.createVirtual({ ...selector, logStructure });
                     LogEntry.trigger(updatedLogEntry);
                     (onMajorUpdate || onUpdate)(updatedLogEntry);
                 }
@@ -50,6 +51,8 @@ function LogEntryTitleEditor(props) {
 
 LogEntryTitleEditor.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.object,
     onUpdate: PropTypes.func.isRequired,
     onMajorUpdate: PropTypes.func,
 };
