@@ -1,7 +1,6 @@
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isVirtualItem } from '../../data/Utils';
 
 class AsyncSelect extends React.Component {
     constructor(props) {
@@ -24,14 +23,9 @@ class AsyncSelect extends React.Component {
 
     reload() {
         window.api.send(`${this.props.dataType}-list`)
-            .then((options) => this.setState(
-                { options },
-                () => {
-                    if (isVirtualItem(this.props.value)) {
-                        this.props.onChange(options[0]);
-                    }
-                },
-            ));
+            .then((options) => this.setState({
+                options: [...this.props.prefixOptions, ...options],
+            }));
     }
 
     render() {
@@ -56,6 +50,8 @@ AsyncSelect.propTypes = {
     labelKey: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.object,
+    // eslint-disable-next-line react/forbid-prop-types
+    prefixOptions: PropTypes.array,
     onChange: PropTypes.func.isRequired,
 };
 

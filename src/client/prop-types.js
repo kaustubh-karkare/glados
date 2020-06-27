@@ -45,10 +45,11 @@ const LogEntry = PropTypes.shape({
 
 const LogReminderGroup = PropTypes.shape({
     name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
 });
 
 const LogReminder = PropTypes.shape({
-    type: PropTypes.string.isRequired,
+    logReminderGroup: LogReminderGroup.isRequired,
     deadline: PropTypes.string,
     warning: PropTypes.string,
     frequency: PropTypes.string,

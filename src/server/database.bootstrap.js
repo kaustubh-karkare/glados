@@ -56,9 +56,9 @@ const bootstrapData = {
         },
     ],
     logReminderGroups: [
-        { name: 'Daily Routine' },
-        { name: 'Research' },
-        { name: 'Entertainment' },
+        { name: 'Daily Routine', type: 'periodic' },
+        { name: 'Research', type: 'deadline' },
+        { name: 'Entertainment', type: 'unspecified' },
     ],
     logEntries: [
         {
@@ -75,7 +75,6 @@ const bootstrapData = {
             date: null,
             title: 'Suryanamaskar',
             logReminder: {
-                type: 'periodic',
                 group: 'Daily Routine',
                 frequency: 'everyday',
                 lastUpdate: '2020-06-26',

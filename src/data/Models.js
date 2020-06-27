@@ -292,6 +292,10 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
+            type: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
         },
         options,
     );
@@ -336,9 +340,16 @@ export default function (sequelize) {
         options,
     );
 
-    LogReminder.hasOne(LogEntry, {
-        foreignKey: 'structure_id',
-        allowNull: true,
+    LogReminderGroup.hasOne(LogReminder, {
+        foreignKey: 'group_id',
+        allowNull: false,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    LogEntry.hasOne(LogReminder, {
+        foreignKey: 'entry_id',
+        allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });

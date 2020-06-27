@@ -1,71 +1,37 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { AsyncSelect, DatePicker, Select } from '../Common';
-import { LogReminder } from '../../data';
+import {
+    AsyncSelect, DatePicker, Select,
+} from '../Common';
+import { LogReminder, LogReminderGroup, getVirtualID } from '../../data';
 import PropTypes from '../prop-types';
 
 const LogReminderType = LogReminder.Type;
 
+const NoneOption = {
+    id: getVirtualID(),
+    name: 'None',
+};
+
 class LogEntryReminderEditor extends React.Component {
-    static getDerivedStateFromProps(props, state) {
-        const { logReminder } = props;
-        if (logReminder && !(logReminder.type in state.saved)) {
-            state.saved[logReminder.type] = logReminder;
-        }
-        return state;
-    }
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            options: LogReminder.getTypeOptions(),
-            saved: {},
-        };
-    }
-
-    onTypeUpdate(newType) {
-        if (newType === LogReminderType.NONE) {
-            this.props.onChange(null);
-        } else if (newType in this.state.saved) {
-            this.props.onChange(this.state.saved[newType]);
-        } else {
-            const selectedOption = this.state.options.find((option) => option.value === newType);
-            this.props.onChange({ ...selectedOption.default });
-        }
-    }
-
-    getType() {
-        return this.props.logReminder ? this.props.logReminder.type : LogReminderType.NONE;
-    }
-
-    renderTypeSelector() {
+    renderGroupSelector() {
+        const logReminderGroup = this.props.logReminder
+            ? this.props.logReminder.logReminderGroup
+            : LogReminderGroup.createVirtual();
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Reminder
                 </InputGroup.Text>
-                <Select
-                    value={this.getType()}
-                    options={this.state.options}
-                    onChange={(newType) => this.onTypeUpdate(newType)}
-                />
-            </InputGroup>
-        );
-    }
-
-    renderGroup() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Group
-                </InputGroup.Text>
                 <AsyncSelect
                     dataType="log-reminder-group"
-                    value={this.props.logReminder.logReminderGroup}
-                    onChange={(newGroup) => this.props.onChange({
-                        ...this.props.logReminder,
-                        logReminderGroup: newGroup,
-                    })}
+                    prefixOptions={[NoneOption]}
+                    value={logReminderGroup}
+                    onChange={(newLogReminderGroup) => this.props.onChange(
+                        newLogReminderGroup.id === NoneOption.id
+                            ? null
+                            : LogReminder.getVirtual({ logReminderGroup: newLogReminderGroup }),
+                    )}
                 />
             </InputGroup>
         );
@@ -136,12 +102,14 @@ class LogEntryReminderEditor extends React.Component {
     }
 
     render() {
+        const type = this.props.logReminder
+            ? this.props.logReminder.logReminderGroup.type
+            : LogReminderType.NONE;
         return (
             <>
-                {this.renderTypeSelector()}
-                {this.getType() !== LogReminderType.NONE ? this.renderGroup() : null}
-                {this.getType() === LogReminderType.DEADLINE ? this.renderDeadline() : null}
-                {this.getType() === LogReminderType.PERIODIC ? this.renderPeriodic() : null}
+                {this.renderGroupSelector()}
+                {type === LogReminderType.DEADLINE ? this.renderDeadline() : null}
+                {type === LogReminderType.PERIODIC ? this.renderPeriodic() : null}
             </>
         );
     }

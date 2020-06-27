@@ -7,7 +7,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { LogEntryList } from './LogEntry';
 import { LogStructureList } from './LogStructure';
-import { LogReminderGroupList } from './LogReminderGroup';
+import { LogReminderGroupList } from './LogReminder';
 import { LogTagList } from './LogTag';
 
 const TabKeys = {

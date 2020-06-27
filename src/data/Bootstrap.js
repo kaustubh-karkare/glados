@@ -134,6 +134,7 @@ async function saveData(actions) {
     const logReminderGroups = await actions.invoke('log-reminder-group-list');
     result.logReminderGroups = logReminderGroups.map((logReminderGroup) => ({
         name: logReminderGroup.name,
+        type: logReminderGroup.type,
     }));
 
     const logEntries = await actions.invoke('log-entry-list');

@@ -1,11 +1,38 @@
 import Base from './Base';
 import { getVirtualID } from './Utils';
 
+
+const LogReminderTypeOptions = [
+    {
+        value: 'unspecified',
+        label: 'Unspecified',
+    },
+    {
+        value: 'deadline',
+        label: 'Deadline',
+    },
+    {
+        value: 'periodic',
+        label: 'Periodic',
+    },
+];
+
+const LogReminderType = LogReminderTypeOptions.reduce((result, item) => {
+    result[item.value.toUpperCase()] = item.value;
+    return result;
+}, {});
+
+
 class LogReminderGroup extends Base {
-    static createVirtual({ name } = {}) {
+    static getTypeOptions() {
+        return LogReminderTypeOptions;
+    }
+
+    static createVirtual({ name, type } = {}) {
         return {
             id: getVirtualID(),
             name: name || '',
+            type: type || LogReminderType.UNSPECIFIED,
         };
     }
 
@@ -18,12 +45,14 @@ class LogReminderGroup extends Base {
         return logReminderGroups.map((logReminderGroup) => ({
             id: logReminderGroup.id,
             name: logReminderGroup.name,
+            type: logReminderGroup.type,
         }));
     }
 
     static async validateInternal(inputLogReminderGroup) {
         return [
             this.validateNonEmptyString('.name', inputLogReminderGroup.name),
+            this.validateEnumValue('.type', inputLogReminderGroup.type.toUpperCase(), LogReminderType),
         ];
     }
 
@@ -36,6 +65,7 @@ class LogReminderGroup extends Base {
         return {
             id: logReminderGroup.id,
             name: logReminderGroup.name,
+            type: logReminderGroup.type,
         };
     }
 
@@ -43,6 +73,7 @@ class LogReminderGroup extends Base {
         const fields = {
             id: inputLogReminderGroup.id,
             name: inputLogReminderGroup.name,
+            type: inputLogReminderGroup.type,
         };
         const logReminderGroup = await this.database.createOrUpdate(
             'LogReminderGroup',
@@ -53,4 +84,5 @@ class LogReminderGroup extends Base {
     }
 }
 
+export { LogReminderType };
 export default LogReminderGroup;

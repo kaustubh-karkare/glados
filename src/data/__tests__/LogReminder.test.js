@@ -9,6 +9,7 @@ test('test_deadline', async () => {
         logReminderGroups: [
             {
                 name: 'Todo',
+                type: 'deadline',
             },
         ],
         logEntries: [
@@ -16,7 +17,6 @@ test('test_deadline', async () => {
                 title: 'Important thing!',
                 logReminder: {
                     group: 'Todo',
-                    type: 'deadline',
                     deadline: '{tomorrow}',
                     warning: '1 day',
                 },
@@ -25,7 +25,6 @@ test('test_deadline', async () => {
                 title: 'Less important thing',
                 logReminder: {
                     group: 'Todo',
-                    type: 'deadline',
                     deadline: '{+2 days}',
                     warning: '1 day',
                 },
@@ -48,6 +47,7 @@ test('test_periodic', async () => {
         logReminderGroups: [
             {
                 name: 'Daily Routine',
+                type: 'periodic',
             },
         ],
         logEntries: [
@@ -55,7 +55,6 @@ test('test_periodic', async () => {
                 title: '',
                 logReminder: {
                     group: 'Daily Routine',
-                    type: 'periodic',
                     frequency: 'everyday',
                     lastUpdate: '{today}',
                 },
@@ -64,7 +63,6 @@ test('test_periodic', async () => {
                 title: 'Not very important thing',
                 logReminder: {
                     group: 'Daily Routine',
-                    type: 'periodic',
                     frequency: 'everyday',
                     lastUpdate: '{yesterday}',
                 },
