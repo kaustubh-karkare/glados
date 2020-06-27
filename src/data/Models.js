@@ -280,6 +280,22 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    const LogReminderGroup = sequelize.define(
+        'log_reminder_groups',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        options,
+    );
+
     const LogReminder = sequelize.define(
         'log_reminders',
         {
@@ -288,9 +304,13 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
+            group_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
             entry_id: {
                 type: Sequelize.INTEGER,
-                allowNull: true,
+                allowNull: false,
             },
             type: {
                 type: Sequelize.STRING,
@@ -332,6 +352,7 @@ export default function (sequelize) {
         LogEntryToLogValue,
         LogTag,
         LogEntryToLogTag,
+        LogReminderGroup,
         LogReminder,
     };
 }

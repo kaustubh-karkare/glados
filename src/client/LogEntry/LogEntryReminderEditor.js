@@ -1,6 +1,6 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { DatePicker, Select } from '../Common';
+import { AsyncSelect, DatePicker, Select } from '../Common';
 import { LogReminder } from '../../data';
 import PropTypes from '../prop-types';
 
@@ -48,6 +48,24 @@ class LogEntryReminderEditor extends React.Component {
                     value={this.getType()}
                     options={this.state.options}
                     onChange={(newType) => this.onTypeUpdate(newType)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderGroup() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Group
+                </InputGroup.Text>
+                <AsyncSelect
+                    dataType="log-reminder-group"
+                    value={this.props.logReminder.logReminderGroup}
+                    onChange={(newGroup) => this.props.onChange({
+                        ...this.props.logReminder,
+                        logReminderGroup: newGroup,
+                    })}
                 />
             </InputGroup>
         );
@@ -121,6 +139,7 @@ class LogEntryReminderEditor extends React.Component {
         return (
             <>
                 {this.renderTypeSelector()}
+                {this.getType() !== LogReminderType.NONE ? this.renderGroup() : null}
                 {this.getType() === LogReminderType.DEADLINE ? this.renderDeadline() : null}
                 {this.getType() === LogReminderType.PERIODIC ? this.renderPeriodic() : null}
             </>

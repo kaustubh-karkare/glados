@@ -6,18 +6,25 @@ afterEach(Utils.afterEach);
 
 test('test_deadline', async () => {
     await Utils.loadData({
+        logReminderGroups: [
+            {
+                name: 'Todo',
+            },
+        ],
         logEntries: [
             {
                 title: 'Important thing!',
                 logReminder: {
+                    group: 'Todo',
                     type: 'deadline',
                     deadline: '{tomorrow}',
                     warning: '1 day',
                 },
             },
             {
-                title: 'Not very important thing',
+                title: 'Less important thing',
                 logReminder: {
+                    group: 'Todo',
                     type: 'deadline',
                     deadline: '{+2 days}',
                     warning: '1 day',
@@ -38,10 +45,16 @@ test('test_deadline', async () => {
 
 test('test_periodic', async () => {
     await Utils.loadData({
+        logReminderGroups: [
+            {
+                name: 'Daily Routine',
+            },
+        ],
         logEntries: [
             {
                 title: '',
                 logReminder: {
+                    group: 'Daily Routine',
                     type: 'periodic',
                     frequency: 'everyday',
                     lastUpdate: '{today}',
@@ -50,6 +63,7 @@ test('test_periodic', async () => {
             {
                 title: 'Not very important thing',
                 logReminder: {
+                    group: 'Daily Routine',
                     type: 'periodic',
                     frequency: 'everyday',
                     lastUpdate: '{yesterday}',

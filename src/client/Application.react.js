@@ -7,13 +7,14 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { LogEntryList } from './LogEntry';
 import { LogStructureList } from './LogStructure';
-import { LogKeyList } from './LogKey';
+import { LogReminderGroupList } from './LogReminderGroup';
 import { LogTagList } from './LogTag';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
     LOG_STRUCTURES: 'log_structures',
     LOG_KEYS: 'log_keys',
+    REMINDER_GROUPS: 'log_reminder_groups',
     LOG_TAGS: 'log_tags',
 };
 
@@ -42,8 +43,8 @@ class Applicaton extends React.Component {
                             <Tab eventKey={TabKeys.LOG_STRUCTURES} title="Structures">
                                 <LogStructureList />
                             </Tab>
-                            <Tab eventKey={TabKeys.LOG_KEYS} title="Keys">
-                                <LogKeyList />
+                            <Tab eventKey={TabKeys.REMINDER_GROUPS} title="Reminder Groups">
+                                <LogReminderGroupList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_TAGS} title="Tags">
                                 <LogTagList />

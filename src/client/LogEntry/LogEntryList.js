@@ -69,7 +69,7 @@ class LogEntryList extends React.Component {
     }
 
     reload() {
-        window.api.send('log-entry-dates')
+        window.api.send('dates')
             .then((dates) => this.setState({ dates }));
     }
 

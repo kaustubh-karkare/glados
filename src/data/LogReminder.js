@@ -8,6 +8,8 @@ import {
     maybeSubstitute,
 } from '../common/DateUtils';
 import Base from './Base';
+import LogReminderGroup from './LogReminderGroup';
+import { isRealItem } from './Utils';
 
 // Section: Enums.
 
@@ -82,6 +84,7 @@ class LogReminder extends Base {
         const options = deepcopy(LogReminderTypeOptions);
         options.forEach((option) => {
             option.default.type = option.value;
+            option.default.logReminderGroup = LogReminderGroup.createVirtual();
         });
         maybeSubstitute(
             options.find((option) => option.value === LogReminderType.DEADLINE).default,
@@ -120,31 +123,37 @@ class LogReminder extends Base {
     }
 
     static async validateInternal(inputLogReminder) {
+        const results = [];
         if (inputLogReminder === null) {
             return [];
         }
-        if (inputLogReminder.type === LogReminderType.NONE) {
-            return ['.type', false, ' cannot be none!'];
-        } if (inputLogReminder.type === LogReminderType.UNSPECIFIED) {
-            return [];
-        } if (inputLogReminder.type === LogReminderType.DEADLINE) {
-            return [
-                this.validateDateLabel('.deadline', inputLogReminder.deadline),
-                this.validateDuration('.warning', inputLogReminder.warning),
-            ];
-        } if (inputLogReminder.type === LogReminderType.PERIODIC) {
-            return [
+        results.push([
+            '.logReminderGroup',
+            isRealItem(inputLogReminder.logReminderGroup),
+            'is missing!',
+        ]);
+        if (inputLogReminder.type === LogReminderType.UNSPECIFIED) {
+            // no additional fields
+        } else if (inputLogReminder.type === LogReminderType.DEADLINE) {
+            results.push(this.validateDateLabel('.deadline', inputLogReminder.deadline));
+            results.push(this.validateDuration('.warning', inputLogReminder.warning));
+        } else if (inputLogReminder.type === LogReminderType.PERIODIC) {
+            results.push(
                 this.validateEnumValue('.frequency', inputLogReminder.frequency, FrequencyCheck),
-                this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate),
-            ];
+            );
+            results.push(this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate));
+        } else {
+            results.push(['.type', false, ' is invalid!']);
         }
-        return ['.type', false, ' is invalid!'];
+        return results;
     }
 
     static async load(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
+        const outputLogReminderGroup = await LogReminderGroup.load.call(this, logReminder.group_id);
         return {
             type: logReminder.type,
+            logReminderGroup: outputLogReminderGroup,
             entry_id: logReminder.entry_id,
             deadline: logReminder.type === LogReminderType.DEADLINE
                 ? logReminder.deadline
@@ -164,6 +173,7 @@ class LogReminder extends Base {
     static async save(inputLogReminder) {
         const fields = {
             id: inputLogReminder.id,
+            group_id: inputLogReminder.logReminderGroup.id,
             entry_id: inputLogReminder.entry_id,
             type: inputLogReminder.type,
             deadline: inputLogReminder.type === LogReminderType.DEADLINE

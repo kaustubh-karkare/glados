@@ -34,7 +34,7 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     };
 });
 
-ActionsRegistry['log-entry-dates'] = async function () {
+ActionsRegistry.dates = async function () {
     const results = await this.database.count('LogEntry', {}, ['date'], this.transaction);
     const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
     dates.add(getTodayLabel());

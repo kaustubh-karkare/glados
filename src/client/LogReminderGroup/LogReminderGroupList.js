@@ -1,38 +1,31 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList, Dropdown, Typeahead } from '../Common';
-import { LogKey } from '../../data';
+import { BulletList, Typeahead } from '../Common';
 
 
 function ViewerComponent(props) {
-    const logKey = props.value;
+    const logReminderGroup = props.value;
     return (
         <div className="log-viewer">
-            {logKey.name}
-            <span>{` (${logKey.type})`}</span>
+            {logReminderGroup.name}
         </div>
     );
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogKey.isRequired,
+    value: PropTypes.Custom.LogReminderGroup.isRequired,
     // isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
-    const logKey = props.value;
+    const logReminderGroup = props.value;
     return (
         <InputGroup className="my-1">
-            <Dropdown
-                value={logKey.type}
-                options={LogKey.getTypes()}
-                onUpdate={(type) => props.onChange({ ...logKey, type })}
-            />
             <Typeahead
                 allowUpdate
-                dataType="log-key"
-                value={logKey}
+                dataType="log-reminder-group"
+                value={logReminderGroup}
                 onUpdate={props.onChange}
             />
         </InputGroup>
@@ -40,20 +33,19 @@ function EditorComponent(props) {
 }
 
 EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogKey.isRequired,
+    value: PropTypes.Custom.LogReminderGroup.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-function LogKeyList() {
+function LogReminderGroupList() {
     return (
         <BulletList
-            name="Keys"
-            dataType="log-key"
+            name="Reminder Groups"
+            dataType="log-reminder-group"
             EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}
         />
     );
 }
 
-export { EditorComponent as LogKeyEditor };
-export default LogKeyList;
+export default LogReminderGroupList;

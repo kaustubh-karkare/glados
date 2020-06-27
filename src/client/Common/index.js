@@ -1,3 +1,4 @@
+export { default as AsyncSelect } from './AsyncSelect';
 export { default as BulletList } from './BulletList';
 export { default as DatePicker } from './DatePicker';
 export { default as Dropdown } from './Dropdown';

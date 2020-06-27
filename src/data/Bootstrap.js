@@ -34,8 +34,7 @@ function awaitSequence(items, method) {
 
 
 async function loadData(actions, data) {
-    const structureMap = {};
-
+    const logStructureMap = {};
     await awaitSequence(data.logStructures, async (inputLogStructure) => {
         inputLogStructure.id = getVirtualID();
         inputLogStructure.logKeys = inputLogStructure.logKeys.map(
@@ -51,7 +50,17 @@ async function loadData(actions, data) {
             );
         }
         const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
-        structureMap[outputLogStructure.name] = outputLogStructure;
+        logStructureMap[outputLogStructure.name] = outputLogStructure;
+    });
+
+    const logReminderGroupMap = {};
+    await awaitSequence(data.logReminderGroups, async (inputLogReminderGroup) => {
+        inputLogReminderGroup.id = getVirtualID();
+        const outputLogReminderGroup = await actions.invoke(
+            'log-reminder-group-upsert',
+            inputLogReminderGroup,
+        );
+        logReminderGroupMap[outputLogReminderGroup.name] = outputLogReminderGroup;
     });
 
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
@@ -62,7 +71,7 @@ async function loadData(actions, data) {
             TextEditorUtils.StorageType.PLAINTEXT, // TODO: use DRAFTJS here!
         );
         if (inputLogEntry.structure) {
-            inputLogEntry.logStructure = structureMap[inputLogEntry.structure];
+            inputLogEntry.logStructure = logStructureMap[inputLogEntry.structure];
             // generate values after structure is set
             inputLogEntry.logValues = inputLogEntry.logValues.map(
                 (logValueData, index) => ({
@@ -79,6 +88,12 @@ async function loadData(actions, data) {
         if (inputLogEntry.logReminder) {
             maybeSubstitute(inputLogEntry.logReminder, 'deadline');
             maybeSubstitute(inputLogEntry.logReminder, 'lastUpdate');
+            if (inputLogEntry.logReminder.group) {
+                inputLogEntry.logReminder.logReminderGroup = logReminderGroupMap[
+                    inputLogEntry.logReminder.group
+                ];
+                delete inputLogEntry.logReminder.group;
+            }
         }
         await actions.invoke('log-entry-upsert', inputLogEntry);
     });
@@ -116,6 +131,11 @@ async function saveData(actions) {
         };
     });
 
+    const logReminderGroups = await actions.invoke('log-reminder-group-list');
+    result.logReminderGroups = logReminderGroups.map((logReminderGroup) => ({
+        name: logReminderGroup.name,
+    }));
+
     const logEntries = await actions.invoke('log-entry-list');
     result.logEntries = logEntries.map((logEntry) => {
         const item = { date: logEntry.date };
@@ -136,6 +156,8 @@ async function saveData(actions) {
         if (logEntry.logReminder) {
             // get rid of the undefined values
             item.logReminder = JSON.parse(JSON.stringify(logEntry.logReminder));
+            item.logReminder.group = logEntry.logReminder.logReminderGroup.name;
+            delete item.logReminder.logReminderGroup;
         }
         return item;
     });

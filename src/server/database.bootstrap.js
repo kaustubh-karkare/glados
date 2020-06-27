@@ -55,6 +55,11 @@ const bootstrapData = {
             titleTemplate: 'Article: $1',
         },
     ],
+    logReminderGroups: [
+        { name: 'Daily Routine' },
+        { name: 'Research' },
+        { name: 'Entertainment' },
+    ],
     logEntries: [
         {
             date: '2020-06-22',
@@ -67,12 +72,13 @@ const bootstrapData = {
             logValues: ['15', '60'],
         },
         {
-            date: '2020-06-26',
-            title: 'Call home!',
+            date: null,
+            title: 'Suryanamaskar',
             logReminder: {
-                type: 'deadline',
-                deadline: '2020-08-12',
-                warning: '2 days',
+                type: 'periodic',
+                group: 'Daily Routine',
+                frequency: 'everyday',
+                lastUpdate: '2020-06-26',
             },
         },
     ],
