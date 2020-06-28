@@ -16,6 +16,7 @@ test('test_typeahead', async () => {
         ],
         logEntries: [
             {
+                date: '2020-06-28',
                 title: 'Cat',
                 structure: 'Animals',
                 logValues: ['small', '4'],

@@ -35,6 +35,7 @@ test('test_entry_constraint', async () => {
         ],
         logEntries: [
             {
+                date: '2020-06-28',
                 title: 'Cat',
                 structure: 'Animals',
                 logValues: ['small', '4'],
@@ -64,14 +65,17 @@ test('test_title_template', async () => {
         ],
         logEntries: [
             {
+                date: '2020-06-26',
                 structure: 'Cycling',
                 logValues: ['15', '60'],
             },
             {
+                date: '2020-06-27',
                 structure: 'Cycling',
                 logValues: ['15', '55'],
             },
             {
+                date: '2020-06-28',
                 structure: 'Cycling',
                 logValues: ['15', '50'],
             },

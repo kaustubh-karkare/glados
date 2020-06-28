@@ -149,7 +149,7 @@ export default function (sequelize) {
             },
             ordering_index: {
                 type: Sequelize.INTEGER,
-                allowNull: true,
+                allowNull: false,
             },
             name: {
                 type: Sequelize.STRING,
