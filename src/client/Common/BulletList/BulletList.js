@@ -6,11 +6,10 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
-import LeftRight from '../LeftRight';
 import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
 import { getDataTypeMapping, isVirtualItem } from '../../../data';
-import { KeyCodes, debounce } from '../Utils';
+import EditorModal from '../EditorModal';
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
@@ -51,7 +50,6 @@ class BulletList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
-        this.validateItemDebounced = debounce(this.validateItemNotDebounced, 500);
     }
 
     componentDidMount() {
@@ -117,23 +115,11 @@ class BulletList extends React.Component {
 
     editItem(item, event) {
         if (event) {
+            // Don't let enter propagate to EditorModal.
             event.preventDefault();
             event.stopPropagation();
         }
         this.setState({ editItem: item });
-        this.validateItem(item);
-    }
-
-    validateItem(item) {
-        this.setState({ validationStatus: 'Pending Validation ...' });
-        this.validateItemDebounced(item);
-    }
-
-    validateItemNotDebounced(item) {
-        this.setState({ validationStatus: 'Validating ...' });
-        window.api.send(`${this.props.dataType}-validate`, item)
-            .then((validationErrors) => this.setState({ validationStatus: null, validationErrors }))
-            .catch((error) => this.setState({ error }));
     }
 
     saveItem(item) {
@@ -178,77 +164,6 @@ class BulletList extends React.Component {
             .catch((error) => this.setState({ error }));
     }
 
-    renderValidationErrors() {
-        if (
-            this.state.validationErrors
-            && this.state.validationErrors.length
-        ) {
-            return (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {this.state.validationErrors.join('\n')}
-                </div>
-            );
-        } if (this.state.validationStatus) {
-            return <div>{this.state.validationStatus}</div>;
-        }
-        return <div>No validation errors!</div>;
-    }
-
-    renderEditorModal() {
-        if (!this.state.editItem) {
-            return null;
-        }
-        const { EditorComponent } = this.props;
-        return (
-            <Modal
-                show
-                onHide={() => this.setState({ editItem: null })}
-                onEscapeKeyDown={suppressUnlessShiftKey}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Editor</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <EditorComponent
-                        selector={this.props.selector}
-                        value={this.state.editItem}
-                        onChange={(editItem) => {
-                            this.setState({ editItem, validationErrors: null });
-                            this.validateItem(editItem);
-                        }}
-                        onSpecialKeys={(event) => {
-                            if (!event.shiftKey) return;
-                            if (event.keyCode === KeyCodes.ENTER) {
-                                this.saveItem(this.state.editItem);
-                            } else if (event.keyCode === KeyCodes.ESCAPE) {
-                                this.setState({ editItem: null });
-                            }
-                        }}
-                    />
-                </Modal.Body>
-                <Modal.Body>
-                    <LeftRight>
-                        {this.renderValidationErrors()}
-                        <Button
-                            disabled={
-                                this.state.validationStatus
-                                || (
-                                    this.state.validationErrors
-                                    && this.state.validationErrors.length
-                                )
-                            }
-                            onClick={() => this.saveItem(this.state.editItem)}
-                            size="sm"
-                            variant="secondary"
-                        >
-                            Save
-                        </Button>
-                    </LeftRight>
-                </Modal.Body>
-            </Modal>
-        );
-    }
-
     renderDeleteConfirmationModal() {
         if (!this.state.deleteItem) {
             return null;
@@ -264,7 +179,7 @@ class BulletList extends React.Component {
                     <Modal.Title>Confirm deletion?</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <ViewerComponent value={this.state.deleteItem} isExpanded={false} />
+                    <ViewerComponent value={this.state.deleteItem} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
@@ -348,7 +263,15 @@ class BulletList extends React.Component {
         const DataType = getDataTypeMapping()[this.props.dataType];
         return (
             <div>
-                {this.renderEditorModal()}
+                <EditorModal
+                    dataType={this.props.dataType}
+                    selector={this.props.selector}
+                    EditorComponent={this.props.EditorComponent}
+                    value={this.state.editItem}
+                    onChange={(editItem) => this.setState({ editItem })}
+                    onSave={() => this.saveItem(this.state.editItem)}
+                    onError={(error) => this.setState({ error })}
+                />
                 {this.renderDeleteConfirmationModal()}
                 {this.renderErrorModal()}
                 <BulletListTitle

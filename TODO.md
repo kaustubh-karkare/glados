@@ -22,11 +22,13 @@
 * Validation: Typeahead can immediately reject more invalid suggestions.
 * Figure out how to run this in the background as a deamon?
 * Security: Require a password specified in config.json
+* Allow LogReminders to be created directly from the LogEntryAdder.
 
 ### Major Bugs
 * TextEditor suggestions only work with trigger character, no subsequent ones.
 * LogCategory.keys[].name or LogTag.name updates should propagate to LogEntries.
 * LogCategory.keys: Block updates if LogEntries would become inconsistent.
+* TemplateUtils.substituteValuesIntoDraftContent should generate proper
 
 ### Minor Bugs
 * For LogCategory.ExpandedViewerComponent, highlight the keys in the template.
