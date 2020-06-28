@@ -79,6 +79,21 @@ const bootstrapData = {
                 lastUpdate: '2020-06-26',
             },
         },
+        {
+            title: 'Read article about Paxos',
+            logReminder: {
+                group: 'Research',
+                deadline: '2020-06-30',
+                warning: '3 days',
+            },
+        },
+        {
+            structure: 'Movie',
+            logValues: ['Limitless'],
+            logReminder: {
+                group: 'Entertainment',
+            },
+        },
     ],
     logTags: [
         {

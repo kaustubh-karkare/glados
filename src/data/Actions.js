@@ -1,7 +1,9 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping } from './Mapping';
+import assert from '../common/assert';
+import { LogReminder, getDataTypeMapping } from './Mapping';
 import { getTodayLabel } from '../common/DateUtils';
+import { getVirtualID } from './Utils';
 
 const ActionsRegistry = {};
 
@@ -43,6 +45,50 @@ ActionsRegistry.dates = async function () {
     const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
     dates.add(getTodayLabel());
     return Array.from(dates).sort();
+};
+
+ActionsRegistry['reminder-list'] = async function (input) {
+    const { type } = input.logReminderGroup;
+    const logReminders = await this.database.findAll(
+        'LogReminder',
+        { group_id: input.logReminderGroup.id },
+        this.transaction,
+    );
+    const logEntryIds = logReminders
+        .filter((logReminder) => LogReminder.check(type, logReminder))
+        .map((logReminder) => logReminder.entry_id);
+    const outputLogEntries = await ActionsRegistry['log-entry-list'].call(this, {
+        selector: { id: { [this.database.Op.in]: logEntryIds } },
+        ordering: true,
+    });
+    return outputLogEntries;
+};
+
+ActionsRegistry['reminder-complete'] = async function (input) {
+    const inputLogEntry = input.logEntry;
+    const updatedLogEntry = {
+        ...inputLogEntry,
+        date: getTodayLabel(),
+        logReminder: null,
+    };
+    const { type } = inputLogEntry.logReminder.logReminderGroup;
+    if (
+        type === LogReminder.Type.UNSPECIFIED
+        || type === LogReminder.Type.DEADLINE
+    ) {
+        // update the existing entry
+    } else if (
+        type === LogReminder.Type.PERIODIC
+    ) {
+        inputLogEntry.logReminder.lastUpdate = updatedLogEntry.date;
+        await ActionsRegistry['log-entry-upsert'].call(this, inputLogEntry);
+        // duplicate the existing entry
+        updatedLogEntry.id = getVirtualID();
+    } else {
+        assert(false, type);
+    }
+    const outputLogEntry = await ActionsRegistry['log-entry-upsert'].call(this, updatedLogEntry);
+    return { logEntry: outputLogEntry };
 };
 
 export default class {

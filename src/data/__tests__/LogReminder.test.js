@@ -1,10 +1,9 @@
-import LogReminder from '../LogReminder';
 import Utils from './Utils';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
-test('test_deadline', async () => {
+test('test_deadline_check', async () => {
     await Utils.loadData({
         logReminderGroups: [
             {
@@ -33,16 +32,13 @@ test('test_deadline', async () => {
     });
 
     const actions = Utils.getActions();
-    let logEntry;
-
-    logEntry = await actions.invoke('log-entry-load', { id: 1 });
-    expect(LogReminder.check(logEntry.logReminder)).toEqual(true);
-
-    logEntry = await actions.invoke('log-entry-load', { id: 2 });
-    expect(LogReminder.check(logEntry.logReminder)).toEqual(false);
+    const logReminderGroup = await actions.invoke('log-reminder-group-load', { id: 1 });
+    const logEntries = await actions.invoke('reminder-list', { logReminderGroup });
+    expect(logEntries.length).toEqual(1);
+    expect(logEntries[0].id).toEqual(1);
 });
 
-test('test_periodic', async () => {
+test('test_periodic_check', async () => {
     await Utils.loadData({
         logReminderGroups: [
             {
@@ -71,11 +67,69 @@ test('test_periodic', async () => {
     });
 
     const actions = Utils.getActions();
-    let logEntry;
+    const logReminderGroup = await actions.invoke('log-reminder-group-load', { id: 1 });
+    const logEntries = await actions.invoke('reminder-list', { logReminderGroup });
+    expect(logEntries.length).toEqual(1);
+    expect(logEntries[0].id).toEqual(2);
+});
 
-    logEntry = await actions.invoke('log-entry-load', { id: 1 });
-    expect(LogReminder.check(logEntry.logReminder)).toEqual(false);
+test('test_deadline_completion', async () => {
+    await Utils.loadData({
+        logReminderGroups: [
+            {
+                name: 'Todo',
+                type: 'deadline',
+            },
+        ],
+        logEntries: [
+            {
+                title: 'Important thing!',
+                logReminder: {
+                    group: 'Todo',
+                    deadline: '{tomorrow}',
+                    warning: '1 day',
+                },
+            },
+        ],
+    });
 
-    logEntry = await actions.invoke('log-entry-load', { id: 2 });
-    expect(LogReminder.check(logEntry.logReminder)).toEqual(true);
+    const actions = Utils.getActions();
+    let logEntry = await actions.invoke('log-entry-load', { id: 1 });
+    expect(logEntry.date).toEqual(null);
+    logEntry = await actions.invoke('reminder-complete', { logEntry });
+    expect(logEntry.date).not.toEqual(null);
+});
+
+test('test_periodic_completion', async () => {
+    await Utils.loadData({
+        logReminderGroups: [
+            {
+                name: 'Daily Routine',
+                type: 'periodic',
+            },
+        ],
+        logEntries: [
+            {
+                title: 'Exercise',
+                logReminder: {
+                    group: 'Daily Routine',
+                    frequency: 'everyday',
+                    lastUpdate: '{yesterday}',
+                },
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    const logEntry = await actions.invoke('log-entry-load', { id: 1 });
+    expect(logEntry.date).toEqual(null);
+    const originalLastUpdate = logEntry.logReminder.lastUpdate;
+
+    const newLogEntry = await actions.invoke('reminder-complete', { logEntry });
+    expect(newLogEntry.id).not.toEqual(logEntry.id);
+    expect(newLogEntry.date).not.toEqual(null);
+    expect(newLogEntry.logReminder).toEqual(undefined); // TODO: This should be null.
+
+    const updatedLogEntry = await actions.invoke('log-entry-load', { id: logEntry.id });
+    expect(updatedLogEntry.logReminder.lastUpdate).not.toEqual(originalLastUpdate);
 });

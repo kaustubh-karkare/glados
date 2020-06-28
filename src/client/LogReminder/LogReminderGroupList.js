@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList, Select, Typeahead } from '../Common';
 import LogReminderGroup from '../../data/LogReminderGroup';
+import { LogEntryList } from '../LogEntry';
 
 
 function ViewerComponent(props) {
@@ -18,6 +19,21 @@ function ViewerComponent(props) {
 }
 
 ViewerComponent.propTypes = {
+    value: PropTypes.Custom.LogReminderGroup.isRequired,
+};
+
+function ExpandedViewerComponent(props) {
+    const logReminderGroup = props.value;
+    return (
+        <LogEntryList
+            name="Reminder Entries"
+            selector={{ logReminder: { logReminderGroup } }}
+            showAdder
+        />
+    );
+}
+
+ExpandedViewerComponent.propTypes = {
     value: PropTypes.Custom.LogReminderGroup.isRequired,
 };
 
@@ -64,6 +80,7 @@ function LogReminderGroupList() {
             name="Reminder Groups"
             dataType="log-reminder-group"
             ViewerComponent={ViewerComponent}
+            ExpandedViewerComponent={ExpandedViewerComponent}
             EditorComponent={EditorComponent}
         />
     );

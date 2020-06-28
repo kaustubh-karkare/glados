@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import LogEntryDateList from './LogEntryDateList';
+import LogEntryReminderList from './LogEntryReminderList';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderGroupList } from '../LogReminder';
 import { LogTagList } from '../LogTag';
@@ -13,8 +14,7 @@ import { LogTagList } from '../LogTag';
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
     LOG_STRUCTURES: 'log_structures',
-    LOG_KEYS: 'log_keys',
-    REMINDER_GROUPS: 'log_reminder_groups',
+    LOG_REMINDERS: 'log_reminders',
     LOG_TAGS: 'log_tags',
 };
 
@@ -30,7 +30,7 @@ class Applicaton extends React.Component {
                 <Row>
                     <Col md={2}>
                         <li>Project List</li>
-                        <li>Todo Items</li>
+                        <LogEntryReminderList />
                     </Col>
                     <Col md={8} className="mt-2">
                         <Tabs
@@ -43,7 +43,7 @@ class Applicaton extends React.Component {
                             <Tab eventKey={TabKeys.LOG_STRUCTURES} title="Structures">
                                 <LogStructureList />
                             </Tab>
-                            <Tab eventKey={TabKeys.REMINDER_GROUPS} title="Reminder Groups">
+                            <Tab eventKey={TabKeys.LOG_REMINDERS} title="Reminders">
                                 <LogReminderGroupList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_TAGS} title="Tags">

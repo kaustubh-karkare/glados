@@ -10,7 +10,7 @@ import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
 
 
 class LogEntry extends Base {
-    static createVirtual({ date, logStructure } = {}) {
+    static createVirtual({ date, logStructure, logReminder } = {}) {
         logStructure = logStructure || LogStructure.createVirtual();
         return {
             __type__: 'log-entry',
@@ -22,7 +22,7 @@ class LogEntry extends Base {
             details: '',
             logStructure,
             logValues: logStructure.logKeys.map((logKey) => LogValue.createVirtual({ logKey })),
-            logReminder: null,
+            logReminder: logReminder ? LogReminder.createVirtual(logReminder) : null,
         };
     }
 
@@ -42,6 +42,27 @@ class LogEntry extends Base {
             );
         }
         logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
+    }
+
+    static async list(input) {
+        if (
+            input
+            && input.selector
+            && input.selector.logReminder
+            && input.selector.logReminder.logReminderGroup
+        ) {
+            const logReminders = await this.database.findAll(
+                'LogReminder',
+                { group_id: input.selector.logReminder.logReminderGroup.id },
+                this.transaction,
+            );
+            const logEntryIds = logReminders.map((logReminder) => logReminder.entry_id);
+            return Base.list.call(this, {
+                selector: { id: { [this.database.Op.in]: logEntryIds } },
+                ordering: input.ordering,
+            });
+        }
+        return Base.list.call(this, input);
     }
 
     static async typeahead({ query }) {
@@ -64,9 +85,11 @@ class LogEntry extends Base {
         const results = [];
         if (inputLogEntry.date !== null) {
             results.push(this.validateDateLabel('.date', inputLogEntry.date));
+            /*
             results.push(
                 this.validateIndex('.orderingIndex', inputLogEntry.orderingIndex),
             );
+            */
         }
         results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
         if (isRealItem(inputLogEntry.logStructure)) {
@@ -233,7 +256,9 @@ class LogEntry extends Base {
                 ...inputLogEntry.logReminder,
             });
         } else if (logReminder) {
-            await LogReminder.delete.call(this, logReminder.id);
+            // TODO: Figure out a better way to handle this?
+            const context = { ...this, DataType: LogReminder };
+            await LogReminder.delete.call(context, logReminder.id);
         }
 
         return logEntry.id;

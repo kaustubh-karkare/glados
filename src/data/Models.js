@@ -346,6 +346,8 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    // LogReminder points to LogEntry so that they can be easily searched
+    // for relevant items, and easily deleted.
     LogEntry.hasOne(LogReminder, {
         foreignKey: 'entry_id',
         allowNull: false,

@@ -56,7 +56,7 @@ const FrequencyCheck = FrequencyOptions.reduce((result, item) => {
 
 
 class LogReminder extends Base {
-    static getVirtual({ logReminderGroup }) {
+    static createVirtual({ logReminderGroup }) {
         const item = {
             logReminderGroup,
             ...DefaultValues[logReminderGroup.type],
@@ -75,22 +75,18 @@ class LogReminder extends Base {
     }
 
     // eslint-disable-next-line consistent-return
-    static check(value) {
-        if (!value) {
-            return false;
-        }
-        const { type } = value.logReminderGroup;
-        if (type === LogReminderType.UNSPECIFIED) {
+    static check(reminderType, logReminder) {
+        if (reminderType === LogReminderType.UNSPECIFIED) {
             return true;
-        } if (type === LogReminderType.DEADLINE) {
-            return getTodayValue() >= getDateValue(value.deadline)
-                - getDurationValue(value.warning);
-        } if (type === LogReminderType.PERIODIC) {
-            return getTodayValue() > getDateValue(value.lastUpdate)
-                ? FrequencyCheck[value.frequency]()
+        } if (reminderType === LogReminderType.DEADLINE) {
+            return getTodayValue() >= getDateValue(logReminder.deadline)
+                - getDurationValue(logReminder.warning);
+        } if (reminderType === LogReminderType.PERIODIC) {
+            return getTodayValue() > getDateValue(logReminder.last_update)
+                ? FrequencyCheck[logReminder.frequency]()
                 : false;
         }
-        assert(false, value);
+        assert(false, reminderType);
     }
 
     static async validateInternal(inputLogReminder) {
