@@ -30,7 +30,7 @@ class LogReminderEditor extends React.Component {
                     onChange={(newLogReminderGroup) => this.props.onChange(
                         newLogReminderGroup.id === NoneOption.id
                             ? null
-                            : LogReminder.getVirtual({ logReminderGroup: newLogReminderGroup }),
+                            : LogReminder.createVirtual({ logReminderGroup: newLogReminderGroup }),
                     )}
                 />
             </InputGroup>

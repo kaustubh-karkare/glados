@@ -56,9 +56,9 @@ class LogEntry extends Base {
                 { group_id: input.selector.logReminder.logReminderGroup.id },
                 this.transaction,
             );
-            const logEntryIds = logReminders.map((logReminder) => logReminder.entry_id);
+            const logReminderIds = logReminders.map((logReminder) => logReminder.id);
             return Base.list.call(this, {
-                selector: { id: { [this.database.Op.in]: logEntryIds } },
+                selector: { reminder_id: { [this.database.Op.in]: logReminderIds } },
                 ordering: input.ordering,
             });
         }
@@ -85,11 +85,6 @@ class LogEntry extends Base {
         const results = [];
         if (inputLogEntry.date !== null) {
             results.push(this.validateDateLabel('.date', inputLogEntry.date));
-            /*
-            results.push(
-                this.validateIndex('.orderingIndex', inputLogEntry.orderingIndex),
-            );
-            */
         }
         results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
         if (isRealItem(inputLogEntry.logStructure)) {
@@ -129,11 +124,9 @@ class LogEntry extends Base {
         const outputLogValues = await Promise.all(
             edges.map((edge) => LogValue.load.call(this, edge.value_id)),
         );
-        const logReminder = await this.database.findOne('LogReminder', { entry_id: id }, this.transaction);
         let outputLogReminder = null;
-        if (logReminder) {
-            outputLogReminder = await LogReminder.load.call(this, logReminder.id);
-            delete outputLogReminder.entry_id;
+        if (logEntry.reminder_id) {
+            outputLogReminder = await LogReminder.load.call(this, logEntry.reminder_id);
         }
         return {
             __type__: 'log-entry',
@@ -171,6 +164,23 @@ class LogEntry extends Base {
             );
         }
 
+        let reminderId = null;
+        if (inputLogEntry.logReminder) {
+            reminderId = await LogReminder.save.call(this, inputLogEntry.logReminder);
+        } else if (isRealItem(inputLogEntry)) {
+            // TODO: Reuse read results from below?
+            const logEntry = await this.database.findByPk(
+                'LogEntry',
+                inputLogEntry.id,
+                this.transaction,
+            );
+            if (logEntry.reminder_id) {
+                const id = logEntry.reminder_id;
+                await logEntry.update({ reminder_id: null });
+                await this.database.deleteByPk('LogReminder', id, this.transaction);
+            }
+        }
+
         LogEntry.trigger(inputLogEntry);
         const orderingIndex = await LogEntry.getOrderingIndex.call(this, inputLogEntry);
         const fields = {
@@ -179,8 +189,9 @@ class LogEntry extends Base {
             ordering_index: orderingIndex,
             name: inputLogEntry.name,
             title: inputLogEntry.title,
-            structure_id: logStructure ? logStructure.id : null,
             details: inputLogEntry.details,
+            structure_id: logStructure ? logStructure.id : null,
+            reminder_id: reminderId,
         };
         const logEntry = await this.database.createOrUpdate('LogEntry', fields, this.transaction);
 
@@ -245,23 +256,6 @@ class LogEntry extends Base {
             this.transaction,
         );
 
-        const logReminder = await this.database.findOne(
-            'LogReminder',
-            { entry_id: logEntry.id },
-            this.transaction,
-        );
-        if (inputLogEntry.logReminder) {
-            await LogReminder.save.call(this, {
-                id: logReminder ? logReminder.id : getVirtualID(),
-                entry_id: logEntry.id,
-                ...inputLogEntry.logReminder,
-            });
-        } else if (logReminder) {
-            // TODO: Figure out a better way to handle this?
-            const context = { ...this, DataType: LogReminder };
-            await LogReminder.delete.call(context, logReminder.id);
-        }
-
         return logEntry.id;
     }
 
@@ -295,8 +289,16 @@ class LogEntry extends Base {
             id,
             this.transaction,
         );
+        const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         const result = await Base.delete.call(this, id);
         await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
+        if (logEntry.reminder_id) {
+            await this.database.deleteByPk(
+                'LogReminder',
+                logEntry.reminder_id,
+                this.transaction,
+            );
+        }
         return result;
     }
 

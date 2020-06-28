@@ -22,6 +22,6 @@ test('test_reminder_constraint', async () => {
 
     const actions = Utils.getActions();
     await expect(() => actions.invoke('log-reminder-group-delete', 1)).rejects.toThrow();
-    await actions.invoke('log-reminder-delete', 1);
+    await actions.invoke('log-entry-delete', 1);
     await actions.invoke('log-reminder-group-delete', 1);
 });

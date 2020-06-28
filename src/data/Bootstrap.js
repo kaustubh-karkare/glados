@@ -86,6 +86,7 @@ async function loadData(actions, data) {
         }
         inputLogEntry.details = inputLogEntry.details || '';
         if (inputLogEntry.logReminder) {
+            inputLogEntry.logReminder.id = getVirtualID();
             maybeSubstitute(inputLogEntry.logReminder, 'deadline');
             maybeSubstitute(inputLogEntry.logReminder, 'lastUpdate');
             if (inputLogEntry.logReminder.group) {

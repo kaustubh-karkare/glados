@@ -3,6 +3,29 @@ import Utils from './Utils';
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
+test('test_deletion_check', async () => {
+    await Utils.loadData({
+        logReminderGroups: [
+            {
+                name: 'Entertainment',
+                type: 'unspecified',
+            },
+        ],
+        logEntries: [
+            {
+                title: 'Listen to music!',
+                logReminder: { group: 'Entertainment' },
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    await expect(() => actions.invoke('log-reminder-delete', 1)).rejects.toThrow();
+    await actions.invoke('log-entry-delete', 1);
+    const logReminders = await actions.invoke('log-reminder-list');
+    expect(logReminders.length).toEqual(0);
+});
+
 test('test_deadline_check', async () => {
     await Utils.loadData({
         logReminderGroups: [

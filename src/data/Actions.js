@@ -54,11 +54,11 @@ ActionsRegistry['reminder-list'] = async function (input) {
         { group_id: input.logReminderGroup.id },
         this.transaction,
     );
-    const logEntryIds = logReminders
+    const logReminderIds = logReminders
         .filter((logReminder) => LogReminder.check(type, logReminder))
-        .map((logReminder) => logReminder.entry_id);
+        .map((logReminder) => logReminder.id);
     const outputLogEntries = await ActionsRegistry['log-entry-list'].call(this, {
-        selector: { id: { [this.database.Op.in]: logEntryIds } },
+        selector: { reminder_id: { [this.database.Op.in]: logReminderIds } },
         ordering: true,
     });
     return outputLogEntries;

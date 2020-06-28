@@ -142,6 +142,10 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
+            reminder_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
             date: {
                 type: Sequelize.STRING,
                 allowNull: true,
@@ -311,10 +315,6 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            entry_id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
             type: {
                 type: Sequelize.STRING,
                 allowNull: false,
@@ -339,17 +339,15 @@ export default function (sequelize) {
         options,
     );
 
-    LogReminderGroup.hasOne(LogReminder, {
+    LogReminder.belongsTo(LogReminderGroup, {
         foreignKey: 'group_id',
         allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    // LogReminder points to LogEntry so that they can be easily searched
-    // for relevant items, and easily deleted.
-    LogEntry.hasOne(LogReminder, {
-        foreignKey: 'entry_id',
+    LogEntry.belongsTo(LogReminder, {
+        foreignKey: 'reminder_id',
         allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',

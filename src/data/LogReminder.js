@@ -120,7 +120,6 @@ class LogReminder extends Base {
         const outputLogReminderGroup = await LogReminderGroup.load.call(this, logReminder.group_id);
         return {
             logReminderGroup: outputLogReminderGroup,
-            entry_id: logReminder.entry_id,
             deadline: logReminder.type === LogReminderType.DEADLINE
                 ? logReminder.deadline
                 : undefined,
@@ -141,7 +140,6 @@ class LogReminder extends Base {
         const fields = {
             id: inputLogReminder.id,
             group_id: inputLogReminder.logReminderGroup.id,
-            entry_id: inputLogReminder.entry_id,
             type,
             deadline: type === LogReminderType.DEADLINE
                 ? inputLogReminder.deadline
@@ -162,6 +160,10 @@ class LogReminder extends Base {
             this.transaction,
         );
         return logReminder.id;
+    }
+
+    static async delete(id) {
+        assert(false, 'LogReminder.delete not allowed! Use LogEntry.upsert/delete instead.');
     }
 }
 
