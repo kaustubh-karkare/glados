@@ -100,6 +100,7 @@ class SocketRPC {
             if (futures) {
                 futures.forEach(({ resolve }) => resolve(data));
             }
+            delete this.subscriptions[name];
         });
     }
 

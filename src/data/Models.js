@@ -130,6 +130,9 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    // Should this be called call LogEntry or LogEvent?
+    // LogEvent indicates "events" and not all items in the list are actual events.
+    // They might be random thoughts, or reminders, etc.
     const LogEntry = sequelize.define(
         'log_entries',
         {
