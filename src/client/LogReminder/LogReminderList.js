@@ -56,15 +56,22 @@ class LogReminderList extends React.Component {
         );
     }
 
+    renderContent() {
+        if (this.state.logEntries === null) {
+            return 'Loading ...';
+        } if (this.state.logEntries.length === 0) {
+            return <div className="ml-3">All done!</div>;
+        }
+        return this.state.logEntries.map((item) => this.renderItem(item));
+    }
+
     render() {
         return (
             <div>
                 <div className="log-viewer">
                     <span>{this.props.logReminderGroup.name}</span>
                 </div>
-                {this.state.logEntries
-                    ? this.state.logEntries.map((item) => this.renderItem(item))
-                    : 'Loading ...'}
+                {this.renderContent()}
             </div>
         );
     }

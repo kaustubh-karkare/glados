@@ -55,16 +55,12 @@ class BulletList extends React.Component {
     }
 
     componentDidMount() {
-        this.onLoad();
+        this.fetchItems();
+        this.setupSubscription();
     }
 
-    onLoad() {
-        const input = { selector: this.props.selector, ordering: this.props.allowReordering };
-        window.api.send(`${this.props.dataType}-list`, input)
-            .then((items) => this.setState((state) => ({
-                items,
-                isExpanded: state.isExpanded || {},
-            })));
+    componentWillUnmount() {
+        this.cleanSubscription();
     }
 
     onMove(index, delta, event) {
@@ -82,6 +78,34 @@ class BulletList extends React.Component {
         window.api.send(`${this.props.dataType}-reorder`, input)
             .then(() => this.setState((state) => ({ items: orderedItems })))
             .catch((error) => this.setState({ error }));
+    }
+
+    setupSubscription() {
+        if (!this.props.allowSubscription) return;
+        const { promise, cancel } = window.api.subscribe(`${this.props.dataType}-list`);
+        this.cancelSubscription = cancel;
+        promise.then((data) => {
+            const original = this.props.selector;
+            const modified = (data && data.selector) || {};
+            if (Object.keys(original).every((key) => original[key] === modified[key])) {
+                this.fetchItems();
+            }
+            return this.setupSubscription();
+        });
+    }
+
+    fetchItems() {
+        const input = { selector: this.props.selector, ordering: this.props.allowReordering };
+        window.api.send(`${this.props.dataType}-list`, input)
+            .then((items) => this.setState((state) => ({
+                items,
+                isExpanded: state.isExpanded || {},
+            })));
+    }
+
+    cleanSubscription() {
+        if (!this.props.allowSubscription) return;
+        this.cancelSubscription();
     }
 
     toggleItem(item) {
@@ -364,6 +388,7 @@ BulletList.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
     allowReordering: PropTypes.bool,
+    allowSubscription: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
     ExpandedViewerComponent: PropTypes.func,
     EditorComponent: PropTypes.func.isRequired,

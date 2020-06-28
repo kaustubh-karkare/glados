@@ -89,6 +89,7 @@
 
 .input-group > .form-check-inline {
     margin-right: 0;
+    width: 16px;
 }
 
 .input-group > .rbt input:first-child {

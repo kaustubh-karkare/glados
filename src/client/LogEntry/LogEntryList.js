@@ -66,6 +66,7 @@ function LogEntryList(props) {
             dataType="log-entry"
             selector={props.selector}
             allowReordering
+            allowSubscription
             ViewerComponent={ViewerComponent}
             ExpandedViewerComponent={ExpandedViewerComponent}
             EditorComponent={EditorComponent}

@@ -66,9 +66,10 @@ ActionsRegistry['reminder-list'] = async function (input) {
 
 ActionsRegistry['reminder-complete'] = async function (input) {
     const inputLogEntry = input.logEntry;
+    const today = getTodayLabel();
     const updatedLogEntry = {
         ...inputLogEntry,
-        date: getTodayLabel(),
+        date: today,
         logReminder: null,
     };
     const { type } = inputLogEntry.logReminder.logReminderGroup;
@@ -80,7 +81,7 @@ ActionsRegistry['reminder-complete'] = async function (input) {
     } else if (
         type === LogReminder.Type.PERIODIC
     ) {
-        inputLogEntry.logReminder.lastUpdate = updatedLogEntry.date;
+        inputLogEntry.logReminder.lastUpdate = today;
         await ActionsRegistry['log-entry-upsert'].call(this, inputLogEntry);
         // duplicate the existing entry
         updatedLogEntry.id = getVirtualID();
@@ -88,31 +89,58 @@ ActionsRegistry['reminder-complete'] = async function (input) {
         assert(false, type);
     }
     const outputLogEntry = await ActionsRegistry['log-entry-upsert'].call(this, updatedLogEntry);
+    this.broadcast('log-entry-list', { selector: { date: today } });
     return { logEntry: outputLogEntry };
 };
 
 export default class {
     constructor(database) {
         this.database = database;
+        this.socket = null;
+        this.broadcasts = null;
     }
 
-    invoke(name, input) {
+    registerBroadcast(socket) {
+        this.socket = socket;
+    }
+
+    getBroadcasts() { // used for tests
+        const result = this.broadcasts;
+        this.broadcasts = null;
+        return result;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    has(name) {
+        return name in ActionsRegistry;
+    }
+
+    async invoke(name, input) {
         try {
-            return this.database.sequelize.transaction(async (transaction) => {
-                const context = { database: this.database, transaction };
+            const broadcasts = [];
+            const response = await this.database.sequelize.transaction(async (transaction) => {
+                const context = {
+                    broadcast: (...args) => broadcasts.push(args),
+                    database: this.database,
+                    transaction,
+                };
                 const output = await ActionsRegistry[name].call(context, input);
                 return output;
             });
+            // Now that the transactions has been committed ...
+            if (this.socket) {
+                broadcasts.forEach((args) => this.socket.broadcast(...args));
+            } else {
+                this.broadcasts = broadcasts;
+            }
+            return response;
         } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error(error);
+            // eslint-disable-next-line no-constant-condition
+            if (false) {
+                // eslint-disable-next-line no-console
+                console.error(error);
+            }
             throw error;
         }
-    }
-
-    register(api) {
-        Object.keys(ActionsRegistry).forEach((name) => {
-            api.register(name, (input) => this.invoke(name, input));
-        });
     }
 }
