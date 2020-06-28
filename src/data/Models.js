@@ -335,6 +335,10 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: true,
             },
+            needs_edit: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
         },
         options,
     );

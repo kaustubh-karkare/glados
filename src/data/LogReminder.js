@@ -8,7 +8,7 @@ import {
 } from '../common/DateUtils';
 import Base from './Base';
 import LogReminderGroup, { LogReminderType } from './LogReminderGroup';
-import { isRealItem } from './Utils';
+import { getVirtualID, isRealItem } from './Utils';
 
 
 const DefaultValues = {
@@ -58,8 +58,10 @@ const FrequencyCheck = FrequencyOptions.reduce((result, item) => {
 class LogReminder extends Base {
     static createVirtual({ logReminderGroup }) {
         const item = {
+            id: getVirtualID(),
             logReminderGroup,
             ...DefaultValues[logReminderGroup.type],
+            needsEdit: true,
         };
         maybeSubstitute(item, 'deadline');
         maybeSubstitute(item, 'lastUpdate');
@@ -132,6 +134,7 @@ class LogReminder extends Base {
             lastUpdate: logReminder.type === LogReminderType.PERIODIC
                 ? logReminder.last_update
                 : undefined,
+            needsEdit: logReminder.needs_edit,
         };
     }
 
@@ -153,6 +156,7 @@ class LogReminder extends Base {
             last_update: type === LogReminderType.PERIODIC
                 ? inputLogReminder.lastUpdate
                 : null,
+            needs_edit: inputLogReminder.needsEdit,
         };
         const logReminder = await this.database.createOrUpdate(
             'LogReminder',

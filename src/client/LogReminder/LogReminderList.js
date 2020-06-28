@@ -23,6 +23,7 @@ class LogReminderList extends React.Component {
     }
 
     onCompleteReminder(logEntry) {
+        // TODO: logEntry.logReminder.needsEdit
         window.api.send('reminder-complete', { logEntry })
             .then(() => {
                 // Assuming no update needed ...

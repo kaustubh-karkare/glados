@@ -29,7 +29,7 @@ class LogEntryEditor extends React.Component {
                 <InputGroup.Text>
                     Date
                 </InputGroup.Text>
-                <Form.Control disabled value={this.props.logEntry.date || 'Unspecified'} />
+                <Form.Control disabled value={this.props.logEntry.date || 'NA'} />
             </InputGroup>
         );
     }

@@ -13,6 +13,11 @@ const NoneOption = {
     name: 'None',
 };
 
+const NeedsEditOptions = [
+    { label: 'No', value: 'no' },
+    { label: 'Yes', value: 'yes' },
+];
+
 class LogReminderEditor extends React.Component {
     renderGroupSelector() {
         const logReminderGroup = this.props.logReminder
@@ -101,6 +106,26 @@ class LogReminderEditor extends React.Component {
         );
     }
 
+    renderNeedsEditSelector() {
+        return (
+            <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Needs Edit?
+                    </InputGroup.Text>
+                    <Select
+                        value={NeedsEditOptions[this.props.logReminder.needsEdit ? 1 : 0].value}
+                        options={NeedsEditOptions}
+                        onChange={(newValue) => this.props.onChange({
+                            ...this.props.logReminder,
+                            needsEdit: newValue === NeedsEditOptions[1].value,
+                        })}
+                    />
+                </InputGroup>
+            </>
+        );
+    }
+
     render() {
         const type = this.props.logReminder
             ? this.props.logReminder.logReminderGroup.type
@@ -110,6 +135,7 @@ class LogReminderEditor extends React.Component {
                 {this.renderGroupSelector()}
                 {type === LogReminderType.DEADLINE ? this.renderDeadline() : null}
                 {type === LogReminderType.PERIODIC ? this.renderPeriodic() : null}
+                {type !== LogReminderType.NONE ? this.renderNeedsEditSelector() : null}
             </>
         );
     }

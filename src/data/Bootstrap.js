@@ -87,6 +87,7 @@ async function loadData(actions, data) {
         inputLogEntry.details = inputLogEntry.details || '';
         if (inputLogEntry.logReminder) {
             inputLogEntry.logReminder.id = getVirtualID();
+            inputLogEntry.logReminder.needsEdit = true;
             maybeSubstitute(inputLogEntry.logReminder, 'deadline');
             maybeSubstitute(inputLogEntry.logReminder, 'lastUpdate');
             if (inputLogEntry.logReminder.group) {
@@ -163,6 +164,7 @@ async function saveData(actions) {
             item.logReminder = JSON.parse(JSON.stringify(logEntry.logReminder));
             item.logReminder.group = logEntry.logReminder.logReminderGroup.name;
             delete item.logReminder.logReminderGroup;
+            delete item.logReminder.needsEdit;
         }
         return item;
     });

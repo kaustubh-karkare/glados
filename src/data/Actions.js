@@ -70,6 +70,7 @@ ActionsRegistry['reminder-complete'] = async function (input) {
     const updatedLogEntry = {
         ...inputLogEntry,
         date: today,
+        orderingIndex: null, // will be recomputed
         logReminder: null,
     };
     const { type } = inputLogEntry.logReminder.logReminderGroup;
