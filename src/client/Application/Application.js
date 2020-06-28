@@ -5,10 +5,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import { LogEntryList } from './LogEntry';
-import { LogStructureList } from './LogStructure';
-import { LogReminderGroupList } from './LogReminder';
-import { LogTagList } from './LogTag';
+import LogEntryDateList from './LogEntryDateList';
+import { LogStructureList } from '../LogStructure';
+import { LogReminderGroupList } from '../LogReminder';
+import { LogTagList } from '../LogTag';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
@@ -38,7 +38,7 @@ class Applicaton extends React.Component {
                             onSelect={(activeTab) => this.setState({ activeTab })}
                         >
                             <Tab eventKey={TabKeys.LOG_ENTRIES} title="Entries">
-                                <LogEntryList />
+                                <LogEntryDateList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_STRUCTURES} title="Structures">
                                 <LogStructureList />

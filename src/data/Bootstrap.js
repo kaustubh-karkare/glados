@@ -139,7 +139,10 @@ async function saveData(actions) {
 
     const logEntries = await actions.invoke('log-entry-list');
     result.logEntries = logEntries.map((logEntry) => {
-        const item = { date: logEntry.date };
+        const item = {};
+        if (logEntry.date) {
+            item.date = logEntry.date;
+        }
         item.title = TextEditorUtils.deserialize(
             logEntry.title,
             TextEditorUtils.StorageType.PLAINTEXT,

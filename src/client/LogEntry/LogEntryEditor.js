@@ -10,7 +10,7 @@ import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
 import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
-import LogEntryReminderEditor from './LogEntryReminderEditor';
+import { LogReminderEditor } from '../LogReminder';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
@@ -137,7 +137,7 @@ class LogEntryEditor extends React.Component {
                     />
                 </div>
                 <div className="my-3">
-                    <LogEntryReminderEditor
+                    <LogReminderEditor
                         logReminder={this.props.logEntry.logReminder}
                         onChange={(newReminder) => this.updateLogEntry((logEntry) => {
                             logEntry.logReminder = newReminder;

@@ -11,10 +11,7 @@ function ViewerComponent(props) {
         <div className="log-viewer">
             {logReminderGroup.name}
             <span className="log-viewer">
-                {' '}
-                (
-                {logReminderGroup.type}
-                )
+                {` (${logReminderGroup.type})`}
             </span>
         </div>
     );
@@ -22,7 +19,6 @@ function ViewerComponent(props) {
 
 ViewerComponent.propTypes = {
     value: PropTypes.Custom.LogReminderGroup.isRequired,
-    // isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
@@ -67,8 +63,8 @@ function LogReminderGroupList() {
         <BulletList
             name="Reminder Groups"
             dataType="log-reminder-group"
-            EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}
+            EditorComponent={EditorComponent}
         />
     );
 }

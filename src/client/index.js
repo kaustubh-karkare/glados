@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
 import SocketRPC from '../common/socket_rpc';
-import Application from './Application.react';
+import { Application } from './Application';
 
 import './bootstrap.min.css';
 import './index.css';

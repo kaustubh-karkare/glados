@@ -49,8 +49,8 @@ function LogTagList() {
         <BulletList
             name="Tags"
             dataType="log-tag"
-            EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}
+            EditorComponent={EditorComponent}
         />
     );
 }

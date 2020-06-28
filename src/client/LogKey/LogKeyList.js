@@ -17,7 +17,6 @@ function ViewerComponent(props) {
 
 ViewerComponent.propTypes = {
     value: PropTypes.Custom.LogKey.isRequired,
-    // isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
@@ -49,8 +48,8 @@ function LogKeyList() {
         <BulletList
             name="Keys"
             dataType="log-key"
-            EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}
+            EditorComponent={EditorComponent}
         />
     );
 }

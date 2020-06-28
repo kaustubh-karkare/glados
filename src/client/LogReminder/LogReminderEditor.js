@@ -13,7 +13,7 @@ const NoneOption = {
     name: 'None',
 };
 
-class LogEntryReminderEditor extends React.Component {
+class LogReminderEditor extends React.Component {
     renderGroupSelector() {
         const logReminderGroup = this.props.logReminder
             ? this.props.logReminder.logReminderGroup
@@ -115,9 +115,9 @@ class LogEntryReminderEditor extends React.Component {
     }
 }
 
-LogEntryReminderEditor.propTypes = {
+LogReminderEditor.propTypes = {
     logReminder: PropTypes.Custom.LogReminder,
     onChange: PropTypes.func.isRequired,
 };
 
-export default LogEntryReminderEditor;
+export default LogReminderEditor;

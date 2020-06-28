@@ -72,7 +72,6 @@ const bootstrapData = {
             logValues: ['15', '60'],
         },
         {
-            date: null,
             title: 'Suryanamaskar',
             logReminder: {
                 group: 'Daily Routine',

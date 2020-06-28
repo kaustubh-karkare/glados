@@ -6,21 +6,27 @@ import LogStructureEditor from './LogStructureEditor';
 
 function ViewerComponent(props) {
     const logStructure = props.value;
-    if (!props.isExpanded) {
-        return (
-            <div className="log-viewer">
-                {logStructure.name}
-                <span>
-                    {logStructure.logKeys.map((logKey, index) => (
-                        <span key={logKey.id}>
-                            {index ? ', ' : ': '}
-                            <span title={logKey.type}>{logKey.name}</span>
-                        </span>
-                    ))}
-                </span>
-            </div>
-        );
-    }
+    return (
+        <div className="log-viewer">
+            {logStructure.name}
+            <span>
+                {logStructure.logKeys.map((logKey, index) => (
+                    <span key={logKey.id}>
+                        {index ? ', ' : ': '}
+                        <span title={logKey.type}>{logKey.name}</span>
+                    </span>
+                ))}
+            </span>
+        </div>
+    );
+}
+
+ViewerComponent.propTypes = {
+    value: PropTypes.Custom.LogStructure.isRequired,
+};
+
+function ExpandedViewerComponent(props) {
+    const logStructure = props.value;
     return (
         <TextEditor
             unstyled
@@ -30,9 +36,8 @@ function ViewerComponent(props) {
     );
 }
 
-ViewerComponent.propTypes = {
+ExpandedViewerComponent.propTypes = {
     value: PropTypes.Custom.LogStructure.isRequired,
-    isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
@@ -54,8 +59,9 @@ function LogStructureList() {
         <BulletList
             name="Structures"
             dataType="log-structure"
-            EditorComponent={EditorComponent}
             ViewerComponent={ViewerComponent}
+            ExpandedViewerComponent={ExpandedViewerComponent}
+            EditorComponent={EditorComponent}
         />
     );
 }

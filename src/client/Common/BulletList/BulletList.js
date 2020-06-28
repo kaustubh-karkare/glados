@@ -278,7 +278,7 @@ class BulletList extends React.Component {
     }
 
     renderItems() {
-        const { ViewerComponent } = this.props;
+        const { ViewerComponent, ExpandedViewerComponent } = this.props;
         return this.state.items.map((item, index) => (
             <BulletListItem
                 index={index}
@@ -291,11 +291,10 @@ class BulletList extends React.Component {
                 onMoveUp={(event) => this.onMove(index, -1, event)}
                 onMoveDown={(event) => this.onMove(index, 1, event)}
             >
-                <ViewerComponent value={item} isExpanded={false} />
+                <ViewerComponent value={item} />
                 {
-                    // eslint-disable-next-line react/forbid-foreign-prop-types
-                    ViewerComponent.propTypes.isExpanded
-                        ? <ViewerComponent value={item} isExpanded />
+                    ExpandedViewerComponent
+                        ? <ExpandedViewerComponent value={item} />
                         : null
                 }
             </BulletListItem>
@@ -365,8 +364,9 @@ BulletList.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
     allowReordering: PropTypes.bool,
-    EditorComponent: PropTypes.func.isRequired,
     ViewerComponent: PropTypes.func.isRequired,
+    ExpandedViewerComponent: PropTypes.func,
+    EditorComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,
 };
 

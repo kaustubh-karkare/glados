@@ -6,24 +6,26 @@ import { LogEntry } from '../../data';
 import LogEntryAdder from './LogEntryAdder';
 import LogEntryEditor from './LogEntryEditor';
 import { TextEditorSources } from './LogEntryTitleEditor';
-import { getTodayLabel, getDayOfTheWeek } from '../../common/DateUtils';
 
 
 function ViewerComponent(props) {
     const logEntry = props.value;
-    if (!props.isExpanded) {
-        return (
-            <TextEditor
-                unstyled
-                disabled
-                sources={TextEditorSources}
-                value={logEntry.title}
-            />
-        );
-    }
-    if (!logEntry.details) {
-        return null;
-    }
+    return (
+        <TextEditor
+            unstyled
+            disabled
+            sources={TextEditorSources}
+            value={logEntry.title}
+        />
+    );
+}
+
+ViewerComponent.propTypes = {
+    value: PropTypes.Custom.LogEntry.isRequired,
+};
+
+function ExpandedViewerComponent(props) {
+    const logEntry = props.value;
     return (
         <TextEditor
             unstyled
@@ -34,9 +36,8 @@ function ViewerComponent(props) {
     );
 }
 
-ViewerComponent.propTypes = {
+ExpandedViewerComponent.propTypes = {
     value: PropTypes.Custom.LogEntry.isRequired,
-    isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
@@ -58,39 +59,26 @@ EditorComponent.propTypes = {
     onSpecialKeys: PropTypes.func.isRequired,
 };
 
-class LogEntryList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { dates: null };
-    }
-
-    componentDidMount() {
-        this.reload();
-    }
-
-    reload() {
-        window.api.send('dates')
-            .then((dates) => this.setState({ dates }));
-    }
-
-    render() {
-        if (this.state.dates === null) {
-            return 'Loading ...';
-        }
-        const today = getTodayLabel();
-        return this.state.dates.map((date) => (
-            <BulletList
-                key={date}
-                name={`${date} : ${getDayOfTheWeek(date)}`}
-                dataType="log-entry"
-                selector={{ date }}
-                allowReordering
-                EditorComponent={EditorComponent}
-                ViewerComponent={ViewerComponent}
-                AdderComponent={date === today ? LogEntryAdder : null}
-            />
-        ));
-    }
+function LogEntryList(props) {
+    return (
+        <BulletList
+            name={props.name}
+            dataType="log-entry"
+            selector={props.selector}
+            allowReordering
+            ViewerComponent={ViewerComponent}
+            ExpandedViewerComponent={ExpandedViewerComponent}
+            EditorComponent={EditorComponent}
+            AdderComponent={props.showAdder ? LogEntryAdder : null}
+        />
+    );
 }
+
+LogEntryList.propTypes = {
+    name: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.object.isRequired,
+    showAdder: PropTypes.bool.isRequired,
+};
 
 export default LogEntryList;
