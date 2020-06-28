@@ -23,6 +23,10 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         const context = { ...this, DataType };
         return DataType.load.call(context, input.id);
     };
+    ActionsRegistry[`${name}-reorder`] = async function (input) {
+        const context = { ...this, DataType };
+        return DataType.reorder.call(context, input);
+    };
     ActionsRegistry[`${name}-upsert`] = async function (input) {
         const context = { ...this, DataType };
         const id = await DataType.save.call(context, input);
@@ -47,11 +51,17 @@ export default class {
     }
 
     invoke(name, input) {
-        return this.database.sequelize.transaction(async (transaction) => {
-            const context = { database: this.database, transaction };
-            const output = await ActionsRegistry[name].call(context, input);
-            return output;
-        });
+        try {
+            return this.database.sequelize.transaction(async (transaction) => {
+                const context = { database: this.database, transaction };
+                const output = await ActionsRegistry[name].call(context, input);
+                return output;
+            });
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+            throw error;
+        }
     }
 
     register(api) {

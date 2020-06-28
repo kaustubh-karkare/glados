@@ -7,9 +7,24 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
-    static async list(input) {
-        const items = await this.database.findAll(this.DataType.name, input, this.transaction);
-        return Promise.all(items.map((item) => this.DataType.load.call(this, item.id)));
+    static async list({ selector, ordering } = { selector: [] }) {
+        const items = await this.database.findAll(this.DataType.name, selector, this.transaction);
+        let outputItems = await Promise.all(
+            items.map((item) => this.DataType.load.call(this, item.id)),
+        );
+        if (ordering) {
+            outputItems = outputItems.sort((left, right) => {
+                if (left.orderingIndex !== null && right.orderingIndex !== null) {
+                    return left.orderingIndex - right.orderingIndex;
+                } if (left.orderingIndex === null && right.orderingIndex !== null) {
+                    return 1;
+                } if (left.orderingIndex !== null && right.orderingIndex === null) {
+                    return -1;
+                }
+                return left.id - right.id;
+            });
+        }
+        return outputItems;
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -26,6 +41,19 @@ class Base extends ValidationBase {
     // eslint-disable-next-line no-unused-vars
     static async load(id) {
         throw new Exception('not implemented');
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    static async reorder(input) {
+        // The client-side does not know the underscore names used in the database.
+        // Is it possible to add a mysql index to prevent conflicts?
+        await Promise.all(input.map(
+            (id, index) => this.database.update(
+                this.DataType.name,
+                { id, orderingIndex: index },
+                this.transaction,
+            ),
+        ));
     }
 
     // eslint-disable-next-line no-unused-vars

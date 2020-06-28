@@ -15,7 +15,7 @@ class LogEntry extends Base {
         return {
             __type__: 'log-entry',
             date: date || null,
-            dateOrderingIndex: 0,
+            orderingIndex: null,
             id: getVirtualID(),
             name: '',
             title: '',
@@ -63,12 +63,10 @@ class LogEntry extends Base {
     static async validateInternal(inputLogEntry) {
         const results = [];
         if (inputLogEntry.date !== null) {
-            /*
             results.push(this.validateDateLabel('.date', inputLogEntry.date));
             results.push(
-                this.validateIndex('.dateOrderingIndex', inputLogEntry.dateOrderingIndex),
+                this.validateIndex('.orderingIndex', inputLogEntry.orderingIndex),
             );
-            */
         }
         results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
         if (isRealItem(inputLogEntry.logStructure)) {
@@ -118,7 +116,7 @@ class LogEntry extends Base {
             __type__: 'log-entry',
             id: logEntry.id,
             date: logEntry.date,
-            dateOrderingIndex: logEntry.date_ordering_index,
+            orderingIndex: logEntry.ordering_index,
             name: logEntry.name,
             title: logEntry.title,
             details: logEntry.details,
@@ -154,7 +152,7 @@ class LogEntry extends Base {
         const fields = {
             id: inputLogEntry.id,
             date: inputLogEntry.date,
-            date_ordering_index: inputLogEntry.dateOrderingIndex,
+            ordering_index: inputLogEntry.orderingIndex,
             name: inputLogEntry.name,
             title: inputLogEntry.title,
             structure_id: logStructure ? logStructure.id : null,

@@ -33,13 +33,13 @@ export function getTodayLabel() {
 }
 
 const DaysOfTheWeek = [
+    'Sunday',
     'Monday',
     'Tuesday',
     'Wednesday',
     'Thursday',
     'Friday',
     'Saturday',
-    'Sunday',
 ];
 
 export function getDayOfTheWeek(label) {

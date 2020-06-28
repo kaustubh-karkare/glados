@@ -82,8 +82,9 @@ class LogEntryList extends React.Component {
             <BulletList
                 key={date}
                 name={`${date} : ${getDayOfTheWeek(date)}`}
-                selector={{ date }}
                 dataType="log-entry"
+                selector={{ date }}
+                allowReordering
                 EditorComponent={EditorComponent}
                 ViewerComponent={ViewerComponent}
                 AdderComponent={date === today ? LogEntryAdder : null}

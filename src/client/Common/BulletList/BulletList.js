@@ -55,34 +55,33 @@ class BulletList extends React.Component {
     }
 
     componentDidMount() {
-        this.reload();
+        this.onLoad();
     }
 
-    onReorder({ oldIndex, newIndex }) {
-        this.setState((state) => ({
-            items: arrayMove(state.items, oldIndex, newIndex),
-        }));
+    onLoad() {
+        const input = { selector: this.props.selector, ordering: this.props.allowReordering };
+        window.api.send(`${this.props.dataType}-list`, input)
+            .then((items) => this.setState((state) => ({
+                items,
+                isExpanded: state.isExpanded || {},
+            })));
     }
 
     onMove(index, delta, event) {
         if (!event.shiftKey) return;
-        this.setState((state) => {
-            const otherIndex = index + delta;
-            if (otherIndex < 0 || otherIndex === state.items.length) return {};
-            const items = [...state.items];
-            [items[index], items[otherIndex]] = [items[otherIndex], items[index]];
-            return { items };
-        });
+        const otherIndex = index + delta;
+        const totalLength = this.state.items.length;
+        if (otherIndex < 0 || otherIndex === totalLength) return;
+        this.onReorder({ oldIndex: index, newIndex: otherIndex });
     }
 
-    reload() {
-        window.api.send(`${this.props.dataType}-list`, this.props.selector)
-            .then((items) => {
-                this.setState((state) => ({
-                    items,
-                    isExpanded: state.isExpanded || {},
-                }));
-            });
+    onReorder({ oldIndex, newIndex }) {
+        if (!this.props.allowReordering) return;
+        const orderedItems = arrayMove(this.state.items, oldIndex, newIndex);
+        const input = orderedItems.map((item) => item.id);
+        window.api.send(`${this.props.dataType}-reorder`, input)
+            .then(() => this.setState((state) => ({ items: orderedItems })))
+            .catch((error) => this.setState({ error }));
     }
 
     toggleItem(item) {
@@ -119,7 +118,9 @@ class BulletList extends React.Component {
                 this.setState((state) => {
                     if (isVirtualItem(item)) {
                         state.items.push(savedItem);
-                        if (state.areAllExpanded) {
+                        if (state.items.length === 1) {
+                            state.isExpanded[savedItem.id] = false;
+                        } else if (state.areAllExpanded) {
                             state.isExpanded[savedItem.id] = true;
                         }
                     } else {
@@ -282,6 +283,7 @@ class BulletList extends React.Component {
             <BulletListItem
                 index={index}
                 key={item.id}
+                allowReordering={this.props.allowReordering}
                 isExpanded={this.state.isExpanded[item.id]}
                 onToggleButtonClick={() => this.toggleItem(item)}
                 onEditButtonClick={(event) => this.editItem(item, event)}
@@ -362,6 +364,7 @@ BulletList.propTypes = {
     dataType: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
+    allowReordering: PropTypes.bool,
     EditorComponent: PropTypes.func.isRequired,
     ViewerComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,

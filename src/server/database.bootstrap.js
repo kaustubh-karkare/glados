@@ -6,7 +6,7 @@ const bootstrapData = {
                 { name: 'Distance (miles)', type: 'integer' },
                 { name: 'Time (minutes)', type: 'integer' },
             ],
-            titleTemplate: 'Cycling: $1 miles / $2 minutes ({Math.floor(100*$1*60/$2)/100} mph)',
+            titleTemplate: 'Cycling: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
         },
         {
             name: 'Surya Namaskar',

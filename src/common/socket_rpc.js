@@ -18,7 +18,7 @@ class SocketRPC {
             this.socket.emit(requestName, { counter, request });
             this.socket.once(responseName, (wrapper) => {
                 const { response, error } = wrapper;
-                if (response) {
+                if (!error) {
                     resolve(response);
                 } else {
                     // eslint-disable-next-line no-console

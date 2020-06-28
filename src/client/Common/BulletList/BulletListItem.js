@@ -42,7 +42,11 @@ class BulletListItem extends React.Component {
         if (this.state.hasFocus) {
             return (
                 <>
-                    <SortableDragHandle />
+                    {
+                        this.props.allowReordering
+                            ? <SortableDragHandle />
+                            : <div className="icon" />
+                    }
                     <div
                         className="icon icon-white"
                         onClick={this.props.onToggleButtonClick}
@@ -124,6 +128,7 @@ class BulletListItem extends React.Component {
 }
 
 BulletListItem.propTypes = {
+    allowReordering: PropTypes.bool,
     onMoveUp: PropTypes.func.isRequired,
     onMoveDown: PropTypes.func.isRequired,
 
