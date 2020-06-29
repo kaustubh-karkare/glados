@@ -85,6 +85,7 @@ const bootstrapData = {
                 group: 'Research',
                 deadline: '2020-06-30',
                 warning: '3 days',
+                needsEdit: true,
             },
         },
         {

@@ -10,6 +10,7 @@ import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
 import { getDataTypeMapping, isVirtualItem } from '../../../data';
 import EditorModal from '../EditorModal';
+import ErrorModal from '../ErrorModal';
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
@@ -194,28 +195,6 @@ class BulletList extends React.Component {
         );
     }
 
-    renderErrorModal() {
-        if (!this.state.error) {
-            return null;
-        }
-        return (
-            <Modal
-                show
-                onHide={() => this.setState({ error: null })}
-                onEscapeKeyDown={suppressUnlessShiftKey}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Error</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <pre>
-                        {this.state.error}
-                    </pre>
-                </Modal.Body>
-            </Modal>
-        );
-    }
-
     renderItems() {
         const { ViewerComponent, ExpandedViewerComponent } = this.props;
         return this.state.items.map((item, index) => (
@@ -265,15 +244,18 @@ class BulletList extends React.Component {
             <div>
                 <EditorModal
                     dataType={this.props.dataType}
-                    selector={this.props.selector}
                     EditorComponent={this.props.EditorComponent}
+                    editorProps={{ selector: this.props.selector }}
                     value={this.state.editItem}
                     onChange={(editItem) => this.setState({ editItem })}
                     onSave={() => this.saveItem(this.state.editItem)}
                     onError={(error) => this.setState({ error })}
                 />
                 {this.renderDeleteConfirmationModal()}
-                {this.renderErrorModal()}
+                <ErrorModal
+                    error={this.state.error}
+                    onClose={() => this.setState({ error: null })}
+                />
                 <BulletListTitle
                     name={this.props.name}
                     areAllExpanded={this.state.areAllExpanded}

@@ -49,6 +49,7 @@ function EditorComponent(props) {
                 props.onChange(logEntry);
             }}
             onSpecialKeys={props.onSpecialKeys}
+            hideReminderSection={props.hideReminderSection}
         />
     );
 }
@@ -57,6 +58,7 @@ EditorComponent.propTypes = {
     value: PropTypes.Custom.LogEntry.isRequired,
     onChange: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func.isRequired,
+    hideReminderSection: PropTypes.bool,
 };
 
 function LogEntryList(props) {
@@ -81,5 +83,8 @@ LogEntryList.propTypes = {
     selector: PropTypes.object.isRequired,
     showAdder: PropTypes.bool.isRequired,
 };
+
+LogEntryList.ViewerComponent = ViewerComponent;
+LogEntryList.EditorComponent = EditorComponent;
 
 export default LogEntryList;

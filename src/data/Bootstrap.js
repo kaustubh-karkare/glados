@@ -87,7 +87,7 @@ async function loadData(actions, data) {
         inputLogEntry.details = inputLogEntry.details || '';
         if (inputLogEntry.logReminder) {
             inputLogEntry.logReminder.id = getVirtualID();
-            inputLogEntry.logReminder.needsEdit = true;
+            inputLogEntry.logReminder.needsEdit = inputLogEntry.logReminder.needsEdit || false;
             maybeSubstitute(inputLogEntry.logReminder, 'deadline');
             maybeSubstitute(inputLogEntry.logReminder, 'lastUpdate');
             if (inputLogEntry.logReminder.group) {
@@ -164,7 +164,9 @@ async function saveData(actions) {
             item.logReminder = JSON.parse(JSON.stringify(logEntry.logReminder));
             item.logReminder.group = logEntry.logReminder.logReminderGroup.name;
             delete item.logReminder.logReminderGroup;
-            delete item.logReminder.needsEdit;
+            if (!item.logReminder.needsEdit) {
+                delete item.logReminder.needsEdit;
+            }
         }
         return item;
     });

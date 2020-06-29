@@ -80,7 +80,7 @@ class EditorModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <EditorComponent
-                        selector={this.props.selector}
+                        {...this.props.editorProps}
                         value={this.props.value}
                         onChange={(newValue) => this.props.onChange(newValue)}
                         onSpecialKeys={(event) => {
@@ -120,15 +120,19 @@ class EditorModal extends React.Component {
 
 EditorModal.propTypes = {
     dataType: PropTypes.string.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object,
     EditorComponent: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    editorProps: PropTypes.object,
 
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.object,
     onChange: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onError: PropTypes.func.isRequired,
+};
+
+EditorModal.defaultProps = {
+    editorProps: {},
 };
 
 

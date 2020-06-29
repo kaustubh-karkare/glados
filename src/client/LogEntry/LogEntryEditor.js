@@ -116,6 +116,22 @@ class LogEntryEditor extends React.Component {
         );
     }
 
+    renderReminderSection() {
+        if (this.props.hideReminderSection) {
+            return null;
+        }
+        return (
+            <div className="my-3">
+                <LogReminderEditor
+                    logReminder={this.props.logEntry.logReminder}
+                    onChange={(newReminder) => this.updateLogEntry((logEntry) => {
+                        logEntry.logReminder = newReminder;
+                    })}
+                />
+            </div>
+        );
+    }
+
     render() {
         return (
             <div>
@@ -136,14 +152,7 @@ class LogEntryEditor extends React.Component {
                         isNewStructure={isVirtualItem(this.props.logEntry.logStructure)}
                     />
                 </div>
-                <div className="my-3">
-                    <LogReminderEditor
-                        logReminder={this.props.logEntry.logReminder}
-                        onChange={(newReminder) => this.updateLogEntry((logEntry) => {
-                            logEntry.logReminder = newReminder;
-                        })}
-                    />
-                </div>
+                {this.renderReminderSection()}
             </div>
         );
     }
@@ -153,6 +162,7 @@ LogEntryEditor.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
     onUpdate: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func,
+    hideReminderSection: PropTypes.bool,
 };
 
 export default LogEntryEditor;

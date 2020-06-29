@@ -2,6 +2,8 @@ export { default as AsyncSelect } from './AsyncSelect';
 export { default as BulletList } from './BulletList';
 export { default as DatePicker } from './DatePicker';
 export { default as Dropdown } from './Dropdown';
+export { default as EditorModal } from './EditorModal';
+export { default as ErrorModal } from './ErrorModal';
 export { default as LeftRight } from './LeftRight';
 export { default as Select } from './Select';
 export { default as SortableList } from './SortableList';

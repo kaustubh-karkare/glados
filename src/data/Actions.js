@@ -82,6 +82,7 @@ ActionsRegistry['reminder-complete'] = async function (input) {
     } else if (
         type === LogReminder.Type.PERIODIC
     ) {
+        inputLogEntry.date = null;
         inputLogEntry.logReminder.lastUpdate = today;
         await ActionsRegistry['log-entry-upsert'].call(this, inputLogEntry);
         // duplicate the existing entry
