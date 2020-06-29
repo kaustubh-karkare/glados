@@ -37,7 +37,6 @@
 * When pasting markdown with multiple layers of indenting, it do not work.
 
 ### Code Quality
-* Split Actions.js to get separate files for standard, custom, and wrapper.
 * Rename LogTag to LogReferences?
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.
