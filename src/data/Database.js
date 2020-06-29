@@ -29,12 +29,21 @@ class Database {
             config.password,
             options,
         );
-        this._models = defineModels(this.sequelize);
+        const nameAndModels = defineModels(this.sequelize);
+        this._modelSequence = nameAndModels.map(([_name, model]) => model);
+        this._models = nameAndModels.reduce((result, [name, model]) => {
+            result[name] = model;
+            return result;
+        }, {});
         this.Op = Sequelize.Op;
     }
 
     async close() {
         await this.sequelize.close();
+    }
+
+    getModelSequence() {
+        return this._modelSequence;
     }
 
     async build(name) {

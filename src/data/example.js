@@ -1,4 +1,4 @@
-const bootstrapData = {
+export default {
     logStructures: [
         {
             name: 'Cycling',
@@ -119,6 +119,3 @@ const bootstrapData = {
         },
     ],
 };
-
-// eslint-disable-next-line import/prefer-default-export
-export { bootstrapData };

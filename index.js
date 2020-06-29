@@ -1,50 +1,76 @@
-import assert from './src/common/assert';
-import main from './src/server/index';
+/* eslint-disable no-console */
+
 import './src/common/polyfill';
+import { Database, loadData } from './src/data';
+import Actions from './src/data/Actions';
+import exampleData from './src/data/example';
+import SocketRPC from './src/common/SocketRPC';
 
 const express = require('express');
 const fs = require('fs');
 const http = require('http');
+const process = require('process');
 const SocketIO = require('socket.io');
 
-// Step 1: Load Configuration
+async function init() {
+    this.database = await Database.init(this.appConfig.database);
+    this.actions = new Actions(this.database);
 
-const appConfig = JSON.parse(fs.readFileSync('./config.json'));
+    if (this.useBackups) {
+        const { filename } = await this.actions.invoke('backup-load');
+        console.info(`Loaded ${filename}`);
+    } else {
+        await loadData(this.actions, exampleData);
+        console.info('Example data loaded.');
+    }
 
-try {
-    const appConfigExample = JSON.parse(fs.readFileSync('./config.json.example'));
-    (function ensureSameStructure(left, right) {
-        if (typeof left !== 'object' && typeof right !== 'object') {
-            assert(typeof left === typeof right);
-            return;
-        }
-        assert(typeof left === 'object');
-        assert(typeof right === 'object');
-        const leftKeys = Object.keys(left);
-        const rightKeys = Object.keys(right);
-        assert(leftKeys.equals(rightKeys));
-        leftKeys.forEach((key) => {
-            ensureSameStructure(left[key], right[key]);
-        });
-    }(appConfig, appConfigExample));
-} catch (error) {
-    throw new Error('The format of ./config.json must match ./config.json.example');
+    const app = express();
+    const server = http.Server(app);
+    const io = SocketIO(server);
+    io.on('connection', (socket) => SocketRPC.server(socket, this.actions));
+    app.get('/', (req, res) => {
+        res.cookie('port', this.appConfig.port);
+        res.sendFile('index.html', { root: 'dist' });
+    });
+    app.use(express.static('dist'));
+    this.server = server.listen(this.appConfig.port);
+    console.info('Server ready!');
+
+    // eslint-disable-next-line no-use-before-define
+    this.loopTimeout = setTimeout(loop.bind(this), this.loopInterval);
 }
 
-// Step 2: Use express to serve the client.
+async function loop() {
+    clearTimeout(this.loopTimeout);
+    if (this.useBackups) {
+        const { filename, isUnchanged } = await this.actions.invoke('backup-save');
+        console.info(`Saved ${filename}${isUnchanged ? ' (unchanged)' : ''}`);
+    }
+    this.loopTimeout = setTimeout(loop.bind(this), this.loopInterval);
+}
 
-const app = express();
-const server = http.Server(app);
-const io = SocketIO(server);
+async function cleanup() {
+    if (this.cleaningUp) {
+        return;
+    }
+    this.cleaningUp = true;
 
-main(io, appConfig)
-    .then(() => {
-        app.get('/', (req, res) => {
-            res.cookie('port', appConfig.port);
-            res.sendFile('index.html', { root: 'dist' });
-        });
-        app.use(express.static('dist'));
-        server.listen(appConfig.port);
-        // eslint-disable-next-line no-console
-        console.info('Server ready!');
-    });
+    console.info('Terminating ...');
+    this.server.close();
+    await loop.call(this);
+    clearTimeout(this.loopTimeout);
+    console.info('Terminated!');
+}
+
+// Put everything together!
+
+const context = {};
+context.appConfig = JSON.parse(fs.readFileSync('./config.json'));
+context.useBackups = true;
+context.loopInterval = 10 * 1000;
+
+init.call(context)
+    .catch((error) => console.error(error));
+
+process.on('SIGTERM', cleanup.bind(context));
+process.on('SIGINT', cleanup.bind(context));

@@ -21,3 +21,44 @@ export const INCOMPLETE_KEY = '__incomplete_key__';
 // This is attached to typeahead options to indicate
 // that an existing item is being updated.
 export const UPDATE_KEY = '__update_key__';
+
+export function awaitSequence(items, method) {
+    if (!items) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+        let index = 0;
+        const results = [];
+        const next = () => {
+            if (index === items.length) {
+                resolve(results);
+            } else {
+                method(items[index], index, items)
+                    .then((result) => {
+                        results.push(result);
+                        index += 1;
+                        next();
+                    })
+                    .catch((error) => reject(error));
+            }
+        };
+        next();
+    });
+}
+
+export function getCallbackAndPromise() {
+    let resolve; let
+        reject;
+    const promise = new Promise((resolveFn, rejectFn) => {
+        resolve = resolveFn;
+        reject = rejectFn;
+    });
+    const callback = (error, result) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(result);
+        }
+    };
+    return [callback, promise];
+}

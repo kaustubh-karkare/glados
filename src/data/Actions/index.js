@@ -1,6 +1,7 @@
 import ActionsRegistry from './Registry';
 import './Standard';
 import './Custom';
+import './Backup';
 
 export default class {
     constructor(database) {

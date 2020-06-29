@@ -1,6 +1,7 @@
 .DS_Store
 .linaria-cache
 config.json
+data/
 dist/
 node_modules
 notes.txt

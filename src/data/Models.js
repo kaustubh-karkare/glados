@@ -360,16 +360,18 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    return {
-        LogStructure,
-        LogKey,
-        LogStructureToLogKey,
-        LogValue,
-        LogEntry,
-        LogEntryToLogValue,
-        LogTag,
-        LogEntryToLogTag,
-        LogReminderGroup,
-        LogReminder,
-    };
+    // The following sequence of models is used to load data from backups
+    // while respecting foreign key constraints.
+    return [
+        ['LogStructure', LogStructure],
+        ['LogKey', LogKey],
+        ['LogStructureToLogKey', LogStructureToLogKey],
+        ['LogValue', LogValue],
+        ['LogReminderGroup', LogReminderGroup],
+        ['LogReminder', LogReminder],
+        ['LogTag', LogTag],
+        ['LogEntry', LogEntry],
+        ['LogEntryToLogValue', LogEntryToLogValue],
+        ['LogEntryToLogTag', LogEntryToLogTag],
+    ];
 }
