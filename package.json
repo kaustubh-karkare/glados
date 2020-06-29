@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
+    "main": "babel-node index.js",
     "client": "webpack --watch --progress --config webpack.config.js",
     "server": "nodemon -w index.js -w src/data/ -w src/common/ --exec babel-node --signal SIGTERM --trace-warnings index.js",
     "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix .",

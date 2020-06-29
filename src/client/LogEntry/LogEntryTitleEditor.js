@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogEntry } from '../../data';
+import { LogEntry, isRealItem } from '../../data';
 import PropTypes from '../prop-types';
 import { TextEditor } from '../Common';
 
@@ -23,7 +23,7 @@ function LogEntryTitleEditor(props) {
             focusOnLoad
             value={logEntry.title}
             sources={AugmentedTextEditorSources}
-            disabled={!!logEntry.logStructure.titleTemplate}
+            disabled={isRealItem(logEntry.logStructure)}
             onUpdate={(value) => {
                 const updatedLogEntry = { ...logEntry };
                 updatedLogEntry.title = value;

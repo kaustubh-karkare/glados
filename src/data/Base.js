@@ -47,13 +47,14 @@ class Base extends ValidationBase {
     static async reorder(input) {
         // The client-side does not know the underscore names used in the database.
         // Is it possible to add a mysql index to prevent conflicts?
-        await Promise.all(input.map(
+        const items = await Promise.all(input.map(
             (id, index) => this.database.update(
                 this.DataType.name,
                 { id, orderingIndex: index },
                 this.transaction,
             ),
         ));
+        return items.map((item) => item.id);
     }
 
     // eslint-disable-next-line no-unused-vars

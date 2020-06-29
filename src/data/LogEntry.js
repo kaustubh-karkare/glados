@@ -27,19 +27,26 @@ class LogEntry extends Base {
     }
 
     static trigger(logEntry) {
-        if (logEntry.logStructure.titleTemplate) {
-            const content = TextEditorUtils.deserialize(
-                logEntry.logStructure.titleTemplate,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
-            const plaintext = substituteValuesIntoDraftContent(
-                content,
-                logEntry.logValues,
-            );
-            logEntry.title = TextEditorUtils.serialize(
-                plaintext,
-                TextEditorUtils.StorageType.PLAINTEXT,
-            );
+        if (isRealItem(logEntry.logStructure)) {
+            if (logEntry.logStructure.titleTemplate) {
+                const content = TextEditorUtils.deserialize(
+                    logEntry.logStructure.titleTemplate,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                );
+                const plaintext = substituteValuesIntoDraftContent(
+                    content,
+                    logEntry.logValues,
+                );
+                logEntry.title = TextEditorUtils.serialize(
+                    plaintext,
+                    TextEditorUtils.StorageType.PLAINTEXT,
+                );
+            } else {
+                logEntry.title = TextEditorUtils.serialize(
+                    logEntry.logStructure.name,
+                    TextEditorUtils.StorageType.PLAINTEXT,
+                );
+            }
         }
         logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
     }
@@ -93,15 +100,24 @@ class LogEntry extends Base {
             );
             results.push(...logStructureResults);
         }
-        const logValuesResults = await this.validateRecursiveList(
-            LogValue, '.logValues', inputLogEntry.logValues,
-        );
-        results.push(...logValuesResults);
+        if (inputLogEntry.logReminder === null) {
+            const logValuesResults = await this.validateRecursiveList(
+                LogValue, '.logValues', inputLogEntry.logValues,
+            );
+            results.push(...logValuesResults);
+        }
         if (inputLogEntry.logReminder !== null) {
             const logReminderResults = await this.validateRecursive(
                 LogReminder, '.logReminder', inputLogEntry.logReminder,
             );
             results.push(...logReminderResults);
+            if (inputLogEntry.logReminder.logReminderGroup.type === LogReminder.Type.PERIODIC) {
+                results.push([
+                    '.logStructure',
+                    isRealItem(inputLogEntry.logStructure),
+                    'must be provided for periodic reminders.',
+                ]);
+            }
         }
         return results;
     }
@@ -197,12 +213,15 @@ class LogEntry extends Base {
                 logEntry.reminder_id,
                 this.transaction,
             );
-            await logEntry.update({ reminder_id: null });
-            await logReminder.destroy(this.transaction);
+            await logEntry.update({ reminder_id: null }, { transaction: this.transaction });
+            await logReminder.destroy({ transaction: this.transaction });
             this.broadcast('reminder-list', {
                 selector: { group_id: logReminder.group_id },
             });
         }
+
+        // TODO(broadcast): Make this more specific!
+        this.broadcast('log-entry-list'); // Update all lists!
 
         LogEntry.trigger(inputLogEntry);
         const orderingIndex = await LogEntry.getOrderingIndex.call(this, inputLogEntry);
@@ -216,7 +235,7 @@ class LogEntry extends Base {
             reminder_id: reminderId,
         };
         if (logEntry) {
-            logEntry = await logEntry.update(fields, this.transaction);
+            logEntry = await logEntry.update(fields, { transaction: this.transaction });
         } else {
             logEntry = await this.database.create('LogEntry', fields, this.transaction);
         }

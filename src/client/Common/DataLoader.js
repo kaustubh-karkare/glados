@@ -19,7 +19,9 @@ class DataLoader {
         promise.then((data) => {
             const original = (this.args && this.args.selector) || {};
             const modified = (data && data.selector) || {};
-            if (Object.keys(original).every((key) => original[key] === modified[key])) {
+            // TODO(broadcast): Fix this! The check does not work for selector = logReminder
+            // eslint-disable-next-line no-constant-condition
+            if (true || Object.keys(original).every((key) => original[key] === modified[key])) {
                 this.reload();
             }
             return this.setupSubscription();

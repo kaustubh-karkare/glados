@@ -9,6 +9,7 @@ export default class Utils {
     static async beforeEach() {
         const config = {
             type: 'sqlite',
+            storage: ':memory:',
             host: 'localhost',
             username: 'productivity_test',
             password: 'productivity_test',

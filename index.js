@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
 
 import './src/common/polyfill';
-import { Database, loadData } from './src/data';
+import { Database } from './src/data';
 import Actions from './src/data/Actions';
-import exampleData from './src/data/example';
 import SocketRPC from './src/common/SocketRPC';
 
 const express = require('express');
@@ -16,12 +15,9 @@ async function init() {
     this.database = await Database.init(this.appConfig.database);
     this.actions = new Actions(this.database);
 
-    if (this.useBackups) {
+    if (this.loadBackups) {
         const { filename } = await this.actions.invoke('backup-load');
         console.info(`Loaded ${filename}`);
-    } else {
-        await loadData(this.actions, exampleData);
-        console.info('Example data loaded.');
     }
 
     const app = express();
@@ -42,7 +38,7 @@ async function init() {
 
 async function loop() {
     clearTimeout(this.loopTimeout);
-    if (this.useBackups) {
+    if (this.saveBackups) {
         const { filename, isUnchanged } = await this.actions.invoke('backup-save');
         console.info(`Saved ${filename}${isUnchanged ? ' (unchanged)' : ''}`);
     }
@@ -66,8 +62,9 @@ async function cleanup() {
 
 const context = {};
 context.appConfig = JSON.parse(fs.readFileSync('./config.json'));
-context.useBackups = true;
-context.loopInterval = 10 * 1000;
+context.loadBackups = false;
+context.saveBackups = false;
+context.loopInterval = 60 * 1000;
 
 init.call(context)
     .catch((error) => console.error(error));

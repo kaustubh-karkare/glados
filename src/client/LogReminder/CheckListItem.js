@@ -35,6 +35,7 @@ class CheckListItem extends React.Component {
                 onMouseEnter={() => this.setState({ hasFocus: true })}
                 onMouseOver={() => this.setState({ hasFocus: true })}
                 onMouseLeave={() => this.setState({ hasFocus: false })}
+                style={{ width: '200px', overflow: 'hidden' }}
             >
                 <Form.Check
                     type="checkbox"

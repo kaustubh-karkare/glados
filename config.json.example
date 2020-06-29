@@ -1,6 +1,7 @@
 {
     "database": {
         "type": "mysql",
+        "storage": "data/test.sqlite",
         "host": "localhost",
         "username": "kaustubh",
         "password": "password",

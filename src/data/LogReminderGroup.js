@@ -80,6 +80,7 @@ class LogReminderGroup extends Base {
             fields,
             this.transaction,
         );
+        this.broadcast('log-reminder-group-list');
         return logReminderGroup.id;
     }
 }

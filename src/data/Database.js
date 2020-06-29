@@ -7,7 +7,7 @@ const Sequelize = require('sequelize');
 class Database {
     static async init(config) {
         const instance = new Database(config);
-        return instance.sequelize.sync({ force: true }).then(() => instance);
+        return instance.sequelize.sync({ force: false }).then(() => instance);
     }
 
     constructor(config) {
@@ -19,7 +19,7 @@ class Database {
             options.host = 'localhost';
         } else if (config.type === 'sqlite') {
             options.dialect = 'sqlite';
-            options.storage = ':memory:';
+            options.storage = config.storage;
         } else {
             assert(false, 'unknown database type');
         }

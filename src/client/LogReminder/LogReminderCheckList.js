@@ -68,7 +68,7 @@ class LogReminderCheckList extends React.Component {
         if (this.state.logEntries === null) {
             return 'Loading ...';
         } if (this.state.logEntries.length === 0) {
-            return <div className="ml-3">All done!</div>;
+            return <div className="ml-3">All done for now!</div>;
         }
         return this.state.logEntries.map((logEntry) => this.renderItem(logEntry));
     }

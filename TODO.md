@@ -13,18 +13,33 @@
     * What happens if I don't know the dates of historical events?
 
 ### Minor Features
+* Make LogReminder an independent concept, not based on LogEntry.
+* Add a button on the UI that triggers consistency check of custom rules!
+* Add a button on the UI that triggers creation of backups.
+* Client should be aware of the current mode (test vs prod).
+* In case of reminders, allow structures to be created inline?
+* Provide more LogKeyTypes: Yes/No. Specific Time Vs Duration
+* When waiting for server-response, the EditorModal should disable all inputs.
 * LogReminderCheckList should have a collapse button to suppress distractions.
-* Add LogReminder.show_on_sidebar? Certain miscellaneous categories are never ending.
+* Add LogReminderGroup.ordering_index
+* Add LogReminderGroup.show_on_sidebar? Certain categories are never ending.
 * Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
 * Figure out UI for LogEntry.is_minor so that it is easy to toggle between the 2 modes.
 * Add LogTag.details, to maybe store more information about specific people.
-* Validation: For periodic reminders, are structures necessary?
 * Validation: Typeahead can immediately reject more invalid suggestions.
 * Figure out how to run this in the background as a deamon?
 * Security: Require a password specified in config.json
 * Allow LogReminders to be created directly from the LogEntryAdder.
+* Figure out the smallest size serialization format before writing to DB.
+* Separate LogStructures into those used in reminders vs those not.
+* Separate LogTag into people vs normal.
+* LogReminder.title allows different phrasing in CheckList vs BulletList.
+* LogTag.alias? To refer to people like Aai / Baba.
+* Sort typeahead suggestions by frequency.
 
 ### Major Bugs
+* BulletList reordering does not work!
+* LogEntry.details multi-line usage is horribly broken!
 * TextEditor suggestions only work with trigger character, no subsequent ones.
 * LogCategory.keys[].name or LogTag.name updates should propagate to LogEntries.
 * LogCategory.keys: Block updates if LogEntries would become inconsistent.
@@ -37,7 +52,9 @@
 * When pasting markdown with multiple layers of indenting, it do not work.
 
 ### Code Quality
-* Rename LogTag to LogReferences?
+* Validate that all database interactions use transactions, via assertions.
+* Lets just use a single character for suggestions with smarter rendering.
+* Rename LogTag to LogReference? LogSubject? LogTopic? LogTheme?
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.
 
