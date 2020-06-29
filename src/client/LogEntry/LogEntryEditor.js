@@ -4,7 +4,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import {
-    SortableList, TextEditor, Typeahead,
+    DatePicker, SortableList, TextEditor, Typeahead,
 } from '../Common';
 import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
@@ -13,6 +13,7 @@ import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
 import { LogReminderEditor } from '../LogReminder';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
+import { getTodayLabel } from '../../common/DateUtils';
 
 
 class LogEntryEditor extends React.Component {
@@ -24,12 +25,25 @@ class LogEntryEditor extends React.Component {
     }
 
     renderDateRow() {
+        let element;
+        if (this.props.logEntry.date) {
+            element = (
+                <DatePicker
+                    value={this.props.logEntry.date}
+                    onChange={(newDate) => this.updateLogEntry((logEntry) => {
+                        logEntry.date = newDate;
+                    })}
+                />
+            );
+        } else {
+            element = <Form.Control disabled value="NA" />;
+        }
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Date
                 </InputGroup.Text>
-                <Form.Control disabled value={this.props.logEntry.date || 'NA'} />
+                {element}
             </InputGroup>
         );
     }
@@ -125,6 +139,11 @@ class LogEntryEditor extends React.Component {
                 <LogReminderEditor
                     logReminder={this.props.logEntry.logReminder}
                     onChange={(newReminder) => this.updateLogEntry((logEntry) => {
+                        if (newReminder) {
+                            logEntry.date = null;
+                        } else {
+                            logEntry.date = getTodayLabel();
+                        }
                         logEntry.logReminder = newReminder;
                     })}
                 />

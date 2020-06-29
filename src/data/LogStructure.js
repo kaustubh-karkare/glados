@@ -128,6 +128,7 @@ class LogStructure extends Base {
             this.transaction,
         );
         await LogStructure.deleteKeys.call(this, deletedEdges.map((edge) => edge.key_id));
+        this.broadcast('log-structure-list');
         return logStructure.id;
     }
 

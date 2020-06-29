@@ -28,7 +28,7 @@
 * TextEditor suggestions only work with trigger character, no subsequent ones.
 * LogCategory.keys[].name or LogTag.name updates should propagate to LogEntries.
 * LogCategory.keys: Block updates if LogEntries would become inconsistent.
-* TemplateUtils.substituteValuesIntoDraftContent should generate proper
+* TemplateUtils.substituteValuesIntoDraftContent should generate proper draft content.
 
 ### Minor Bugs
 * For LogCategory.ExpandedViewerComponent, highlight the keys in the template.

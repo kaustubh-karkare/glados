@@ -8,7 +8,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
-import { getDataTypeMapping, isVirtualItem } from '../../../data';
+import { getDataTypeMapping } from '../../../data';
+import DataLoader from '../DataLoader';
 import EditorModal from '../EditorModal';
 import ErrorModal from '../ErrorModal';
 
@@ -54,12 +55,21 @@ class BulletList extends React.Component {
     }
 
     componentDidMount() {
-        this.fetchItems();
-        this.setupSubscription();
+        this.dataLoader = new DataLoader({
+            name: `${this.props.dataType}-list`,
+            args: {
+                selector: this.props.selector,
+                ordering: this.props.allowReordering,
+            },
+            callback: (items) => this.setState((state) => ({
+                items,
+                isExpanded: state.isExpanded || {},
+            })),
+        });
     }
 
     componentWillUnmount() {
-        this.cleanSubscription();
+        this.dataLoader.stop();
     }
 
     onMove(index, delta, event) {
@@ -77,34 +87,6 @@ class BulletList extends React.Component {
         window.api.send(`${this.props.dataType}-reorder`, input)
             .then(() => this.setState((state) => ({ items: orderedItems })))
             .catch((error) => this.setState({ error }));
-    }
-
-    setupSubscription() {
-        if (!this.props.allowSubscription) return;
-        const { promise, cancel } = window.api.subscribe(`${this.props.dataType}-list`);
-        this.cancelSubscription = cancel;
-        promise.then((data) => {
-            const original = this.props.selector;
-            const modified = (data && data.selector) || {};
-            if (Object.keys(original).every((key) => original[key] === modified[key])) {
-                this.fetchItems();
-            }
-            return this.setupSubscription();
-        });
-    }
-
-    fetchItems() {
-        const input = { selector: this.props.selector, ordering: this.props.allowReordering };
-        window.api.send(`${this.props.dataType}-list`, input)
-            .then((items) => this.setState((state) => ({
-                items,
-                isExpanded: state.isExpanded || {},
-            })));
-    }
-
-    cleanSubscription() {
-        if (!this.props.allowSubscription) return;
-        this.cancelSubscription();
     }
 
     toggleItem(item) {
@@ -125,24 +107,7 @@ class BulletList extends React.Component {
 
     saveItem(item) {
         window.api.send(`${this.props.dataType}-upsert`, item)
-            .then((savedItem) => {
-                this.setState((state) => {
-                    if (isVirtualItem(item)) {
-                        state.items.push(savedItem);
-                        if (state.items.length === 1) {
-                            state.isExpanded[savedItem.id] = false;
-                        } else if (state.areAllExpanded) {
-                            state.isExpanded[savedItem.id] = true;
-                        }
-                    } else {
-                        const index = state.items
-                            .findIndex((existingItem) => existingItem.id === item.id);
-                        state.items[index] = savedItem;
-                    }
-                    state.editItem = null;
-                    return state;
-                });
-            })
+            .then((savedItem) => this.setState({ editItem: null }))
             .catch((error) => this.setState({ error }));
     }
 
@@ -293,7 +258,6 @@ BulletList.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
     allowReordering: PropTypes.bool,
-    allowSubscription: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
     ExpandedViewerComponent: PropTypes.func,
     EditorComponent: PropTypes.func.isRequired,

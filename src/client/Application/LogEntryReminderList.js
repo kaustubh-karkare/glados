@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogReminderList } from '../LogReminder';
+import { LogReminderCheckList } from '../LogReminder';
 
 class LogEntryReminderList extends React.Component {
     constructor(props) {
@@ -21,7 +21,7 @@ class LogEntryReminderList extends React.Component {
             return 'Loading ...';
         }
         return this.state.logReminderGroups.map((logReminderGroup) => (
-            <LogReminderList
+            <LogReminderCheckList
                 key={logReminderGroup.id}
                 logReminderGroup={logReminderGroup}
             />

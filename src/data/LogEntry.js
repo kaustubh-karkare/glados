@@ -164,27 +164,49 @@ class LogEntry extends Base {
             );
         }
 
-        let reminderId = null;
-        if (inputLogEntry.logReminder) {
-            reminderId = await LogReminder.save.call(this, inputLogEntry.logReminder);
-        } else if (isRealItem(inputLogEntry)) {
-            // TODO: Reuse read results from below?
-            const logEntry = await this.database.findByPk(
+        // TODO: Reuse read results from below?
+        let logEntry;
+        if (isRealItem(inputLogEntry)) {
+            logEntry = await this.database.findByPk(
                 'LogEntry',
                 inputLogEntry.id,
                 this.transaction,
             );
-            if (logEntry.reminder_id) {
-                const id = logEntry.reminder_id;
-                await logEntry.update({ reminder_id: null });
-                await this.database.deleteByPk('LogReminder', id, this.transaction);
-            }
+        }
+
+        if (logEntry && logEntry.date && logEntry.date !== inputLogEntry.date) {
+            this.broadcast('log-entry-list', {
+                selector: { date: logEntry.date },
+            });
+        }
+        if (inputLogEntry.date && (logEntry ? inputLogEntry.date !== logEntry.date : true)) {
+            this.broadcast('log-entry-list', {
+                selector: { date: inputLogEntry.date },
+            });
+        }
+
+        let reminderId = null;
+        if (inputLogEntry.logReminder) {
+            reminderId = await LogReminder.save.call(this, inputLogEntry.logReminder);
+            this.broadcast('reminder-list', {
+                selector: { group_id: inputLogEntry.logReminder.logReminderGroup.id },
+            });
+        } else if (logEntry && logEntry.reminder_id) {
+            const logReminder = await this.database.findByPk(
+                'LogReminder',
+                logEntry.reminder_id,
+                this.transaction,
+            );
+            await logEntry.update({ reminder_id: null });
+            await logReminder.destroy(this.transaction);
+            this.broadcast('reminder-list', {
+                selector: { group_id: logReminder.group_id },
+            });
         }
 
         LogEntry.trigger(inputLogEntry);
         const orderingIndex = await LogEntry.getOrderingIndex.call(this, inputLogEntry);
         const fields = {
-            id: inputLogEntry.id,
             date: inputLogEntry.date,
             ordering_index: orderingIndex,
             name: inputLogEntry.name,
@@ -193,7 +215,11 @@ class LogEntry extends Base {
             structure_id: logStructure ? logStructure.id : null,
             reminder_id: reminderId,
         };
-        const logEntry = await this.database.createOrUpdate('LogEntry', fields, this.transaction);
+        if (logEntry) {
+            logEntry = await logEntry.update(fields, this.transaction);
+        } else {
+            logEntry = await this.database.create('LogEntry', fields, this.transaction);
+        }
 
         const logValues = await Promise.all(
             inputLogEntry.logValues.map(async (inputLogValue) => {

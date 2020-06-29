@@ -1,33 +1,40 @@
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
+import { DataLoader, EditorModal, ErrorModal } from '../Common';
+import { getTodayLabel } from '../../common/DateUtils';
+import { LogEntryList } from '../LogEntry';
 import assert from '../../common/assert';
 import PropTypes from '../prop-types';
-import { EditorModal, ErrorModal } from '../Common';
-import { LogEntryList } from '../LogEntry';
-import { getTodayLabel } from '../../common/DateUtils';
+import CheckListItem from './CheckListItem';
 
-
-class LogReminderList extends React.Component {
+class LogReminderCheckList extends React.Component {
     constructor(props) {
         super(props);
         this.state = { logEntries: null, editLogEntry: null };
     }
 
     componentDidMount() {
-        this.onLoad();
+        this.dataLoader = new DataLoader({
+            name: 'reminder-list',
+            args: {
+                selector: { group_id: this.props.logReminderGroup.id },
+                logReminderGroup: this.props.logReminderGroup,
+            },
+            callback: (logEntries) => this.setState({ logEntries }),
+        });
     }
 
-    onLoad() {
-        const { logReminderGroup } = this.props;
-        window.api.send('reminder-list', { logReminderGroup })
-            .then((logEntries) => this.setState({ logEntries }));
+    componentWillUnmount() {
+        this.dataLoader.stop();
+    }
+
+    onEditButtonClick(logEntry) {
+        logEntry = { ...logEntry, date: getTodayLabel() };
+        this.setState({ editLogEntry: logEntry });
     }
 
     onCompleteReminder(logEntry, didEdit) {
         if (logEntry.logReminder.needsEdit && !didEdit) {
-            logEntry = { ...logEntry, date: getTodayLabel() };
-            this.setState({ editLogEntry: logEntry });
+            this.onEditButtonClick(logEntry);
             return;
         }
         window.api.send('reminder-complete', { logEntry })
@@ -47,16 +54,13 @@ class LogReminderList extends React.Component {
     renderItem(logEntry) {
         assert(logEntry.logReminder);
         return (
-            <InputGroup key={logEntry.id}>
-                <Form.Check
-                    type="checkbox"
-                    inline
-                    checked={false}
-                    onChange={(event) => this.onCompleteReminder(logEntry, false)}
-                    style={{ marginRight: 'none' }}
-                />
+            <CheckListItem
+                key={logEntry.id}
+                onCheckboxClick={(event) => this.onCompleteReminder(logEntry, false)}
+                onEditButtonClick={() => this.onEditButtonClick(logEntry)}
+            >
                 <LogEntryList.ViewerComponent value={logEntry} />
-            </InputGroup>
+            </CheckListItem>
         );
     }
 
@@ -94,9 +98,8 @@ class LogReminderList extends React.Component {
     }
 }
 
-LogReminderList.propTypes = {
+LogReminderCheckList.propTypes = {
     logReminderGroup: PropTypes.Custom.LogReminderGroup.isRequired,
 };
 
-
-export default LogReminderList;
+export default LogReminderCheckList;

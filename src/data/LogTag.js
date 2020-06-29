@@ -71,6 +71,7 @@ class LogTag extends Base {
             'LogTag', fields, this.transaction,
         );
         // TODO: Trigger consistency update if name change.
+        this.broadcast('log-tag-list');
         return logTag.id;
     }
 }
