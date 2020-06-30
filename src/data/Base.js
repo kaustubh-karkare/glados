@@ -78,7 +78,10 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
-    static async getOrderingIndex(selector = {}) {
+    static async getOrderingIndex(item, selector = {}) {
+        if (item) {
+            return item.ordering_index;
+        }
         return this.database.count(
             this.DataType.name,
             selector,

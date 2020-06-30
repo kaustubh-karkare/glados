@@ -121,8 +121,6 @@ test('test_periodic_completion', async () => {
     const originalLastUpdate = logReminder.lastUpdate;
 
     const logEntry = LogEntry.createVirtual({ date: getTodayLabel() });
-    await actions.invoke('reminder-complete', { logReminder, logEntry });
-
-    const updatedLogReminder = await actions.invoke('log-reminder-load', { id: logReminder.id });
+    const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEntry });
     expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
 });

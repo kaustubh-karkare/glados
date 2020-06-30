@@ -44,13 +44,18 @@ class LogTag extends Base {
     }
 
     static async save(inputLogTag) {
+        let logTag = await this.database.findItem(
+            'LogTag',
+            inputLogTag,
+            this.transaction,
+        );
         const fields = {
             id: inputLogTag.id,
             type: inputLogTag.type,
             name: inputLogTag.name,
         };
-        const logTag = await this.database.createOrUpdate(
-            'LogTag', fields, this.transaction,
+        logTag = await this.database.createOrUpdateItem(
+            'LogTag', logTag, fields, this.transaction,
         );
         // TODO: Trigger consistency update if name change.
         this.broadcast('log-tag-list');

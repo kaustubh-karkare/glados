@@ -58,18 +58,20 @@ class LogReminderGroup extends Base {
     }
 
     static async save(inputLogReminderGroup) {
-        const orderingIndex = await Base.getOrderingIndex.call(this);
+        let logReminderGroup = await this.database.findItem(
+            'LogReminderGroup',
+            inputLogReminderGroup,
+            this.transaction,
+        );
+        const orderingIndex = await Base.getOrderingIndex.call(this, logReminderGroup);
         const fields = {
-            id: inputLogReminderGroup.id,
             ordering_index: orderingIndex,
             name: inputLogReminderGroup.name,
             type: inputLogReminderGroup.type,
             on_sidebar: inputLogReminderGroup.onSidebar,
         };
-        const logReminderGroup = await this.database.createOrUpdate(
-            'LogReminderGroup',
-            fields,
-            this.transaction,
+        logReminderGroup = await this.database.createOrUpdateItem(
+            'LogReminderGroup', logReminderGroup, fields, this.transaction,
         );
         this.broadcast('log-reminder-group-list');
         return logReminderGroup.id;

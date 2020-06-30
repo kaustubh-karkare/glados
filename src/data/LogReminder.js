@@ -161,15 +161,19 @@ class LogReminder extends Base {
     }
 
     static async save(inputLogReminder) {
+        let logReminder = await this.database.findItem(
+            'LogReminder',
+            inputLogReminder,
+            this.transaction,
+        );
         const structureId = isRealItem(inputLogReminder.logStructure)
             ? inputLogReminder.logStructure.id
             : null;
         assert(isRealItem(inputLogReminder.logReminderGroup));
-        const orderingIndex = await Base.getOrderingIndex.call(this, {
+        const orderingIndex = await Base.getOrderingIndex.call(this, logReminder, {
             group_id: inputLogReminder.logReminderGroup.id,
         });
         const fields = {
-            id: inputLogReminder.id,
             title: inputLogReminder.title,
             structure_id: structureId,
             group_id: inputLogReminder.logReminderGroup.id,
@@ -181,10 +185,8 @@ class LogReminder extends Base {
             last_update: inputLogReminder.lastUpdate,
             needs_edit: inputLogReminder.needsEdit,
         };
-        const logReminder = await this.database.createOrUpdate(
-            'LogReminder',
-            fields,
-            this.transaction,
+        logReminder = await this.database.createOrUpdateItem(
+            'LogReminder', logReminder, fields, this.transaction,
         );
         this.broadcast('log-reminder-list');
         return logReminder.id;

@@ -121,15 +121,11 @@ class LogEntry extends Base {
             );
         }
 
-        // TODO: Reuse read results from below?
-        let logEntry;
-        if (isRealItem(inputLogEntry)) {
-            logEntry = await this.database.findByPk(
-                'LogEntry',
-                inputLogEntry.id,
-                this.transaction,
-            );
-        }
+        let logEntry = await this.database.findItem(
+            'LogEntry',
+            inputLogEntry,
+            this.transaction,
+        );
 
         if (logEntry && logEntry.date && logEntry.date !== inputLogEntry.date) {
             this.broadcast('log-entry-list', {
@@ -147,7 +143,7 @@ class LogEntry extends Base {
 
         LogEntry.trigger(inputLogEntry);
         const orderingIndex = await Base.getOrderingIndex
-            .call(this, { date: inputLogEntry.date });
+            .call(this, logEntry, { date: inputLogEntry.date });
         const fields = {
             date: inputLogEntry.date,
             ordering_index: orderingIndex,
@@ -156,11 +152,9 @@ class LogEntry extends Base {
             details: inputLogEntry.details,
             structure_id: logStructure ? logStructure.id : null,
         };
-        if (logEntry) {
-            logEntry = await logEntry.update(fields, { transaction: this.transaction });
-        } else {
-            logEntry = await this.database.create('LogEntry', fields, this.transaction);
-        }
+        logEntry = await this.database.createOrUpdateItem(
+            'LogEntry', logEntry, fields, this.transaction,
+        );
 
         const logValues = await Promise.all(
             inputLogEntry.logValues.map(async (inputLogValue) => {

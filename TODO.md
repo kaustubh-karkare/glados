@@ -11,6 +11,7 @@
     * Figure out how to save images/videos/files in the system?
 * Importing Legacy Data
     * What happens if I don't know the dates of historical events?
+    * Need to spend some time here to import this data.
 
 ### Minor Features
 * Add a button on the UI that triggers consistency check of custom rules!
@@ -23,7 +24,6 @@
 * Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
 * Figure out UI for LogEntry.is_minor so that it is easy to toggle between the 2 modes.
 * Add LogTag.details, to maybe store more information about specific people.
-* Validation: Typeahead can immediately reject more invalid suggestions.
 * Figure out how to run this in the background as a deamon?
 * Security: Require a password specified in config.json
 * Allow LogReminders to be created directly from the LogEntryAdder.
@@ -34,7 +34,6 @@
 * Sort typeahead suggestions by frequency.
 
 ### Major Bugs
-* TextEditor suggestions only work with trigger character, no subsequent ones.
 * LogCategory.keys[].name or LogTag.name updates should propagate to LogEntries.
 * LogCategory.keys: Block updates if LogEntries would become inconsistent.
 * TemplateUtils.substituteValuesIntoDraftContent should generate proper draft content.
@@ -43,7 +42,6 @@
 * For LogCategory.ExpandedViewerComponent, highlight the keys in the template.
 * When the modal closes, the item with focus isn't notified, so not highlighted.
 * BulletList.AdderComponent does not invoke validation!
-* When pasting markdown with multiple layers of indenting, it do not work.
 
 ### Code Quality
 * Validate that all database interactions use transactions, via assertions.

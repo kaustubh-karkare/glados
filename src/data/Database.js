@@ -1,13 +1,13 @@
 import assert from '../common/assert';
 import defineModels from './Models';
-import { isVirtualItem } from './Utils';
+import { isRealItem } from './Utils';
 
 const Sequelize = require('sequelize');
 
 class Database {
     static async init(config) {
         const instance = new Database(config);
-        return instance.sequelize.sync({ force: true }).then(() => instance);
+        return instance.sequelize.sync({ force: false }).then(() => instance);
     }
 
     constructor(config) {
@@ -68,11 +68,11 @@ class Database {
         return instance.update(remainingFields, { transaction });
     }
 
-    async createOrUpdate(name, fields, transaction) {
-        if (typeof fields.id === 'undefined' || isVirtualItem(fields)) {
-            return this.create(name, fields, transaction);
+    async createOrUpdateItem(name, item, fields, transaction) {
+        if (item) {
+            return item.update(fields, { transaction });
         }
-        return this.update(name, fields, transaction);
+        return this.create(name, fields, transaction);
     }
 
     async findAll(name, where, transaction) {
@@ -88,6 +88,13 @@ class Database {
     async findByPk(name, id, transaction) {
         const Model = this._models[name];
         return Model.findByPk(id, { transaction });
+    }
+
+    async findItem(name, item, transaction) {
+        if (isRealItem(item)) {
+            return this.findByPk(name, item.id, transaction);
+        }
+        return null;
     }
 
     async count(name, where, group, transaction) {

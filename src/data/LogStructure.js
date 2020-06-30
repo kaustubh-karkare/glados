@@ -56,6 +56,11 @@ class LogStructure extends Base {
     }
 
     static async save(inputLogStructure) {
+        let logStructure = await this.database.findItem(
+            'LogStructure',
+            inputLogStructure,
+            this.transaction,
+        );
         const logKeys = await Promise.all(
             inputLogStructure.logKeys.map(async (inputLogKey) => {
                 let logKey;
@@ -81,7 +86,6 @@ class LogStructure extends Base {
             }),
         );
         const fields = {
-            id: inputLogStructure.id,
             name: inputLogStructure.name,
             title_template: '',
         };
@@ -100,8 +104,8 @@ class LogStructure extends Base {
                 TextEditorUtils.StorageType.DRAFTJS,
             );
         }
-        const logStructure = await this.database.createOrUpdate(
-            'LogStructure', fields, this.transaction,
+        logStructure = await this.database.createOrUpdateItem(
+            'LogStructure', logStructure, fields, this.transaction,
         );
         const deletedEdges = await this.database.setEdges(
             'LogStructureToLogKey',
