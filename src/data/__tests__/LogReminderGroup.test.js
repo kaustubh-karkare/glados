@@ -8,20 +8,18 @@ test('test_reminder_constraint', async () => {
         logReminderGroups: [
             { name: 'Routine', type: 'periodic' },
         ],
-        logEntries: [
+        logReminders: [
             {
                 title: 'Exercise',
-                logReminder: {
-                    group: 'Routine',
-                    frequency: 'everyday',
-                    lastUpdate: '2020-06-26',
-                },
+                group: 'Routine',
+                frequency: 'everyday',
+                lastUpdate: '2020-06-26',
             },
         ],
     });
 
     const actions = Utils.getActions();
     await expect(() => actions.invoke('log-reminder-group-delete', 1)).rejects.toThrow();
-    await actions.invoke('log-entry-delete', 1);
+    await actions.invoke('log-reminder-delete', 1);
     await actions.invoke('log-reminder-group-delete', 1);
 });

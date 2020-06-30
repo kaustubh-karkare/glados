@@ -145,10 +145,6 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
-            reminder_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
             date: {
                 type: Sequelize.STRING,
                 allowNull: true,
@@ -176,7 +172,7 @@ export default function (sequelize) {
         options,
     );
 
-    LogStructure.hasMany(LogEntry, {
+    LogEntry.belongsTo(LogStructure, {
         foreignKey: 'structure_id',
         allowNull: true,
         onDelete: 'restrict',
@@ -318,6 +314,14 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
+            title: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            structure_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
             type: {
                 type: Sequelize.STRING,
                 allowNull: false,
@@ -353,8 +357,8 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    LogEntry.belongsTo(LogReminder, {
-        foreignKey: 'reminder_id',
+    LogReminder.belongsTo(LogStructure, {
+        foreignKey: 'structure_id',
         allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',

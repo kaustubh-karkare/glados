@@ -1,7 +1,6 @@
 
 import assert from '../common/assert';
 import Base from './Base';
-import LogReminder from './LogReminder';
 import LogStructure from './LogStructure';
 import LogValue from './LogValue';
 import { extractLogTags, substituteValuesIntoDraftContent } from '../common/TemplateUtils';
@@ -10,7 +9,7 @@ import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
 
 
 class LogEntry extends Base {
-    static createVirtual({ date, logStructure, logReminder } = {}) {
+    static createVirtual({ date, logStructure } = {}) {
         logStructure = logStructure || LogStructure.createVirtual();
         return {
             __type__: 'log-entry',
@@ -22,7 +21,6 @@ class LogEntry extends Base {
             details: '',
             logStructure,
             logValues: logStructure.logKeys.map((logKey) => LogValue.createVirtual({ logKey })),
-            logReminder: logReminder ? LogReminder.createVirtual(logReminder) : null,
         };
     }
 
@@ -49,27 +47,6 @@ class LogEntry extends Base {
             }
         }
         logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
-    }
-
-    static async list(input) {
-        if (
-            input
-            && input.selector
-            && input.selector.logReminder
-            && input.selector.logReminder.logReminderGroup
-        ) {
-            const logReminders = await this.database.findAll(
-                'LogReminder',
-                { group_id: input.selector.logReminder.logReminderGroup.id },
-                this.transaction,
-            );
-            const logReminderIds = logReminders.map((logReminder) => logReminder.id);
-            return Base.list.call(this, {
-                selector: { reminder_id: { [this.database.Op.in]: logReminderIds } },
-                ordering: input.ordering,
-            });
-        }
-        return Base.list.call(this, input);
     }
 
     static async typeahead({ query }) {
@@ -100,25 +77,10 @@ class LogEntry extends Base {
             );
             results.push(...logStructureResults);
         }
-        if (inputLogEntry.logReminder === null) {
-            const logValuesResults = await this.validateRecursiveList(
-                LogValue, '.logValues', inputLogEntry.logValues,
-            );
-            results.push(...logValuesResults);
-        }
-        if (inputLogEntry.logReminder !== null) {
-            const logReminderResults = await this.validateRecursive(
-                LogReminder, '.logReminder', inputLogEntry.logReminder,
-            );
-            results.push(...logReminderResults);
-            if (inputLogEntry.logReminder.logReminderGroup.type === LogReminder.Type.PERIODIC) {
-                results.push([
-                    '.logStructure',
-                    isRealItem(inputLogEntry.logStructure),
-                    'must be provided for periodic reminders.',
-                ]);
-            }
-        }
+        const logValuesResults = await this.validateRecursiveList(
+            LogValue, '.logValues', inputLogEntry.logValues,
+        );
+        results.push(...logValuesResults);
         return results;
     }
 
@@ -140,10 +102,6 @@ class LogEntry extends Base {
         const outputLogValues = await Promise.all(
             edges.map((edge) => LogValue.load.call(this, edge.value_id)),
         );
-        let outputLogReminder = null;
-        if (logEntry.reminder_id) {
-            outputLogReminder = await LogReminder.load.call(this, logEntry.reminder_id);
-        }
         return {
             __type__: 'log-entry',
             id: logEntry.id,
@@ -154,7 +112,6 @@ class LogEntry extends Base {
             details: logEntry.details,
             logStructure: outputLogStructure, // TODO: Create empty if needed.
             logValues: outputLogValues,
-            logReminder: outputLogReminder,
         };
     }
 
@@ -201,25 +158,6 @@ class LogEntry extends Base {
             });
         }
 
-        let reminderId = null;
-        if (inputLogEntry.logReminder) {
-            reminderId = await LogReminder.save.call(this, inputLogEntry.logReminder);
-            this.broadcast('reminder-list', {
-                selector: { group_id: inputLogEntry.logReminder.logReminderGroup.id },
-            });
-        } else if (logEntry && logEntry.reminder_id) {
-            const logReminder = await this.database.findByPk(
-                'LogReminder',
-                logEntry.reminder_id,
-                this.transaction,
-            );
-            await logEntry.update({ reminder_id: null }, { transaction: this.transaction });
-            await logReminder.destroy({ transaction: this.transaction });
-            this.broadcast('reminder-list', {
-                selector: { group_id: logReminder.group_id },
-            });
-        }
-
         // TODO(broadcast): Make this more specific!
         this.broadcast('log-entry-list'); // Update all lists!
 
@@ -232,7 +170,6 @@ class LogEntry extends Base {
             title: inputLogEntry.title,
             details: inputLogEntry.details,
             structure_id: logStructure ? logStructure.id : null,
-            reminder_id: reminderId,
         };
         if (logEntry) {
             logEntry = await logEntry.update(fields, { transaction: this.transaction });
@@ -315,13 +252,6 @@ class LogEntry extends Base {
                 null,
                 this.transaction,
             );
-        } if (inputLogEntry.logReminder) {
-            return this.database.count(
-                'LogReminder',
-                { group_id: inputLogEntry.logReminder.logReminderGroup.id },
-                null,
-                this.transaction,
-            );
         }
         assert(false, 'cannot infer ordering_index');
         return -1; // will never reach here
@@ -334,16 +264,8 @@ class LogEntry extends Base {
             id,
             this.transaction,
         );
-        const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         const result = await Base.delete.call(this, id);
         await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
-        if (logEntry.reminder_id) {
-            await this.database.deleteByPk(
-                'LogReminder',
-                logEntry.reminder_id,
-                this.transaction,
-            );
-        }
         return result;
     }
 

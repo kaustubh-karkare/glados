@@ -71,29 +71,20 @@ export default {
             structure: 'Cycling',
             logValues: ['15', '60'],
         },
+    ],
+    logReminders: [
         {
             title: 'Suryanamaskar',
-            logReminder: {
-                group: 'Daily Routine',
-                frequency: 'everyday',
-                lastUpdate: '2020-06-26',
-            },
+            group: 'Daily Routine',
+            frequency: 'everyday',
+            lastUpdate: '2020-06-26',
         },
         {
             title: 'Read article about Paxos',
-            logReminder: {
-                group: 'Research',
-                deadline: '2020-06-30',
-                warning: '3 days',
-                needsEdit: true,
-            },
-        },
-        {
-            structure: 'Movie',
-            logValues: ['Limitless'],
-            logReminder: {
-                group: 'Entertainment',
-            },
+            group: 'Research',
+            deadline: '2020-06-30',
+            warning: '3 days',
+            needsEdit: true,
         },
     ],
     logTags: [

@@ -10,10 +10,8 @@ import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
 import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
-import { LogReminderEditor } from '../LogReminder';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
-import { getTodayLabel } from '../../common/DateUtils';
 
 
 class LogEntryEditor extends React.Component {
@@ -130,27 +128,6 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    renderReminderSection() {
-        if (this.props.hideReminderSection) {
-            return null;
-        }
-        return (
-            <div className="my-3">
-                <LogReminderEditor
-                    logReminder={this.props.logEntry.logReminder}
-                    onChange={(newReminder) => this.updateLogEntry((logEntry) => {
-                        if (newReminder) {
-                            logEntry.date = null;
-                        } else {
-                            logEntry.date = getTodayLabel();
-                        }
-                        logEntry.logReminder = newReminder;
-                    })}
-                />
-            </div>
-        );
-    }
-
     render() {
         return (
             <div>
@@ -171,7 +148,6 @@ class LogEntryEditor extends React.Component {
                         isNewStructure={isVirtualItem(this.props.logEntry.logStructure)}
                     />
                 </div>
-                {this.renderReminderSection()}
             </div>
         );
     }
@@ -181,7 +157,6 @@ LogEntryEditor.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
     onUpdate: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func,
-    hideReminderSection: PropTypes.bool,
 };
 
 export default LogEntryEditor;

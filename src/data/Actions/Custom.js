@@ -13,23 +13,6 @@ ActionsRegistry.dates = async function () {
     return Array.from(dates).sort();
 };
 
-ActionsRegistry['reminder-list'] = async function (input) {
-    const { type } = input.logReminderGroup;
-    const logReminders = await this.database.findAll(
-        'LogReminder',
-        { group_id: input.logReminderGroup.id },
-        this.transaction,
-    );
-    const logReminderIds = logReminders
-        .filter((logReminder) => LogReminder.check(type, logReminder))
-        .map((logReminder) => logReminder.id);
-    const outputLogEntries = await ActionsRegistry['log-entry-list'].call(this, {
-        selector: { reminder_id: { [this.database.Op.in]: logReminderIds } },
-        ordering: true,
-    });
-    return outputLogEntries;
-};
-
 ActionsRegistry['reminder-complete'] = async function (input) {
     const inputLogEntry = input.logEntry;
     const today = getTodayLabel();

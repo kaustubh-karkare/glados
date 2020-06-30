@@ -27,14 +27,9 @@ async function loadData(actions, data) {
         logStructureMap[outputLogStructure.name] = outputLogStructure;
     });
 
-    const logReminderGroupMap = {};
-    await awaitSequence(data.logReminderGroups, async (inputLogReminderGroup) => {
-        inputLogReminderGroup.id = getVirtualID();
-        const outputLogReminderGroup = await actions.invoke(
-            'log-reminder-group-upsert',
-            inputLogReminderGroup,
-        );
-        logReminderGroupMap[outputLogReminderGroup.name] = outputLogReminderGroup;
+    await awaitSequence(data.logTags, async (logTag) => {
+        logTag.id = getVirtualID();
+        return actions.invoke('log-tag-upsert', logTag);
     });
 
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
@@ -59,24 +54,35 @@ async function loadData(actions, data) {
             inputLogEntry.logValues = [];
         }
         inputLogEntry.details = inputLogEntry.details || '';
-        if (inputLogEntry.logReminder) {
-            inputLogEntry.logReminder.id = getVirtualID();
-            inputLogEntry.logReminder.needsEdit = inputLogEntry.logReminder.needsEdit || false;
-            maybeSubstitute(inputLogEntry.logReminder, 'deadline');
-            maybeSubstitute(inputLogEntry.logReminder, 'lastUpdate');
-            if (inputLogEntry.logReminder.group) {
-                inputLogEntry.logReminder.logReminderGroup = logReminderGroupMap[
-                    inputLogEntry.logReminder.group
-                ];
-                delete inputLogEntry.logReminder.group;
-            }
-        }
         await actions.invoke('log-entry-upsert', inputLogEntry);
     });
 
-    await awaitSequence(data.logTags, async (logTag) => {
-        logTag.id = getVirtualID();
-        return actions.invoke('log-tag-upsert', logTag);
+    const logReminderGroupMap = {};
+    await awaitSequence(data.logReminderGroups, async (inputLogReminderGroup) => {
+        inputLogReminderGroup.id = getVirtualID();
+        const outputLogReminderGroup = await actions.invoke(
+            'log-reminder-group-upsert',
+            inputLogReminderGroup,
+        );
+        logReminderGroupMap[outputLogReminderGroup.name] = outputLogReminderGroup;
+    });
+
+    await awaitSequence(data.logReminders, async (inputLogReminder) => {
+        inputLogReminder.id = getVirtualID();
+        inputLogReminder.title = TextEditorUtils.serialize(
+            inputLogReminder.title,
+            TextEditorUtils.StorageType.PLAINTEXT,
+        );
+        inputLogReminder.logStructure = LogStructure.createVirtual();
+        inputLogReminder.logReminderGroup = logReminderGroupMap[
+            inputLogReminder.group
+        ];
+        delete inputLogReminder.group;
+        inputLogReminder.type = inputLogReminder.logReminderGroup.type;
+        maybeSubstitute(inputLogReminder, 'deadline');
+        maybeSubstitute(inputLogReminder, 'lastUpdate');
+        inputLogReminder.needsEdit = inputLogReminder.needsEdit || false;
+        await actions.invoke('log-reminder-upsert', inputLogReminder);
     });
 }
 
@@ -107,10 +113,10 @@ async function saveData(actions) {
         };
     });
 
-    const logReminderGroups = await actions.invoke('log-reminder-group-list');
-    result.logReminderGroups = logReminderGroups.map((logReminderGroup) => ({
-        name: logReminderGroup.name,
-        type: logReminderGroup.type,
+    const logTags = await actions.invoke('log-tag-list');
+    result.logTags = logTags.map((logTag) => ({
+        name: logTag.name,
+        type: logTag.type,
     }));
 
     const logEntries = await actions.invoke('log-entry-list');
@@ -145,11 +151,27 @@ async function saveData(actions) {
         return item;
     });
 
-    const logTags = await actions.invoke('log-tag-list');
-    result.logTags = logTags.map((logTag) => ({
-        name: logTag.name,
-        type: logTag.type,
+    const logReminderGroups = await actions.invoke('log-reminder-group-list');
+    result.logReminderGroups = logReminderGroups.map((logReminderGroup) => ({
+        name: logReminderGroup.name,
+        type: logReminderGroup.type,
     }));
+
+    const logReminders = await actions.invoke('log-reminder-list');
+    result.logReminders = logReminders.map((logReminder) => {
+        const item = {};
+        item.title = TextEditorUtils.deserialize(
+            logReminder.title,
+            TextEditorUtils.StorageType.PLAINTEXT,
+        );
+        item.group = logReminder.logReminderGroup.name;
+        if (logReminder.deadline) item.deadline = logReminder.deadline;
+        if (logReminder.warning) item.warning = logReminder.warning;
+        if (logReminder.frequency) item.frequency = logReminder.frequency;
+        if (logReminder.lastUpdate) item.lastUpdate = logReminder.lastUpdate;
+        if (logReminder.needsEdit) item.needsEdit = true;
+        return item;
+    });
 
     return result;
 }

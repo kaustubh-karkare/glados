@@ -8,6 +8,7 @@ import {
 } from '../common/DateUtils';
 import Base from './Base';
 import LogReminderGroup, { LogReminderType } from './LogReminderGroup';
+import LogStructure from './LogStructure';
 import { getVirtualID, isRealItem } from './Utils';
 
 
@@ -24,7 +25,7 @@ const DefaultValues = {
     },
 };
 
-const DurationOptions = range(1, 8).map((value) => {
+const DurationOptions = range(1, 31).map((value) => {
     const label = `${value.toString()} day${value > 1 ? 's' : ''}`;
     return { value: label, label };
 });
@@ -77,18 +78,30 @@ class LogReminder extends Base {
     }
 
     // eslint-disable-next-line consistent-return
-    static check(reminderType, logReminder) {
-        if (reminderType === LogReminderType.UNSPECIFIED) {
+    static check(logReminder) {
+        // input = after loading
+        if (logReminder.type === LogReminderType.UNSPECIFIED) {
             return true;
-        } if (reminderType === LogReminderType.DEADLINE) {
+        } if (logReminder.type === LogReminderType.DEADLINE) {
             return getTodayValue() >= getDateValue(logReminder.deadline)
                 - getDurationValue(logReminder.warning);
-        } if (reminderType === LogReminderType.PERIODIC) {
-            return getTodayValue() > getDateValue(logReminder.last_update)
+        } if (logReminder.type === LogReminderType.PERIODIC) {
+            return getTodayValue() > getDateValue(logReminder.lastUpdate)
                 ? FrequencyCheck[logReminder.frequency]()
                 : false;
         }
-        assert(false, reminderType);
+        assert(false, logReminder.dataValues);
+    }
+
+    static async list(input = {}) {
+        const { isActive, ...moreInput } = input;
+        let outputLogReminders = await Base.list.call(this, moreInput);
+        if (isActive) {
+            outputLogReminders = outputLogReminders.filter(
+                (outputLogReminder) => LogReminder.check.call(this, outputLogReminder),
+            );
+        }
+        return outputLogReminders;
     }
 
     static async validateInternal(inputLogReminder) {
@@ -111,6 +124,15 @@ class LogReminder extends Base {
                 this.validateEnumValue('.frequency', inputLogReminder.frequency, FrequencyCheck),
             );
             results.push(this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate));
+
+            if (isRealItem((inputLogReminder.logStructure))) {
+                const logStructureResults = await this.validateRecursive(
+                    LogStructure, '.logStructure', inputLogReminder.logStructure,
+                );
+                results.push(...logStructureResults);
+            } else {
+                results.push(['.logStructure', false, 'is required for periodic reminders!']);
+            }
         } else {
             results.push(['.type', false, ' is invalid!']);
         }
@@ -120,42 +142,39 @@ class LogReminder extends Base {
     static async load(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
         const outputLogReminderGroup = await LogReminderGroup.load.call(this, logReminder.group_id);
+        let outputLogStructure = null;
+        if (logReminder.structure_id) {
+            outputLogStructure = await LogStructure.load.call(this, logReminder.structure_id);
+        }
         return {
+            id: logReminder.id,
+            title: logReminder.title,
+            logStructure: outputLogStructure,
             logReminderGroup: outputLogReminderGroup,
-            deadline: logReminder.type === LogReminderType.DEADLINE
-                ? logReminder.deadline
-                : undefined,
-            warning: logReminder.type === LogReminderType.DEADLINE
-                ? logReminder.warning
-                : undefined,
-            frequency: logReminder.type === LogReminderType.PERIODIC
-                ? logReminder.frequency
-                : undefined,
-            lastUpdate: logReminder.type === LogReminderType.PERIODIC
-                ? logReminder.last_update
-                : undefined,
+            type: logReminder.type,
+            deadline: logReminder.deadline,
+            warning: logReminder.warning,
+            frequency: logReminder.frequency,
+            lastUpdate: logReminder.last_update,
             needsEdit: logReminder.needs_edit,
         };
     }
 
     static async save(inputLogReminder) {
-        const { type } = inputLogReminder.logReminderGroup;
+        assert(isRealItem(inputLogReminder.logReminderGroup));
+        const structureId = isRealItem(inputLogReminder.logStructure)
+            ? inputLogReminder.logStructure.id
+            : null;
         const fields = {
             id: inputLogReminder.id,
+            title: inputLogReminder.title,
+            structure_id: structureId,
             group_id: inputLogReminder.logReminderGroup.id,
-            type,
-            deadline: type === LogReminderType.DEADLINE
-                ? inputLogReminder.deadline
-                : null,
-            warning: type === LogReminderType.DEADLINE
-                ? inputLogReminder.warning
-                : null,
-            frequency: type === LogReminderType.PERIODIC
-                ? inputLogReminder.frequency
-                : null,
-            last_update: type === LogReminderType.PERIODIC
-                ? inputLogReminder.lastUpdate
-                : null,
+            type: inputLogReminder.type,
+            deadline: inputLogReminder.deadline,
+            warning: inputLogReminder.warning,
+            frequency: inputLogReminder.frequency,
+            last_update: inputLogReminder.lastUpdate,
             needs_edit: inputLogReminder.needsEdit,
         };
         const logReminder = await this.database.createOrUpdate(
@@ -163,11 +182,8 @@ class LogReminder extends Base {
             fields,
             this.transaction,
         );
+        this.broadcast('log-reminder-list');
         return logReminder.id;
-    }
-
-    static async delete(id) {
-        assert(false, 'LogReminder.delete not allowed! Use LogEntry.upsert/delete instead.');
     }
 }
 

@@ -1,17 +1,10 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    AsyncSelect, DatePicker, Select,
+    AsyncSelect, DatePicker, Select, TextEditor, Typeahead,
 } from '../Common';
-import { LogReminder, LogReminderGroup, getVirtualID } from '../../data';
+import { LogReminder, LogStructure } from '../../data';
 import PropTypes from '../prop-types';
-
-const LogReminderType = LogReminder.Type;
-
-const NoneOption = {
-    id: getVirtualID(),
-    name: 'None',
-};
 
 const NeedsEditOptions = [
     { label: 'No', value: 'no' },
@@ -20,9 +13,7 @@ const NeedsEditOptions = [
 
 class LogReminderEditor extends React.Component {
     renderGroupSelector() {
-        const logReminderGroup = this.props.logReminder
-            ? this.props.logReminder.logReminderGroup
-            : LogReminderGroup.createVirtual();
+        const { logReminderGroup } = this.props.logReminder;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -30,13 +21,58 @@ class LogReminderEditor extends React.Component {
                 </InputGroup.Text>
                 <AsyncSelect
                     dataType="log-reminder-group"
-                    prefixOptions={[NoneOption]}
                     value={logReminderGroup}
                     onChange={(newLogReminderGroup) => this.props.onChange(
-                        newLogReminderGroup.id === NoneOption.id
-                            ? null
-                            : LogReminder.createVirtual({ logReminderGroup: newLogReminderGroup }),
+                        LogReminder.createVirtual({ logReminderGroup: newLogReminderGroup }),
                     )}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderTitle() {
+        const { logReminder } = this.props;
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Title
+                </InputGroup.Text>
+                <TextEditor
+                    isSingleLine
+                    focusOnLoad
+                    value={logReminder.title}
+                    onUpdate={(value) => {
+                        const updatedLogReminder = { ...logReminder };
+                        updatedLogReminder.title = value;
+                        this.props.onChange(updatedLogReminder);
+                    }}
+                    onSpecialKeys={this.props.onSpecialKeys}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderStructure() {
+        const { logReminder } = this.props;
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Structure
+                </InputGroup.Text>
+                <Typeahead
+                    dataType="log-structure"
+                    value={logReminder.logStructure}
+                    onUpdate={(updatedLogStructure) => {
+                        const updatedLogReminder = { ...logReminder };
+                        updatedLogReminder.logStructure = updatedLogStructure;
+                        this.props.onChange(updatedLogReminder);
+                    }}
+                    allowDelete
+                    onDelete={() => {
+                        const updatedLogReminder = { ...logReminder };
+                        updatedLogReminder.logStructure = LogStructure.createVirtual();
+                        this.props.onChange(updatedLogReminder);
+                    }}
                 />
             </InputGroup>
         );
@@ -127,23 +163,28 @@ class LogReminderEditor extends React.Component {
     }
 
     render() {
-        const type = this.props.logReminder
-            ? this.props.logReminder.logReminderGroup.type
-            : LogReminderType.NONE;
+        const { type } = this.props.logReminder.logReminderGroup;
         return (
             <>
-                {this.renderGroupSelector()}
-                {type === LogReminderType.DEADLINE ? this.renderDeadline() : null}
-                {type === LogReminderType.PERIODIC ? this.renderPeriodic() : null}
-                {type !== LogReminderType.NONE ? this.renderNeedsEditSelector() : null}
+                <div className="my-3">
+                    {this.renderTitle()}
+                    {this.renderStructure()}
+                </div>
+                <div className="my-3">
+                    {this.renderGroupSelector()}
+                    {type === LogReminder.Type.DEADLINE ? this.renderDeadline() : null}
+                    {type === LogReminder.Type.PERIODIC ? this.renderPeriodic() : null}
+                    {this.renderNeedsEditSelector()}
+                </div>
             </>
         );
     }
 }
 
 LogReminderEditor.propTypes = {
-    logReminder: PropTypes.Custom.LogReminder,
+    logReminder: PropTypes.Custom.LogReminder.isRequired,
     onChange: PropTypes.func.isRequired,
+    onSpecialKeys: PropTypes.func.isRequired,
 };
 
 export default LogReminderEditor;

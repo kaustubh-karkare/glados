@@ -14,10 +14,10 @@ class LogReminderCheckList extends React.Component {
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            name: 'reminder-list',
+            name: 'log-reminder-list',
             args: {
                 selector: { group_id: this.props.logReminderGroup.id },
-                logReminderGroup: this.props.logReminderGroup,
+                is_active: true,
             },
             callback: (logEntries) => this.setState({ logEntries }),
         });
@@ -74,6 +74,8 @@ class LogReminderCheckList extends React.Component {
     }
 
     render() {
+        return <div>{this.props.logReminderGroup.name}</div>;
+        // eslint-disable-next-line no-unreachable
         return (
             <div>
                 <EditorModal

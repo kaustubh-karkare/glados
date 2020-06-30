@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList, Select, Typeahead } from '../Common';
 import LogReminderGroup from '../../data/LogReminderGroup';
-import { LogEntryList } from '../LogEntry';
+import LogReminderList from './LogReminderList';
 
 
 function ViewerComponent(props) {
@@ -25,10 +25,9 @@ ViewerComponent.propTypes = {
 function ExpandedViewerComponent(props) {
     const logReminderGroup = props.value;
     return (
-        <LogEntryList
-            name="Reminder Entries"
-            selector={{ logReminder: { logReminderGroup } }}
-            showAdder
+        <LogReminderList
+            name="Reminders"
+            selector={{ group_id: logReminderGroup.id }}
         />
     );
 }
