@@ -36,19 +36,6 @@ class LogReminderGroup extends Base {
         };
     }
 
-    static async typeahead() {
-        const logReminderGroups = await this.database.findAll(
-            'LogReminderGroup',
-            {},
-            this.transaction,
-        );
-        return logReminderGroups.map((logReminderGroup) => ({
-            id: logReminderGroup.id,
-            name: logReminderGroup.name,
-            type: logReminderGroup.type,
-        }));
-    }
-
     static async validateInternal(inputLogReminderGroup) {
         return [
             this.validateNonEmptyString('.name', inputLogReminderGroup.name),

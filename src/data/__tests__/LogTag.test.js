@@ -17,12 +17,12 @@ test('test_typeahead', async () => {
     const actions = Utils.getActions();
     let logTags;
 
-    logTags = await actions.invoke('log-tag-typeahead', { trigger: '@', query: '' });
-    expect(logTags.length).toEqual(3);
-    logTags = await actions.invoke('log-tag-typeahead', { trigger: '@', query: 'k' });
+    logTags = await actions.invoke('log-tag-typeahead', { query: '' });
+    expect(logTags.length).toEqual(5);
+    logTags = await actions.invoke('log-tag-typeahead', { query: 'k' });
     expect(logTags.length).toEqual(1);
-    logTags = await actions.invoke('log-tag-typeahead', { trigger: '#', query: 'p' });
+    logTags = await actions.invoke('log-tag-typeahead', { query: 'p' });
     expect(logTags.length).toEqual(2);
-    logTags = await actions.invoke('log-tag-typeahead', { trigger: '#', query: 'i' });
+    logTags = await actions.invoke('log-tag-typeahead', { query: 'i' });
     expect(logTags.length).toEqual(0);
 });

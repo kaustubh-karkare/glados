@@ -27,24 +27,6 @@ class LogTag extends Base {
         );
     }
 
-    static async typeahead({ item, trigger, query }) {
-        const where = {};
-        if (item) {
-            where.type = item.type;
-            where.name = { [this.database.Op.like]: `${item.name}%` };
-        } else {
-            const logTagType = LogTag.getTypes()
-                .find((typeData) => typeData.trigger === trigger);
-            where.type = logTagType.value;
-            where.name = { [this.database.Op.like]: `${query}%` };
-        }
-        const logTags = await this.database.findAll('LogTag', where, this.transaction);
-        return logTags.map((logTag) => ({
-            id: logTag.id,
-            name: logTag.name,
-        }));
-    }
-
     static async validateInternal(inputLogTag) {
         return [
             this.validateNonEmptyString('.name', inputLogTag.name),

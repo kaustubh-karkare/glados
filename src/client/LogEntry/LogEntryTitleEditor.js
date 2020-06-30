@@ -3,15 +3,6 @@ import { LogEntry, isRealItem } from '../../data';
 import PropTypes from '../prop-types';
 import { TextEditor } from '../Common';
 
-const TextEditorSources = [
-    { trigger: '@', dataType: 'log-tag' },
-    { trigger: '#', dataType: 'log-tag' },
-];
-
-const AugmentedTextEditorSources = [
-    ...TextEditorSources,
-    { trigger: '!', dataType: 'log-entry' },
-];
 
 function LogEntryTitleEditor(props) {
     const {
@@ -22,7 +13,7 @@ function LogEntryTitleEditor(props) {
             isSingleLine
             focusOnLoad
             value={logEntry.title}
-            sources={AugmentedTextEditorSources}
+            serverSideTypes={['log-tag', 'log-structure']}
             disabled={isRealItem(logEntry.logStructure)}
             onUpdate={(value) => {
                 const updatedLogEntry = { ...logEntry };
@@ -57,5 +48,4 @@ LogEntryTitleEditor.propTypes = {
     onMajorUpdate: PropTypes.func,
 };
 
-export { TextEditorSources };
 export default LogEntryTitleEditor;

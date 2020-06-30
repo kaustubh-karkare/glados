@@ -5,6 +5,13 @@ import { getTodayLabel } from '../../common/DateUtils';
 import { LogReminder } from '../Mapping';
 import ActionsRegistry from './Registry';
 
+ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
+    const options = await Promise.all(
+        dataTypes.map((dataType) => ActionsRegistry[`${dataType}-typeahead`].call(this, { query })),
+    );
+    return options.flat();
+};
+
 ActionsRegistry.dates = async function () {
     const results = await this.database.count('LogEntry', {}, ['date'], this.transaction);
     const dates = new Set(results.filter((result) => result.date).map((result) => result.date));

@@ -9,7 +9,7 @@ import {
 import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
-import LogEntryTitleEditor, { TextEditorSources } from './LogEntryTitleEditor';
+import LogEntryTitleEditor from './LogEntryTitleEditor';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
@@ -121,7 +121,7 @@ class LogEntryEditor extends React.Component {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
                     })}
-                    sources={TextEditorSources}
+                    serverSideTypes={['log-tag']}
                     isMarkdown
                 />
             </InputGroup>

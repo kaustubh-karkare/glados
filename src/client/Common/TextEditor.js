@@ -4,13 +4,9 @@ import { RichUtils } from 'draft-js';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-// Using a local copy of the plugin until the PR is merged.
-// https://github.com/draft-js-plugins/draft-js-plugins/pull/1419
-// cp -r ../draft-js-plugins/draft-js-mention-plugin src/client/Common
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
-import createMentionPlugin, { defaultSuggestionsFilter } from './draft-js-mention-plugin/src';
+import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
 
-import assert from '../../common/assert';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import { INCOMPLETE_KEY } from '../../data';
 import { KeyCodes, combineClassNames } from './Utils';
@@ -19,7 +15,7 @@ import AddLinkPlugin from './AddLinkPlugin';
 import 'draft-js/dist/Draft.css';
 
 
-function TextEditorMention(props) {
+function MentionComponent(props) {
     const item = props.mention;
     return (
         <a
@@ -32,11 +28,28 @@ function TextEditorMention(props) {
     );
 }
 
-TextEditorMention.propTypes = {
+MentionComponent.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     mention: PropTypes.any.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
+};
+
+
+function OptionComponent(props) {
+    const {
+        isFocused: _isFocused, // eslint-disable-line react/prop-types
+        mention: item,
+        searchValue: _searchValue, // eslint-disable-line react/prop-types
+        theme: _theme, // eslint-disable-line react/prop-types
+        ...moreProps
+    } = props;
+    return <div {...moreProps}>{item.name}</div>;
+}
+
+OptionComponent.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    mention: PropTypes.any.isRequired,
 };
 
 
@@ -84,8 +97,7 @@ class TextEditor extends React.Component {
         }
 
         this.mentionPlugin = createMentionPlugin({
-            mentionComponent: TextEditorMention,
-            mentionTriggers: this.props.sources.map((suggestion) => suggestion.trigger),
+            mentionComponent: MentionComponent,
         });
         this.state.plugins.push(this.mentionPlugin);
 
@@ -99,18 +111,15 @@ class TextEditor extends React.Component {
         }
     }
 
-    onSearchChange({ trigger, value: query }) {
-        const selectedSource = this.props.sources
-            .find((suggestion) => suggestion.trigger === trigger);
-        assert(selectedSource, 'unknown suggestion for trigger');
-        if (selectedSource.options) {
-            this.setSuggestions(selectedSource, query, selectedSource.options);
-        } else if (selectedSource.dataType) {
-            window.api.send(`${selectedSource.dataType}-typeahead`, { trigger, query })
-                .then((options) => this.setSuggestions(selectedSource, query, options));
-        } else {
-            assert(false, 'missing source');
-        }
+    onSearchChange({ value: query }) {
+        window.api.send('typeahead', { query, dataTypes: this.props.serverSideTypes })
+            .then((serverSideOptions) => {
+                const options = [...serverSideOptions, ...this.props.clientSideOptions];
+                this.setState(
+                    { suggestions: defaultSuggestionsFilter(query, options) },
+                    () => this.mentionPlugin.onChange(this.state.editorState),
+                );
+            });
     }
 
     onAddMention(option) {
@@ -138,13 +147,6 @@ class TextEditor extends React.Component {
                 () => this.props.onUpdate(newValue),
             );
         }
-    }
-
-    setSuggestions(source, query, options) {
-        this.setState(
-            { suggestions: defaultSuggestionsFilter(query, options) },
-            () => this.mentionPlugin.onChange(this.state.editorState),
-        );
     }
 
     keyBindingFn(event) {
@@ -177,10 +179,10 @@ class TextEditor extends React.Component {
             <div className="mention-suggestions">
                 <MentionSuggestions
                     open={this.state.open}
-                    onOpenChange={(open) => this.setState({ open })}
                     onSearchChange={(data) => this.onSearchChange(data)}
                     onAddMention={(option) => this.onAddMention(option)}
                     suggestions={this.state.suggestions}
+                    entryComponent={OptionComponent}
                 />
             </div>
         );
@@ -226,15 +228,14 @@ TextEditor.propTypes = {
 
     isMarkdown: PropTypes.bool,
 
-    sources: PropTypes.arrayOf(
+    clientSideOptions: PropTypes.arrayOf(
         PropTypes.shape({
-            trigger: PropTypes.string.isRequired,
-            options: PropTypes.arrayOf(PropTypes.shape({
-                id: PropTypes.number.isRequired,
-                name: PropTypes.string.isRequired,
-            }).isRequired),
-            dataType: PropTypes.string,
+            id: PropTypes.number.isRequired,
+            name: PropTypes.string.isRequired,
         }).isRequired,
+    ),
+    serverSideTypes: PropTypes.arrayOf(
+        PropTypes.string.isRequired,
     ),
     onSelectSuggestion: PropTypes.func,
 };
@@ -244,7 +245,8 @@ TextEditor.defaultProps = {
     disabled: false,
     isSingleLine: false,
     isMarkdown: false,
-    sources: [],
+    clientSideOptions: [],
+    serverSideTypes: [],
 };
 
 export default TextEditor;

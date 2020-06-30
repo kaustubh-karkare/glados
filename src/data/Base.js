@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 
 import ValidationBase from './ValidationBase';
+import { INCOMPLETE_KEY } from './Utils';
 
 class Base extends ValidationBase {
     static createVirtual() {
@@ -27,10 +28,24 @@ class Base extends ValidationBase {
     }
 
     // eslint-disable-next-line no-unused-vars
-    static async typeahead({ trigger, query, item }) {
-        // trigger & query are provided by TextEditor.
+    static async typeahead({ query, item }) {
+        // query is provided by TextEditor.
         // item is provided by Typeahead.
-        throw new Exception('not implemented');
+        if (item) {
+            query = item.name;
+        }
+        const options = await this.database.findAll(
+            this.DataType.name,
+            { name: { [this.database.Op.like]: `${query}%` } },
+            this.transaction,
+        );
+        return options.map((option) => ({
+            __type__: this.DataType.name
+                .split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-'),
+            id: option.id,
+            name: option.name,
+            [INCOMPLETE_KEY]: true,
+        }));
     }
 
     static async validateInternal() {

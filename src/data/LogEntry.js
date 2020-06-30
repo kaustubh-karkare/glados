@@ -5,7 +5,7 @@ import LogStructure from './LogStructure';
 import LogValue from './LogValue';
 import { extractLogTags, substituteValuesIntoDraftContent } from '../common/TemplateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
-import { INCOMPLETE_KEY, getVirtualID, isRealItem } from './Utils';
+import { getVirtualID, isRealItem } from './Utils';
 
 
 class LogEntry extends Base {
@@ -47,22 +47,6 @@ class LogEntry extends Base {
             }
         }
         logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
-    }
-
-    static async typeahead({ query }) {
-        if (!query) {
-            return LogStructure.typeahead.call(this, { query });
-        }
-        const where = {
-            name: { [this.database.Op.like]: `${query}%` },
-        };
-        const logEntries = await this.database.findAll('LogEntry', where, this.transaction);
-        return logEntries.map((logEntry) => ({
-            __type__: 'log-entry',
-            id: logEntry.id,
-            name: logEntry.name,
-            [INCOMPLETE_KEY]: true,
-        }));
     }
 
     static async validateInternal(inputLogEntry) {

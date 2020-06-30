@@ -34,15 +34,6 @@ class LogKey extends Base {
         };
     }
 
-    static async typeahead() {
-        const logKeys = await this.database.findAll('LogKey', {}, this.transaction);
-        return logKeys.map((logKey) => ({
-            id: logKey.id,
-            name: logKey.name,
-            type: logKey.type,
-        }));
-    }
-
     static async validateInternal(inputLogKey) {
         return [
             this.validateNonEmptyString('.name', inputLogKey.name),

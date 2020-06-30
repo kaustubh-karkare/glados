@@ -2,7 +2,7 @@ import { updateDraftContent } from '../common/TemplateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import LogKey from './LogKey';
 import Base from './Base';
-import { INCOMPLETE_KEY, getVirtualID, isVirtualItem } from './Utils';
+import { getVirtualID, isVirtualItem } from './Utils';
 
 class LogStructure extends Base {
     static createVirtual() {
@@ -25,18 +25,6 @@ class LogStructure extends Base {
         return Promise.all(
             edges.map((edge) => LogKey.load.call(this, edge.key_id)),
         );
-    }
-
-    static async typeahead() {
-        const logStructures = await this.database.findAll(
-            'LogStructure', {}, this.transaction,
-        );
-        return logStructures.map((logStructure) => ({
-            __type__: 'log-structure',
-            id: logStructure.id,
-            name: logStructure.name,
-            [INCOMPLETE_KEY]: true,
-        }));
     }
 
     static async validateInternal(inputLogStructure) {
