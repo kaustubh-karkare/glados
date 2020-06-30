@@ -1,4 +1,6 @@
 import Utils from './Utils';
+import LogEntry from '../LogEntry';
+import { getTodayLabel } from '../../common/DateUtils';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
@@ -70,8 +72,6 @@ test('test_periodic_check', async () => {
 });
 
 test('test_deadline_completion', async () => {
-    return;
-    // eslint-disable-next-line no-unreachable
     await Utils.loadData({
         logReminderGroups: [
             {
@@ -90,15 +90,15 @@ test('test_deadline_completion', async () => {
     });
 
     const actions = Utils.getActions();
-    let logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    expect(logReminder.date).toEqual(null);
-    logReminder = await actions.invoke('reminder-complete', { logReminder });
-    expect(logReminder.date).not.toEqual(null);
+    const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
+    const logEntry = LogEntry.createVirtual({ date: getTodayLabel() });
+    await actions.invoke('reminder-complete', { logReminder, logEntry });
+
+    const logReminders = await actions.invoke('log-reminder-list');
+    expect(logReminders.length).toEqual(0);
 });
 
 test('test_periodic_completion', async () => {
-    return;
-    // eslint-disable-next-line no-unreachable
     await Utils.loadData({
         logReminderGroups: [
             {
@@ -118,14 +118,11 @@ test('test_periodic_completion', async () => {
 
     const actions = Utils.getActions();
     const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    expect(logReminder.date).toEqual(null);
-    const originalLastUpdate = logReminder.logReminder.lastUpdate;
+    const originalLastUpdate = logReminder.lastUpdate;
 
-    const newLogReminder = await actions.invoke('reminder-complete', { logReminder });
-    expect(newLogReminder.id).not.toEqual(logReminder.id);
-    expect(newLogReminder.date).not.toEqual(null);
-    expect(newLogReminder.logReminder).toEqual(undefined); // TODO: This should be null.
+    const logEntry = LogEntry.createVirtual({ date: getTodayLabel() });
+    await actions.invoke('reminder-complete', { logReminder, logEntry });
 
     const updatedLogReminder = await actions.invoke('log-reminder-load', { id: logReminder.id });
-    expect(updatedLogReminder.logReminder.lastUpdate).not.toEqual(originalLastUpdate);
+    expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
 });

@@ -86,6 +86,11 @@ export default {
             warning: '3 days',
             needsEdit: true,
         },
+        {
+            title: '',
+            structure: 'Movie',
+            group: 'Entertainment',
+        },
     ],
     logTags: [
         {

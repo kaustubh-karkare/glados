@@ -2,7 +2,6 @@
 
 import assert from '../../common/assert';
 import { getTodayLabel } from '../../common/DateUtils';
-import { getVirtualID } from '../Utils';
 import { LogReminder } from '../Mapping';
 import ActionsRegistry from './Registry';
 
@@ -14,32 +13,25 @@ ActionsRegistry.dates = async function () {
 };
 
 ActionsRegistry['reminder-complete'] = async function (input) {
-    const inputLogEntry = input.logEntry;
-    const today = getTodayLabel();
-    const updatedLogEntry = {
-        ...inputLogEntry,
-        date: today,
-        orderingIndex: null, // will be recomputed
-        logReminder: null,
-    };
-    const { type } = inputLogEntry.logReminder.logReminderGroup;
+    const { logEntry: inputLogEntry, logReminder: inputLogReminder } = input;
+    let outputLogReminder;
     if (
-        type === LogReminder.Type.UNSPECIFIED
-        || type === LogReminder.Type.DEADLINE
+        inputLogReminder.type === LogReminder.Type.UNSPECIFIED
+        || inputLogReminder.type === LogReminder.Type.DEADLINE
     ) {
-        // update the existing entry
+        await ActionsRegistry['log-reminder-delete']
+            .call(this, inputLogReminder.id);
+        outputLogReminder = null;
     } else if (
-        type === LogReminder.Type.PERIODIC
+        inputLogReminder.type === LogReminder.Type.PERIODIC
     ) {
-        inputLogEntry.date = null;
-        inputLogEntry.logReminder.lastUpdate = today;
-        await ActionsRegistry['log-entry-upsert'].call(this, inputLogEntry);
-        // duplicate the existing entry
-        updatedLogEntry.id = getVirtualID();
+        inputLogReminder.lastUpdate = inputLogEntry.date;
+        outputLogReminder = await ActionsRegistry['log-reminder-upsert']
+            .call(this, inputLogReminder);
     } else {
-        assert(false, type);
+        assert(false, inputLogReminder.type);
     }
-    const outputLogEntry = await ActionsRegistry['log-entry-upsert'].call(this, updatedLogEntry);
-    this.broadcast('log-entry-list', { selector: { date: today } });
-    return { logEntry: outputLogEntry };
+    const outputLogEntry = await ActionsRegistry['log-entry-upsert'].call(this, inputLogEntry);
+    this.broadcast('log-entry-list', { selector: { date: inputLogEntry.date } });
+    return { logEntry: outputLogEntry, logReminder: outputLogReminder };
 };

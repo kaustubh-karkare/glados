@@ -54,4 +54,6 @@ LogReminderList.propTypes = {
     selector: PropTypes.object.isRequired,
 };
 
+LogReminderList.ViewerComponent = ViewerComponent;
+LogReminderList.EditorComponent = EditorComponent;
 export default LogReminderList;

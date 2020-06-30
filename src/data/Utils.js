@@ -7,11 +7,11 @@ export function getVirtualID() {
 }
 
 export function isVirtualItem(item) {
-    return item.id < 0;
+    return item && item.id < 0;
 }
 
 export function isRealItem(item) {
-    return item.id > 0;
+    return item && item.id > 0;
 }
 
 // This is attached to typeahead suggestions, telling the client-side

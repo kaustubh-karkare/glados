@@ -13,7 +13,6 @@
     * What happens if I don't know the dates of historical events?
 
 ### Minor Features
-* Make LogReminder an independent concept, not based on LogEntry.
 * Add a button on the UI that triggers consistency check of custom rules!
 * Add a button on the UI that triggers creation of backups.
 * Client should be aware of the current mode (test vs prod).
@@ -33,7 +32,6 @@
 * Figure out the smallest size serialization format before writing to DB.
 * Separate LogStructures into those used in reminders vs those not.
 * Separate LogTag into people vs normal.
-* LogReminder.title allows different phrasing in CheckList vs BulletList.
 * LogTag.alias? To refer to people like Aai / Baba.
 * Sort typeahead suggestions by frequency.
 

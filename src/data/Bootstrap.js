@@ -73,7 +73,7 @@ async function loadData(actions, data) {
             inputLogReminder.title,
             TextEditorUtils.StorageType.PLAINTEXT,
         );
-        inputLogReminder.logStructure = LogStructure.createVirtual();
+        inputLogReminder.logStructure = logStructureMap[inputLogReminder.structure];
         inputLogReminder.logReminderGroup = logReminderGroupMap[
             inputLogReminder.group
         ];
@@ -164,6 +164,9 @@ async function saveData(actions) {
             logReminder.title,
             TextEditorUtils.StorageType.PLAINTEXT,
         );
+        if (logReminder.logStructure) {
+            item.structure = logReminder.logStructure.name;
+        }
         item.group = logReminder.logReminderGroup.name;
         if (logReminder.deadline) item.deadline = logReminder.deadline;
         if (logReminder.warning) item.warning = logReminder.warning;
