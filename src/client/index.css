@@ -1,7 +1,3 @@
-.input-group {
-    height: 20px;
-}
-
 .input-group:focus {
     outline: none;
 }

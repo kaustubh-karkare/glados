@@ -34,8 +34,6 @@
 * Sort typeahead suggestions by frequency.
 
 ### Major Bugs
-* BulletList reordering does not work!
-* LogEntry.details multi-line usage is horribly broken!
 * TextEditor suggestions only work with trigger character, no subsequent ones.
 * LogCategory.keys[].name or LogTag.name updates should propagate to LogEntries.
 * LogCategory.keys: Block updates if LogEntries would become inconsistent.

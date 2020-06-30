@@ -17,6 +17,8 @@ function toString(value) {
     return JSON.stringify(value, null, 4);
 }
 
+const deserializeCache = {};
+
 class TextEditorUtils {
     // eslint-disable-next-line consistent-return
     static extractPlainText(value) {
@@ -34,15 +36,23 @@ class TextEditorUtils {
     }
 
     static equals(left, right) {
-        assert(typeof left === 'object');
-        assert(typeof right === 'object');
-        // Directly comparing 2 objects is not possible because the blockKeys
-        // are randomly generated and will most likely not match.
-        return (
-            left.blocks.length === 1
-            && right.blocks.length === 1
-            && left.blocks[0].text === right.blocks[0].text
-        );
+        if (left === right) return true;
+        const leftRaw = convertToRaw(left);
+        const rightRaw = convertToRaw(right);
+        const replaceKey = (block, index) => { block.index = `block${index}`; };
+        leftRaw.blocks = leftRaw.blocks.forEach(replaceKey);
+        rightRaw.blocks = rightRaw.blocks.forEach(replaceKey);
+        return JSON.stringify(leftRaw) === JSON.stringify(rightRaw);
+    }
+
+    static _deserializeToDraftContent(payload) {
+        if (!(payload in deserializeCache)) {
+            const editorState = EditorState.createWithContent(
+                ContentState.createFromText(payload),
+            );
+            deserializeCache[payload] = editorState.getCurrentContent();
+        }
+        return deserializeCache[payload];
     }
 
     // eslint-disable-next-line consistent-return
@@ -51,24 +61,21 @@ class TextEditorUtils {
             if (type === StorageType.PLAINTEXT) {
                 return '';
             } if (type === StorageType.DRAFTJS) {
-                return convertToRaw(EditorState.createEmpty().getCurrentContent());
+                return TextEditorUtils._deserializeToDraftContent('');
             }
         } if (value.startsWith(StorageType.PLAINTEXT)) {
             const payload = value.substring(StorageType.PLAINTEXT.length);
             if (type === StorageType.PLAINTEXT) {
                 return payload;
             } if (type === StorageType.DRAFTJS) {
-                const editorState = EditorState.createWithContent(
-                    ContentState.createFromText(payload),
-                );
-                return convertToRaw(editorState.getCurrentContent());
+                return TextEditorUtils._deserializeToDraftContent(payload);
             }
         } else if (value.startsWith(StorageType.DRAFTJS)) {
             const payload = value.substring(StorageType.DRAFTJS.length);
             if (type === StorageType.PLAINTEXT) {
                 assert(false, `Cannot deserialize draftjs to plaintext: ${toString(payload)}`);
             } else if (type === StorageType.DRAFTJS) {
-                return JSON.parse(payload);
+                return convertFromRaw(JSON.parse(payload));
             }
         }
         assert(false, `Invalid deserialize type: ${toString(type)} for ${toString(value)}`);
@@ -89,8 +96,8 @@ class TextEditorUtils {
             if (typeof value === 'string') {
                 assert(false, `Cannot serialize plaintext to draftjs: ${toString(value)}`);
             } else if (typeof value === 'object') {
-                if (value.blocks.length > 1 || value.blocks[0].text.length > 0) {
-                    return StorageType.DRAFTJS + JSON.stringify(value);
+                if (value.hasText()) {
+                    return StorageType.DRAFTJS + JSON.stringify(convertToRaw(value));
                 }
                 return '';
             }
@@ -100,11 +107,11 @@ class TextEditorUtils {
     }
 
     static fromEditorState(editorState) {
-        return convertToRaw(editorState.getCurrentContent());
+        return editorState.getCurrentContent();
     }
 
     static toEditorState(value) {
-        const editorState = EditorState.createWithContent(convertFromRaw(value));
+        const editorState = EditorState.createWithContent(value);
         return EditorState.moveSelectionToEnd(editorState);
     }
 
@@ -123,7 +130,7 @@ class TextEditorUtils {
             && nextSelection.getHasFocus() === false
         ) {
             const fixedSelection = nextSelection.merge({ hasFocus: true });
-            return EditorState.forceSelection(nextEditorState, fixedSelection);
+            return EditorState.acceptSelection(nextEditorState, fixedSelection);
         }
         return nextEditorState;
     }

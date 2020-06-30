@@ -1,7 +1,5 @@
 
-import {
-    ContentState, SelectionState, convertFromRaw, convertToRaw, Modifier,
-} from 'draft-js';
+import { ContentState, SelectionState, Modifier } from 'draft-js';
 
 /*
 Link = [text](link)
@@ -26,11 +24,10 @@ function extractLogTags(content) {
     return logTags;
 }
 
-function convertDraftContentToPlainText(content, items) {
+function convertDraftContentToPlainText(contentState, items) {
     const mapping = {
         mention: '$',
     };
-    const contentState = convertFromRaw(content);
     const contentBlock = contentState.getFirstBlock();
     const text = contentBlock.getText();
 
@@ -93,12 +90,10 @@ function convertPlainTextToDraftContent(value, items) {
 
         contentState = Modifier.applyEntity(contentState, selectionState, entityKey);
     });
-    return convertToRaw(contentState);
+    return contentState;
 }
 
-function updateDraftContent(value, oldItems, newItems) {
-    let contentState = convertFromRaw(value);
-
+function updateDraftContent(contentState, oldItems, newItems) {
     const mapping = {};
     newItems.forEach((newItem, index) => {
         const key = oldItems ? oldItems[index].id : newItem.id;
@@ -142,11 +137,10 @@ function updateDraftContent(value, oldItems, newItems) {
         );
     });
 
-    return convertToRaw(contentState);
+    return contentState;
 }
 
-function substituteValuesIntoDraftContent(value, logValues) {
-    const contentState = convertFromRaw(value);
+function substituteValuesIntoDraftContent(contentState, logValues) {
     const contentBlock = contentState.getFirstBlock();
     const text = contentBlock.getText();
 
