@@ -8,23 +8,22 @@ class Base extends ValidationBase {
     }
 
     static async list({ selector, ordering } = { selector: [] }) {
-        const items = await this.database.findAll(this.DataType.name, selector, this.transaction);
-        let outputItems = await Promise.all(
-            items.map((item) => this.DataType.load.call(this, item.id)),
-        );
+        let items = await this.database.findAll(this.DataType.name, selector, this.transaction);
         if (ordering) {
-            outputItems = outputItems.sort((left, right) => {
-                if (left.orderingIndex !== null && right.orderingIndex !== null) {
-                    return left.orderingIndex - right.orderingIndex;
-                } if (left.orderingIndex === null && right.orderingIndex !== null) {
+            items = items.sort((left, right) => {
+                if (left.ordering_index !== null && right.ordering_index !== null) {
+                    return left.ordering_index - right.ordering_index;
+                } if (left.ordering_index === null && right.ordering_index !== null) {
                     return 1;
-                } if (left.orderingIndex !== null && right.orderingIndex === null) {
+                } if (left.ordering_index !== null && right.ordering_index === null) {
                     return -1;
                 }
                 return left.id - right.id;
             });
         }
-        return outputItems;
+        return Promise.all(
+            items.map((item) => this.DataType.load.call(this, item.id)),
+        );
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -47,13 +46,14 @@ class Base extends ValidationBase {
     static async reorder(input) {
         // The client-side does not know the underscore names used in the database.
         // Is it possible to add a mysql index to prevent conflicts?
-        const items = await Promise.all(input.map(
+        const items = await Promise.all(input.ordering.map(
             (id, index) => this.database.update(
                 this.DataType.name,
-                { id, orderingIndex: index },
+                { id, ordering_index: index },
                 this.transaction,
             ),
         ));
+        this.broadcast(`${input.dataType}-list`, { selector: input.selector });
         return items.map((item) => item.id);
     }
 
@@ -61,6 +61,15 @@ class Base extends ValidationBase {
     static async save(inputItem) {
         // returns ID of the newly created item
         throw new Exception('not implemented');
+    }
+
+    static async getOrderingIndex(selector = {}) {
+        return this.database.count(
+            this.DataType.name,
+            selector,
+            null,
+            this.transaction,
+        );
     }
 
     static async delete(id) {

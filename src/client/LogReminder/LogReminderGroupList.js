@@ -64,6 +64,16 @@ function EditorComponent(props) {
                     })}
                 />
             </InputGroup>
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Sidebar
+                </InputGroup.Text>
+                <Select.Binary
+                    value={logReminderGroup.onSidebar}
+                    options={LogReminderGroup.getTypeOptions()}
+                    onChange={(onSidebar) => props.onChange({ ...logReminderGroup, onSidebar })}
+                />
+            </InputGroup>
         </>
     );
 }
@@ -81,6 +91,7 @@ function LogReminderGroupList() {
             ViewerComponent={ViewerComponent}
             ExpandedViewerComponent={ExpandedViewerComponent}
             EditorComponent={EditorComponent}
+            allowReordering
         />
     );
 }

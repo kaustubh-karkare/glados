@@ -20,8 +20,6 @@
 * Provide more LogKeyTypes: Yes/No. Specific Time Vs Duration
 * When waiting for server-response, the EditorModal should disable all inputs.
 * LogReminderCheckList should have a collapse button to suppress distractions.
-* Add LogReminderGroup.ordering_index
-* Add LogReminderGroup.show_on_sidebar? Certain categories are never ending.
 * Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
 * Figure out UI for LogEntry.is_minor so that it is easy to toggle between the 2 modes.
 * Add LogTag.details, to maybe store more information about specific people.

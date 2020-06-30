@@ -55,43 +55,6 @@ export default {
             titleTemplate: 'Article: $1',
         },
     ],
-    logReminderGroups: [
-        { name: 'Daily Routine', type: 'periodic' },
-        { name: 'Research', type: 'deadline' },
-        { name: 'Entertainment', type: 'unspecified' },
-    ],
-    logEntries: [
-        {
-            date: '2020-06-22',
-            structure: 'Cycling',
-            logValues: ['15', '55'],
-        },
-        {
-            date: '2020-06-24',
-            structure: 'Cycling',
-            logValues: ['15', '60'],
-        },
-    ],
-    logReminders: [
-        {
-            title: 'Suryanamaskar',
-            group: 'Daily Routine',
-            frequency: 'everyday',
-            lastUpdate: '2020-06-26',
-        },
-        {
-            title: 'Read article about Paxos',
-            group: 'Research',
-            deadline: '2020-06-30',
-            warning: '3 days',
-            needsEdit: true,
-        },
-        {
-            title: '',
-            structure: 'Movie',
-            group: 'Entertainment',
-        },
-    ],
     logTags: [
         {
             type: 'person',
@@ -112,6 +75,53 @@ export default {
         {
             type: 'hashtag',
             name: 'productivity',
+        },
+    ],
+    logEntries: [
+        {
+            date: '2020-06-22',
+            structure: 'Cycling',
+            logValues: ['15', '55'],
+        },
+        {
+            date: '2020-06-24',
+            structure: 'Cycling',
+            logValues: ['15', '60'],
+        },
+    ],
+    logReminderGroups: [
+        {
+            name: 'Daily Routine',
+            type: 'periodic',
+            onSidebar: true,
+        },
+        {
+            name: 'Research',
+            type: 'deadline',
+        },
+        {
+            name: 'Entertainment',
+            type: 'unspecified',
+        },
+    ],
+    logReminders: [
+        {
+            title: 'Suryanamaskar',
+            group: 'Daily Routine',
+            frequency: 'everyday',
+            lastUpdate: '2020-06-26',
+        },
+        {
+            title: 'Read article about Paxos',
+            group: 'Research',
+            deadline: '2020-06-30',
+            warning: '3 days',
+            needsEdit: true,
+        },
+        {
+            title: '',
+            structure: 'Movie',
+            group: 'Entertainment',
         },
     ],
 };

@@ -45,6 +45,7 @@ function LogReminderList(props) {
             selector={props.selector}
             ViewerComponent={ViewerComponent}
             EditorComponent={EditorComponent}
+            allowReordering
         />
     );
 }

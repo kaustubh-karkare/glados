@@ -12,7 +12,7 @@ class LogEntryReminderList extends React.Component {
     }
 
     reload() {
-        window.api.send('log-reminder-group-list')
+        window.api.send('log-reminder-group-list', { selector: { on_sidebar: true }, ordering: true })
             .then((logReminderGroups) => this.setState({ logReminderGroups }));
     }
 

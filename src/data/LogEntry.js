@@ -162,7 +162,8 @@ class LogEntry extends Base {
         this.broadcast('log-entry-list'); // Update all lists!
 
         LogEntry.trigger(inputLogEntry);
-        const orderingIndex = await LogEntry.getOrderingIndex.call(this, inputLogEntry);
+        const orderingIndex = await Base.getOrderingIndex
+            .call(this, { date: inputLogEntry.date });
         const fields = {
             date: inputLogEntry.date,
             ordering_index: orderingIndex,
@@ -239,22 +240,6 @@ class LogEntry extends Base {
         );
 
         return logEntry.id;
-    }
-
-    static async getOrderingIndex(inputLogEntry) {
-        if (inputLogEntry.orderingIndex) {
-            return inputLogEntry.orderingIndex;
-        }
-        if (inputLogEntry.date) {
-            return this.database.count(
-                'LogEntry',
-                { date: inputLogEntry.date },
-                null,
-                this.transaction,
-            );
-        }
-        assert(false, 'cannot infer ordering_index');
-        return -1; // will never reach here
     }
 
     static async delete(id) {

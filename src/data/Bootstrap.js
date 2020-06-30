@@ -60,6 +60,7 @@ async function loadData(actions, data) {
     const logReminderGroupMap = {};
     await awaitSequence(data.logReminderGroups, async (inputLogReminderGroup) => {
         inputLogReminderGroup.id = getVirtualID();
+        inputLogReminderGroup.onSidebar = inputLogReminderGroup.onSidebar || false;
         const outputLogReminderGroup = await actions.invoke(
             'log-reminder-group-upsert',
             inputLogReminderGroup,
@@ -152,10 +153,16 @@ async function saveData(actions) {
     });
 
     const logReminderGroups = await actions.invoke('log-reminder-group-list');
-    result.logReminderGroups = logReminderGroups.map((logReminderGroup) => ({
-        name: logReminderGroup.name,
-        type: logReminderGroup.type,
-    }));
+    result.logReminderGroups = logReminderGroups.map((logReminderGroup) => {
+        const item = {
+            name: logReminderGroup.name,
+            type: logReminderGroup.type,
+        };
+        if (logReminderGroup.onSidebar) {
+            item.onSidebar = true;
+        }
+        return item;
+    });
 
     const logReminders = await actions.invoke('log-reminder-list');
     result.logReminders = logReminders.map((logReminder) => {

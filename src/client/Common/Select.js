@@ -28,4 +28,32 @@ Select.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
+function BinarySelect(props) {
+    const options = [
+        { label: props.noLabel, value: 'no' },
+        { label: props.yesLabel, value: 'yes' },
+    ];
+    return (
+        <Select
+            value={options[props.value ? 1 : 0].value}
+            options={options}
+            onChange={(newValue) => props.onChange(newValue === options[1].value)}
+        />
+    );
+}
+
+BinarySelect.propTypes = {
+    value: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
+    noLabel: PropTypes.string,
+    yesLabel: PropTypes.string,
+};
+
+BinarySelect.defaultProps = {
+    noLabel: 'No',
+    yesLabel: 'Yes',
+};
+
+Select.Binary = BinarySelect;
+
 export default Select;

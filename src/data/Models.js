@@ -290,12 +290,20 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
             name: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
             type: {
                 type: Sequelize.STRING,
+                allowNull: false,
+            },
+            on_sidebar: {
+                type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
         },
@@ -311,6 +319,10 @@ export default function (sequelize) {
                 primaryKey: true,
             },
             group_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            ordering_index: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },

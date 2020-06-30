@@ -8,10 +8,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
-import { getDataTypeMapping } from '../../../data';
 import DataLoader from '../DataLoader';
 import EditorModal from '../EditorModal';
 import ErrorModal from '../ErrorModal';
+import { getDataTypeMapping } from '../../../data';
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
@@ -83,9 +83,12 @@ class BulletList extends React.Component {
     onReorder({ oldIndex, newIndex }) {
         if (!this.props.allowReordering) return;
         const orderedItems = arrayMove(this.state.items, oldIndex, newIndex);
-        const input = orderedItems.map((item) => item.id);
+        const input = {
+            dataType: this.props.dataType,
+            selector: this.props.selector,
+            ordering: orderedItems.map((item) => item.id),
+        };
         window.api.send(`${this.props.dataType}-reorder`, input)
-            .then(() => this.setState((state) => ({ items: orderedItems })))
             .catch((error) => this.setState({ error }));
     }
 

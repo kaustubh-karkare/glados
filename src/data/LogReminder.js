@@ -161,15 +161,19 @@ class LogReminder extends Base {
     }
 
     static async save(inputLogReminder) {
-        assert(isRealItem(inputLogReminder.logReminderGroup));
         const structureId = isRealItem(inputLogReminder.logStructure)
             ? inputLogReminder.logStructure.id
             : null;
+        assert(isRealItem(inputLogReminder.logReminderGroup));
+        const orderingIndex = await Base.getOrderingIndex.call(this, {
+            group_id: inputLogReminder.logReminderGroup.id,
+        });
         const fields = {
             id: inputLogReminder.id,
             title: inputLogReminder.title,
             structure_id: structureId,
             group_id: inputLogReminder.logReminderGroup.id,
+            ordering_index: orderingIndex,
             type: inputLogReminder.type,
             deadline: inputLogReminder.deadline,
             warning: inputLogReminder.warning,
