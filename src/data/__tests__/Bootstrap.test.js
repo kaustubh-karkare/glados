@@ -1,6 +1,6 @@
 import Utils from './Utils';
 import deepcopy from '../../common/deepcopy';
-import exampleData from '../example';
+import exampleData from './ExampleData';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);

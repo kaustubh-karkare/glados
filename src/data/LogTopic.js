@@ -3,36 +3,18 @@ import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
 
-const LogTopicTypes = {
-    person: {
-        label: 'Person',
-        trigger: '@',
-    },
-    hashtag: {
-        label: 'Hashtag',
-        trigger: '#',
-    },
-};
-
 class LogTopic extends Base {
     static createVirtual() {
         return {
             id: getVirtualID(),
-            type: 'hashtag',
             name: '',
+            details: '',
         };
-    }
-
-    static getTypes() {
-        return Object.keys(LogTopicTypes).map(
-            (type) => ({ ...LogTopicTypes[type], value: type }),
-        );
     }
 
     static async validateInternal(inputLogTopic) {
         return [
             this.validateNonEmptyString('.name', inputLogTopic.name),
-            this.validateEnumValue('.type', inputLogTopic.type, LogTopicTypes),
         ];
     }
 
@@ -40,8 +22,8 @@ class LogTopic extends Base {
         const logTopic = await this.database.findByPk('LogTopic', id, this.transaction);
         return {
             id: logTopic.id,
-            type: logTopic.type,
             name: logTopic.name,
+            details: logTopic.details,
         };
     }
 
@@ -54,8 +36,8 @@ class LogTopic extends Base {
         const originalName = logTopic ? logTopic.name : null;
         const fields = {
             id: inputLogTopic.id,
-            type: inputLogTopic.type,
             name: inputLogTopic.name,
+            details: inputLogTopic.details,
         };
         logTopic = await this.database.createOrUpdateItem(
             'LogTopic', logTopic, fields, this.transaction,

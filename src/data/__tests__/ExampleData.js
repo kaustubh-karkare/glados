@@ -56,26 +56,11 @@ export default {
         },
     ],
     logTopics: [
-        {
-            type: 'person',
-            name: 'Anurag Dubey',
-        },
-        {
-            type: 'person',
-            name: 'Kaustubh Karkare',
-        },
-        {
-            type: 'person',
-            name: 'Vishnu Mohandas',
-        },
-        {
-            type: 'hashtag',
-            name: 'philosophy',
-        },
-        {
-            type: 'hashtag',
-            name: 'productivity',
-        },
+        { name: 'Anurag Dubey' },
+        { name: 'Kaustubh Karkare' },
+        { name: 'Vishnu Mohandas' },
+        { name: 'philosophy' },
+        { name: 'productivity' },
     ],
     logEntries: [
         {

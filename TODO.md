@@ -48,7 +48,6 @@
 ### Code Quality
 * Validate that all database interactions use transactions, via assertions.
 * Lets just use a single character for suggestions with smarter rendering.
-* Rename LogTag to LogReference? LogSubject? LogTopic? LogTheme?
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.
 

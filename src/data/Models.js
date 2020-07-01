@@ -228,19 +228,19 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            type: {
+            name: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            name: {
-                type: Sequelize.STRING,
+            details: {
+                type: Sequelize.TEXT,
                 allowNull: false,
             },
         },
         {
             ...options,
             indexes: [
-                { unique: true, fields: ['type', 'name'] },
+                { unique: true, fields: ['name'] },
             ],
         },
     );

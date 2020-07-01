@@ -26,6 +26,7 @@ function convertPlainTextToDraftContent2(value, symbolToMapping) {
 async function loadData(actions, data) {
     const logTopics = await awaitSequence(data.logTopics, async (logTopic) => {
         logTopic.id = getVirtualID();
+        logTopic.details = logTopic.details || '';
         return actions.invoke('log-topic-upsert', logTopic);
     });
 
@@ -114,7 +115,7 @@ async function saveData(actions) {
     const logTopics = await actions.invoke('log-topic-list');
     result.logTopics = logTopics.map((logTopic) => ({
         name: logTopic.name,
-        type: logTopic.type,
+        details: logTopic.details || undefined,
     }));
 
     const logStructures = await actions.invoke('log-structure-list');

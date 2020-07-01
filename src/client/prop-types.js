@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-named-default
 import { default as LogKeyClass } from '../data/LogKey';
-// eslint-disable-next-line import/no-named-default
-import { default as LogTopicClass } from '../data/LogTopic';
 
 const LogKeyType = PropTypes.oneOf(
     LogKeyClass.getTypes().map((item) => item.value),
@@ -26,13 +24,8 @@ const LogValue = PropTypes.shape({
     data: PropTypes.string.isRequired,
 });
 
-const LogTopicType = PropTypes.oneOf(
-    LogTopicClass.getTypes().map((item) => item.value),
-);
-
 const LogTopic = PropTypes.shape({
     id: PropTypes.number.isRequired,
-    type: LogTopicType.isRequired,
     name: PropTypes.string.isRequired,
 });
 

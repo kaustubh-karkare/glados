@@ -6,11 +6,11 @@ afterEach(Utils.afterEach);
 test('test_typeahead', async () => {
     await Utils.loadData({
         logTopics: [
-            { type: 'person', name: 'Anurag Dubey' },
-            { type: 'person', name: 'Kaustubh Karkare' },
-            { type: 'person', name: 'Vishnu Mohandas' },
-            { type: 'hashtag', name: 'philosophy' },
-            { type: 'hashtag', name: 'productivity' },
+            { name: 'Anurag Dubey' },
+            { name: 'Kaustubh Karkare' },
+            { name: 'Vishnu Mohandas' },
+            { name: 'philosophy' },
+            { name: 'productivity' },
         ],
     });
 
@@ -30,7 +30,7 @@ test('test_typeahead', async () => {
 test('test_update_propagation', async () => {
     await Utils.loadData({
         logTopics: [
-            { type: 'person', name: 'Hacky' },
+            { name: 'Hacky' },
         ],
         logEntries: [
             { date: '{today}', title: 'Spoke to a #1' },

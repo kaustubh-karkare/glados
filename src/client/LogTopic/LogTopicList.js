@@ -1,8 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList, Dropdown, Typeahead } from '../Common';
-import { LogTopic } from '../../data';
+import { BulletList, Typeahead } from '../Common';
 
 
 function ViewerComponent(props) {
@@ -24,11 +23,9 @@ function EditorComponent(props) {
     const logTopic = props.value;
     return (
         <InputGroup>
-            <Dropdown
-                value={logTopic.type}
-                options={LogTopic.getTypes()}
-                onUpdate={(type) => props.onChange({ ...logTopic, type })}
-            />
+            <InputGroup.Text>
+                Name
+            </InputGroup.Text>
             <Typeahead
                 allowUpdate
                 dataType="log-topic"
