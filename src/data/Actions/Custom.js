@@ -14,10 +14,10 @@ ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
 
 ActionsRegistry.dates = async function () {
     const results = await this.database.count('LogEntry', {}, ['date'], this.transaction);
-    const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
-    dates.clear();
+    let dates = new Set(results.filter((result) => result.date).map((result) => result.date));
     dates.add(getTodayLabel());
-    return Array.from(dates).sort();
+    dates = Array.from(dates).sort();
+    return dates.slice(dates.length - 3);
 };
 
 ActionsRegistry['reminder-complete'] = async function (input) {
@@ -47,10 +47,10 @@ ActionsRegistry.consistency = async function () {
     const outputLogEntries = await this.invoke.call(this, 'log-entry-list');
     await Promise.all(
         outputLogEntries.map((outputLogEntry) => {
-            outputLogEntry.title = LogTopic.updateLogTopics(
+            outputLogEntry.title = LogTopic.updateContent(
                 outputLogEntry.title, outputLogTopics,
             );
-            outputLogEntry.details = LogTopic.updateLogTopics(
+            outputLogEntry.details = LogTopic.updateContent(
                 outputLogEntry.details, outputLogTopics,
             );
             return this.invoke.call(this, 'log-entry-upsert', outputLogEntry);

@@ -5,9 +5,9 @@ import { isRealItem } from './Utils';
 const Sequelize = require('sequelize');
 
 class Database {
-    static async init(config) {
+    static async init(config, options) {
         const instance = new Database(config);
-        return instance.sequelize.sync({ force: true }).then(() => instance);
+        return instance.sequelize.sync(options).then(() => instance);
     }
 
     constructor(config) {

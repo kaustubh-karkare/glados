@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 import './src/common/polyfill';
+import assert from './src/common/assert';
 import { Database } from './src/data';
 import Actions from './src/data/Actions';
 import SocketRPC from './src/common/SocketRPC';
@@ -12,10 +13,17 @@ const process = require('process');
 const SocketIO = require('socket.io');
 
 async function init() {
-    this.database = await Database.init(this.appConfig.database);
+    if (this.loadBackup && this.saveBackups) {
+        assert(false, 'Not allowed to auto-load and auto-save backups simultaneously.');
+    }
+
+    this.database = await Database.init(
+        this.appConfig.database,
+        { force: this.loadBackup },
+    );
     this.actions = new Actions(this.database);
 
-    if (this.loadBackups) {
+    if (this.loadBackup) {
         const { filename } = await this.actions.invoke('backup-load');
         console.info(`Loaded ${filename}`);
     }
@@ -41,6 +49,10 @@ async function loop() {
     if (this.saveBackups) {
         const { filename, isUnchanged } = await this.actions.invoke('backup-save');
         console.info(`Saved ${filename}${isUnchanged ? ' (unchanged)' : ''}`);
+        if (this.previousBackupFilename && this.previousBackupFilename !== filename) {
+            await this.actions.invoke('backup-delete', { filename: this.previousBackupFilename });
+        }
+        this.previousBackupFilename = filename;
     }
     this.loopTimeout = setTimeout(loop.bind(this), this.loopInterval);
 }
@@ -62,7 +74,7 @@ async function cleanup() {
 
 const context = {};
 context.appConfig = JSON.parse(fs.readFileSync('./config.json'));
-context.loadBackups = true;
+// context.loadBackup = true;
 // context.saveBackups = true;
 context.loopInterval = 60 * 1000;
 

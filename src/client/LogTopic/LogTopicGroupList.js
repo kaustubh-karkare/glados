@@ -63,6 +63,7 @@ function LogTopicGroupList() {
             ViewerComponent={ViewerComponent}
             ExpandedViewerComponent={ExpandedViewerComponent}
             EditorComponent={EditorComponent}
+            allowReordering
         />
     );
 }

@@ -91,7 +91,7 @@ class TextEditor extends React.Component {
 
         this.state.plugins.push(AddLinkPlugin);
 
-        if (this.props.isMarkdown) {
+        if (!this.props.isSingleLine) {
             this.markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
             this.state.plugins.push(this.markdownShortcutsPlugin);
         }
@@ -226,8 +226,6 @@ TextEditor.propTypes = {
     isSingleLine: PropTypes.bool,
     onSpecialKeys: PropTypes.func,
 
-    isMarkdown: PropTypes.bool,
-
     clientSideOptions: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.number.isRequired,
@@ -244,7 +242,6 @@ TextEditor.defaultProps = {
     unstyled: false,
     disabled: false,
     isSingleLine: false,
-    isMarkdown: false,
     clientSideOptions: [],
     serverSideTypes: [],
 };

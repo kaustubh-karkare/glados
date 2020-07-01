@@ -84,3 +84,9 @@ ActionsRegistry['backup-load'] = async function () {
     });
     return latestBackup;
 };
+
+ActionsRegistry['backup-delete'] = async function ({ filename }) {
+    const [callback, promise] = getCallbackAndPromise();
+    fs.unlink(path.join(location, filename), callback);
+    return promise;
+};

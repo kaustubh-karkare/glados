@@ -61,6 +61,24 @@ class LogEntryEditor extends React.Component {
         );
     }
 
+    renderDetailsRow() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Details
+                </InputGroup.Text>
+                <TextEditor
+                    value={this.props.logEntry.details}
+                    onUpdate={(value) => this.updateLogEntry((logEntry) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEntry.details = value;
+                    })}
+                    serverSideTypes={['log-topic']}
+                />
+            </InputGroup>
+        );
+    }
+
     renderAddLogValueButton() {
         if (isRealItem(this.props.logEntry.logStructure)) {
             return null;
@@ -105,25 +123,6 @@ class LogEntryEditor extends React.Component {
                     })}
                 />
                 {false && this.renderAddLogValueButton()}
-            </InputGroup>
-        );
-    }
-
-    renderDetailsRow() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Details
-                </InputGroup.Text>
-                <TextEditor
-                    value={this.props.logEntry.details}
-                    onUpdate={(value) => this.updateLogEntry((logEntry) => {
-                        // eslint-disable-next-line no-param-reassign
-                        logEntry.details = value;
-                    })}
-                    serverSideTypes={['log-topic']}
-                    isMarkdown
-                />
             </InputGroup>
         );
     }

@@ -77,6 +77,14 @@ class EditorModal extends React.Component {
     }
 
     renderButtons() {
+        const isButtonDisabled = (
+            this.state.validationStatus
+            || (
+                this.state.validationErrors
+                && this.state.validationErrors.length
+            )
+            || this.isSaving
+        );
         return (
             <div>
                 <Form.Check
@@ -90,14 +98,7 @@ class EditorModal extends React.Component {
                     style={{ display: 'inline-block', marginRight: '20px' }}
                 />
                 <Button
-                    disabled={
-                        this.state.validationStatus
-                        || (
-                            this.state.validationErrors
-                            && this.state.validationErrors.length
-                        )
-                        || this.props.isSaving
-                    }
+                    disabled={isButtonDisabled}
                     onClick={() => (
                         this.state.autoSave
                             ? this.props.onChange(null)

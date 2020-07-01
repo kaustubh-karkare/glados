@@ -1,7 +1,7 @@
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList, Typeahead } from '../Common';
+import { BulletList } from '../Common';
+import LogTopicEditor from './LogTopicEditor';
 
 
 function ViewerComponent(props) {
@@ -18,19 +18,11 @@ ViewerComponent.propTypes = {
 };
 
 function EditorComponent(props) {
-    const logTopic = props.value;
     return (
-        <InputGroup>
-            <InputGroup.Text>
-                Name
-            </InputGroup.Text>
-            <Typeahead
-                allowUpdate
-                dataType="log-topic"
-                value={logTopic}
-                onUpdate={props.onChange}
-            />
-        </InputGroup>
+        <LogTopicEditor
+            logTopic={props.value}
+            onChange={props.onChange}
+        />
     );
 }
 
@@ -39,13 +31,15 @@ EditorComponent.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-function LogTopicList() {
+function LogTopicList(props) {
     return (
         <BulletList
+            {...props}
             name="Topics"
             dataType="log-topic"
             ViewerComponent={ViewerComponent}
             EditorComponent={EditorComponent}
+            allowReordering
         />
     );
 }

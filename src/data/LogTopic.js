@@ -15,8 +15,14 @@ class LogTopic extends Base {
     }
 
     static async validateInternal(inputLogTopic) {
+        const logTopicGroupResults = await this.validateRecursive(
+            LogTopicGroup,
+            '.logTopicGroup',
+            inputLogTopic.logTopicGroup,
+        );
         return [
             this.validateNonEmptyString('.name', inputLogTopic.name),
+            ...logTopicGroupResults,
         ];
     }
 
@@ -58,18 +64,19 @@ class LogTopic extends Base {
             const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
             await LogTopic.updateLogEntries.call(this, outputLogTopic);
             await LogTopic.updateLogStructures.call(this, outputLogTopic);
-            await LogTopic.updateLogRemindeers.call(this, outputLogTopic);
+            await LogTopic.updateLogReminders.call(this, outputLogTopic);
+            await LogTopic.updateLogTopics.call(this, outputLogTopic);
         }
 
         this.broadcast('log-topic-list');
         return logTopic.id;
     }
 
-    static async updateLogEntries(outputLogTopic) {
+    static async updateLogEntries(updatedLogTopic) {
         const logEntryEdges = await this.database.getEdges(
             'LogEntryToLogTopic',
             'topic_id',
-            outputLogTopic.id,
+            updatedLogTopic.id,
             this.transaction,
         );
         const outputLogEntries = await Promise.all(
@@ -79,42 +86,54 @@ class LogTopic extends Base {
         );
         await Promise.all(
             outputLogEntries.map((outputLogEntry) => {
-                outputLogEntry.title = LogTopic.updateLogTopics(
-                    outputLogEntry.title, [outputLogTopic],
+                outputLogEntry.title = LogTopic.updateContent(
+                    outputLogEntry.title, [updatedLogTopic],
                 );
-                outputLogEntry.details = LogTopic.updateLogTopics(
-                    outputLogEntry.details, [outputLogTopic],
+                outputLogEntry.details = LogTopic.updateContent(
+                    outputLogEntry.details, [updatedLogTopic],
                 );
                 return this.invoke.call(this, 'log-entry-upsert', outputLogEntry);
             }),
         );
     }
 
-    static async updateLogStructures(outputLogTopic) {
+    static async updateLogStructures(updatedLogTopic) {
         const outputLogStructures = await this.invoke.call(this, 'log-structure-list');
         await Promise.all(
             outputLogStructures.map((outputLogStructure) => {
-                outputLogStructure.titleTemplate = LogTopic.updateLogTopics(
-                    outputLogStructure.titleTemplate, [outputLogTopic],
+                outputLogStructure.titleTemplate = LogTopic.updateContent(
+                    outputLogStructure.titleTemplate, [updatedLogTopic],
                 );
                 return this.invoke.call(this, 'log-structure-upsert', outputLogStructure);
             }),
         );
     }
 
-    static async updateLogRemindeers(outputLogTopic) {
+    static async updateLogReminders(updatedLogTopic) {
         const outputLogReminders = await this.invoke.call(this, 'log-reminder-list');
         await Promise.all(
             outputLogReminders.map((outputLogReminder) => {
-                outputLogReminder.title = LogTopic.updateLogTopics(
-                    outputLogReminder.title, [outputLogTopic],
+                outputLogReminder.title = LogTopic.updateContent(
+                    outputLogReminder.title, [updatedLogTopic],
                 );
                 return this.invoke.call(this, 'log-reminder-upsert', outputLogReminder);
             }),
         );
     }
 
-    static updateLogTopics(value, logTopics) {
+    static async updateLogTopics(updatedLogTopic) {
+        const outputLogTopics = await this.invoke.call(this, 'log-topic-list');
+        await Promise.all(
+            outputLogTopics.map((outputLogTopic) => {
+                outputLogTopic.details = LogTopic.updateContent(
+                    outputLogTopic.details, [updatedLogTopic],
+                );
+                return this.invoke.call(this, 'log-topic-upsert', outputLogTopic);
+            }),
+        );
+    }
+
+    static updateContent(value, logTopics) {
         let content = TextEditorUtils.deserialize(
             value,
             TextEditorUtils.StorageType.DRAFTJS,
