@@ -7,7 +7,7 @@ const Sequelize = require('sequelize');
 class Database {
     static async init(config) {
         const instance = new Database(config);
-        return instance.sequelize.sync({ force: false }).then(() => instance);
+        return instance.sequelize.sync({ force: true }).then(() => instance);
     }
 
     constructor(config) {

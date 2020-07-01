@@ -94,10 +94,15 @@ class LogStructure extends Base {
                 inputLogStructure.titleTemplate,
                 TextEditorUtils.StorageType.DRAFTJS,
             );
+            // The symbol is forwarded only for testing!
+            const logKeysWithSymbols = logKeys.map((logKey, index) => ({
+                ...logKey,
+                symbol: inputLogStructure.logKeys[index].symbol,
+            }));
             content = updateDraftContent(
                 content,
                 inputLogStructure.logKeys,
-                logKeys,
+                logKeysWithSymbols,
             );
             fields.title_template = TextEditorUtils.serialize(
                 content,

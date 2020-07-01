@@ -26,3 +26,25 @@ test('test_typeahead', async () => {
     logTags = await actions.invoke('log-tag-typeahead', { query: 'i' });
     expect(logTags.length).toEqual(0);
 });
+
+test('test_update_propagation', async () => {
+    await Utils.loadData({
+        logTags: [
+            { type: 'person', name: 'Hacky' },
+        ],
+        logEntries: [
+            { date: '{today}', title: 'Spoke to a #1' },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    let logEntry = await actions.invoke('log-entry-load', { id: 1 });
+    expect(logEntry.name).toEqual('Spoke to a Hacky');
+
+    const logTag = await actions.invoke('log-tag-load', { id: 1 });
+    logTag.name = 'Noob';
+    await actions.invoke('log-tag-upsert', logTag);
+
+    logEntry = await actions.invoke('log-entry-load', logEntry);
+    expect(logEntry.name).toEqual('Spoke to a Noob');
+});

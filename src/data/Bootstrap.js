@@ -7,38 +7,47 @@ import {
     convertPlainTextToDraftContent,
 } from '../common/TemplateUtils';
 
+
+function convertPlainTextToDraftContent2(value, symbolToMapping) {
+    if (!value) {
+        return value;
+    }
+    const content = convertPlainTextToDraftContent(
+        value,
+        symbolToMapping,
+    );
+    return TextEditorUtils.serialize(
+        content,
+        TextEditorUtils.StorageType.DRAFTJS,
+    );
+}
+
+
 async function loadData(actions, data) {
+    const logTags = await awaitSequence(data.logTags, async (logTag) => {
+        logTag.id = getVirtualID();
+        return actions.invoke('log-tag-upsert', logTag);
+    });
+
     const logStructureMap = {};
     await awaitSequence(data.logStructures, async (inputLogStructure) => {
         inputLogStructure.id = getVirtualID();
         inputLogStructure.logKeys = inputLogStructure.logKeys.map(
             (logKey) => ({ ...logKey, id: getVirtualID() }),
         );
-        if (inputLogStructure.titleTemplate) {
-            const content = convertPlainTextToDraftContent(
-                inputLogStructure.titleTemplate, inputLogStructure.logKeys,
-            );
-            inputLogStructure.titleTemplate = TextEditorUtils.serialize(
-                content,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
-        }
+        inputLogStructure.titleTemplate = convertPlainTextToDraftContent2(
+            inputLogStructure.titleTemplate,
+            { $: inputLogStructure.logKeys, '#': logTags },
+        );
         const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
         logStructureMap[outputLogStructure.name] = outputLogStructure;
-    });
-
-    await awaitSequence(data.logTags, async (logTag) => {
-        logTag.id = getVirtualID();
-        return actions.invoke('log-tag-upsert', logTag);
     });
 
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
         inputLogEntry.id = getVirtualID();
         maybeSubstitute(inputLogEntry, 'date');
-        inputLogEntry.title = TextEditorUtils.serialize(
-            inputLogEntry.title,
-            TextEditorUtils.StorageType.PLAINTEXT, // TODO: use DRAFTJS here!
-        );
+        inputLogEntry.title = convertPlainTextToDraftContent2(inputLogEntry.title, { '#': logTags });
+        inputLogEntry.details = convertPlainTextToDraftContent2(inputLogEntry.details, { '#': logTags });
         if (inputLogEntry.structure) {
             inputLogEntry.logStructure = logStructureMap[inputLogEntry.structure];
             // generate values after structure is set
@@ -53,7 +62,6 @@ async function loadData(actions, data) {
             inputLogEntry.logStructure = LogStructure.createVirtual();
             inputLogEntry.logValues = [];
         }
-        inputLogEntry.details = inputLogEntry.details || '';
         await actions.invoke('log-entry-upsert', inputLogEntry);
     });
 
@@ -88,36 +96,37 @@ async function loadData(actions, data) {
 }
 
 
+function convertDraftContentToPlainText2(value, symbolToMapping) {
+    if (!value) {
+        return undefined;
+    }
+    const content = TextEditorUtils.deserialize(
+        value,
+        TextEditorUtils.StorageType.DRAFTJS,
+    );
+    return convertDraftContentToPlainText(content, symbolToMapping);
+}
+
+
 async function saveData(actions) {
     const result = {};
-
-    const logStructures = await actions.invoke('log-structure-list');
-    result.logStructures = logStructures.map((logStructure) => {
-        let titleTemplate = '';
-        if (logStructure.titleTemplate) {
-            const content = TextEditorUtils.deserialize(
-                logStructure.titleTemplate,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
-            titleTemplate = convertDraftContentToPlainText(
-                content,
-                logStructure.logKeys,
-            );
-            // Don't serialize!
-        }
-        return {
-            name: logStructure.name,
-            logKeys: logStructure.logKeys.map((logKey) => ({
-                name: logKey.name, type: logKey.type,
-            })),
-            titleTemplate,
-        };
-    });
 
     const logTags = await actions.invoke('log-tag-list');
     result.logTags = logTags.map((logTag) => ({
         name: logTag.name,
         type: logTag.type,
+    }));
+
+    const logStructures = await actions.invoke('log-structure-list');
+    result.logStructures = logStructures.map((logStructure) => ({
+        name: logStructure.name,
+        logKeys: logStructure.logKeys.map((logKey) => ({
+            name: logKey.name, type: logKey.type,
+        })),
+        titleTemplate: convertDraftContentToPlainText2(
+            logStructure.titleTemplate,
+            { $: logStructure.logKeys, '#': logTags },
+        ),
     }));
 
     const logEntries = await actions.invoke('log-entry-list');
@@ -126,13 +135,8 @@ async function saveData(actions) {
         if (logEntry.date) {
             item.date = logEntry.date;
         }
-        item.title = TextEditorUtils.deserialize(
-            logEntry.title,
-            TextEditorUtils.StorageType.PLAINTEXT,
-        );
-        if (logEntry.details) {
-            item.details = logEntry.details;
-        }
+        item.title = convertDraftContentToPlainText2(logEntry.title, { '#': logTags });
+        item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTags });
         if (isRealItem(logEntry.logStructure)) {
             item.structure = logEntry.logStructure.name;
             item.logValues = logEntry.logValues.map((logValue) => logValue.data);

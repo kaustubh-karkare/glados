@@ -1,39 +1,36 @@
 
-import { ContentState, SelectionState, Modifier } from 'draft-js';
-
-/*
-Link = [text](link)
-Key = \$\d+
-Tag = ?
-People = ?
-Project = ?
-*/
+import {
+    ContentState, SelectionState, Modifier, convertToRaw,
+} from 'draft-js';
 
 const PLUGIN_NAME = 'mention';
+const ENTITY_TYPE = 'mention';
 
 function extractLogTags(content) {
     // There's no way to extract the list of entity-keys from the contentState API.
     // And so I'm just accessing the raw data here.
+    content = convertToRaw(content);
     const logTags = {};
     Object.values(content.entityMap)
-        .filter((entity) => entity.type === 'mention' || entity.type === '#mention')
+        .filter((entity) => entity.type === ENTITY_TYPE)
         .forEach((entity) => {
-            const logTag = entity.data.mention;
+            const logTag = entity.data[PLUGIN_NAME];
             logTags[logTag.id] = logTag;
         });
     return logTags;
 }
 
-function convertDraftContentToPlainText(contentState, items) {
-    const mapping = {
-        mention: '$',
-    };
+function convertDraftContentToPlainText(contentState, symbolToItems) {
     const contentBlock = contentState.getFirstBlock();
     const text = contentBlock.getText();
 
-    const relativeIndex = {};
-    items.forEach((item, index) => {
-        relativeIndex[item.id] = index + 1;
+    const symbolToMapping = {};
+    Object.entries(symbolToItems).forEach(([symbol, items]) => {
+        const mapping = {};
+        items.forEach((item, index) => {
+            mapping[item.id] = index + 1;
+        });
+        symbolToMapping[symbol] = mapping;
     });
 
     let previous = 0;
@@ -48,23 +45,26 @@ function convertDraftContentToPlainText(contentState, items) {
         return false;
     }, (start, end) => {
         result += text.substring(previous, start);
-        const itemId = currentEntity.getData()[PLUGIN_NAME].id;
-        result += mapping[currentEntity.getType()] + relativeIndex[itemId];
+        const item = currentEntity.getData()[PLUGIN_NAME];
+        const index = symbolToMapping[item.symbol][item.id];
+        result += item.symbol + index;
         previous = end;
     });
     result += text.substring(previous, text.length);
     return result;
 }
 
-function convertPlainTextToDraftContent(value, items) {
+function convertPlainTextToDraftContent(value, symbolToItems) {
     let text = '';
     const pendingEntities = [];
     for (let ii = 0; ii < value.length; ii += 1) {
-        if (value[ii] === '$') {
+        if (value[ii] in symbolToItems) {
+            const symbol = value[ii];
             ii += 1;
             // Assumption: Single digit.
             const index = parseInt(value[ii], 10) - 1;
-            const item = items[index];
+            const items = symbolToItems[symbol];
+            const item = { ...items[index], symbol };
             pendingEntities.push([
                 text.length,
                 text.length + item.name.length,
@@ -78,7 +78,7 @@ function convertPlainTextToDraftContent(value, items) {
     let contentState = ContentState.createFromText(text);
     const contentBlock = contentState.getFirstBlock();
     pendingEntities.forEach(([start, end, item]) => {
-        contentState = contentState.createEntity('mention', 'SEGMENTED', item);
+        contentState = contentState.createEntity(ENTITY_TYPE, 'SEGMENTED', item);
         const entityKey = contentState.getLastCreatedEntityKey();
 
         let selectionState = SelectionState.createEmpty(contentBlock.getKey());
@@ -102,23 +102,28 @@ function updateDraftContent(contentState, oldItems, newItems) {
 
     const pendingEntities = [];
 
-    let currentEntityKey;
-    let currentEntity;
-    contentState.getFirstBlock().findEntityRanges((charMetadata) => {
-        currentEntityKey = charMetadata.getEntity();
-        if (currentEntityKey) {
-            currentEntity = contentState.getEntity(currentEntityKey);
-            return true;
-        }
-        return false;
-    }, (start, end) => {
-        const itemId = currentEntity.getData()[PLUGIN_NAME].id;
-        const item = mapping[itemId];
-        pendingEntities.push([start, end, currentEntityKey, item]);
+    contentState.getBlocksAsArray().forEach((contentBlock) => {
+        const currentBlockKey = contentBlock.getKey();
+        let currentEntityKey;
+        let currentEntity;
+        contentBlock.findEntityRanges((charMetadata) => {
+            currentEntityKey = charMetadata.getEntity();
+            if (currentEntityKey) {
+                currentEntity = contentState.getEntity(currentEntityKey);
+                return currentEntity.getType() === ENTITY_TYPE;
+            }
+            return false;
+        }, (start, end) => {
+            const prevItem = currentEntity.getData()[PLUGIN_NAME];
+            if (prevItem.id in mapping) {
+                // The symbol is forwarded only for testing!
+                const nextItem = { ...mapping[prevItem.id], symbol: prevItem.symbol };
+                pendingEntities.push([currentBlockKey, start, end, currentEntityKey, nextItem]);
+            }
+        });
     });
 
-    const blockKey = contentState.getFirstBlock().getKey();
-    pendingEntities.reverse().forEach(([start, end, entityKey, item]) => {
+    pendingEntities.reverse().forEach(([blockKey, start, end, entityKey, item]) => {
         let selectionState = SelectionState.createEmpty(blockKey);
         selectionState = selectionState.merge({
             anchorOffset: start,

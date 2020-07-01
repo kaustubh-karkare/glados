@@ -37,7 +37,6 @@
 
 ### Major Bugs
 * Updating title/details of LogEntry does not update BulletList.
-* LogCategory.keys[].name or LogTag.name updates should propagate to LogEntries.
 * LogCategory.keys: Block updates if LogEntries would become inconsistent.
 * TemplateUtils.substituteValuesIntoDraftContent should generate proper draft content.
 
@@ -52,6 +51,7 @@
 * Rename LogTag to LogReference? LogSubject? LogTopic? LogTheme?
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.
+* Rename TemplateUtils to DraftContentUtils
 
 ### Ideas
 * Priorities?

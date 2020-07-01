@@ -1,5 +1,7 @@
-import Base from './Base';
 import { getVirtualID } from './Utils';
+import { updateDraftContent } from '../common/TemplateUtils';
+import Base from './Base';
+import TextEditorUtils from '../common/TextEditorUtils';
 
 const LogTagTypes = {
     person: {
@@ -11,6 +13,18 @@ const LogTagTypes = {
         trigger: '#',
     },
 };
+
+function updateLogTag(value, logTag) {
+    let content = TextEditorUtils.deserialize(
+        value,
+        TextEditorUtils.StorageType.DRAFTJS,
+    );
+    content = updateDraftContent(content, null, [logTag]);
+    return TextEditorUtils.serialize(
+        content,
+        TextEditorUtils.StorageType.DRAFTJS,
+    );
+}
 
 class LogTag extends Base {
     static createVirtual() {
@@ -49,6 +63,7 @@ class LogTag extends Base {
             inputLogTag,
             this.transaction,
         );
+        const originalName = logTag ? logTag.name : null;
         const fields = {
             id: inputLogTag.id,
             type: inputLogTag.type,
@@ -57,9 +72,59 @@ class LogTag extends Base {
         logTag = await this.database.createOrUpdateItem(
             'LogTag', logTag, fields, this.transaction,
         );
-        // TODO: Trigger consistency update if name change.
+
+        if (originalName && originalName !== logTag.name) {
+            const outputLogTag = await LogTag.load.call(this, logTag.id);
+            await LogTag.updateLogEntries.call(this, outputLogTag);
+            await LogTag.updateLogStructures.call(this, outputLogTag);
+            await LogTag.updateLogRemindeers.call(this, outputLogTag);
+        }
+
         this.broadcast('log-tag-list');
         return logTag.id;
+    }
+
+    static async updateLogEntries(outputLogTag) {
+        const logEntryEdges = await this.database.getEdges(
+            'LogEntryToLogTag',
+            'tag_id',
+            outputLogTag.id,
+            this.transaction,
+        );
+        const outputLogEntries = await Promise.all(
+            logEntryEdges.map(
+                (edge) => this.invoke.call(this, 'log-entry-load', { id: edge.entry_id }),
+            ),
+        );
+        await Promise.all(
+            outputLogEntries.map((outputLogEntry) => {
+                outputLogEntry.title = updateLogTag(outputLogEntry.title, outputLogTag);
+                outputLogEntry.details = updateLogTag(outputLogEntry.details, outputLogTag);
+                return this.invoke.call(this, 'log-entry-upsert', outputLogEntry);
+            }),
+        );
+    }
+
+    static async updateLogStructures(outputLogTag) {
+        const outputLogStructures = await this.invoke.call(this, 'log-structure-list');
+        await Promise.all(
+            outputLogStructures.map((outputLogStructure) => {
+                outputLogStructure.titleTemplate = updateLogTag(
+                    outputLogStructure.titleTemplate, outputLogTag,
+                );
+                return this.invoke.call(this, 'log-structure-upsert', outputLogStructure);
+            }),
+        );
+    }
+
+    static async updateLogRemindeers(outputLogTag) {
+        const outputLogReminders = await this.invoke.call(this, 'log-reminder-list');
+        await Promise.all(
+            outputLogReminders.map((outputLogReminder) => {
+                outputLogReminder.title = updateLogTag(outputLogReminder.title, outputLogTag);
+                return this.invoke.call(this, 'log-reminder-upsert', outputLogReminder);
+            }),
+        );
     }
 }
 

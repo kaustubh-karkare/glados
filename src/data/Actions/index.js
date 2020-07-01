@@ -31,6 +31,9 @@ export default class {
             const response = await this.database.sequelize.transaction(async (transaction) => {
                 const context = {
                     broadcast: (...args) => broadcasts.push(args),
+                    invoke: (innerName, innerInput) => ActionsRegistry[innerName].call(
+                        context, innerInput,
+                    ),
                     database: this.database,
                     transaction,
                 };

@@ -111,14 +111,12 @@ class BulletList extends React.Component {
 
     saveItem(item) {
         this.setState({ isSaving: true });
-        const editItem = this.state.editItem;
+        const { editItem } = this.state;
         window.api.send(`${this.props.dataType}-upsert`, editItem || item)
-            .then((updatedItem) =>
-                this.setState(state => ({
-                    isSaving: false,
-                    editItem: editItem ? updatedItem : null,
-                })
-            ))
+            .then((updatedItem) => this.setState((state) => ({
+                isSaving: false,
+                editItem: editItem ? updatedItem : null,
+            })))
             .catch((error) => this.setState({ isSaving: false, error }));
     }
 
