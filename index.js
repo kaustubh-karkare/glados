@@ -63,7 +63,7 @@ async function cleanup() {
 const context = {};
 context.appConfig = JSON.parse(fs.readFileSync('./config.json'));
 // context.loadBackups = true;
-context.saveBackups = true;
+// context.saveBackups = true;
 context.loopInterval = 60 * 1000;
 
 init.call(context)

@@ -1,4 +1,5 @@
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -16,7 +17,9 @@ function suppressUnlessShiftKey(event) {
 class EditorModal extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            autoSave: false,
+        };
         this.validateItemDebounced = debounce(this.validateItemNotDebounced, 500);
     }
 
@@ -40,11 +43,18 @@ class EditorModal extends React.Component {
     }
 
     validateItemNotDebounced(item) {
+        // TODO: Make sure race conditions are impossible!
+        this.setState({ validationStatus: 'Validating ...' });
         window.api.send(`${this.props.dataType}-validate`, item)
-            .then((validationErrors) => this.setState({
-                validationStatus: null,
-                validationErrors,
-            }))
+            .then((validationErrors) => {
+                this.setState({
+                    validationStatus: null,
+                    validationErrors,
+                });
+                if (this.state.autoSave && validationErrors.length === 0) {
+                    this.props.onSave();
+                }
+            })
             .catch((error) => this.props.onError(error));
     }
 
@@ -60,8 +70,47 @@ class EditorModal extends React.Component {
             );
         } if (this.state.validationStatus) {
             return <div>{this.state.validationStatus}</div>;
+        } if (this.props.isSaving) {
+            return <div>Saving ...</div>;
         }
         return <div>No validation errors!</div>;
+    }
+
+    renderButtons() {
+        return (
+            <div>
+                <Form.Check
+                    id="auto-save"
+                    type="switch"
+                    label="Auto-save"
+                    checked={this.state.autoSave}
+                    onChange={(event) => {
+                        this.setState({ autoSave: event.target.checked });
+                    }}
+                    style={{ display: 'inline-block', marginRight: '20px' }}
+                />
+                <Button
+                    disabled={
+                        this.state.validationStatus
+                        || (
+                            this.state.validationErrors
+                            && this.state.validationErrors.length
+                        )
+                        || this.props.isSaving
+                    }
+                    onClick={() => (
+                        this.state.autoSave
+                            ? this.props.onChange(null)
+                            : this.props.onSave()
+                    )}
+                    size="sm"
+                    variant="secondary"
+                    style={{ width: '50px' }}
+                >
+                    {this.state.autoSave ? 'Close' : 'Save'}
+                </Button>
+            </div>
+        );
     }
 
     render() {
@@ -96,20 +145,7 @@ class EditorModal extends React.Component {
                 <Modal.Body>
                     <LeftRight>
                         {this.renderValidationErrors()}
-                        <Button
-                            disabled={
-                                this.state.validationStatus
-                                || (
-                                    this.state.validationErrors
-                                    && this.state.validationErrors.length
-                                )
-                            }
-                            onClick={() => this.props.onSave()}
-                            size="sm"
-                            variant="secondary"
-                        >
-                            Save
-                        </Button>
+                        {this.renderButtons()}
                     </LeftRight>
                 </Modal.Body>
             </Modal>
@@ -129,10 +165,12 @@ EditorModal.propTypes = {
     onChange: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onError: PropTypes.func.isRequired,
+    isSaving: PropTypes.bool,
 };
 
 EditorModal.defaultProps = {
     editorProps: {},
+    isSaving: false,
 };
 
 

@@ -234,8 +234,8 @@ class LogEntry extends Base {
 
     static async deleteValues(logValueIds) {
         const countResults = {};
-        logValueIds.forEach((keyId) => {
-            countResults[keyId] = 0;
+        logValueIds.forEach((valueId) => {
+            countResults[valueId] = 0;
         });
         const logValueCounts = await this.database.count(
             'LogEntryToLogValue',
@@ -248,7 +248,7 @@ class LogEntry extends Base {
             this.transaction,
         );
         logValueCounts.forEach((item) => {
-            countResults[item.key_id] += item.count;
+            countResults[item.value_id] += item.count;
         });
         await Promise.all(
             Object.entries(countResults)

@@ -28,6 +28,7 @@ function ExpandedViewerComponent(props) {
         <LogReminderList
             name="Reminders"
             selector={{ group_id: logReminderGroup.id }}
+            creator={{ logReminderGroup }}
         />
     );
 }

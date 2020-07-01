@@ -33,6 +33,7 @@ class LogReminderCheckList extends React.Component {
             name: 'log-reminder-list',
             args: {
                 selector: { group_id: this.props.logReminderGroup.id },
+                ordering: true,
                 isActive: true,
             },
             callback: (logReminders) => this.setState({ logReminders }),
@@ -66,6 +67,7 @@ class LogReminderCheckList extends React.Component {
                     state.logReminders = state.logReminders.filter(
                         (item) => item.id !== logReminder.id,
                     );
+                    state.selected = null;
                     return state;
                 });
             })
@@ -94,18 +96,20 @@ class LogReminderCheckList extends React.Component {
     }
 
     render() {
-        const logEntry = this.state.selected && this.state.selected.logEntry;
         return (
             <div>
                 <EditorModal
                     dataType="log-entry"
                     EditorComponent={LogEntryList.EditorComponent}
-                    value={logEntry}
+                    value={this.state.selected && this.state.selected.logEntry}
                     onChange={(updatedLogEntry) => this.setState((state) => {
                         state.selected.logEntry = updatedLogEntry;
                         return state;
                     })}
-                    onSave={() => this.onCompleteReminder(this.state.editLogReminder, logEntry)}
+                    onSave={() => this.onCompleteReminder(
+                        this.state.selected.logReminder,
+                        this.state.selected.logEntry,
+                    )}
                     onError={(error) => this.setState({ error })}
                 />
                 <ErrorModal

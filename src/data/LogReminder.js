@@ -13,7 +13,6 @@ import { getVirtualID, isRealItem } from './Utils';
 
 
 const DefaultValues = {
-    [LogReminderType.NONE]: {},
     [LogReminderType.UNSPECIFIED]: {},
     [LogReminderType.DEADLINE]: {
         deadline: '{tomorrow}',
@@ -60,6 +59,8 @@ class LogReminder extends Base {
     static createVirtual({ logReminderGroup }) {
         const item = {
             id: getVirtualID(),
+            title: '',
+            logStructure: LogStructure.createVirtual(),
             logReminderGroup,
             ...DefaultValues[logReminderGroup.type],
             needsEdit: true,
@@ -178,7 +179,7 @@ class LogReminder extends Base {
             structure_id: structureId,
             group_id: inputLogReminder.logReminderGroup.id,
             ordering_index: orderingIndex,
-            type: inputLogReminder.type,
+            type: inputLogReminder.logReminderGroup.type,
             deadline: inputLogReminder.deadline,
             warning: inputLogReminder.warning,
             frequency: inputLogReminder.frequency,

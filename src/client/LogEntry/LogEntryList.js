@@ -24,6 +24,9 @@ ViewerComponent.propTypes = {
 
 function ExpandedViewerComponent(props) {
     const logEntry = props.value;
+    if (!logEntry.details) {
+        return null;
+    }
     return (
         <TextEditor
             unstyled

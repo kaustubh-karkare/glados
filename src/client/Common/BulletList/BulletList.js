@@ -89,6 +89,7 @@ class BulletList extends React.Component {
             ordering: orderedItems.map((item) => item.id),
         };
         window.api.send(`${this.props.dataType}-reorder`, input)
+            .then(() => this.setState({ items: orderedItems }))
             .catch((error) => this.setState({ error }));
     }
 
@@ -109,9 +110,16 @@ class BulletList extends React.Component {
     }
 
     saveItem(item) {
-        window.api.send(`${this.props.dataType}-upsert`, item)
-            .then((savedItem) => this.setState({ editItem: null }))
-            .catch((error) => this.setState({ error }));
+        this.setState({ isSaving: true });
+        const editItem = this.state.editItem;
+        window.api.send(`${this.props.dataType}-upsert`, editItem || item)
+            .then((updatedItem) =>
+                this.setState(state => ({
+                    isSaving: false,
+                    editItem: editItem ? updatedItem : null,
+                })
+            ))
+            .catch((error) => this.setState({ isSaving: false, error }));
     }
 
     deleteItem(item, event) {
@@ -215,6 +223,7 @@ class BulletList extends React.Component {
                     EditorComponent={this.props.EditorComponent}
                     editorProps={{ selector: this.props.selector }}
                     value={this.state.editItem}
+                    isSaving={this.state.isSaving}
                     onChange={(editItem) => this.setState({ editItem })}
                     onSave={() => this.saveItem(this.state.editItem)}
                     onError={(error) => this.setState({ error })}
@@ -238,7 +247,9 @@ class BulletList extends React.Component {
                         };
                     })}
                     onAddButtonClick={(event) => this.editItem(
-                        DataType.createVirtual(this.props.selector),
+                        DataType.createVirtual(
+                            this.props.creator ? this.props.creator : this.props.selector,
+                        ),
                         event,
                     )}
                 />
@@ -260,6 +271,8 @@ BulletList.propTypes = {
     dataType: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
+    // eslint-disable-next-line react/forbid-prop-types
+    creator: PropTypes.object,
     allowReordering: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
     ExpandedViewerComponent: PropTypes.func,

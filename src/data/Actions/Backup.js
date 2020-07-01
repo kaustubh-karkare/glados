@@ -8,7 +8,7 @@ import assert from '../../common/assert';
 import { awaitSequence, getCallbackAndPromise } from '../Utils';
 import ActionsRegistry from './Registry';
 
-const location = 'data';
+const location = 'database';
 
 function getDateAndTime() {
     const date = new Date();

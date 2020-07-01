@@ -15,6 +15,7 @@ ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
 ActionsRegistry.dates = async function () {
     const results = await this.database.count('LogEntry', {}, ['date'], this.transaction);
     const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
+    dates.clear();
     dates.add(getTodayLabel());
     return Array.from(dates).sort();
 };

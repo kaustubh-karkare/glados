@@ -1,4 +1,3 @@
-import { MdEdit } from 'react-icons/md';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
@@ -10,23 +9,6 @@ class CheckListItem extends React.Component {
         this.state = { hasFocus: false };
     }
 
-    renderSuffix() {
-        if (!this.state.hasFocus) {
-            return null;
-        }
-        return (
-            <>
-                <div
-                    className="icon mr-1"
-                    title="Edit"
-                    onClick={this.props.onEditButtonClick}
-                >
-                    <MdEdit />
-                </div>
-            </>
-        );
-    }
-
     render() {
         return (
             <InputGroup
@@ -35,7 +17,8 @@ class CheckListItem extends React.Component {
                 onMouseEnter={() => this.setState({ hasFocus: true })}
                 onMouseOver={() => this.setState({ hasFocus: true })}
                 onMouseLeave={() => this.setState({ hasFocus: false })}
-                style={{ height: '20px', width: '200px', overflow: 'hidden' }}
+                onClick={this.props.onEditButtonClick}
+                style={{ height: '20px', width: '140px', overflow: 'hidden' }}
             >
                 <Form.Check
                     type="checkbox"
@@ -45,7 +28,6 @@ class CheckListItem extends React.Component {
                     style={{ marginRight: 'none' }}
                 />
                 {this.props.children}
-                {this.renderSuffix()}
             </InputGroup>
         );
     }

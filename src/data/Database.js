@@ -154,16 +154,7 @@ class Database {
             ...Object.keys(Object.values(right)[0] || {}),
         ];
         // eslint-disable-next-line no-unused-vars
-        const [createdEdges, updatedEdges, deletedEdges] = await Promise.all([
-            Promise.all(
-                Object.keys(right)
-                    .filter((rightId) => !existingIDs.includes(rightId))
-                    .map((rightId) => Model.create({
-                        [leftName]: leftId,
-                        [rightName]: rightId,
-                        ...right[rightId],
-                    }, { fields, transaction })),
-            ),
+        const [updatedEdges, deletedEdges] = await Promise.all([
             Promise.all(
                 existingEdges
                     .filter((edge) => edge[rightName] in right)
@@ -175,6 +166,16 @@ class Database {
                     .map((edge) => edge.destroy({ transaction })),
             ),
         ]);
+        // eslint-disable-next-line no-unused-vars
+        const createdEdges = await Promise.all(
+            Object.keys(right)
+                .filter((rightId) => !existingIDs.includes(rightId))
+                .map((rightId) => Model.create({
+                    [leftName]: leftId,
+                    [rightName]: rightId,
+                    ...right[rightId],
+                }, { fields, transaction })),
+        );
         return deletedEdges;
     }
 }

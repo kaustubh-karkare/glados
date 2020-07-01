@@ -40,20 +40,14 @@ EditorComponent.propTypes = {
 function LogReminderList(props) {
     return (
         <BulletList
-            name="Reminders"
+            {...props}
             dataType="log-reminder"
-            selector={props.selector}
             ViewerComponent={ViewerComponent}
             EditorComponent={EditorComponent}
             allowReordering
         />
     );
 }
-
-LogReminderList.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object.isRequired,
-};
 
 LogReminderList.ViewerComponent = ViewerComponent;
 LogReminderList.EditorComponent = EditorComponent;
