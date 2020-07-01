@@ -2,12 +2,12 @@
 
 import assert from '../../common/assert';
 import { getTodayLabel } from '../../common/DateUtils';
-import { LogReminder } from '../Mapping';
+import { LogReminder, LogTopic } from '../Mapping';
 import ActionsRegistry from './Registry';
 
 ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
     const options = await Promise.all(
-        dataTypes.map((dataType) => ActionsRegistry[`${dataType}-typeahead`].call(this, { query })),
+        dataTypes.map((dataType) => this.invoke.call(this, `${dataType}-typeahead`, { query })),
     );
     return options.flat();
 };
@@ -27,19 +27,33 @@ ActionsRegistry['reminder-complete'] = async function (input) {
         inputLogReminder.type === LogReminder.Type.UNSPECIFIED
         || inputLogReminder.type === LogReminder.Type.DEADLINE
     ) {
-        await ActionsRegistry['log-reminder-delete']
-            .call(this, inputLogReminder.id);
+        await this.invoke.call(this, 'log-reminder-delete', inputLogReminder.id);
         outputLogReminder = null;
     } else if (
         inputLogReminder.type === LogReminder.Type.PERIODIC
     ) {
         inputLogReminder.lastUpdate = inputLogEntry.date;
-        outputLogReminder = await ActionsRegistry['log-reminder-upsert']
-            .call(this, inputLogReminder);
+        outputLogReminder = await this.invoke.call(this, 'log-reminder-upsert', inputLogReminder);
     } else {
         assert(false, inputLogReminder.type);
     }
-    const outputLogEntry = await ActionsRegistry['log-entry-upsert'].call(this, inputLogEntry);
+    const outputLogEntry = await this.invoke.call(this, 'log-entry-upsert', inputLogEntry);
     this.broadcast('log-entry-list', { selector: { date: inputLogEntry.date } });
     return { logEntry: outputLogEntry, logReminder: outputLogReminder };
+};
+
+ActionsRegistry.consistency = async function () {
+    const outputLogTopics = await this.invoke.call(this, 'log-topic-list');
+    const outputLogEntries = await this.invoke.call(this, 'log-entry-list');
+    await Promise.all(
+        outputLogEntries.map((outputLogEntry) => {
+            outputLogEntry.title = LogTopic.updateLogTopics(
+                outputLogEntry.title, outputLogTopics,
+            );
+            outputLogEntry.details = LogTopic.updateLogTopics(
+                outputLogEntry.details, outputLogTopics,
+            );
+            return this.invoke.call(this, 'log-entry-upsert', outputLogEntry);
+        }),
+    );
 };
