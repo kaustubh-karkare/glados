@@ -71,7 +71,7 @@ class LogStructureEditor extends React.Component {
                         isSingleLine
                         value={this.props.logStructure.titleTemplate}
                         clientSideOptions={this.props.logStructure.logKeys}
-                        serverSideTypes={['log-tag']}
+                        serverSideTypes={['log-topic']}
                         onUpdate={(value) => this.updateStructure((structure) => {
                             // eslint-disable-next-line no-param-reassign
                             structure.titleTemplate = value;

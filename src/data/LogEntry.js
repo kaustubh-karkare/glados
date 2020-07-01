@@ -3,7 +3,7 @@ import assert from '../common/assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
 import LogValue from './LogValue';
-import { extractLogTags, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
+import { extractLogTopics, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID, isRealItem } from './Utils';
 
@@ -190,14 +190,14 @@ class LogEntry extends Base {
         );
         await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
 
-        const logTags = {
-            ...extractLogTags(
+        const logTopics = {
+            ...extractLogTopics(
                 TextEditorUtils.deserialize(
                     logEntry.title,
                     TextEditorUtils.StorageType.DRAFTJS,
                 ),
             ),
-            ...extractLogTags(
+            ...extractLogTopics(
                 TextEditorUtils.deserialize(
                     logEntry.details,
                     TextEditorUtils.StorageType.DRAFTJS,
@@ -205,13 +205,13 @@ class LogEntry extends Base {
             ),
         };
         await this.database.setEdges(
-            'LogEntryToLogTag',
+            'LogEntryToLogTopic',
             'entry_id',
             logEntry.id,
-            'tag_id',
-            Object.values(logTags).reduce((result, logTag) => {
+            'topic_id',
+            Object.values(logTopics).reduce((result, logTopic) => {
                 // eslint-disable-next-line no-param-reassign
-                result[logTag.id] = {};
+                result[logTopic.id] = {};
                 return result;
             }, {}),
             this.transaction,

@@ -47,7 +47,7 @@ class LogReminderEditor extends React.Component {
                         this.props.onChange(updatedLogReminder);
                     }}
                     onSpecialKeys={this.props.onSpecialKeys}
-                    serverSideTypes={['log-tag']}
+                    serverSideTypes={['log-topic']}
                 />
             </InputGroup>
         );

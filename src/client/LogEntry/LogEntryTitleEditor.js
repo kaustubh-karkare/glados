@@ -13,7 +13,7 @@ function LogEntryTitleEditor(props) {
             isSingleLine
             focusOnLoad
             value={logEntry.title}
-            serverSideTypes={['log-tag', 'log-structure']}
+            serverSideTypes={['log-topic', 'log-structure']}
             disabled={isRealItem(logEntry.logStructure)}
             onUpdate={(value) => {
                 const updatedLogEntry = { ...logEntry };

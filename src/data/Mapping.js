@@ -3,11 +3,11 @@ import LogEntry from './LogEntry';
 import LogKey from './LogKey';
 import LogReminder from './LogReminder';
 import LogReminderGroup from './LogReminderGroup';
-import LogTag from './LogTag';
+import LogTopic from './LogTopic';
 import LogValue from './LogValue';
 
 export {
-    LogStructure, LogEntry, LogKey, LogReminder, LogReminderGroup, LogTag, LogValue,
+    LogStructure, LogEntry, LogKey, LogReminder, LogReminderGroup, LogTopic, LogValue,
 };
 
 const Mapping = {
@@ -16,7 +16,7 @@ const Mapping = {
     'log-key': LogKey,
     'log-reminder': LogReminder,
     'log-reminder-group': LogReminderGroup,
-    'log-tag': LogTag,
+    'log-topic': LogTopic,
     'log-value': LogValue,
 };
 

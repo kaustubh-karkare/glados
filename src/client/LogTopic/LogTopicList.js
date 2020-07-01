@@ -2,37 +2,37 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList, Dropdown, Typeahead } from '../Common';
-import { LogTag } from '../../data';
+import { LogTopic } from '../../data';
 
 
 function ViewerComponent(props) {
-    const logTag = props.value;
+    const logTopic = props.value;
     return (
         <div className="log-viewer">
-            <span>{`(${logTag.type}) `}</span>
-            {logTag.name}
+            <span>{`(${logTopic.type}) `}</span>
+            {logTopic.name}
         </div>
     );
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogTag.isRequired,
+    value: PropTypes.Custom.LogTopic.isRequired,
     // isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {
-    const logTag = props.value;
+    const logTopic = props.value;
     return (
         <InputGroup>
             <Dropdown
-                value={logTag.type}
-                options={LogTag.getTypes()}
-                onUpdate={(type) => props.onChange({ ...logTag, type })}
+                value={logTopic.type}
+                options={LogTopic.getTypes()}
+                onUpdate={(type) => props.onChange({ ...logTopic, type })}
             />
             <Typeahead
                 allowUpdate
-                dataType="log-tag"
-                value={logTag}
+                dataType="log-topic"
+                value={logTopic}
                 onUpdate={props.onChange}
             />
         </InputGroup>
@@ -40,19 +40,19 @@ function EditorComponent(props) {
 }
 
 EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogTag.isRequired,
+    value: PropTypes.Custom.LogTopic.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-function LogTagList() {
+function LogTopicList() {
     return (
         <BulletList
-            name="Tags"
-            dataType="log-tag"
+            name="Topics"
+            dataType="log-topic"
             ViewerComponent={ViewerComponent}
             EditorComponent={EditorComponent}
         />
     );
 }
 
-export default LogTagList;
+export default LogTopicList;

@@ -9,13 +9,13 @@ import LogEntryDateList from './LogEntryDateList';
 import LogEntryReminderList from './LogEntryReminderList';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderGroupList } from '../LogReminder';
-import { LogTagList } from '../LogTag';
+import { LogTopicList } from '../LogTopic';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
     LOG_STRUCTURES: 'log_structures',
     LOG_REMINDERS: 'log_reminders',
-    LOG_TAGS: 'log_tags',
+    LOG_TOPICS: 'log_topics',
 };
 
 class Applicaton extends React.Component {
@@ -46,8 +46,8 @@ class Applicaton extends React.Component {
                             <Tab eventKey={TabKeys.LOG_REMINDERS} title="Reminders">
                                 <LogReminderGroupList />
                             </Tab>
-                            <Tab eventKey={TabKeys.LOG_TAGS} title="Tags">
-                                <LogTagList />
+                            <Tab eventKey={TabKeys.LOG_TOPICS} title="Topics">
+                                <LogTopicList />
                             </Tab>
                         </Tabs>
                     </Col>

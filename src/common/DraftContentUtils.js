@@ -6,18 +6,18 @@ import {
 const PLUGIN_NAME = 'mention';
 const ENTITY_TYPE = 'mention';
 
-function extractLogTags(content) {
+function extractLogTopics(content) {
     // There's no way to extract the list of entity-keys from the contentState API.
     // And so I'm just accessing the raw data here.
     content = convertToRaw(content);
-    const logTags = {};
+    const logTopics = {};
     Object.values(content.entityMap)
         .filter((entity) => entity.type === ENTITY_TYPE)
         .forEach((entity) => {
-            const logTag = entity.data[PLUGIN_NAME];
-            logTags[logTag.id] = logTag;
+            const logTopic = entity.data[PLUGIN_NAME];
+            logTopics[logTopic.id] = logTopic;
         });
-    return logTags;
+    return logTopics;
 }
 
 function convertDraftContentToPlainText(contentState, symbolToItems) {
@@ -189,7 +189,7 @@ function substituteValuesIntoDraftContent(contentState, logValues) {
 }
 
 export {
-    extractLogTags,
+    extractLogTopics,
     convertDraftContentToPlainText,
     convertPlainTextToDraftContent,
     updateDraftContent,

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-named-default
 import { default as LogKeyClass } from '../data/LogKey';
 // eslint-disable-next-line import/no-named-default
-import { default as LogTagClass } from '../data/LogTag';
+import { default as LogTopicClass } from '../data/LogTopic';
 
 const LogKeyType = PropTypes.oneOf(
     LogKeyClass.getTypes().map((item) => item.value),
@@ -26,13 +26,13 @@ const LogValue = PropTypes.shape({
     data: PropTypes.string.isRequired,
 });
 
-const LogTagType = PropTypes.oneOf(
-    LogTagClass.getTypes().map((item) => item.value),
+const LogTopicType = PropTypes.oneOf(
+    LogTopicClass.getTypes().map((item) => item.value),
 );
 
-const LogTag = PropTypes.shape({
+const LogTopic = PropTypes.shape({
     id: PropTypes.number.isRequired,
-    type: LogTagType.isRequired,
+    type: LogTopicType.isRequired,
     name: PropTypes.string.isRequired,
 });
 
@@ -61,7 +61,7 @@ PropTypes.Custom = {
     LogKey,
     LogStructure,
     LogValue,
-    LogTag,
+    LogTopic,
     LogEntry,
     LogReminderGroup,
     LogReminder,

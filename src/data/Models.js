@@ -220,8 +220,8 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    const LogTag = sequelize.define(
-        'log_tags',
+    const LogTopic = sequelize.define(
+        'log_topics',
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -245,8 +245,8 @@ export default function (sequelize) {
         },
     );
 
-    const LogEntryToLogTag = sequelize.define(
-        'log_entries_to_log_tags',
+    const LogEntryToLogTopic = sequelize.define(
+        'log_entries_to_log_topics',
         {
             entry_id: {
                 type: Sequelize.INTEGER,
@@ -255,10 +255,10 @@ export default function (sequelize) {
                     key: 'id',
                 },
             },
-            tag_id: {
+            topic_id: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: LogTag,
+                    model: LogTopic,
                     key: 'id',
                 },
             },
@@ -266,8 +266,8 @@ export default function (sequelize) {
         options,
     );
 
-    LogEntry.belongsToMany(LogTag, {
-        through: LogEntryToLogTag,
+    LogEntry.belongsToMany(LogTopic, {
+        through: LogEntryToLogTopic,
         foreignKey: 'entry_id',
         // Deleteing an Entry is allowed!
         // The links will be broken, and the Tags could be cleaned up.
@@ -275,9 +275,9 @@ export default function (sequelize) {
         onUpdate: 'cascade',
     });
 
-    LogTag.belongsToMany(LogEntry, {
-        through: LogEntryToLogTag,
-        foreignKey: 'tag_id',
+    LogTopic.belongsToMany(LogEntry, {
+        through: LogEntryToLogTopic,
+        foreignKey: 'topic_id',
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -385,9 +385,9 @@ export default function (sequelize) {
         ['LogValue', LogValue],
         ['LogReminderGroup', LogReminderGroup],
         ['LogReminder', LogReminder],
-        ['LogTag', LogTag],
+        ['LogTopic', LogTopic],
         ['LogEntry', LogEntry],
         ['LogEntryToLogValue', LogEntryToLogValue],
-        ['LogEntryToLogTag', LogEntryToLogTag],
+        ['LogEntryToLogTopic', LogEntryToLogTopic],
     ];
 }

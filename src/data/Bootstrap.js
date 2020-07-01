@@ -24,9 +24,9 @@ function convertPlainTextToDraftContent2(value, symbolToMapping) {
 
 
 async function loadData(actions, data) {
-    const logTags = await awaitSequence(data.logTags, async (logTag) => {
-        logTag.id = getVirtualID();
-        return actions.invoke('log-tag-upsert', logTag);
+    const logTopics = await awaitSequence(data.logTopics, async (logTopic) => {
+        logTopic.id = getVirtualID();
+        return actions.invoke('log-topic-upsert', logTopic);
     });
 
     const logStructureMap = {};
@@ -37,7 +37,7 @@ async function loadData(actions, data) {
         );
         inputLogStructure.titleTemplate = convertPlainTextToDraftContent2(
             inputLogStructure.titleTemplate,
-            { $: inputLogStructure.logKeys, '#': logTags },
+            { $: inputLogStructure.logKeys, '#': logTopics },
         );
         const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
         logStructureMap[outputLogStructure.name] = outputLogStructure;
@@ -46,8 +46,8 @@ async function loadData(actions, data) {
     await awaitSequence(data.logEntries, async (inputLogEntry) => {
         inputLogEntry.id = getVirtualID();
         maybeSubstitute(inputLogEntry, 'date');
-        inputLogEntry.title = convertPlainTextToDraftContent2(inputLogEntry.title, { '#': logTags });
-        inputLogEntry.details = convertPlainTextToDraftContent2(inputLogEntry.details, { '#': logTags });
+        inputLogEntry.title = convertPlainTextToDraftContent2(inputLogEntry.title, { '#': logTopics });
+        inputLogEntry.details = convertPlainTextToDraftContent2(inputLogEntry.details, { '#': logTopics });
         if (inputLogEntry.structure) {
             inputLogEntry.logStructure = logStructureMap[inputLogEntry.structure];
             // generate values after structure is set
@@ -111,10 +111,10 @@ function convertDraftContentToPlainText2(value, symbolToMapping) {
 async function saveData(actions) {
     const result = {};
 
-    const logTags = await actions.invoke('log-tag-list');
-    result.logTags = logTags.map((logTag) => ({
-        name: logTag.name,
-        type: logTag.type,
+    const logTopics = await actions.invoke('log-topic-list');
+    result.logTopics = logTopics.map((logTopic) => ({
+        name: logTopic.name,
+        type: logTopic.type,
     }));
 
     const logStructures = await actions.invoke('log-structure-list');
@@ -125,7 +125,7 @@ async function saveData(actions) {
         })),
         titleTemplate: convertDraftContentToPlainText2(
             logStructure.titleTemplate,
-            { $: logStructure.logKeys, '#': logTags },
+            { $: logStructure.logKeys, '#': logTopics },
         ),
     }));
 
@@ -135,8 +135,8 @@ async function saveData(actions) {
         if (logEntry.date) {
             item.date = logEntry.date;
         }
-        item.title = convertDraftContentToPlainText2(logEntry.title, { '#': logTags });
-        item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTags });
+        item.title = convertDraftContentToPlainText2(logEntry.title, { '#': logTopics });
+        item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTopics });
         if (isRealItem(logEntry.logStructure)) {
             item.structure = logEntry.logStructure.name;
             item.logValues = logEntry.logValues.map((logValue) => logValue.data);

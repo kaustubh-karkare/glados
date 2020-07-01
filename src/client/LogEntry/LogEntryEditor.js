@@ -121,7 +121,7 @@ class LogEntryEditor extends React.Component {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
                     })}
-                    serverSideTypes={['log-tag']}
+                    serverSideTypes={['log-topic']}
                     isMarkdown
                 />
             </InputGroup>

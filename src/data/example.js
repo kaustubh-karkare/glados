@@ -55,7 +55,7 @@ export default {
             titleTemplate: 'Article: $1',
         },
     ],
-    logTags: [
+    logTopics: [
         {
             type: 'person',
             name: 'Anurag Dubey',

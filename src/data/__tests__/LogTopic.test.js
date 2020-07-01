@@ -5,7 +5,7 @@ afterEach(Utils.afterEach);
 
 test('test_typeahead', async () => {
     await Utils.loadData({
-        logTags: [
+        logTopics: [
             { type: 'person', name: 'Anurag Dubey' },
             { type: 'person', name: 'Kaustubh Karkare' },
             { type: 'person', name: 'Vishnu Mohandas' },
@@ -15,21 +15,21 @@ test('test_typeahead', async () => {
     });
 
     const actions = Utils.getActions();
-    let logTags;
+    let logTopics;
 
-    logTags = await actions.invoke('log-tag-typeahead', { query: '' });
-    expect(logTags.length).toEqual(5);
-    logTags = await actions.invoke('log-tag-typeahead', { query: 'k' });
-    expect(logTags.length).toEqual(1);
-    logTags = await actions.invoke('log-tag-typeahead', { query: 'p' });
-    expect(logTags.length).toEqual(2);
-    logTags = await actions.invoke('log-tag-typeahead', { query: 'i' });
-    expect(logTags.length).toEqual(0);
+    logTopics = await actions.invoke('log-topic-typeahead', { query: '' });
+    expect(logTopics.length).toEqual(5);
+    logTopics = await actions.invoke('log-topic-typeahead', { query: 'k' });
+    expect(logTopics.length).toEqual(1);
+    logTopics = await actions.invoke('log-topic-typeahead', { query: 'p' });
+    expect(logTopics.length).toEqual(2);
+    logTopics = await actions.invoke('log-topic-typeahead', { query: 'i' });
+    expect(logTopics.length).toEqual(0);
 });
 
 test('test_update_propagation', async () => {
     await Utils.loadData({
-        logTags: [
+        logTopics: [
             { type: 'person', name: 'Hacky' },
         ],
         logEntries: [
@@ -41,9 +41,9 @@ test('test_update_propagation', async () => {
     let logEntry = await actions.invoke('log-entry-load', { id: 1 });
     expect(logEntry.name).toEqual('Spoke to a Hacky');
 
-    const logTag = await actions.invoke('log-tag-load', { id: 1 });
-    logTag.name = 'Noob';
-    await actions.invoke('log-tag-upsert', logTag);
+    const logTopic = await actions.invoke('log-topic-load', { id: 1 });
+    logTopic.name = 'Noob';
+    await actions.invoke('log-topic-upsert', logTopic);
 
     logEntry = await actions.invoke('log-entry-load', logEntry);
     expect(logEntry.name).toEqual('Spoke to a Noob');
