@@ -1,5 +1,5 @@
 import { getVirtualID } from './Utils';
-import { updateDraftContent } from '../common/TemplateUtils';
+import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
 

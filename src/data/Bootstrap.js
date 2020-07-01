@@ -5,7 +5,7 @@ import { awaitSequence, getVirtualID, isRealItem } from './Utils';
 import {
     convertDraftContentToPlainText,
     convertPlainTextToDraftContent,
-} from '../common/TemplateUtils';
+} from '../common/DraftContentUtils';
 
 
 function convertPlainTextToDraftContent2(value, symbolToMapping) {

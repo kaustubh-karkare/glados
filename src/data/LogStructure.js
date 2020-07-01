@@ -1,4 +1,4 @@
-import { updateDraftContent } from '../common/TemplateUtils';
+import { updateDraftContent } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import LogKey from './LogKey';
 import Base from './Base';

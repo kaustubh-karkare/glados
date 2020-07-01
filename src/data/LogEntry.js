@@ -3,7 +3,7 @@ import assert from '../common/assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
 import LogValue from './LogValue';
-import { extractLogTags, substituteValuesIntoDraftContent } from '../common/TemplateUtils';
+import { extractLogTags, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID, isRealItem } from './Utils';
 

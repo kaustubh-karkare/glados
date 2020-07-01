@@ -51,7 +51,6 @@
 * Rename LogTag to LogReference? LogSubject? LogTopic? LogTheme?
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.
-* Rename TemplateUtils to DraftContentUtils
 
 ### Ideas
 * Priorities?
