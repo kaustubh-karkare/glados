@@ -1,4 +1,15 @@
 export default {
+    logTopicGroups: [
+        { name: 'People' },
+        { name: 'General' },
+    ],
+    logTopics: [
+        { group: 'People', name: 'Anurag Dubey' },
+        { group: 'People', name: 'Kaustubh Karkare' },
+        { group: 'People', name: 'Vishnu Mohandas' },
+        { group: 'General', name: 'philosophy' },
+        { group: 'General', name: 'productivity' },
+    ],
     logStructures: [
         {
             name: 'Cycling',
@@ -55,25 +66,6 @@ export default {
             titleTemplate: 'Article: $1',
         },
     ],
-    logTopics: [
-        { name: 'Anurag Dubey' },
-        { name: 'Kaustubh Karkare' },
-        { name: 'Vishnu Mohandas' },
-        { name: 'philosophy' },
-        { name: 'productivity' },
-    ],
-    logEntries: [
-        {
-            date: '2020-06-22',
-            structure: 'Cycling',
-            logValues: ['15', '55'],
-        },
-        {
-            date: '2020-06-24',
-            structure: 'Cycling',
-            logValues: ['15', '60'],
-        },
-    ],
     logReminderGroups: [
         {
             name: 'Daily Routine',
@@ -107,6 +99,18 @@ export default {
             title: '',
             structure: 'Movie',
             group: 'Entertainment',
+        },
+    ],
+    logEntries: [
+        {
+            date: '2020-06-22',
+            structure: 'Cycling',
+            logValues: ['15', '55'],
+        },
+        {
+            date: '2020-06-24',
+            structure: 'Cycling',
+            logValues: ['15', '60'],
         },
     ],
 };

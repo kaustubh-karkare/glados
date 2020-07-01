@@ -1,2 +1,2 @@
-// eslint-disable-next-line import/prefer-default-export
+export { default as LogTopicGroupList } from './LogTopicGroupList';
 export { default as LogTopicList } from './LogTopicList';

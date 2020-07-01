@@ -6,6 +6,71 @@ export default function (sequelize) {
         underscored: true,
     };
 
+    const LogTopicGroup = sequelize.define(
+        'log_topic_groups',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['name'] },
+            ],
+        },
+    );
+
+    const LogTopic = sequelize.define(
+        'log_topics',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            group_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            details: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+        },
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['name'] },
+            ],
+        },
+    );
+
+    LogTopic.belongsTo(LogTopicGroup, {
+        foreignKey: 'group_id',
+        allowNull: false,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     const LogStructure = sequelize.define(
         'log_structures',
         {
@@ -21,7 +86,6 @@ export default function (sequelize) {
             title_template: {
                 type: Sequelize.TEXT,
                 allowNull: false,
-                defaultValue: '',
             },
         },
         {
@@ -130,158 +194,6 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    // Should this be called call LogEntry or LogEvent?
-    // LogEvent indicates "events" and not all items in the list are actual events.
-    // They might be random thoughts, or reminders, etc.
-    const LogEntry = sequelize.define(
-        'log_entries',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            structure_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
-            date: {
-                type: Sequelize.STRING,
-                allowNull: true,
-                comment: 'Used for grouping.',
-            },
-            ordering_index: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-                comment: 'Derived from Title, used for Search.',
-            },
-            title: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-            details: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-                defaultValue: '',
-            },
-        },
-        options,
-    );
-
-    LogEntry.belongsTo(LogStructure, {
-        foreignKey: 'structure_id',
-        allowNull: true,
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
-    const LogEntryToLogValue = sequelize.define(
-        'log_entries_to_log_values',
-        {
-            entry_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogEntry,
-                    key: 'id',
-                },
-            },
-            value_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogValue,
-                    key: 'id',
-                },
-            },
-            ordering_index: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-        },
-        options,
-    );
-
-    LogEntry.belongsToMany(LogValue, {
-        through: LogEntryToLogValue,
-        foreignKey: 'entry_id',
-        // Deleteing an Entry is allowed!
-        // The links will be broken, and the Values could be cleaned up.
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-    });
-
-    LogValue.belongsToMany(LogEntry, {
-        through: LogEntryToLogValue,
-        foreignKey: 'value_id',
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
-    const LogTopic = sequelize.define(
-        'log_topics',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            details: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-        },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['name'] },
-            ],
-        },
-    );
-
-    const LogEntryToLogTopic = sequelize.define(
-        'log_entries_to_log_topics',
-        {
-            entry_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogEntry,
-                    key: 'id',
-                },
-            },
-            topic_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogTopic,
-                    key: 'id',
-                },
-            },
-        },
-        options,
-    );
-
-    LogEntry.belongsToMany(LogTopic, {
-        through: LogEntryToLogTopic,
-        foreignKey: 'entry_id',
-        // Deleteing an Entry is allowed!
-        // The links will be broken, and the Tags could be cleaned up.
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-    });
-
-    LogTopic.belongsToMany(LogEntry, {
-        through: LogEntryToLogTopic,
-        foreignKey: 'topic_id',
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
     const LogReminderGroup = sequelize.define(
         'log_reminder_groups',
         {
@@ -376,18 +288,146 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    // Should this be called call LogEntry or LogEvent?
+    // LogEvent indicates "events" and not all items in the list are actual events.
+    // They might be random thoughts, or reminders, etc.
+    const LogEntry = sequelize.define(
+        'log_entries',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            structure_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            date: {
+                type: Sequelize.STRING,
+                allowNull: true,
+                comment: 'Used for grouping.',
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+                comment: 'Derived from Title, used for Search.',
+            },
+            title: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            details: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+                defaultValue: '',
+            },
+        },
+        options,
+    );
+
+    const LogEntryToLogTopic = sequelize.define(
+        'log_entries_to_log_topics',
+        {
+            entry_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogEntry,
+                    key: 'id',
+                },
+            },
+            topic_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogTopic,
+                    key: 'id',
+                },
+            },
+        },
+        options,
+    );
+
+    LogEntry.belongsToMany(LogTopic, {
+        through: LogEntryToLogTopic,
+        foreignKey: 'entry_id',
+        // Deleteing an Entry is allowed!
+        // The links will be broken, and the Tags could be cleaned up.
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+    });
+
+    LogTopic.belongsToMany(LogEntry, {
+        through: LogEntryToLogTopic,
+        foreignKey: 'topic_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    LogEntry.belongsTo(LogStructure, {
+        foreignKey: 'structure_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    const LogEntryToLogValue = sequelize.define(
+        'log_entries_to_log_values',
+        {
+            entry_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogEntry,
+                    key: 'id',
+                },
+            },
+            value_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogValue,
+                    key: 'id',
+                },
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+        },
+        options,
+    );
+
+    LogEntry.belongsToMany(LogValue, {
+        through: LogEntryToLogValue,
+        foreignKey: 'entry_id',
+        // Deleteing an Entry is allowed!
+        // The links will be broken, and the Values could be cleaned up.
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+    });
+
+    LogValue.belongsToMany(LogEntry, {
+        through: LogEntryToLogValue,
+        foreignKey: 'value_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
+        ['LogTopicGroup', LogTopicGroup],
+        ['LogTopic', LogTopic],
         ['LogStructure', LogStructure],
         ['LogKey', LogKey],
         ['LogStructureToLogKey', LogStructureToLogKey],
         ['LogValue', LogValue],
         ['LogReminderGroup', LogReminderGroup],
         ['LogReminder', LogReminder],
-        ['LogTopic', LogTopic],
         ['LogEntry', LogEntry],
-        ['LogEntryToLogValue', LogEntryToLogValue],
         ['LogEntryToLogTopic', LogEntryToLogTopic],
+        ['LogEntryToLogValue', LogEntryToLogValue],
     ];
 }

@@ -5,12 +5,16 @@ afterEach(Utils.afterEach);
 
 test('test_typeahead', async () => {
     await Utils.loadData({
+        logTopicGroups: [
+            { name: 'People' },
+            { name: 'General' },
+        ],
         logTopics: [
-            { name: 'Anurag Dubey' },
-            { name: 'Kaustubh Karkare' },
-            { name: 'Vishnu Mohandas' },
-            { name: 'philosophy' },
-            { name: 'productivity' },
+            { group: 'People', name: 'Anurag Dubey' },
+            { group: 'People', name: 'Kaustubh Karkare' },
+            { group: 'People', name: 'Vishnu Mohandas' },
+            { group: 'General', name: 'philosophy' },
+            { group: 'General', name: 'productivity' },
         ],
     });
 
@@ -29,8 +33,11 @@ test('test_typeahead', async () => {
 
 test('test_update_propagation', async () => {
     await Utils.loadData({
+        logTopicGroups: [
+            { name: 'People' },
+        ],
         logTopics: [
-            { name: 'Hacky' },
+            { group: 'People', name: 'Hacky' },
         ],
         logEntries: [
             { date: '{today}', title: 'Spoke to a #1' },

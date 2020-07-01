@@ -9,7 +9,7 @@ import LogEntryDateList from './LogEntryDateList';
 import LogEntryReminderList from './LogEntryReminderList';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderGroupList } from '../LogReminder';
-import { LogTopicList } from '../LogTopic';
+import { LogTopicGroupList } from '../LogTopic';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
@@ -47,7 +47,7 @@ class Applicaton extends React.Component {
                                 <LogReminderGroupList />
                             </Tab>
                             <Tab eventKey={TabKeys.LOG_TOPICS} title="Topics">
-                                <LogTopicList />
+                                <LogTopicGroupList />
                             </Tab>
                         </Tabs>
                     </Col>

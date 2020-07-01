@@ -24,10 +24,18 @@ function convertPlainTextToDraftContent2(value, symbolToMapping) {
 
 
 async function loadData(actions, data) {
-    const logTopics = await awaitSequence(data.logTopics, async (logTopic) => {
-        logTopic.id = getVirtualID();
-        logTopic.details = logTopic.details || '';
-        return actions.invoke('log-topic-upsert', logTopic);
+    const logTopicGroupMap = {};
+    await awaitSequence(data.logTopicGroups, async (inputLogTopicGroup) => {
+        inputLogTopicGroup.id = getVirtualID();
+        const logTopicGroup = await actions.invoke('log-topic-group-upsert', inputLogTopicGroup);
+        logTopicGroupMap[logTopicGroup.name] = logTopicGroup;
+    });
+
+    const logTopics = await awaitSequence(data.logTopics, async (inputLogTopic) => {
+        inputLogTopic.id = getVirtualID();
+        inputLogTopic.logTopicGroup = logTopicGroupMap[inputLogTopic.group];
+        inputLogTopic.details = inputLogTopic.details || '';
+        return actions.invoke('log-topic-upsert', inputLogTopic);
     });
 
     const logStructureMap = {};
@@ -112,9 +120,13 @@ function convertDraftContentToPlainText2(value, symbolToMapping) {
 async function saveData(actions) {
     const result = {};
 
+    const logTopicGroups = await actions.invoke('log-topic-group-list');
+    result.logTopicGroups = logTopicGroups.map((logTopic) => ({ name: logTopic.name }));
+
     const logTopics = await actions.invoke('log-topic-list');
     result.logTopics = logTopics.map((logTopic) => ({
         name: logTopic.name,
+        group: logTopic.logTopicGroup.name,
         details: logTopic.details || undefined,
     }));
 

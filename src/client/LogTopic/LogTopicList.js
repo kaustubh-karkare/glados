@@ -8,7 +8,6 @@ function ViewerComponent(props) {
     const logTopic = props.value;
     return (
         <div className="log-viewer">
-            <span>{`(${logTopic.type}) `}</span>
             {logTopic.name}
         </div>
     );
@@ -16,7 +15,6 @@ function ViewerComponent(props) {
 
 ViewerComponent.propTypes = {
     value: PropTypes.Custom.LogTopic.isRequired,
-    // isExpanded: PropTypes.bool.isRequired,
 };
 
 function EditorComponent(props) {

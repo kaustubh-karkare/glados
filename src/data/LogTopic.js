@@ -1,12 +1,14 @@
 import { getVirtualID } from './Utils';
 import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
+import LogTopicGroup from './LogTopicGroup';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
-    static createVirtual() {
+    static createVirtual({ logTopicGroup } = {}) {
         return {
             id: getVirtualID(),
+            logTopicGroup: LogTopicGroup.createVirtual(logTopicGroup),
             name: '',
             details: '',
         };
@@ -20,8 +22,14 @@ class LogTopic extends Base {
 
     static async load(id) {
         const logTopic = await this.database.findByPk('LogTopic', id, this.transaction);
+        const logTopicGroup = await this.database.findByPk(
+            'LogTopicGroup',
+            logTopic.group_id,
+            this.transaction,
+        );
         return {
             id: logTopic.id,
+            logTopicGroup,
             name: logTopic.name,
             details: logTopic.details,
         };
@@ -34,8 +42,11 @@ class LogTopic extends Base {
             this.transaction,
         );
         const originalName = logTopic ? logTopic.name : null;
+        const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const fields = {
             id: inputLogTopic.id,
+            group_id: inputLogTopic.logTopicGroup.id,
+            ordering_index: orderingIndex,
             name: inputLogTopic.name,
             details: inputLogTopic.details,
         };

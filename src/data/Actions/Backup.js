@@ -41,7 +41,7 @@ ActionsRegistry['backup-save'] = async function () {
     const hash = crypto.createHash('md5').update(data).digest('hex');
 
     try {
-        const latestBackup = await ActionsRegistry['backup-latest'].call(this);
+        const latestBackup = await this.invoke.call(this, 'backup-latest');
         if (hash === latestBackup.hash) {
             return { ...latestBackup, isUnchanged: true };
         }
@@ -70,7 +70,7 @@ ActionsRegistry['backup-latest'] = async function () {
 };
 
 ActionsRegistry['backup-load'] = async function () {
-    const latestBackup = await ActionsRegistry['backup-latest'].call(this);
+    const latestBackup = await this.invoke.call(this, 'backup-latest');
 
     const [callback, promise] = getCallbackAndPromise();
     fs.readFile(path.join(location, latestBackup.filename), callback);
