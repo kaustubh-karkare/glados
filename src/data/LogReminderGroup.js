@@ -33,6 +33,7 @@ class LogReminderGroup extends Base {
             id: getVirtualID(),
             name: name || '',
             type: type || LogReminderType.UNSPECIFIED,
+            onSidebar: true,
         };
     }
 

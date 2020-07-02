@@ -1,5 +1,6 @@
 import Utils from './Utils';
 import LogEntry from '../LogEntry';
+import LogStructure from '../LogStructure';
 import { getTodayLabel } from '../../common/DateUtils';
 
 beforeEach(Utils.beforeEach);
@@ -123,4 +124,39 @@ test('test_periodic_completion', async () => {
     const logEntry = LogEntry.createVirtual({ date: getTodayLabel() });
     const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEntry });
     expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
+});
+
+test('test_reminder_structure_upsert', async () => {
+    await Utils.loadData({
+        logReminderGroups: [
+            {
+                name: 'Todo',
+                type: 'unspecified',
+            },
+        ],
+        logReminders: [
+            {
+                title: 'Read a book',
+                group: 'Todo',
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    let logReminder = await actions.invoke('log-reminder-load', { id: 1 });
+    let logStructures;
+
+    logReminder.logStructure = LogStructure.createVirtual({ name: 'One', isIndirectlyManaged: true });
+    logReminder = await actions.invoke('log-reminder-upsert', logReminder);
+    logStructures = await actions.invoke('log-structure-list');
+    expect(logStructures.length).toEqual(1);
+
+    logReminder.logStructure = LogStructure.createVirtual({ name: 'Two', isIndirectlyManaged: true });
+    logReminder = await actions.invoke('log-reminder-upsert', logReminder);
+    logStructures = await actions.invoke('log-structure-list');
+    expect(logStructures.length).toEqual(1);
+
+    logReminder = await actions.invoke('log-reminder-delete', logReminder.id);
+    logStructures = await actions.invoke('log-structure-list');
+    expect(logStructures.length).toEqual(0);
 });

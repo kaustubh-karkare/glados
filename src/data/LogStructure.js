@@ -5,13 +5,14 @@ import Base from './Base';
 import { getVirtualID, isVirtualItem } from './Utils';
 
 class LogStructure extends Base {
-    static createVirtual() {
+    static createVirtual({ name, isIndirectlyManaged } = {}) {
         return {
             __type__: 'log-structure',
             id: getVirtualID(),
-            name: '',
+            name: name || '',
             logKeys: [],
             titleTemplate: '',
+            isIndirectlyManaged: isIndirectlyManaged || false,
         };
     }
 
@@ -52,6 +53,7 @@ class LogStructure extends Base {
             name: logStructure.name,
             logKeys: outputLogKeys,
             titleTemplate: logStructure.title_template,
+            isIndirectlyManaged: logStructure.is_indirectly_managed,
         };
     }
 
@@ -88,6 +90,7 @@ class LogStructure extends Base {
         const fields = {
             name: inputLogStructure.name,
             title_template: '',
+            is_indirectly_managed: inputLogStructure.isIndirectlyManaged,
         };
         if (inputLogStructure.titleTemplate) {
             let content = TextEditorUtils.deserialize(

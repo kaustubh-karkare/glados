@@ -17,7 +17,7 @@ ActionsRegistry.dates = async function () {
     let dates = new Set(results.filter((result) => result.date).map((result) => result.date));
     dates.add(getTodayLabel());
     dates = Array.from(dates).sort();
-    return dates.slice(dates.length - 3);
+    return dates.slice(dates.length - 1);
 };
 
 ActionsRegistry['reminder-complete'] = async function (input) {

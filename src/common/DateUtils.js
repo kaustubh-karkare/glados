@@ -1,11 +1,16 @@
 import assert from './assert';
 
 const MS_IN_DAY = 86400 * 1000;
+const TODAY_OFFSET = 3 * 3600 * 1000;
 
 // Section: Date Utilities
 
+function getTodayDate() {
+    return new Date(new Date().valueOf() - TODAY_OFFSET);
+}
+
 export function getTodayValue() {
-    const now = new Date();
+    const now = getTodayDate();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
 }
 
@@ -32,7 +37,7 @@ export function getTodayLabel() {
     return getDateLabel(getTodayValue());
 }
 
-const DaysOfTheWeek = [
+export const DaysOfTheWeek = [
     'Sunday',
     'Monday',
     'Tuesday',
@@ -44,6 +49,10 @@ const DaysOfTheWeek = [
 
 export function getDayOfTheWeek(label) {
     return DaysOfTheWeek[getRawDate(label).getDay()];
+}
+
+export function getTodayDay() {
+    return getTodayDate().getDay();
 }
 
 // Section: Duration Utilities

@@ -1,9 +1,10 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    AsyncSelect, DatePicker, Select, TextEditor, Typeahead,
+    AsyncSelect, DatePicker, Select, TextEditor,
 } from '../Common';
 import { LogReminder, LogStructure } from '../../data';
+import { LogStructureEditor } from '../LogStructure';
 import PropTypes from '../prop-types';
 
 const NeedsEditOptions = [
@@ -12,24 +13,6 @@ const NeedsEditOptions = [
 ];
 
 class LogReminderEditor extends React.Component {
-    renderGroupSelector() {
-        const { logReminderGroup } = this.props.logReminder;
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Reminder
-                </InputGroup.Text>
-                <AsyncSelect
-                    dataType="log-reminder-group"
-                    value={logReminderGroup}
-                    onChange={(newLogReminderGroup) => this.props.onChange(
-                        LogReminder.createVirtual({ logReminderGroup: newLogReminderGroup }),
-                    )}
-                />
-            </InputGroup>
-        );
-    }
-
     renderTitle() {
         const { logReminder } = this.props;
         return (
@@ -53,27 +36,19 @@ class LogReminderEditor extends React.Component {
         );
     }
 
-    renderStructure() {
-        const { logReminder } = this.props;
+    renderGroupSelector() {
+        const { logReminderGroup } = this.props.logReminder;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Structure
+                    Reminder
                 </InputGroup.Text>
-                <Typeahead
-                    dataType="log-structure"
-                    value={logReminder.logStructure}
-                    onUpdate={(updatedLogStructure) => {
-                        const updatedLogReminder = { ...logReminder };
-                        updatedLogReminder.logStructure = updatedLogStructure;
-                        this.props.onChange(updatedLogReminder);
-                    }}
-                    allowDelete
-                    onDelete={() => {
-                        const updatedLogReminder = { ...logReminder };
-                        updatedLogReminder.logStructure = LogStructure.createVirtual();
-                        this.props.onChange(updatedLogReminder);
-                    }}
+                <AsyncSelect
+                    dataType="log-reminder-group"
+                    value={logReminderGroup}
+                    onChange={(newLogReminderGroup) => this.props.onChange(
+                        LogReminder.createVirtual({ logReminderGroup: newLogReminderGroup }),
+                    )}
                 />
             </InputGroup>
         );
@@ -163,19 +138,57 @@ class LogReminderEditor extends React.Component {
         );
     }
 
+    renderStructureSelector() {
+        const { logReminder } = this.props;
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is structured?
+                </InputGroup.Text>
+                <Select.Binary
+                    value={!!logReminder.logStructure}
+                    onChange={(newValue) => {
+                        const updatedLogReminder = { ...logReminder };
+                        updatedLogReminder.logStructure = newValue
+                            ? LogStructure.createVirtual({ isIndirectlyManaged: true })
+                            : null;
+                        this.props.onChange(updatedLogReminder);
+                    }}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderStructure() {
+        const { logReminder } = this.props;
+        return (
+            <LogStructureEditor
+                logStructure={logReminder.logStructure}
+                onChange={(updatedLogStructure) => {
+                    const updatedLogReminder = { ...logReminder };
+                    updatedLogReminder.logStructure = updatedLogStructure;
+                    this.props.onChange(updatedLogReminder);
+                }}
+            />
+        );
+    }
+
     render() {
         const { type } = this.props.logReminder.logReminderGroup;
         return (
             <>
                 <div className="my-3">
                     {this.renderTitle()}
-                    {this.renderStructure()}
                 </div>
                 <div className="my-3">
                     {this.renderGroupSelector()}
                     {type === LogReminder.Type.DEADLINE ? this.renderDeadline() : null}
                     {type === LogReminder.Type.PERIODIC ? this.renderPeriodic() : null}
                     {this.renderNeedsEditSelector()}
+                </div>
+                <div className="my-3">
+                    {this.renderStructureSelector()}
+                    {this.props.logReminder.logStructure ? this.renderStructure() : null}
                 </div>
             </>
         );

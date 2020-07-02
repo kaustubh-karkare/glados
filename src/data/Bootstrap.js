@@ -48,6 +48,7 @@ async function loadData(actions, data) {
             inputLogStructure.titleTemplate,
             { $: inputLogStructure.logKeys, '#': logTopics },
         );
+        inputLogStructure.isIndirectlyManaged = false;
         const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
         logStructureMap[outputLogStructure.name] = outputLogStructure;
     });

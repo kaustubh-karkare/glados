@@ -14,10 +14,13 @@
     * Need to spend some time here to import this data.
 
 ### Minor Features
+* Favorite topics bar.
+* Add more options for TextEditor mention suggestions!
+* Create modal for renders information about specific topic. List of relevant events + details form.
+* Allow LogReminders to be created directly from the LogEntryAdder.
 * Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
 * Figure out UI for LogEntry.is_minor so that it is easy to toggle between the 2 modes.
 * Add LogEntry.is_resolved, so indicate items are the still pending resolution. Helps with active deliveries.
-* Allow LogReminders to be created directly from the LogEntryAdder.
 * Add a button on the UI that triggers consistency check of custom rules!
 * Add a button on the UI that triggers creation of backups.
 * Client should be aware of the current mode (test vs prod).
@@ -46,6 +49,8 @@
 * BulletList.AdderComponent does not invoke validation!
 
 ### Code Quality
+* Get the bootstrap.min.css file out of the repository!
+* Move propTypes to data files.
 * Validate that all database interactions use transactions, via assertions.
 * Lets just use a single character for suggestions with smarter rendering.
 * Avoid unnecessary reloading of data across save/load methods.

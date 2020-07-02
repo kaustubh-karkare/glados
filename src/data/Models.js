@@ -87,6 +87,11 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
+            is_indirectly_managed: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+                comment: 'If true, this structure is tightly coupled with a reminder.',
+            },
         },
         {
             ...options,
@@ -242,10 +247,6 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            structure_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
             type: {
                 type: Sequelize.STRING,
                 allowNull: false,
@@ -269,6 +270,10 @@ export default function (sequelize) {
             needs_edit: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
+            },
+            structure_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
             },
         },
         options,

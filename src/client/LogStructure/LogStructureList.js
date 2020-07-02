@@ -62,6 +62,7 @@ function LogStructureList() {
             ViewerComponent={ViewerComponent}
             ExpandedViewerComponent={ExpandedViewerComponent}
             EditorComponent={EditorComponent}
+            selector={{ is_indirectly_managed: false }}
         />
     );
 }

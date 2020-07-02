@@ -1,9 +1,11 @@
 import assert from '../common/assert';
 import range from '../common/range';
 import {
+    DaysOfTheWeek,
     getDateValue,
     getDurationValue,
     getTodayValue,
+    getTodayDay,
     maybeSubstitute,
 } from '../common/DateUtils';
 import Base from './Base';
@@ -39,15 +41,23 @@ const FrequencyOptions = [
     {
         value: 'weekdays',
         label: 'Weekdays',
-        check: () => [1, 2, 3, 4, 5].includes(new Date().getDay()),
+        check: () => [1, 2, 3, 4, 5].includes(getTodayDay()),
     },
     {
         value: 'weekends',
         label: 'Weekends',
-        check: () => [0, 6].includes(new Date().getDay()),
+        check: () => [0, 6].includes(getTodayDay()),
     },
     // TODO: Add more as needed.
 ];
+
+DaysOfTheWeek.forEach((day, index) => {
+    FrequencyOptions.push({
+        value: day.toLowerCase(),
+        label: day,
+        check: () => (getTodayDay() === index),
+    });
+});
 
 const FrequencyCheck = FrequencyOptions.reduce((result, item) => {
     result[item.value] = item.check;
@@ -60,10 +70,11 @@ class LogReminder extends Base {
         const item = {
             id: getVirtualID(),
             title: '',
-            logStructure: LogStructure.createVirtual(),
             logReminderGroup,
+            type: logReminderGroup.type,
             ...DefaultValues[logReminderGroup.type],
             needsEdit: true,
+            logStructure: null,
         };
         maybeSubstitute(item, 'deadline');
         maybeSubstitute(item, 'lastUpdate');
@@ -110,10 +121,13 @@ class LogReminder extends Base {
         if (inputLogReminder === null) {
             return [];
         }
+
         if (!isRealItem(inputLogReminder.logReminderGroup)) {
             results.push(['.logReminderGroup', false, 'is missing!']);
             return results;
         }
+        results.push(this.validateNonEmptyString('.title', inputLogReminder.title));
+
         const { type } = inputLogReminder.logReminderGroup;
         if (type === LogReminderType.UNSPECIFIED) {
             // no additional fields
@@ -125,17 +139,28 @@ class LogReminder extends Base {
                 this.validateEnumValue('.frequency', inputLogReminder.frequency, FrequencyCheck),
             );
             results.push(this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate));
-
-            if (isRealItem((inputLogReminder.logStructure))) {
-                const logStructureResults = await this.validateRecursive(
-                    LogStructure, '.logStructure', inputLogReminder.logStructure,
-                );
-                results.push(...logStructureResults);
-            } else {
-                results.push(['.logStructure', false, 'is required for periodic reminders!']);
-            }
+            results.push(['.logStructure', inputLogReminder.logStructure, 'is required for periodic reminders!']);
         } else {
             results.push(['.type', false, ' is invalid!']);
+        }
+
+        if (inputLogReminder.logStructure) {
+            const logStructureResults = await this.validateRecursive(
+                LogStructure, '.logStructure', inputLogReminder.logStructure,
+            );
+            results.push(...logStructureResults);
+            results.push([
+                '.logStructure.isIndirectlyManaged',
+                inputLogReminder.logStructure.isIndirectlyManaged,
+                'must be set!',
+            ]);
+            if (inputLogReminder.logStructure.logKeys.length > 0) {
+                results.push([
+                    '.needsEdit',
+                    inputLogReminder.needsEdit,
+                    'should be set for structures with keys!',
+                ]);
+            }
         }
         return results;
     }
@@ -143,7 +168,7 @@ class LogReminder extends Base {
     static async load(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
         const outputLogReminderGroup = await LogReminderGroup.load.call(this, logReminder.group_id);
-        let outputLogStructure = null;
+        let outputLogStructure;
         if (logReminder.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logReminder.structure_id);
         }
@@ -167,16 +192,23 @@ class LogReminder extends Base {
             inputLogReminder,
             this.transaction,
         );
-        const structureId = isRealItem(inputLogReminder.logStructure)
-            ? inputLogReminder.logStructure.id
-            : null;
+
+        const prevStructureId = logReminder && logReminder.structure_id;
+        let nextStructureId = null;
+        if (inputLogReminder.logStructure) {
+            // Warning! Having to change context here is an abstraction leak!
+            nextStructureId = await LogStructure.save.call(
+                { ...this, DataType: LogStructure },
+                inputLogReminder.logStructure,
+            );
+        }
+
         assert(isRealItem(inputLogReminder.logReminderGroup));
         const orderingIndex = await Base.getOrderingIndex.call(this, logReminder, {
             group_id: inputLogReminder.logReminderGroup.id,
         });
         const fields = {
             title: inputLogReminder.title,
-            structure_id: structureId,
             group_id: inputLogReminder.logReminderGroup.id,
             ordering_index: orderingIndex,
             type: inputLogReminder.logReminderGroup.type,
@@ -185,12 +217,32 @@ class LogReminder extends Base {
             frequency: inputLogReminder.frequency,
             last_update: inputLogReminder.lastUpdate,
             needs_edit: inputLogReminder.needsEdit,
+            structure_id: nextStructureId,
         };
         logReminder = await this.database.createOrUpdateItem(
             'LogReminder', logReminder, fields, this.transaction,
         );
+
+        if (prevStructureId && prevStructureId !== nextStructureId) {
+            // Warning! Having to change context here is an abstraction leak!
+            await LogStructure.delete.call({ ...this, DataType: LogStructure }, prevStructureId);
+        }
+
         this.broadcast('log-reminder-list');
         return logReminder.id;
+    }
+
+    static async delete(id) {
+        const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
+        const result = await Base.delete.call(this, logReminder.id);
+        if (logReminder.structure_id) {
+            // Warning! Having to change context here is an abstraction leak!
+            await LogStructure.delete.call(
+                { ...this, DataType: LogStructure },
+                logReminder.structure_id,
+            );
+        }
+        return result;
     }
 }
 
