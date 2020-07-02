@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
+import assert from '../../common/assert';
 import LeftRight from './LeftRight';
 import { KeyCodes, debounce } from './Utils';
 
@@ -17,100 +18,98 @@ function suppressUnlessShiftKey(event) {
 class EditorModal extends React.Component {
     constructor(props) {
         super(props);
+        assert(!(props.allowAutoSave && (props.onSave || props.closeOnSave)));
         this.state = {
             autoSave: false,
+            value: props.value,
+            status: 'Pending Validation ...',
+            isSaving: false,
+            isValidating: false,
         };
+        this.saveItemDebounced = debounce(this.saveItemNotDebounced, 500);
         this.validateItemDebounced = debounce(this.validateItemNotDebounced, 500);
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.value !== this.props.value) {
-            if (!this.props.value) {
-                // eslint-disable-next-line react/no-did-update-set-state
-                this.setState({
-                    validationStatus: null,
-                    validationErrors: null,
-                });
+    componentDidMount() {
+        this.validateItemDebounced();
+    }
+
+    onChange(value) {
+        this.setState({ value }, () => {
+            if (this.state.autoSave) {
+                this.saveItemDebounced();
             } else {
-                // eslint-disable-next-line react/no-did-update-set-state
-                this.setState({
-                    validationStatus: 'Pending Validation ...',
-                    validationErrors: null,
-                });
-                this.validateItemDebounced(this.props.value);
+                this.validateItemDebounced();
             }
-        }
+        });
     }
 
-    validateItemNotDebounced(item) {
-        // TODO: Make sure race conditions are impossible!
-        this.setState({ validationStatus: 'Validating ...' });
-        window.api.send(`${this.props.dataType}-validate`, item)
-            .then((validationErrors) => {
-                this.setState({
-                    validationStatus: null,
-                    validationErrors,
-                });
-                if (this.state.autoSave && validationErrors.length === 0) {
-                    this.props.onSave();
-                }
+    onSave() {
+        this.saveItemNotDebounced();
+    }
+
+    onClose() {
+        this.props.onClose(this.state.item);
+    }
+
+    validateItemNotDebounced() {
+        this.setState({ isValidating: true, status: 'Validating ...' });
+        window.api.send(`${this.props.dataType}-validate`, this.state.value)
+            .finally(() => this.setState({ isValidating: false }))
+            .then((validationErrors) => this.setState({
+                status: validationErrors.join('\n') || 'No validation errors!',
+            }))
+            .catch((error) => window.modalStack_displayError(error));
+    }
+
+    saveItemNotDebounced() {
+        this.setState({ isSaving: true, status: 'Saving ...' });
+        let promise;
+        if (this.props.onSave) {
+            promise = this.props.onSave(this.state.value);
+            if (!(promise instanceof Promise)) {
+                // If the custom onSave method does not return a promise,
+                // it is assumed that the component will be unmounted.
+                return;
+            }
+        } else {
+            promise = window.api.send(`${this.props.dataType}-upsert`, this.state.value);
+        }
+        promise
+            .finally(() => this.setState({ isSaving: false }))
+            .then((value) => {
+                this.setState({ status: 'Saved!', value });
+                if (this.props.closeOnSave) this.props.onClose();
             })
-            .catch((error) => this.props.onError(error));
+            .catch((error) => window.modalStack_displayError(error));
     }
 
-    renderValidationErrors() {
-        if (
-            this.state.validationErrors
-            && this.state.validationErrors.length
-        ) {
-            return (
-                <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {this.state.validationErrors.join('\n')}
-                </div>
-            );
-        } if (this.state.validationStatus) {
-            return <div>{this.state.validationStatus}</div>;
-        } if (this.props.isSaving) {
-            return <div>Saving ...</div>;
-        }
-        return <div>No validation errors!</div>;
-    }
-
-    renderButtons() {
-        const isButtonDisabled = (
-            this.state.validationStatus
-            || (
-                this.state.validationErrors
-                && this.state.validationErrors.length
-            )
-            || this.isSaving
-        );
+    renderAutoSaveToggle() {
         return (
-            <div>
-                <Form.Check
-                    id="auto-save"
-                    type="switch"
-                    label="Auto-save"
-                    checked={this.state.autoSave}
-                    onChange={(event) => {
-                        this.setState({ autoSave: event.target.checked });
-                    }}
-                    style={{ display: 'inline-block', marginRight: '20px' }}
-                />
-                <Button
-                    disabled={isButtonDisabled}
-                    onClick={() => (
-                        this.state.autoSave
-                            ? this.props.onChange(null)
-                            : this.props.onSave()
-                    )}
-                    size="sm"
-                    variant="secondary"
-                    style={{ width: '50px' }}
-                >
-                    {this.state.autoSave ? 'Close' : 'Save'}
-                </Button>
-            </div>
+            <Form.Check
+                id="auto-save"
+                type="switch"
+                label="Auto-save"
+                checked={this.state.autoSave}
+                onChange={(event) => {
+                    this.setState({ autoSave: event.target.checked });
+                }}
+                style={{ display: 'inline-block', marginRight: '20px' }}
+            />
+        );
+    }
+
+    renderSaveButton() {
+        return (
+            <Button
+                disabled={this.state.isSaving || this.state.isValidating}
+                onClick={() => (this.state.autoSave ? this.onClose() : this.onSave())}
+                size="sm"
+                variant="secondary"
+                style={{ width: '50px' }}
+            >
+                {this.state.autoSave ? 'Close' : 'Save'}
+            </Button>
         );
     }
 
@@ -122,7 +121,7 @@ class EditorModal extends React.Component {
         return (
             <Modal
                 show
-                onHide={() => this.props.onChange(null)}
+                onHide={() => this.onClose()}
                 onEscapeKeyDown={suppressUnlessShiftKey}
             >
                 <Modal.Header closeButton>
@@ -131,22 +130,27 @@ class EditorModal extends React.Component {
                 <Modal.Body>
                     <EditorComponent
                         {...this.props.editorProps}
-                        value={this.props.value}
-                        onChange={(newValue) => this.props.onChange(newValue)}
+                        value={this.state.value}
+                        onChange={(newValue) => this.onChange(newValue)}
                         onSpecialKeys={(event) => {
                             if (!event.shiftKey) return;
                             if (event.keyCode === KeyCodes.ENTER) {
                                 this.props.onSave();
                             } else if (event.keyCode === KeyCodes.ESCAPE) {
-                                this.props.onChange(null);
+                                this.onClose();
                             }
                         }}
                     />
                 </Modal.Body>
                 <Modal.Body>
                     <LeftRight>
-                        {this.renderValidationErrors()}
-                        {this.renderButtons()}
+                        <div style={{ whiteSpace: 'pre-wrap' }}>
+                            {this.state.status}
+                        </div>
+                        <div>
+                            {this.props.allowAutoSave ? this.renderAutoSaveToggle() : null}
+                            {this.renderSaveButton()}
+                        </div>
                     </LeftRight>
                 </Modal.Body>
             </Modal>
@@ -159,19 +163,20 @@ EditorModal.propTypes = {
     dataType: PropTypes.string.isRequired,
     EditorComponent: PropTypes.func.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
-    editorProps: PropTypes.object,
+    value: PropTypes.object.isRequired,
+    onClose: PropTypes.func.isRequired, // provided by ModalStack
 
     // eslint-disable-next-line react/forbid-prop-types
-    value: PropTypes.object,
-    onChange: PropTypes.func.isRequired,
-    onSave: PropTypes.func.isRequired,
-    onError: PropTypes.func.isRequired,
-    isSaving: PropTypes.bool,
+    editorProps: PropTypes.object,
+    allowAutoSave: PropTypes.bool,
+    onSave: PropTypes.func,
+    closeOnSave: PropTypes.bool,
 };
 
 EditorModal.defaultProps = {
     editorProps: {},
-    isSaving: false,
+    allowAutoSave: false,
+    closeOnSave: false,
 };
 
 

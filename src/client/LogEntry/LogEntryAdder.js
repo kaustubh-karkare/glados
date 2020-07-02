@@ -2,7 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { LogEntry } from '../../data';
 import LogEntryTitleEditor from './LogEntryTitleEditor';
-import { KeyCodes } from '../Common';
+import LogEntryEditor from './LogEntryEditor';
+import { EditorModal, KeyCodes } from '../Common';
 
 class LogEntryAdder extends React.Component {
     constructor(props) {
@@ -14,15 +15,23 @@ class LogEntryAdder extends React.Component {
 
     onEdit(logEntry) {
         this.setState({ logEntry: LogEntry.createVirtual(this.props.selector) });
-        this.props.onEdit(logEntry);
+        window.modalStack_push(EditorModal, {
+            dataType: 'log-entry',
+            EditorComponent: LogEntryEditor,
+            value: logEntry,
+            closeOnSave: true,
+        });
     }
 
     onSave(logEntry) {
-        this.setState({ logEntry: LogEntry.createVirtual(this.props.selector) });
         if (logEntry.name) {
-            this.props.onSave(logEntry);
+            window.api.send('log-entry-upsert', logEntry)
+                .then((value) => {
+                    this.setState({ logEntry: LogEntry.createVirtual(this.props.selector) });
+                })
+                .catch((error) => window.modalStack_displayError(error));
         } else {
-            this.props.onEdit(logEntry);
+            this.onEdit(logEntry);
         }
     }
 
@@ -48,8 +57,6 @@ class LogEntryAdder extends React.Component {
 LogEntryAdder.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
-    onSave: PropTypes.func.isRequired,
-    onEdit: PropTypes.func.isRequired,
 };
 
 export default LogEntryAdder;

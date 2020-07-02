@@ -10,6 +10,7 @@ import LogEntryReminderList from './LogEntryReminderList';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderGroupList } from '../LogReminder';
 import { LogTopicGroupList } from '../LogTopic';
+import { ModalStack } from '../Common';
 
 const TabKeys = {
     LOG_ENTRIES: 'log_entries',
@@ -29,7 +30,6 @@ class Applicaton extends React.Component {
             <Container fluid>
                 <Row>
                     <Col md={2}>
-                        <li>Project List</li>
                         <LogEntryReminderList />
                     </Col>
                     <Col md={8} className="mt-2">
@@ -58,6 +58,7 @@ class Applicaton extends React.Component {
                         <li>Time since last consistency checks.</li>
                     </Col>
                 </Row>
+                <ModalStack />
             </Container>
         );
     }

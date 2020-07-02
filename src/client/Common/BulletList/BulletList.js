@@ -10,7 +10,6 @@ import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
 import DataLoader from '../DataLoader';
 import EditorModal from '../EditorModal';
-import ErrorModal from '../ErrorModal';
 import { getDataTypeMapping } from '../../../data';
 
 
@@ -90,34 +89,28 @@ class BulletList extends React.Component {
         };
         window.api.send(`${this.props.dataType}-reorder`, input)
             .then(() => this.setState({ items: orderedItems }))
-            .catch((error) => this.setState({ error }));
+            .catch((error) => window.modalStack_displayError(error));
     }
 
-    toggleItem(item) {
+    onToggle(item) {
         this.setState((state) => {
             state.isExpanded[item.id] = !state.isExpanded[item.id];
             return state;
         });
     }
 
-    editItem(item, event) {
+    onEdit(item, event) {
         if (event) {
             // Don't let enter propagate to EditorModal.
             event.preventDefault();
             event.stopPropagation();
         }
-        this.setState({ editItem: item });
-    }
-
-    saveItem(item) {
-        this.setState({ isSaving: true });
-        const { editItem } = this.state;
-        window.api.send(`${this.props.dataType}-upsert`, editItem || item)
-            .then((updatedItem) => this.setState((state) => ({
-                isSaving: false,
-                editItem: editItem ? updatedItem : null,
-            })))
-            .catch((error) => this.setState({ isSaving: false, error }));
+        window.modalStack_push(EditorModal, {
+            dataType: this.props.dataType,
+            EditorComponent: this.props.EditorComponent,
+            editorProps: { selector: this.props.selector },
+            value: item,
+        });
     }
 
     deleteItem(item, event) {
@@ -136,7 +129,7 @@ class BulletList extends React.Component {
                     return state;
                 });
             })
-            .catch((error) => this.setState({ error }));
+            .catch((error) => window.modalStack_displayError(error));
     }
 
     renderDeleteConfirmationModal() {
@@ -177,8 +170,8 @@ class BulletList extends React.Component {
                 key={item.id}
                 allowReordering={this.props.allowReordering}
                 isExpanded={this.state.isExpanded[item.id]}
-                onToggleButtonClick={() => this.toggleItem(item)}
-                onEditButtonClick={(event) => this.editItem(item, event)}
+                onToggleButtonClick={() => this.onToggle(item)}
+                onEditButtonClick={(event) => this.onEdit(item, event)}
                 onDeleteButtonClick={(event) => this.deleteItem(item, event)}
                 onMoveUp={(event) => this.onMove(index, -1, event)}
                 onMoveDown={(event) => this.onMove(index, 1, event)}
@@ -202,7 +195,7 @@ class BulletList extends React.Component {
             <AdderWrapper>
                 <AdderComponent
                     selector={this.props.selector}
-                    onEdit={(item) => this.editItem(item)}
+                    onEdit={(item) => this.onEdit(item)}
                     onSave={(item) => this.saveItem(item)}
                 />
             </AdderWrapper>
@@ -216,21 +209,7 @@ class BulletList extends React.Component {
         const DataType = getDataTypeMapping()[this.props.dataType];
         return (
             <div>
-                <EditorModal
-                    dataType={this.props.dataType}
-                    EditorComponent={this.props.EditorComponent}
-                    editorProps={{ selector: this.props.selector }}
-                    value={this.state.editItem}
-                    isSaving={this.state.isSaving}
-                    onChange={(editItem) => this.setState({ editItem })}
-                    onSave={() => this.saveItem(this.state.editItem)}
-                    onError={(error) => this.setState({ error })}
-                />
                 {this.renderDeleteConfirmationModal()}
-                <ErrorModal
-                    error={this.state.error}
-                    onClose={() => this.setState({ error: null })}
-                />
                 <BulletListTitle
                     name={this.props.name}
                     areAllExpanded={this.state.areAllExpanded}
@@ -244,7 +223,7 @@ class BulletList extends React.Component {
                             ),
                         };
                     })}
-                    onAddButtonClick={(event) => this.editItem(
+                    onAddButtonClick={(event) => this.onEdit(
                         DataType.createVirtual(
                             this.props.creator ? this.props.creator : this.props.selector,
                         ),
