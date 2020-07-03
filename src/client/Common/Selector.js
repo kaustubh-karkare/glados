@@ -2,7 +2,7 @@ import Form from 'react-bootstrap/Form';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function Select(props) {
+function Selector(props) {
     return (
         <Form.Control
             as="select"
@@ -17,7 +17,7 @@ function Select(props) {
     );
 }
 
-Select.propTypes = {
+Selector.propTypes = {
     value: PropTypes.string.isRequired,
     options: PropTypes.arrayOf(
         PropTypes.shape({
@@ -28,13 +28,13 @@ Select.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-function BinarySelect(props) {
+function BinarySelector(props) {
     const options = [
         { label: props.noLabel, value: 'no' },
         { label: props.yesLabel, value: 'yes' },
     ];
     return (
-        <Select
+        <Selector
             value={options[props.value ? 1 : 0].value}
             options={options}
             onChange={(newValue) => props.onChange(newValue === options[1].value)}
@@ -42,18 +42,18 @@ function BinarySelect(props) {
     );
 }
 
-BinarySelect.propTypes = {
+BinarySelector.propTypes = {
     value: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     noLabel: PropTypes.string,
     yesLabel: PropTypes.string,
 };
 
-BinarySelect.defaultProps = {
+BinarySelector.defaultProps = {
     noLabel: 'No',
     yesLabel: 'Yes',
 };
 
-Select.Binary = BinarySelect;
+Selector.Binary = BinarySelector;
 
-export default Select;
+export default Selector;

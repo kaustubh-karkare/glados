@@ -2,7 +2,7 @@ import Form from 'react-bootstrap/Form';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-class AsyncSelect extends React.Component {
+class AsyncSelector extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
@@ -46,7 +46,7 @@ class AsyncSelect extends React.Component {
     }
 }
 
-AsyncSelect.propTypes = {
+AsyncSelector.propTypes = {
     dataType: PropTypes.string.isRequired,
     labelKey: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
@@ -56,9 +56,9 @@ AsyncSelect.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-AsyncSelect.defaultProps = {
+AsyncSelector.defaultProps = {
     labelKey: 'name',
     prefixOptions: [],
 };
 
-export default AsyncSelect;
+export default AsyncSelector;

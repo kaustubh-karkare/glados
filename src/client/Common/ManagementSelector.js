@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from './Select';
+import Selector from './Selector';
 import Typeahead from './Typeahead';
 import Enum from '../../common/Enum';
 
@@ -111,7 +111,7 @@ class ManagementSelector extends React.Component {
                     <InputGroup.Text>
                         {this.props.label}
                     </InputGroup.Text>
-                    <Select
+                    <Selector
                         value={this.state.type}
                         options={isExistingValue ? Options.slice(3) : Options.slice(0, 3)}
                         onChange={(type) => this.onChange(type)}

@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { AsyncSelect, TextEditor, TextInput } from '../Common';
+import { AsyncSelector, TextEditor, TextInput } from '../Common';
 
 function LogTopicEditor(props) {
     const { logTopic } = props;
@@ -11,7 +11,7 @@ function LogTopicEditor(props) {
                 <InputGroup.Text>
                     Group
                 </InputGroup.Text>
-                <AsyncSelect
+                <AsyncSelector
                     dataType="log-topic-group"
                     value={logTopic.logTopicGroup}
                     onChange={(newLogTopicGroup) => props.onChange({

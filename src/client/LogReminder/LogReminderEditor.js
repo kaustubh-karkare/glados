@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    AsyncSelect, DatePicker, ManagementSelector, Select, TextEditor,
+    AsyncSelector, DatePicker, ManagementSelector, Selector, TextEditor,
 } from '../Common';
 import { LogReminder, LogStructure } from '../../data';
 import { LogStructureEditor } from '../LogStructure';
@@ -38,7 +38,7 @@ class LogReminderEditor extends React.Component {
                 <InputGroup.Text>
                     Reminder
                 </InputGroup.Text>
-                <AsyncSelect
+                <AsyncSelector
                     dataType="log-reminder-group"
                     value={logReminder.logReminderGroup}
                     onChange={(newLogReminderGroup) => this.props.onChange({
@@ -69,7 +69,7 @@ class LogReminderEditor extends React.Component {
                     <InputGroup.Text>
                         Warning
                     </InputGroup.Text>
-                    <Select
+                    <Selector
                         value={this.props.logReminder.warning}
                         options={LogReminder.getDurationOptions()}
                         onChange={(newWarning) => this.props.onChange({
@@ -89,7 +89,7 @@ class LogReminderEditor extends React.Component {
                     <InputGroup.Text>
                         Frequency
                     </InputGroup.Text>
-                    <Select
+                    <Selector
                         value={this.props.logReminder.frequency}
                         options={LogReminder.getFrequencyOptions()}
                         onChange={(newFrequency) => this.props.onChange({
@@ -122,7 +122,7 @@ class LogReminderEditor extends React.Component {
                     <InputGroup.Text>
                         Needs Edit?
                     </InputGroup.Text>
-                    <Select.Binary
+                    <Selector.Binary
                         value={logReminder.needsEdit}
                         onChange={(newValue) => this.props.onChange({
                             ...this.props.logReminder,

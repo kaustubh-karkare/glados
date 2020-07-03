@@ -1,6 +1,6 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { Select, TextInput } from '../Common';
+import { Selector, TextInput } from '../Common';
 import LogReminderGroup from '../../data/LogReminderGroup';
 import PropTypes from '../prop-types';
 
@@ -24,7 +24,7 @@ function LogReminderGroupEditor(props) {
                 <InputGroup.Text>
                     Type
                 </InputGroup.Text>
-                <Select
+                <Selector
                     value={logReminderGroup.type}
                     options={LogReminderGroup.getTypeOptions()}
                     onChange={(newType) => props.onChange({
@@ -37,7 +37,7 @@ function LogReminderGroupEditor(props) {
                 <InputGroup.Text>
                     Sidebar
                 </InputGroup.Text>
-                <Select.Binary
+                <Selector.Binary
                     value={logReminderGroup.onSidebar}
                     options={LogReminderGroup.getTypeOptions()}
                     onChange={(onSidebar) => props.onChange({ ...logReminderGroup, onSidebar })}

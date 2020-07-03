@@ -1,4 +1,4 @@
-export { default as AsyncSelect } from './AsyncSelect';
+export { default as AsyncSelector } from './AsyncSelector';
 export { default as BulletList } from './BulletList';
 export { default as DataLoader } from './DataLoader';
 export { default as DatePicker } from './DatePicker';
@@ -8,7 +8,7 @@ export { default as ErrorModal } from './ErrorModal';
 export { default as LeftRight } from './LeftRight';
 export { default as ManagementSelector } from './ManagementSelector';
 export { default as ModalStack } from './ModalStack';
-export { default as Select } from './Select';
+export { default as Selector } from './Selector';
 export { default as SortableList } from './SortableList';
 export { default as TextInput } from './TextInput';
 export { default as TextEditor } from './TextEditor';
