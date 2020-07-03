@@ -39,9 +39,9 @@ class TextEditorUtils {
         if (left === right) return true;
         const leftRaw = convertToRaw(left);
         const rightRaw = convertToRaw(right);
-        const replaceKey = (block, index) => { block.index = `block${index}`; };
-        leftRaw.blocks = leftRaw.blocks.forEach(replaceKey);
-        rightRaw.blocks = rightRaw.blocks.forEach(replaceKey);
+        const replaceKey = (block) => { delete block.key; };
+        leftRaw.blocks.forEach(replaceKey);
+        rightRaw.blocks.forEach(replaceKey);
         return JSON.stringify(leftRaw) === JSON.stringify(rightRaw);
     }
 

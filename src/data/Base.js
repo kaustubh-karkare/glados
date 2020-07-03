@@ -28,12 +28,7 @@ class Base extends ValidationBase {
     }
 
     // eslint-disable-next-line no-unused-vars
-    static async typeahead({ query, item }) {
-        // query is provided by TextEditor.
-        // item is provided by Typeahead.
-        if (item) {
-            query = item.name;
-        }
+    static async typeahead({ query }) {
         const options = await this.database.findAll(
             this.DataType.name,
             { name: { [this.database.Op.like]: `${query}%` } },

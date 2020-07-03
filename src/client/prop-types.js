@@ -2,9 +2,7 @@ import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-named-default
 import { default as LogKeyClass } from '../data/LogKey';
 
-const LogKeyType = PropTypes.oneOf(
-    LogKeyClass.getTypes().map((item) => item.value),
-);
+const LogKeyType = PropTypes.oneOf(Object.values(LogKeyClass.Type));
 
 const LogKey = PropTypes.shape({
     id: PropTypes.number.isRequired,

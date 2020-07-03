@@ -3,7 +3,7 @@ import Utils from './Utils';
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
-test('test_typeahead', async () => {
+test('test_log_topic_typeahead', async () => {
     await Utils.loadData({
         logTopicGroups: [
             { name: 'People' },

@@ -62,3 +62,23 @@ export function getCallbackAndPromise() {
     };
     return [callback, promise];
 }
+
+export async function manageEntityBefore(inputSubItem, DataType) {
+    if (inputSubItem) {
+        // Condition? add, edit, associate, disassociate.
+
+        // Warning! Having to change context here is an abstraction leak!
+        const itemId = await DataType.save.call({ ...this, DataType }, inputSubItem);
+        return inputSubItem.isIndirectlyManaged ? itemId : null;
+    }
+    return null;
+}
+
+export async function manageEntityAfter(prevItemId, inputSubItem, DataType) {
+    if (prevItemId && !inputSubItem) {
+        // Condition? delete
+
+        // Warning! Having to change context here is an abstraction leak!
+        await DataType.delete.call({ ...this, DataType }, prevItemId);
+    }
+}

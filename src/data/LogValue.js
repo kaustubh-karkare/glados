@@ -12,10 +12,7 @@ class LogValue extends Base {
     }
 
     static async typeahead({ item }) {
-        const logValues = await this.database.findAll(
-            'LogValue',
-            { key_id: item.logKey.id },
-        );
+        const logValues = await this.database.findAll('LogValue', {}, this.transaction);
         return logValues.map((logValue) => ({
             id: logValue.id,
             data: logValue.data,
@@ -34,7 +31,7 @@ class LogValue extends Base {
             this.validateUsingLambda(
                 '.data',
                 inputValue.data,
-                LogKey.getValidator(inputValue.logKey.type),
+                LogKey.OptionsMap[inputValue.logKey.type].validator,
             ),
         ];
     }

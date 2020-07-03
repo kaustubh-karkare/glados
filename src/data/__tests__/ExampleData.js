@@ -83,21 +83,21 @@ export default {
     ],
     logReminders: [
         {
-            title: 'Suryanamaskar',
+            title: 'Surya Namaskar',
             group: 'Daily Routine',
             frequency: 'everyday',
             lastUpdate: '2020-06-26',
+            structure: 'Surya Namaskar',
+            needsEdit: true,
         },
         {
             title: 'Read article about Paxos',
             group: 'Research',
             deadline: '2020-06-30',
             warning: '3 days',
-            needsEdit: true,
         },
         {
-            title: '',
-            structure: 'Movie',
+            title: 'Movie some movie!',
             group: 'Entertainment',
         },
     ],

@@ -1,6 +1,6 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { BulletList, Typeahead } from '../Common';
+import { BulletList, TextInput } from '../Common';
 import LogTopicList from './LogTopicList';
 import PropTypes from '../prop-types';
 
@@ -40,11 +40,12 @@ function EditorComponent(props) {
             <InputGroup.Text>
                 Name
             </InputGroup.Text>
-            <Typeahead
-                allowUpdate
-                dataType="log-topic-group"
-                value={logTopicGroup}
-                onUpdate={props.onChange}
+            <TextInput
+                value={logTopicGroup.name}
+                onChange={(newName) => props.onChange({
+                    ...logTopicGroup,
+                    name: newName,
+                })}
             />
         </InputGroup>
     );

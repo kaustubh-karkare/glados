@@ -5,14 +5,14 @@ import Base from './Base';
 import { getVirtualID, isVirtualItem } from './Utils';
 
 class LogStructure extends Base {
-    static createVirtual({ name, isIndirectlyManaged } = {}) {
+    static createVirtual({ name } = {}) {
         return {
             __type__: 'log-structure',
             id: getVirtualID(),
             name: name || '',
             logKeys: [],
             titleTemplate: '',
-            isIndirectlyManaged: isIndirectlyManaged || false,
+            isIndirectlyManaged: false,
         };
     }
 

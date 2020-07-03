@@ -25,18 +25,18 @@ const WrappedContainer = SortableContainer(({ children }) => <div>{children}</di
 const WrappedRow = SortableElement((props) => {
     const disabled = props.wrappedRowDisabled;
     if (disabled) {
-        return props.original;
+        return props.originalElement;
     }
-    const { children, ...otherProps } = props.original.props;
+    const { children, ...otherProps } = props.originalElement.props;
     return React.createElement(
-        props.original.type,
+        props.originalElement.type,
         otherProps,
         [
             <SortableDragHandle
                 key="drag"
                 title="Reorder"
             />,
-            ...children,
+            ...(children || []),
             <Button
                 key="delete"
                 onClick={props.onDelete}
@@ -70,7 +70,7 @@ class SortableList extends React.Component {
 
     renderRow(item, index) {
         const {
-            items: _items, onChange: _onChange, type: _type, disabled, ...moreProps
+            items: _items, onChange: _onChange, type: _type, valueKey, disabled, ...moreProps
         } = this.props;
         return React.createElement(WrappedRow, {
             key: item.id,
@@ -78,8 +78,8 @@ class SortableList extends React.Component {
             index,
             disabled,
             // Forwarded to the WrappedRow.
-            original: this.props.type({
-                value: item,
+            originalElement: this.props.type({
+                [valueKey]: item,
                 onChange: (updatedItem) => this.onChange(index, updatedItem),
                 ...moreProps,
             }),
@@ -106,6 +106,7 @@ SortableList.propTypes = {
     items: PropTypes.arrayOf(PropTypes.any.isRequired).isRequired,
     onChange: PropTypes.func.isRequired,
     type: PropTypes.func.isRequired,
+    valueKey: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
 };
 

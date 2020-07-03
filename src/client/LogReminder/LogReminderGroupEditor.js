@@ -1,6 +1,6 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { Select, Typeahead } from '../Common';
+import { Select, TextInput } from '../Common';
 import LogReminderGroup from '../../data/LogReminderGroup';
 import PropTypes from '../prop-types';
 
@@ -12,11 +12,12 @@ function LogReminderGroupEditor(props) {
                 <InputGroup.Text>
                     Name
                 </InputGroup.Text>
-                <Typeahead
-                    allowUpdate
-                    dataType="log-reminder-group"
-                    value={logReminderGroup}
-                    onUpdate={props.onChange}
+                <TextInput
+                    value={logReminderGroup.name}
+                    onChange={(newName) => props.onChange({
+                        ...logReminderGroup,
+                        name: newName,
+                    })}
                 />
             </InputGroup>
             <InputGroup className="my-1">

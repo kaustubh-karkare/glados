@@ -42,10 +42,9 @@ class LogStructureEditor extends React.Component {
             <>
                 <InputGroup className="my-1">
                     <InputGroup.Text style={{ width: 100 }}>
-                        Structure
+                        Name
                     </InputGroup.Text>
                     <Form.Control
-                        placeholder="Structure Name"
                         type="text"
                         value={this.props.logStructure.name}
                         onChange={(event) => this.onNameUpdate(event.target.value)}
@@ -62,6 +61,7 @@ class LogStructureEditor extends React.Component {
                     items={this.props.logStructure.logKeys}
                     onChange={(logKeys) => this.onLogKeysUpdate(logKeys)}
                     type={LogKeyEditor}
+                    valueKey="logKey"
                 />
                 <InputGroup className="my-1">
                     <InputGroup.Text style={{ height: 'inherit', width: 99 }}>

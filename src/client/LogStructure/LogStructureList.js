@@ -27,6 +27,9 @@ ViewerComponent.propTypes = {
 
 ViewerComponent.Expanded = (props) => {
     const { logStructure } = props;
+    if (!logStructure.titleTemplate) {
+        return null;
+    }
     return (
         <TextEditor
             unstyled

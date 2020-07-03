@@ -27,6 +27,13 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     };
     ActionsRegistry[`${name}-upsert`] = async function (input) {
         const context = { ...this, DataType };
+        if (DataType.trigger) {
+            DataType.trigger.call(context, input);
+        }
+        const errors = await DataType.validate.call(context, input);
+        if (errors.length) {
+            throw new Error(errors.join('\n'));
+        }
         const id = await DataType.save.call(context, input);
         return DataType.load.call(context, id);
     };

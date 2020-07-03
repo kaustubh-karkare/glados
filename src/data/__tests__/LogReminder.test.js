@@ -41,24 +41,32 @@ test('test_deadline_check', async () => {
 
 test('test_periodic_check', async () => {
     await Utils.loadData({
+        logStructures: [
+            {
+                name: 'Things',
+            },
+        ],
         logReminderGroups: [
             {
                 name: 'Daily Routine',
                 type: 'periodic',
+                structure: '',
             },
         ],
         logReminders: [
             {
-                title: '',
+                title: 'Very important thing',
                 group: 'Daily Routine',
                 frequency: 'everyday',
                 lastUpdate: '{today}',
+                structure: 'Things',
             },
             {
                 title: 'Not very important thing',
                 group: 'Daily Routine',
                 frequency: 'everyday',
                 lastUpdate: '{yesterday}',
+                structure: 'Things',
             },
         ],
     });
@@ -92,7 +100,7 @@ test('test_deadline_completion', async () => {
 
     const actions = Utils.getActions();
     const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    const logEntry = LogEntry.createVirtual({ date: getTodayLabel() });
+    const logEntry = LogEntry.createVirtual({ date: getTodayLabel(), title: logReminder.title });
     await actions.invoke('reminder-complete', { logReminder, logEntry });
 
     const logReminders = await actions.invoke('log-reminder-list');
@@ -101,6 +109,11 @@ test('test_deadline_completion', async () => {
 
 test('test_periodic_completion', async () => {
     await Utils.loadData({
+        logStructures: [
+            {
+                name: 'Things',
+            },
+        ],
         logReminderGroups: [
             {
                 name: 'Daily Routine',
@@ -109,19 +122,20 @@ test('test_periodic_completion', async () => {
         ],
         logReminders: [
             {
-                title: 'Exercise',
+                title: 'Important thing!',
                 group: 'Daily Routine',
                 frequency: 'everyday',
                 lastUpdate: '{yesterday}',
+                structure: 'Things',
             },
         ],
     });
 
     const actions = Utils.getActions();
     const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
+    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
     const originalLastUpdate = logReminder.lastUpdate;
-
-    const logEntry = LogEntry.createVirtual({ date: getTodayLabel() });
+    const logEntry = LogEntry.createVirtual({ date: getTodayLabel(), logStructure });
     const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEntry });
     expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
 });
@@ -144,19 +158,30 @@ test('test_reminder_structure_upsert', async () => {
 
     const actions = Utils.getActions();
     let logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    let logStructures;
+    let logStructure = LogStructure.createVirtual({ name: 'Structure' });
 
-    logReminder.logStructure = LogStructure.createVirtual({ name: 'One', isIndirectlyManaged: true });
+    // add
+    logReminder.logStructure = logStructure;
+    logReminder.logStructure.isIndirectlyManaged = true;
     logReminder = await actions.invoke('log-reminder-upsert', logReminder);
-    logStructures = await actions.invoke('log-structure-list');
-    expect(logStructures.length).toEqual(1);
+    expect(logReminder.logStructure).not.toEqual(null);
+    logStructure = logReminder.logStructure;
+    expect((await actions.invoke('log-structure-list')).length).toEqual(1);
 
-    logReminder.logStructure = LogStructure.createVirtual({ name: 'Two', isIndirectlyManaged: true });
+    // disassociate
+    logReminder.logStructure.isIndirectlyManaged = false;
     logReminder = await actions.invoke('log-reminder-upsert', logReminder);
-    logStructures = await actions.invoke('log-structure-list');
-    expect(logStructures.length).toEqual(1);
+    expect(logReminder.logStructure).toEqual(null);
+    expect((await actions.invoke('log-structure-list')).length).toEqual(1);
 
+    // associate
+    logReminder.logStructure = logStructure;
+    logReminder.logStructure.isIndirectlyManaged = true;
+    logReminder = await actions.invoke('log-reminder-upsert', logReminder);
+    expect(logReminder.logStructure).not.toEqual(null);
+    expect((await actions.invoke('log-structure-list')).length).toEqual(1);
+
+    // delete
     logReminder = await actions.invoke('log-reminder-delete', logReminder.id);
-    logStructures = await actions.invoke('log-structure-list');
-    expect(logStructures.length).toEqual(0);
+    expect((await actions.invoke('log-structure-list')).length).toEqual(0);
 });

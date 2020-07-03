@@ -11,7 +11,9 @@ import {
 import Base from './Base';
 import LogReminderGroup, { LogReminderType } from './LogReminderGroup';
 import LogStructure from './LogStructure';
-import { getVirtualID, isRealItem } from './Utils';
+import {
+    getVirtualID, isRealItem, manageEntityBefore, manageEntityAfter,
+} from './Utils';
 
 
 const DefaultValues = {
@@ -158,11 +160,6 @@ class LogReminder extends Base {
                 LogStructure, '.logStructure', inputLogReminder.logStructure,
             );
             results.push(...logStructureResults);
-            results.push([
-                '.logStructure.isIndirectlyManaged',
-                inputLogReminder.logStructure.isIndirectlyManaged,
-                'must be set!',
-            ]);
             if (inputLogReminder.logStructure.logKeys.length > 0) {
                 results.push([
                     '.needsEdit',
@@ -177,7 +174,7 @@ class LogReminder extends Base {
     static async load(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
         const outputLogReminderGroup = await LogReminderGroup.load.call(this, logReminder.group_id);
-        let outputLogStructure;
+        let outputLogStructure = null;
         if (logReminder.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logReminder.structure_id);
         }
@@ -203,14 +200,9 @@ class LogReminder extends Base {
         );
 
         const prevStructureId = logReminder && logReminder.structure_id;
-        let nextStructureId = null;
-        if (inputLogReminder.logStructure) {
-            // Warning! Having to change context here is an abstraction leak!
-            nextStructureId = await LogStructure.save.call(
-                { ...this, DataType: LogStructure },
-                inputLogReminder.logStructure,
-            );
-        }
+        const nextStructureId = await manageEntityBefore.call(
+            this, inputLogReminder.logStructure, LogStructure,
+        );
 
         assert(isRealItem(inputLogReminder.logReminderGroup));
         const orderingIndex = await Base.getOrderingIndex.call(this, logReminder, {
@@ -232,10 +224,9 @@ class LogReminder extends Base {
             'LogReminder', logReminder, fields, this.transaction,
         );
 
-        if (prevStructureId && prevStructureId !== nextStructureId) {
-            // Warning! Having to change context here is an abstraction leak!
-            await LogStructure.delete.call({ ...this, DataType: LogStructure }, prevStructureId);
-        }
+        await manageEntityAfter.call(
+            this, prevStructureId, inputLogReminder.logStructure, LogStructure,
+        );
 
         this.broadcast('log-reminder-list');
         return logReminder.id;
@@ -244,13 +235,7 @@ class LogReminder extends Base {
     static async delete(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
         const result = await Base.delete.call(this, logReminder.id);
-        if (logReminder.structure_id) {
-            // Warning! Having to change context here is an abstraction leak!
-            await LogStructure.delete.call(
-                { ...this, DataType: LogStructure },
-                logReminder.structure_id,
-            );
-        }
+        await manageEntityAfter.call(this, logReminder.structure_id, null, LogStructure);
         return result;
     }
 }

@@ -5,27 +5,28 @@ import LogStructure from './LogStructure';
 import LogValue from './LogValue';
 import { extractLogTopics, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
-import { getVirtualID, isRealItem } from './Utils';
+import { getVirtualID } from './Utils';
 
 
 class LogEntry extends Base {
-    static createVirtual({ date, logStructure } = {}) {
-        logStructure = logStructure || LogStructure.createVirtual();
+    static createVirtual({ date, title, logStructure } = {}) {
         return {
             __type__: 'log-entry',
             date: date || null,
             orderingIndex: null,
             id: getVirtualID(),
             name: '',
-            title: '',
+            title: title || '',
             details: '',
-            logStructure,
-            logValues: logStructure.logKeys.map((logKey) => LogValue.createVirtual({ logKey })),
+            logStructure: logStructure || null,
+            logValues: logStructure
+                ? logStructure.logKeys.map((logKey) => LogValue.createVirtual({ logKey }))
+                : [],
         };
     }
 
     static trigger(logEntry) {
-        if (isRealItem(logEntry.logStructure)) {
+        if (logEntry.logStructure) {
             if (logEntry.logStructure.titleTemplate) {
                 const content = TextEditorUtils.deserialize(
                     logEntry.logStructure.titleTemplate,
@@ -55,27 +56,26 @@ class LogEntry extends Base {
             results.push(this.validateDateLabel('.date', inputLogEntry.date));
         }
         results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
-        if (isRealItem(inputLogEntry.logStructure)) {
+        if (inputLogEntry.logStructure) {
             const logStructureResults = await this.validateRecursive(
                 LogStructure, '.logStructure', inputLogEntry.logStructure,
             );
             results.push(...logStructureResults);
+
+            const logValuesResults = await this.validateRecursiveList(
+                LogValue, '.logValues', inputLogEntry.logValues,
+            );
+            results.push(...logValuesResults);
         }
-        const logValuesResults = await this.validateRecursiveList(
-            LogValue, '.logValues', inputLogEntry.logValues,
-        );
-        results.push(...logValuesResults);
         return results;
     }
 
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         // TODO: Parallelize the following operations.
-        let outputLogStructure;
+        let outputLogStructure = null;
         if (logEntry.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logEntry.structure_id);
-        } else {
-            outputLogStructure = LogStructure.createVirtual();
         }
         const edges = await this.database.getEdges(
             'LogEntryToLogValue',
@@ -101,8 +101,12 @@ class LogEntry extends Base {
 
     static async save(inputLogEntry) {
         let logStructure = null;
-        if (isRealItem(inputLogEntry.logStructure)) {
-            logStructure = await this.database.findByPk('LogStructure', inputLogEntry.logStructure.id);
+        if (inputLogEntry.logStructure) {
+            logStructure = await this.database.findByPk(
+                'LogStructure',
+                inputLogEntry.logStructure.id,
+                this.transaction,
+            );
             const logStructureKeys = await this.database.getNodesByEdge(
                 'LogStructureToLogKey',
                 'structure_id',
@@ -158,10 +162,9 @@ class LogEntry extends Base {
 
         const logValues = await Promise.all(
             inputLogEntry.logValues.map(async (inputLogValue) => {
-                const logKey = await this.database.createOrFind(
+                const logKey = await this.database.findByPk(
                     'LogKey',
-                    { name: inputLogValue.logKey.name },
-                    { type: inputLogValue.logKey.type },
+                    inputLogValue.logKey.id,
                     this.transaction,
                 );
                 assert(logKey.type === inputLogValue.logKey.type, 'Mismatched key type!');

@@ -6,14 +6,14 @@ afterEach(Utils.afterEach);
 test('test_reminder_constraint', async () => {
     await Utils.loadData({
         logReminderGroups: [
-            { name: 'Routine', type: 'periodic' },
+            { name: 'Chores', type: 'deadline' },
         ],
         logReminders: [
             {
-                title: 'Exercise',
-                group: 'Routine',
-                frequency: 'everyday',
-                lastUpdate: '2020-06-26',
+                title: 'File Taxes',
+                group: 'Chores',
+                deadline: '2020-07-15',
+                warning: '15 days',
             },
         ],
     });

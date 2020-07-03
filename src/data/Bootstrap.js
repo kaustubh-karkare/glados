@@ -1,4 +1,3 @@
-import LogStructure from './LogStructure';
 import { maybeSubstitute } from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { awaitSequence, getVirtualID, isRealItem } from './Utils';
@@ -41,9 +40,13 @@ async function loadData(actions, data) {
     const logStructureMap = {};
     await awaitSequence(data.logStructures, async (inputLogStructure) => {
         inputLogStructure.id = getVirtualID();
-        inputLogStructure.logKeys = inputLogStructure.logKeys.map(
-            (logKey) => ({ ...logKey, id: getVirtualID() }),
-        );
+        if (inputLogStructure.logKeys) {
+            inputLogStructure.logKeys = inputLogStructure.logKeys.map(
+                (logKey) => ({ ...logKey, id: getVirtualID() }),
+            );
+        } else {
+            inputLogStructure.logKeys = [];
+        }
         inputLogStructure.titleTemplate = convertPlainTextToDraftContent2(
             inputLogStructure.titleTemplate,
             { $: inputLogStructure.logKeys, '#': logTopics },
@@ -69,7 +72,7 @@ async function loadData(actions, data) {
                 }),
             );
         } else {
-            inputLogEntry.logStructure = LogStructure.createVirtual();
+            inputLogEntry.logStructure = null;
             inputLogEntry.logValues = [];
         }
         await actions.invoke('log-entry-upsert', inputLogEntry);
@@ -92,7 +95,10 @@ async function loadData(actions, data) {
             inputLogReminder.title,
             TextEditorUtils.StorageType.PLAINTEXT,
         );
-        inputLogReminder.logStructure = logStructureMap[inputLogReminder.structure];
+        if (inputLogReminder.structure) {
+            inputLogReminder.logStructure = logStructureMap[inputLogReminder.structure];
+            inputLogReminder.logStructure.isIndirectlyManaged = true;
+        }
         inputLogReminder.logReminderGroup = logReminderGroupMap[
             inputLogReminder.group
         ];
@@ -125,23 +131,33 @@ async function saveData(actions) {
     result.logTopicGroups = logTopicGroups.map((logTopic) => ({ name: logTopic.name }));
 
     const logTopics = await actions.invoke('log-topic-list');
-    result.logTopics = logTopics.map((logTopic) => ({
-        name: logTopic.name,
-        group: logTopic.logTopicGroup.name,
-        details: logTopic.details || undefined,
-    }));
+    result.logTopics = logTopics.map((logTopic) => {
+        const item = {
+            name: logTopic.name,
+            group: logTopic.logTopicGroup.name,
+        };
+        if (logTopic.details) {
+            item.details = logTopic.details;
+        }
+        return item;
+    });
 
     const logStructures = await actions.invoke('log-structure-list');
-    result.logStructures = logStructures.map((logStructure) => ({
-        name: logStructure.name,
-        logKeys: logStructure.logKeys.map((logKey) => ({
-            name: logKey.name, type: logKey.type,
-        })),
-        titleTemplate: convertDraftContentToPlainText2(
-            logStructure.titleTemplate,
-            { $: logStructure.logKeys, '#': logTopics },
-        ),
-    }));
+    result.logStructures = logStructures.map((logStructure) => {
+        const item = {
+            name: logStructure.name,
+            titleTemplate: convertDraftContentToPlainText2(
+                logStructure.titleTemplate,
+                { $: logStructure.logKeys, '#': logTopics },
+            ),
+        };
+        if (logStructure.logKeys) {
+            item.logKeys = logStructure.logKeys.map((logKey) => ({
+                name: logKey.name, type: logKey.type,
+            }));
+        }
+        return item;
+    });
 
     const logEntries = await actions.invoke('log-entry-list');
     result.logEntries = logEntries.map((logEntry) => {
@@ -150,7 +166,9 @@ async function saveData(actions) {
             item.date = logEntry.date;
         }
         item.title = convertDraftContentToPlainText2(logEntry.title, { '#': logTopics });
-        item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTopics });
+        if (logEntry.details) {
+            item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTopics });
+        }
         if (isRealItem(logEntry.logStructure)) {
             item.structure = logEntry.logStructure.name;
             item.logValues = logEntry.logValues.map((logValue) => logValue.data);

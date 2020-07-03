@@ -7,7 +7,7 @@ import {
     DatePicker, SortableList, TextEditor, Typeahead,
 } from '../Common';
 import {
-    LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
+    LogEntry, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
@@ -56,7 +56,7 @@ class LogEntryEditor extends React.Component {
                     focusOnLoad
                     value={this.props.logEntry.title}
                     serverSideTypes={['log-topic']}
-                    disabled={isRealItem(this.props.logEntry.logStructure)}
+                    disabled={!!this.props.logEntry.logStructure}
                     onUpdate={(newTitle) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.title = newTitle;
@@ -114,19 +114,15 @@ class LogEntryEditor extends React.Component {
                     onUpdate={(logStructure) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logStructure = logStructure;
-                        logEntry.logValues = logStructure.logKeys.map(
-                            (logKey) => LogValue.createVirtual({ logKey }),
-                        );
+                        if (logStructure) {
+                            logEntry.logValues = logStructure.logKeys.map(
+                                (logKey) => LogValue.createVirtual({ logKey }),
+                            );
+                        } else {
+                            logEntry.logValues = [];
+                        }
                     })}
                     allowDelete
-                    onDelete={() => this.updateLogEntry((logEntry) => {
-                        if (logEntry.logStructure.titleTemplate) {
-                            logEntry.title = '';
-                        }
-                        // eslint-disable-next-line no-param-reassign
-                        logEntry.logStructure = LogStructure.createVirtual();
-                        logEntry.logValues = [];
-                    })}
                 />
                 {false && this.renderAddLogValueButton()}
             </InputGroup>
@@ -149,6 +145,7 @@ class LogEntryEditor extends React.Component {
                             logEntry.logValues = logValues;
                         })}
                         type={LogValueEditor}
+                        valueKey="logValue"
                         disabled={isRealItem(this.props.logEntry.logStructure)}
                         isNewStructure={isVirtualItem(this.props.logEntry.logStructure)}
                     />

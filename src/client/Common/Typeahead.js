@@ -6,25 +6,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
-import {
-    INCOMPLETE_KEY, UPDATE_KEY, isRealItem, isVirtualItem,
-} from '../../data';
+import { INCOMPLETE_KEY, UPDATE_KEY } from '../../data';
 
 
 class Typeahead extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { isLoading: false, options: [] };
+        this.state = { isLoading: false, text: '', options: [] };
     }
 
     onInputChange(text) {
+        this.setState({ text });
         this.onSearch(text);
-        this.props.onUpdate({ ...this.props.value, [this.props.labelKey]: text });
     }
 
     onSearch(query) {
         this.setState({ isLoading: true }, () => {
-            window.api.send(`${this.props.dataType}-typeahead`, { item: this.props.value }, query)
+            window.api.send(`${this.props.dataType}-typeahead`, { query })
                 .then((options) => {
                     this.setState({ isLoading: false, options });
                 });
@@ -32,7 +30,7 @@ class Typeahead extends React.Component {
     }
 
     onUpdate(option) {
-        if (option[INCOMPLETE_KEY]) {
+        if (option && option[INCOMPLETE_KEY]) {
             window.api.send(`${option.__type__}-load`, option)
                 .then((result) => this.props.onUpdate(result));
         } else {
@@ -41,7 +39,7 @@ class Typeahead extends React.Component {
     }
 
     renderUpdateButton() {
-        if (isVirtualItem(this.props.value) || !this.props.allowUpdate) {
+        if (!(this.props.value && this.props.allowUpdate)) {
             return null;
         }
         return (
@@ -63,12 +61,12 @@ class Typeahead extends React.Component {
     }
 
     renderDeleteButton() {
-        if (!this.props.allowDelete || isVirtualItem(this.props.value)) {
+        if (!(this.props.value && this.props.allowDelete)) {
             return null;
         }
         return (
             <Button
-                onClick={() => this.props.onDelete(this.props.value)}
+                onClick={() => this.props.onUpdate(null)}
                 size="sm"
                 title="Cancel"
                 variant="secondary"
@@ -79,7 +77,7 @@ class Typeahead extends React.Component {
     }
 
     render() {
-        const selectedOptionLabel = this.props.value[this.props.labelKey];
+        const selected = this.props.value ? [this.props.value[this.props.labelKey]] : [];
         return (
             <>
                 <AsyncTypeahead
@@ -88,19 +86,16 @@ class Typeahead extends React.Component {
                     labelKey={this.props.labelKey}
                     size="small"
                     minLength={0}
-                    disabled={
-                        isRealItem(this.props.value)
-                        && !this.props.value[UPDATE_KEY]
-                    }
-                    onFocus={() => this.onSearch(selectedOptionLabel)}
+                    disabled={this.props.value ? !this.props.value[UPDATE_KEY] : false}
+                    onFocus={() => this.onSearch(this.state.text)}
                     onSearch={(query) => this.onSearch(query)}
                     filterBy={this.props.filterBy}
                     placeholder={this.props.placeholder}
-                    selected={[selectedOptionLabel]}
+                    selected={selected}
                     onInputChange={(text) => this.onInputChange(text)}
-                    onChange={(selected) => {
-                        if (selected.length) {
-                            this.onUpdate(selected[0]);
+                    onChange={(newSelected) => {
+                        if (newSelected.length) {
+                            this.onUpdate(newSelected[0]);
                         }
                     }}
                     renderMenuItemChildren={
@@ -122,11 +117,10 @@ Typeahead.propTypes = {
     filterBy: PropTypes.func,
     labelKey: PropTypes.string,
     onUpdate: PropTypes.func.isRequired,
-    onDelete: PropTypes.func,
     placeholder: PropTypes.string,
     dataType: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
-    value: PropTypes.any.isRequired,
+    value: PropTypes.any,
 };
 
 Typeahead.defaultProps = {

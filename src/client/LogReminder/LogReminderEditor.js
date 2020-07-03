@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    AsyncSelect, DatePicker, Select, TextEditor,
+    AsyncSelect, DatePicker, ManagementSelector, Select, TextEditor,
 } from '../Common';
 import { LogReminder, LogStructure } from '../../data';
 import { LogStructureEditor } from '../LogStructure';
@@ -134,37 +134,21 @@ class LogReminderEditor extends React.Component {
         );
     }
 
-    renderStructureOptions() {
+    renderStructureManagementSelector() {
         const { logReminder } = this.props;
         return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Is structured?
-                </InputGroup.Text>
-                <Select.Binary
-                    value={!!logReminder.logStructure}
-                    onChange={(newValue) => {
-                        const updatedLogReminder = { ...logReminder };
-                        updatedLogReminder.logStructure = newValue
-                            ? LogStructure.createVirtual({ isIndirectlyManaged: true })
-                            : null;
-                        this.props.onChange(updatedLogReminder);
-                    }}
-                />
-            </InputGroup>
-        );
-    }
-
-    renderStructure() {
-        const { logReminder } = this.props;
-        return (
-            <LogStructureEditor
-                logStructure={logReminder.logStructure}
+            <ManagementSelector
+                label="Structure?"
+                value={logReminder.logStructure}
+                create={() => LogStructure.createVirtual()}
                 onChange={(updatedLogStructure) => {
                     const updatedLogReminder = { ...logReminder };
                     updatedLogReminder.logStructure = updatedLogStructure;
                     this.props.onChange(updatedLogReminder);
                 }}
+                dataType="log-structure"
+                valueKey="logStructure"
+                EditorComponent={LogStructureEditor}
             />
         );
     }
@@ -183,8 +167,7 @@ class LogReminderEditor extends React.Component {
                     {this.renderNeedsEditSelector()}
                 </div>
                 <div className="my-3">
-                    {this.renderStructureOptions()}
-                    {this.props.logReminder.logStructure ? this.renderStructure() : null}
+                    {this.renderStructureManagementSelector()}
                 </div>
             </>
         );
