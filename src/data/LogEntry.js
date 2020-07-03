@@ -1,8 +1,6 @@
 
-import assert from '../common/assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
-import LogValue from './LogValue';
 import { extractLogTopics, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
@@ -19,9 +17,7 @@ class LogEntry extends Base {
             title: title || '',
             details: '',
             logStructure: logStructure || null,
-            logValues: logStructure
-                ? logStructure.logKeys.map((logKey) => LogValue.createVirtual({ logKey }))
-                : [],
+            logValues: logStructure ? logStructure.logKeys.map((logKey) => '') : null,
         };
     }
 
@@ -62,30 +58,24 @@ class LogEntry extends Base {
             );
             results.push(...logStructureResults);
 
-            const logValuesResults = await this.validateRecursiveList(
-                LogValue, '.logValues', inputLogEntry.logValues,
-            );
-            results.push(...logValuesResults);
+            inputLogEntry.logValues.forEach((logValue, index) => {
+                // const logKey = inputLogEntry.logStructure.logKeys[index];
+                const prefix = `.logValues[${index}]`;
+                // TODO: Validate data using logKey
+                results.push(this.validateNonEmptyString(prefix, logValue));
+            });
         }
         return results;
     }
 
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
-        // TODO: Parallelize the following operations.
         let outputLogStructure = null;
+        let outputLogValues = null;
         if (logEntry.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logEntry.structure_id);
+            outputLogValues = JSON.parse(logEntry.structure_values);
         }
-        const edges = await this.database.getEdges(
-            'LogEntryToLogValue',
-            'entry_id',
-            logEntry.id,
-            this.transaction,
-        );
-        const outputLogValues = await Promise.all(
-            edges.map((edge) => LogValue.load.call(this, edge.value_id)),
-        );
         return {
             __type__: 'log-entry',
             id: logEntry.id,
@@ -94,37 +84,12 @@ class LogEntry extends Base {
             name: logEntry.name,
             title: logEntry.title,
             details: logEntry.details,
-            logStructure: outputLogStructure, // TODO: Create empty if needed.
+            logStructure: outputLogStructure,
             logValues: outputLogValues,
         };
     }
 
     static async save(inputLogEntry) {
-        let logStructure = null;
-        if (inputLogEntry.logStructure) {
-            logStructure = await this.database.findByPk(
-                'LogStructure',
-                inputLogEntry.logStructure.id,
-                this.transaction,
-            );
-            const logStructureKeys = await this.database.getNodesByEdge(
-                'LogStructureToLogKey',
-                'structure_id',
-                logStructure.id,
-                'key_id',
-                'LogKey',
-                this.transaction,
-            );
-            assert(
-                logStructureKeys.map((logKey) => logKey.id).equals(
-                    inputLogEntry.logValues.map((logValue) => logValue.logKey.id),
-                ),
-                `${'Missing keys for selected structure!'
-                    + '\nExpected = '}${logStructureKeys.map((logKey) => logKey.name).join(', ')
-                }\nActual = ${inputLogEntry.logValues.map((logValue) => logValue.logKey.name).join(', ')}`,
-            );
-        }
-
         let logEntry = await this.database.findItem(
             'LogEntry',
             inputLogEntry,
@@ -145,7 +110,6 @@ class LogEntry extends Base {
         // TODO(broadcast): Make this more specific!
         this.broadcast('log-entry-list'); // Update all lists!
 
-        LogEntry.trigger(inputLogEntry);
         const orderingIndex = await Base.getOrderingIndex
             .call(this, logEntry, { date: inputLogEntry.date });
         const fields = {
@@ -154,44 +118,14 @@ class LogEntry extends Base {
             name: inputLogEntry.name,
             title: inputLogEntry.title,
             details: inputLogEntry.details,
-            structure_id: logStructure ? logStructure.id : null,
+            structure_id: inputLogEntry.logStructure ? inputLogEntry.logStructure.id : null,
+            structure_values: inputLogEntry.logStructure
+                ? JSON.stringify(inputLogEntry.logValues)
+                : null,
         };
         logEntry = await this.database.createOrUpdateItem(
             'LogEntry', logEntry, fields, this.transaction,
         );
-
-        const logValues = await Promise.all(
-            inputLogEntry.logValues.map(async (inputLogValue) => {
-                const logKey = await this.database.findByPk(
-                    'LogKey',
-                    inputLogValue.logKey.id,
-                    this.transaction,
-                );
-                assert(logKey.type === inputLogValue.logKey.type, 'Mismatched key type!');
-                const logValue = await this.database.createOrFind(
-                    'LogValue',
-                    { key_id: logKey.id, data: inputLogValue.data },
-                    {},
-                    this.transaction,
-                );
-                logValue.logKey = logKey;
-                return logValue;
-            }),
-        );
-
-        const deletedEdges = await this.database.setEdges(
-            'LogEntryToLogValue',
-            'entry_id',
-            logEntry.id,
-            'value_id',
-            logValues.reduce((result, logValue, index) => {
-                // eslint-disable-next-line no-param-reassign
-                result[logValue.id] = { ordering_index: index };
-                return result;
-            }, {}),
-            this.transaction,
-        );
-        await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
 
         const logTopics = {
             ...extractLogTopics(
@@ -221,47 +155,6 @@ class LogEntry extends Base {
         );
 
         return logEntry.id;
-    }
-
-    static async delete(id) {
-        const deletedEdges = await this.database.getEdges(
-            'LogEntryToLogValue',
-            'entry_id',
-            id,
-            this.transaction,
-        );
-        const result = await Base.delete.call(this, id);
-        await LogEntry.deleteValues.call(this, deletedEdges.map((edge) => edge.value_id));
-        return result;
-    }
-
-    static async deleteValues(logValueIds) {
-        const countResults = {};
-        logValueIds.forEach((valueId) => {
-            countResults[valueId] = 0;
-        });
-        const logValueCounts = await this.database.count(
-            'LogEntryToLogValue',
-            {
-                value_id: {
-                    [this.database.Op.in]: logValueIds,
-                },
-            },
-            ['value_id'],
-            this.transaction,
-        );
-        logValueCounts.forEach((item) => {
-            countResults[item.value_id] += item.count;
-        });
-        await Promise.all(
-            Object.entries(countResults)
-                .filter(([_, count]) => count === 0)
-                .map(([valueId]) => this.database.deleteByPk(
-                    'LogValue',
-                    valueId,
-                    this.transaction,
-                )),
-        );
     }
 }
 

@@ -83,6 +83,10 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
+            keys: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
             title_template: {
                 type: Sequelize.TEXT,
                 allowNull: false,
@@ -100,104 +104,6 @@ export default function (sequelize) {
             ],
         },
     );
-
-    const LogKey = sequelize.define(
-        'log_keys',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            type: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-        },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['name'] },
-            ],
-        },
-    );
-
-    const LogStructureToLogKey = sequelize.define(
-        'log_structures_to_log_keys',
-        {
-            structure_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogStructure,
-                    key: 'id',
-                },
-            },
-            key_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogKey,
-                    key: 'id',
-                },
-            },
-            ordering_index: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-        },
-        options,
-    );
-
-    LogStructure.belongsToMany(LogKey, {
-        through: LogStructureToLogKey,
-        foreignKey: 'structure_id',
-        // Allow the edge to be deleted with the structure.
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-    });
-
-    LogKey.belongsToMany(LogStructure, {
-        through: LogStructureToLogKey,
-        foreignKey: 'key_id',
-        // Don't allow key to be deleted if there are
-        // structures that depend on it.
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
-    const LogValue = sequelize.define(
-        'log_values',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            key_id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-            data: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-        },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['key_id', 'data'] },
-            ],
-        },
-    );
-
-    LogKey.hasMany(LogValue, {
-        foreignKey: 'key_id',
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
 
     const LogReminderGroup = sequelize.define(
         'log_reminder_groups',
@@ -304,10 +210,6 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            structure_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
             date: {
                 type: Sequelize.STRING,
                 allowNull: true,
@@ -330,6 +232,14 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
                 defaultValue: '',
+            },
+            structure_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            structure_values: {
+                type: Sequelize.TEXT,
+                allowNull: true,
             },
         },
         options,
@@ -379,60 +289,15 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    const LogEntryToLogValue = sequelize.define(
-        'log_entries_to_log_values',
-        {
-            entry_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogEntry,
-                    key: 'id',
-                },
-            },
-            value_id: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: LogValue,
-                    key: 'id',
-                },
-            },
-            ordering_index: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-        },
-        options,
-    );
-
-    LogEntry.belongsToMany(LogValue, {
-        through: LogEntryToLogValue,
-        foreignKey: 'entry_id',
-        // Deleteing an Entry is allowed!
-        // The links will be broken, and the Values could be cleaned up.
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-    });
-
-    LogValue.belongsToMany(LogEntry, {
-        through: LogEntryToLogValue,
-        foreignKey: 'value_id',
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
         ['LogTopicGroup', LogTopicGroup],
         ['LogTopic', LogTopic],
         ['LogStructure', LogStructure],
-        ['LogKey', LogKey],
-        ['LogStructureToLogKey', LogStructureToLogKey],
-        ['LogValue', LogValue],
         ['LogReminderGroup', LogReminderGroup],
         ['LogReminder', LogReminder],
         ['LogEntry', LogEntry],
         ['LogEntryToLogTopic', LogEntryToLogTopic],
-        ['LogEntryToLogValue', LogEntryToLogValue],
     ];
 }

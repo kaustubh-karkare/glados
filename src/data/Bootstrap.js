@@ -1,6 +1,6 @@
 import { maybeSubstitute } from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
-import { awaitSequence, getVirtualID, isRealItem } from './Utils';
+import { awaitSequence, getVirtualID } from './Utils';
 import {
     convertDraftContentToPlainText,
     convertPlainTextToDraftContent,
@@ -41,14 +41,19 @@ async function loadData(actions, data) {
     await awaitSequence(data.logStructures, async (inputLogStructure) => {
         inputLogStructure.id = getVirtualID();
         if (inputLogStructure.logKeys) {
-            inputLogStructure.logKeys = inputLogStructure.logKeys.map(
-                (logKey) => ({ ...logKey, id: getVirtualID() }),
-            );
+            inputLogStructure.logKeys.forEach((logKey, index) => {
+                logKey.__type__ = 'log-structure-key';
+                logKey.id = index;
+                if (!logKey.type) {
+                    logKey.type = 'regex';
+                    logKey.typeArgs = '';
+                }
+            });
         } else {
             inputLogStructure.logKeys = [];
         }
         inputLogStructure.titleTemplate = convertPlainTextToDraftContent2(
-            inputLogStructure.titleTemplate,
+            inputLogStructure.titleTemplate || '',
             { $: inputLogStructure.logKeys, '#': logTopics },
         );
         inputLogStructure.isIndirectlyManaged = false;
@@ -63,17 +68,6 @@ async function loadData(actions, data) {
         inputLogEntry.details = convertPlainTextToDraftContent2(inputLogEntry.details, { '#': logTopics });
         if (inputLogEntry.structure) {
             inputLogEntry.logStructure = logStructureMap[inputLogEntry.structure];
-            // generate values after structure is set
-            inputLogEntry.logValues = inputLogEntry.logValues.map(
-                (logValueData, index) => ({
-                    id: getVirtualID(),
-                    logKey: inputLogEntry.logStructure.logKeys[index],
-                    data: logValueData,
-                }),
-            );
-        } else {
-            inputLogEntry.logStructure = null;
-            inputLogEntry.logValues = [];
         }
         await actions.invoke('log-entry-upsert', inputLogEntry);
     });
@@ -144,17 +138,22 @@ async function saveData(actions) {
 
     const logStructures = await actions.invoke('log-structure-list');
     result.logStructures = logStructures.map((logStructure) => {
-        const item = {
-            name: logStructure.name,
-            titleTemplate: convertDraftContentToPlainText2(
+        const item = { name: logStructure.name };
+        if (logStructure.logKeys) {
+            item.logKeys = logStructure.logKeys.map((logKey) => {
+                const outputLogKey = { name: logKey.name };
+                if (!(logKey.type === 'regex' && logKey.typeArgs === '')) {
+                    outputLogKey.type = logKey.type;
+                    outputLogKey.typeArgs = logKey.typeArgs;
+                }
+                return outputLogKey;
+            });
+        }
+        if (logStructure.titleTemplate) {
+            item.titleTemplate = convertDraftContentToPlainText2(
                 logStructure.titleTemplate,
                 { $: logStructure.logKeys, '#': logTopics },
-            ),
-        };
-        if (logStructure.logKeys) {
-            item.logKeys = logStructure.logKeys.map((logKey) => ({
-                name: logKey.name, type: logKey.type,
-            }));
+            );
         }
         return item;
     });
@@ -169,9 +168,9 @@ async function saveData(actions) {
         if (logEntry.details) {
             item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTopics });
         }
-        if (isRealItem(logEntry.logStructure)) {
+        if (logEntry.logStructure) {
             item.structure = logEntry.logStructure.name;
-            item.logValues = logEntry.logValues.map((logValue) => logValue.data);
+            item.logValues = logEntry.logValues;
             if (logEntry.logStructure.titleTemplate) {
                 delete item.title;
             }

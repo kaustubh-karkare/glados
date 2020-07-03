@@ -149,11 +149,6 @@ function substituteValuesIntoDraftContent(contentState, logValues) {
     const contentBlock = contentState.getFirstBlock();
     const text = contentBlock.getText();
 
-    const mapping = {};
-    logValues.forEach((logValue) => {
-        mapping[logValue.logKey.id] = logValue.data || '???';
-    });
-
     let previous = 0;
     let currentEntity;
     let result = '';
@@ -161,13 +156,13 @@ function substituteValuesIntoDraftContent(contentState, logValues) {
         const entityKey = charMetadata.getEntity();
         if (entityKey) {
             currentEntity = contentState.getEntity(entityKey);
-            return true;
+            return currentEntity.getType() === ENTITY_TYPE;
         }
         return false;
     }, (start, end) => {
         result += text.substring(previous, start);
-        const itemId = currentEntity.getData()[PLUGIN_NAME].id;
-        result += mapping[itemId];
+        const item = currentEntity.getData()[PLUGIN_NAME];
+        result += logValues[item.id];
         previous = end;
     });
     result += text.substring(previous, text.length);
