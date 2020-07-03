@@ -5,8 +5,8 @@ import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
 import deepcopy from '../../common/deepcopy';
 import { SortableList, TextInput, TextEditor } from '../Common';
-import { LogKeyEditor } from '../LogKey';
-import { LogKey } from '../../data';
+import LogStructureKeyEditor from './LogStructureKeyEditor';
+import { LogStructure } from '../../data';
 
 class LogStructureEditor extends React.Component {
     updateLogStructure(method) {
@@ -35,9 +35,10 @@ class LogStructureEditor extends React.Component {
                     <Button
                         disabled={this.props.disabled}
                         onClick={() => {
-                            this.updateLogStructure((structure) => {
+                            this.updateLogStructure((logStructure) => {
+                                const index = logStructure.logKeys.length;
                                 // eslint-disable-next-line no-param-reassign
-                                structure.logKeys.push(LogKey.createVirtual());
+                                logStructure.logKeys.push(LogStructure.createNewKey({ index }));
                             });
                         }}
                         size="sm"
@@ -48,13 +49,14 @@ class LogStructureEditor extends React.Component {
                 </InputGroup>
                 <SortableList
                     items={this.props.logStructure.logKeys}
+                    disabled={this.props.disabled}
                     onChange={(logKeys) => {
                         this.updateLogStructure((structure) => {
                             // eslint-disable-next-line no-param-reassign
                             structure.logKeys = logKeys;
                         });
                     }}
-                    type={LogKeyEditor}
+                    type={LogStructureKeyEditor}
                     valueKey="logKey"
                 />
                 <InputGroup className="my-1">

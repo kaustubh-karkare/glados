@@ -14,54 +14,54 @@ export default {
         {
             name: 'Cycling',
             logKeys: [
-                { name: 'Distance (miles)', type: 'regex', typeArgs: '^\\d+$' },
-                { name: 'Time (minutes)', type: 'regex', typeArgs: '^\\d+$' },
+                { name: 'Distance (miles)', type: 'integer' },
+                { name: 'Time (minutes)', type: 'integer' },
             ],
             titleTemplate: 'Cycling: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
         },
         {
             name: 'Surya Namaskar',
             logKeys: [
-                { name: 'Surya Namaskar Count', type: 'regex', typeArgs: '^\\d+$' },
+                { name: 'Surya Namaskar Count', type: 'integer' },
             ],
             titleTemplate: 'Surya Namaskar: $1',
         },
         {
             name: 'Food',
             logKeys: [
-                { name: 'Food Name' },
-                { name: 'Food Quantity' },
+                { name: 'Food Name', type: 'string' },
+                { name: 'Food Quantity', type: 'string' },
             ],
             titleTemplate: 'Food: $1 ($2)',
         },
         {
             name: 'Book',
             logKeys: [
-                { name: 'Book Name' },
-                { name: 'Progress' },
+                { name: 'Book Name', type: 'string' },
+                { name: 'Progress', type: 'string' },
             ],
             titleTemplate: 'Book: $1 ($2)',
         },
         {
             name: 'Movie',
             logKeys: [
-                { name: 'Movie Name' },
+                { name: 'Movie Name', type: 'string' },
             ],
             titleTemplate: 'Movie: $1',
         },
         {
             name: 'Television',
             logKeys: [
-                { name: 'Show Name' },
-                { name: 'Progress' },
+                { name: 'Show Name', type: 'string' },
+                { name: 'Progress', type: 'string' },
             ],
             titleTemplate: 'TV: $1 ($2)',
         },
         {
             name: 'Article',
             logKeys: [
-                { name: 'Name' },
-                { name: 'Link' },
+                { name: 'Name', type: 'string' },
+                { name: 'Link', type: 'string' },
             ],
             titleTemplate: 'Article: $1',
         },

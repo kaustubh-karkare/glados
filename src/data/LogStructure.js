@@ -1,5 +1,6 @@
 import Base from './Base';
 import { getVirtualID } from './Utils';
+import Enum from '../common/Enum';
 
 /*
 
@@ -15,6 +16,19 @@ LogStructureData
     Values = [data]
 
 */
+
+const [KeyOptions, KeyType, KeyOptionsMap] = Enum([
+    {
+        value: 'string',
+        label: 'String',
+        validator: () => true,
+    },
+    {
+        value: 'integer',
+        label: 'Integer',
+        validator: (data) => !!data.match(/^\d+$/),
+    },
+]);
 
 class LogStructure extends Base {
     static createVirtual({ name } = {}) {
@@ -69,6 +83,21 @@ class LogStructure extends Base {
         this.broadcast('log-structure-list');
         return logStructure.id;
     }
+
+    // Log Structure Keys
+
+    static createNewKey({ index }) {
+        return {
+            __type__: 'log-structure-key',
+            id: index,
+            name: '',
+            type: KeyType.STRING,
+        };
+    }
 }
+
+LogStructure.KeyOptions = KeyOptions;
+LogStructure.KeyType = KeyType;
+LogStructure.KeyOptionsMap = KeyOptionsMap;
 
 export default LogStructure;

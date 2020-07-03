@@ -4,7 +4,7 @@ import { BulletList, TextEditor } from '../Common';
 import LogStructureEditor from './LogStructureEditor';
 
 
-function ViewerComponent(props) {
+function LogStructureViewer(props) {
     const { logStructure } = props;
     return (
         <div className="log-viewer">
@@ -21,11 +21,11 @@ function ViewerComponent(props) {
     );
 }
 
-ViewerComponent.propTypes = {
+LogStructureViewer.propTypes = {
     logStructure: PropTypes.Custom.LogStructure.isRequired,
 };
 
-ViewerComponent.Expanded = (props) => {
+LogStructureViewer.Expanded = (props) => {
     const { logStructure } = props;
     if (!logStructure.titleTemplate) {
         return null;
@@ -39,7 +39,7 @@ ViewerComponent.Expanded = (props) => {
     );
 };
 
-ViewerComponent.Expanded.propTypes = {
+LogStructureViewer.Expanded.propTypes = {
     logStructure: PropTypes.Custom.LogStructure.isRequired,
 };
 
@@ -49,7 +49,7 @@ function LogStructureList() {
             name="Structures"
             dataType="log-structure"
             valueKey="logStructure"
-            ViewerComponent={ViewerComponent}
+            ViewerComponent={LogStructureViewer}
             EditorComponent={LogStructureEditor}
             selector={{ is_indirectly_managed: false }}
         />

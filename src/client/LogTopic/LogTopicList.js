@@ -4,8 +4,8 @@ import { BulletList } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 
 
-function ViewerComponent(props) {
-    const logTopic = props.value;
+function LogTopicViewer(props) {
+    const { logTopic } = props;
     return (
         <div className="log-viewer">
             {logTopic.name}
@@ -13,8 +13,8 @@ function ViewerComponent(props) {
     );
 }
 
-ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogTopic.isRequired,
+LogTopicViewer.propTypes = {
+    logTopic: PropTypes.Custom.LogTopic.isRequired,
 };
 
 function LogTopicList(props) {
@@ -24,7 +24,7 @@ function LogTopicList(props) {
             name="Topics"
             dataType="log-topic"
             valueKey="logTopic"
-            ViewerComponent={ViewerComponent}
+            ViewerComponent={LogTopicViewer}
             EditorComponent={LogTopicEditor}
             allowReordering
         />

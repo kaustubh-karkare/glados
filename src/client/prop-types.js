@@ -1,25 +1,16 @@
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-named-default
-import { default as LogKeyClass } from '../data/LogKey';
 
-const LogKeyType = PropTypes.oneOf(Object.values(LogKeyClass.Type));
-
-const LogKey = PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    type: LogKeyType.isRequired,
-});
+const LogStructureKey = PropTypes.arrayOf(
+    PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        type: PropTypes.string.isRequired,
+    }).isRequired,
+);
 
 const LogStructure = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    logKeys: PropTypes.arrayOf(LogKey.isRequired).isRequired,
-});
-
-const LogValue = PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    logKey: LogKey.isRequired,
-    data: PropTypes.string.isRequired,
+    logKeys: LogStructureKey.isRequired,
 });
 
 const LogTopicGroup = PropTypes.shape({
@@ -37,7 +28,6 @@ const LogEntry = PropTypes.shape({
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     logStructure: LogStructure,
-    logValues: PropTypes.arrayOf(LogValue.isRequired).isRequired,
 });
 
 const LogReminderGroup = PropTypes.shape({
@@ -56,10 +46,8 @@ const LogReminder = PropTypes.shape({
 PropTypes.Custom = {
     LogTopicGroup,
     LogTopic,
+    LogStructureKey,
     LogStructure,
-    LogKeyType,
-    LogKey,
-    LogValue,
     LogReminderGroup,
     LogReminder,
     LogEntry,

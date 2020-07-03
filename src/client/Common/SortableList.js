@@ -24,21 +24,21 @@ const WrappedContainer = SortableContainer(({ children }) => <div>{children}</di
 
 const WrappedRow = SortableElement((props) => {
     const disabled = props.wrappedRowDisabled;
-    if (disabled) {
-        return props.originalElement;
-    }
     const { children, ...otherProps } = props.originalElement.props;
+    otherProps.disabled = disabled;
     return React.createElement(
         props.originalElement.type,
         otherProps,
         [
             <SortableDragHandle
                 key="drag"
+                disabled={disabled}
                 title="Reorder"
             />,
             ...(children || []),
             <Button
                 key="delete"
+                disabled={disabled}
                 onClick={props.onDelete}
                 size="sm"
                 title="Delete"
@@ -107,11 +107,7 @@ SortableList.propTypes = {
     onChange: PropTypes.func.isRequired,
     type: PropTypes.func.isRequired,
     valueKey: PropTypes.string.isRequired,
-    disabled: PropTypes.bool,
-};
-
-SortableList.defaultProps = {
-    disabled: false,
+    disabled: PropTypes.bool.isRequired,
 };
 
 export default SortableList;

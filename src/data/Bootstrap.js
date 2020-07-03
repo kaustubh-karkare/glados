@@ -44,10 +44,6 @@ async function loadData(actions, data) {
             inputLogStructure.logKeys.forEach((logKey, index) => {
                 logKey.__type__ = 'log-structure-key';
                 logKey.id = index;
-                if (!logKey.type) {
-                    logKey.type = 'regex';
-                    logKey.typeArgs = '';
-                }
             });
         } else {
             inputLogStructure.logKeys = [];
@@ -68,6 +64,11 @@ async function loadData(actions, data) {
         inputLogEntry.details = convertPlainTextToDraftContent2(inputLogEntry.details, { '#': logTopics });
         if (inputLogEntry.structure) {
             inputLogEntry.logStructure = logStructureMap[inputLogEntry.structure];
+            if (inputLogEntry.logValues) {
+                inputLogEntry.logValues.forEach((value, index) => {
+                    inputLogEntry.logStructure.logKeys[index].value = value;
+                });
+            }
         }
         await actions.invoke('log-entry-upsert', inputLogEntry);
     });
@@ -141,11 +142,7 @@ async function saveData(actions) {
         const item = { name: logStructure.name };
         if (logStructure.logKeys) {
             item.logKeys = logStructure.logKeys.map((logKey) => {
-                const outputLogKey = { name: logKey.name };
-                if (!(logKey.type === 'regex' && logKey.typeArgs === '')) {
-                    outputLogKey.type = logKey.type;
-                    outputLogKey.typeArgs = logKey.typeArgs;
-                }
+                const outputLogKey = { name: logKey.name, type: logKey.type };
                 return outputLogKey;
             });
         }
@@ -170,7 +167,11 @@ async function saveData(actions) {
         }
         if (logEntry.logStructure) {
             item.structure = logEntry.logStructure.name;
-            item.logValues = logEntry.logValues;
+            item.logValues = [];
+            logEntry.logStructure.logKeys.forEach((logKey) => {
+                item.logValues.push(logKey.value);
+                delete logKey.value;
+            });
             if (logEntry.logStructure.titleTemplate) {
                 delete item.title;
             }

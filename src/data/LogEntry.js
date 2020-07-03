@@ -30,7 +30,7 @@ class LogEntry extends Base {
                 );
                 const plaintext = substituteValuesIntoDraftContent(
                     content,
-                    logEntry.logValues,
+                    logEntry.logStructure.logKeys,
                 );
                 logEntry.title = TextEditorUtils.serialize(
                     plaintext,
@@ -58,11 +58,17 @@ class LogEntry extends Base {
             );
             results.push(...logStructureResults);
 
-            inputLogEntry.logValues.forEach((logValue, index) => {
+            inputLogEntry.logStructure.logKeys.forEach((logKey, index) => {
                 // const logKey = inputLogEntry.logStructure.logKeys[index];
-                const prefix = `.logValues[${index}]`;
+                const prefix = `.logKeys[${index}].value`;
                 // TODO: Validate data using logKey
-                results.push(this.validateNonEmptyString(prefix, logValue));
+                results.push(
+                    this.validateUsingLambda(
+                        prefix,
+                        logKey.value,
+                        LogStructure.KeyOptionsMap[logKey.type].validator,
+                    ),
+                );
             });
         }
         return results;
@@ -71,10 +77,11 @@ class LogEntry extends Base {
     static async load(id) {
         const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
         let outputLogStructure = null;
-        let outputLogValues = null;
         if (logEntry.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logEntry.structure_id);
-            outputLogValues = JSON.parse(logEntry.structure_values);
+            JSON.parse(logEntry.structure_values).forEach((value, index) => {
+                outputLogStructure.logKeys[index].value = value;
+            });
         }
         return {
             __type__: 'log-entry',
@@ -85,7 +92,6 @@ class LogEntry extends Base {
             title: logEntry.title,
             details: logEntry.details,
             logStructure: outputLogStructure,
-            logValues: outputLogValues,
         };
     }
 
@@ -112,6 +118,10 @@ class LogEntry extends Base {
 
         const orderingIndex = await Base.getOrderingIndex
             .call(this, logEntry, { date: inputLogEntry.date });
+        let logValues;
+        if (inputLogEntry.logStructure) {
+            logValues = inputLogEntry.logStructure.logKeys.map((logKey) => logKey.value);
+        }
         const fields = {
             date: inputLogEntry.date,
             ordering_index: orderingIndex,
@@ -119,9 +129,7 @@ class LogEntry extends Base {
             title: inputLogEntry.title,
             details: inputLogEntry.details,
             structure_id: inputLogEntry.logStructure ? inputLogEntry.logStructure.id : null,
-            structure_values: inputLogEntry.logStructure
-                ? JSON.stringify(inputLogEntry.logValues)
-                : null,
+            structure_values: logValues ? JSON.stringify(logValues) : null,
         };
         logEntry = await this.database.createOrUpdateItem(
             'LogEntry', logEntry, fields, this.transaction,

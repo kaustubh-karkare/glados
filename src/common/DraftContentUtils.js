@@ -145,7 +145,7 @@ function updateDraftContent(contentState, oldItems, newItems) {
     return contentState;
 }
 
-function substituteValuesIntoDraftContent(contentState, logValues) {
+function substituteValuesIntoDraftContent(contentState, logKeys) {
     const contentBlock = contentState.getFirstBlock();
     const text = contentBlock.getText();
 
@@ -161,8 +161,8 @@ function substituteValuesIntoDraftContent(contentState, logValues) {
         return false;
     }, (start, end) => {
         result += text.substring(previous, start);
-        const item = currentEntity.getData()[PLUGIN_NAME];
-        result += logValues[item.id];
+        const logKey = currentEntity.getData()[PLUGIN_NAME];
+        result += logKeys[logKey.id].value || '???';
         previous = end;
     });
     result += text.substring(previous, text.length);

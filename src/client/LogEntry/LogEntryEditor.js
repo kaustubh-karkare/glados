@@ -1,14 +1,10 @@
-import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
+import deepcopy from '../../common/deepcopy';
 import {
-    DatePicker, SortableList, TextEditor, TextInput, Typeahead,
+    DatePicker, TextEditor, TextInput, Typeahead,
 } from '../Common';
-import {
-    LogEntry, LogValue, isRealItem, isVirtualItem,
-} from '../../data';
-import { LogValueEditor } from '../LogValue';
+import { LogEntry } from '../../data';
 import PropTypes from '../prop-types';
 
 
@@ -16,6 +12,13 @@ class LogEntryEditor extends React.Component {
     updateLogEntry(method) {
         const logEntry = { ...this.props.logEntry };
         method(logEntry);
+        LogEntry.trigger(logEntry);
+        this.props.onChange(logEntry);
+    }
+
+    updateLogValue(index, value) {
+        const logEntry = deepcopy(this.props.logEntry);
+        logEntry.logStructure.logKeys[index].value = value;
         LogEntry.trigger(logEntry);
         this.props.onChange(logEntry);
     }
@@ -86,25 +89,7 @@ class LogEntryEditor extends React.Component {
         );
     }
 
-    renderAddLogValueButton() {
-        if (isRealItem(this.props.logEntry.logStructure)) {
-            return null;
-        }
-        return (
-            <Button
-                disabled={this.props.disabled}
-                onClick={() => this.updateLogEntry((logEntry) => {
-                    logEntry.logValues = [...logEntry.logValues, LogValue.createVirtual()];
-                })}
-                size="sm"
-                variant="secondary"
-            >
-                <MdAddCircleOutline />
-            </Button>
-        );
-    }
-
-    renderStructureRow() {
+    renderStructureSelector() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -116,20 +101,36 @@ class LogEntryEditor extends React.Component {
                     disabled={this.props.disabled}
                     onChange={(logStructure) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.logStructure = logStructure;
                         if (logStructure) {
-                            logEntry.logValues = logStructure.logKeys.map(
-                                (logKey) => LogValue.createVirtual({ logKey }),
-                            );
-                        } else {
-                            logEntry.logValues = [];
+                            logStructure.logKeys.forEach((logKey) => {
+                                logKey.value = '';
+                            });
                         }
+                        logEntry.logStructure = logStructure;
                     })}
                     allowDelete
                 />
-                {false && this.renderAddLogValueButton()}
             </InputGroup>
         );
+    }
+
+    renderStructureValues() {
+        const { logEntry } = this.props;
+        if (!logEntry.logStructure) {
+            return null;
+        }
+        return logEntry.logStructure.logKeys.map((logKey, index) => (
+            <InputGroup key={logKey.name} className="my-1">
+                <InputGroup.Text>
+                    {logKey.name}
+                </InputGroup.Text>
+                <TextInput
+                    value={logKey.value}
+                    disabled={this.props.disabled}
+                    onChange={(newValue) => this.updateLogValue(index, newValue)}
+                />
+            </InputGroup>
+        ));
     }
 
     render() {
@@ -141,17 +142,8 @@ class LogEntryEditor extends React.Component {
                 {this.renderTitleRow()}
                 {this.renderDetailsRow()}
                 <div className="my-3">
-                    {this.renderStructureRow()}
-                    <SortableList
-                        items={this.props.logEntry.logValues}
-                        onChange={(logValues) => this.updateLogEntry((logEntry) => {
-                            logEntry.logValues = logValues;
-                        })}
-                        type={LogValueEditor}
-                        valueKey="logValue"
-                        disabled={isRealItem(this.props.logEntry.logStructure)}
-                        isNewStructure={isVirtualItem(this.props.logEntry.logStructure)}
-                    />
+                    {this.renderStructureSelector()}
+                    {this.renderStructureValues()}
                 </div>
             </div>
         );

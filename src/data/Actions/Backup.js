@@ -77,30 +77,6 @@ ActionsRegistry['backup-load'] = async function () {
     const filedata = await promise;
     const data = JSON.parse(filedata);
 
-    /*
-    data.log_structures.forEach((log_structure) => {
-        const originalKeys = data.log_structures_to_log_keys
-            .filter((edge) => edge.structure_id === log_structure.id)
-            .sort((left, right) => left.ordering_index - right.ordering_index)
-            .map((edge) => data.log_keys.find((log_key) => log_key.id === edge.key_id));
-        log_structure.keys = JSON.stringify(originalKeys.map(
-            (key) => ({
-                name: key.name,
-                type: 'regex',
-                typeArgs: (key.type === 'integer' ? '^\d+' : ''),
-            }),
-        ));
-    });
-
-    data.log_entries.forEach((log_entry) => {
-        const originalValues = data.log_entries_to_log_values
-            .filter((edge) => edge.entry_id === log_entry.id)
-            .sort((left, right) => left.ordering_index - right.ordering_index)
-            .map((edge) => data.log_values.find((log_value) => log_value.id === edge.value_id));
-        log_entry.structure_values = JSON.stringify(originalValues.map((value) => value.data));
-    });
-    */
-
     // This is where we can transform the input data to fix compatibility!
     await awaitSequence(this.database.getModelSequence(), async (model) => {
         const items = data[model.name];

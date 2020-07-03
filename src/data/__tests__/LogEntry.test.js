@@ -55,6 +55,6 @@ test('test_entry_update', async () => {
 
     const logEntry = await actions.invoke('log-entry-load', { id: 1 });
     logEntry.title = 'Dog';
-    logEntry.logValues[0] = 'medium';
+    logEntry.logStructure.logKeys[0].value = 'medium';
     await actions.invoke('log-entry-upsert', logEntry);
 });
