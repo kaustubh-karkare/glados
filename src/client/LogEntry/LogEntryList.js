@@ -2,28 +2,26 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList, TextEditor } from '../Common';
 
-import { LogEntry } from '../../data';
 import LogEntryAdder from './LogEntryAdder';
 import LogEntryEditor from './LogEntryEditor';
 
 
 function ViewerComponent(props) {
-    const logEntry = props.value;
     return (
         <TextEditor
             unstyled
             disabled
-            value={logEntry.title}
+            value={props.logEntry.title}
         />
     );
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogEntry.isRequired,
+    logEntry: PropTypes.Custom.LogEntry.isRequired,
 };
 
-function ExpandedViewerComponent(props) {
-    const logEntry = props.value;
+ViewerComponent.Expanded = (props) => {
+    const { logEntry } = props;
     if (!logEntry.details) {
         return null;
     }
@@ -34,29 +32,10 @@ function ExpandedViewerComponent(props) {
             value={logEntry.details}
         />
     );
-}
-
-ExpandedViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogEntry.isRequired,
 };
 
-function EditorComponent(props) {
-    return (
-        <LogEntryEditor
-            logEntry={props.value}
-            onChange={(logEntry) => {
-                LogEntry.trigger(logEntry);
-                props.onChange(logEntry);
-            }}
-            onSpecialKeys={props.onSpecialKeys}
-        />
-    );
-}
-
-EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogEntry.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onSpecialKeys: PropTypes.func.isRequired,
+ViewerComponent.Expanded.propTypes = {
+    logEntry: PropTypes.Custom.LogEntry.isRequired,
 };
 
 function LogEntryList(props) {
@@ -64,12 +43,12 @@ function LogEntryList(props) {
         <BulletList
             name={props.name}
             dataType="log-entry"
+            valueKey="logEntry"
             selector={props.selector}
             allowReordering
             allowSubscription
             ViewerComponent={ViewerComponent}
-            ExpandedViewerComponent={ExpandedViewerComponent}
-            EditorComponent={EditorComponent}
+            EditorComponent={LogEntryEditor}
             AdderComponent={props.showAdder ? LogEntryAdder : null}
         />
     );
@@ -81,8 +60,5 @@ LogEntryList.propTypes = {
     selector: PropTypes.object.isRequired,
     showAdder: PropTypes.bool.isRequired,
 };
-
-LogEntryList.ViewerComponent = ViewerComponent;
-LogEntryList.EditorComponent = EditorComponent;
 
 export default LogEntryList;

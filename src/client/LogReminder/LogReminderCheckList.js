@@ -1,10 +1,9 @@
 import React from 'react';
-import { DataLoader, EditorModal } from '../Common';
+import { DataLoader, EditorModal, TextEditor } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEntry, LogReminder } from '../../data';
-import { LogEntryList } from '../LogEntry';
+import { LogEntryEditor } from '../LogEntry';
 import CheckListItem from './CheckListItem';
-import LogReminderList from './LogReminderList';
 import PropTypes from '../prop-types';
 
 class LogReminderCheckList extends React.Component {
@@ -88,7 +87,8 @@ class LogReminderCheckList extends React.Component {
     displayEditorModal(logReminder, logEntry) {
         this.closeModal = window.modalStack_push(EditorModal, {
             dataType: 'log-entry',
-            EditorComponent: LogEntryList.EditorComponent,
+            EditorComponent: LogEntryEditor,
+            valueKey: 'logEntry',
             value: logEntry,
             onSave: (updatedLogEntry) => this.onCompleteReminder(logReminder, updatedLogEntry),
         });
@@ -109,7 +109,11 @@ class LogReminderCheckList extends React.Component {
                     this.onEditButtonClick(logReminder);
                 }}
             >
-                <LogReminderList.ViewerComponent value={logReminder} />
+                <TextEditor
+                    unstyled
+                    disabled
+                    value={logReminder.title}
+                />
             </CheckListItem>
         );
     }

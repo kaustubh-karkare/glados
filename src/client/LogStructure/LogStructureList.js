@@ -5,7 +5,7 @@ import LogStructureEditor from './LogStructureEditor';
 
 
 function ViewerComponent(props) {
-    const logStructure = props.value;
+    const { logStructure } = props;
     return (
         <div className="log-viewer">
             {logStructure.name}
@@ -22,11 +22,11 @@ function ViewerComponent(props) {
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogStructure.isRequired,
+    logStructure: PropTypes.Custom.LogStructure.isRequired,
 };
 
-function ExpandedViewerComponent(props) {
-    const logStructure = props.value;
+ViewerComponent.Expanded = (props) => {
+    const { logStructure } = props;
     return (
         <TextEditor
             unstyled
@@ -34,24 +34,10 @@ function ExpandedViewerComponent(props) {
             value={logStructure.titleTemplate}
         />
     );
-}
-
-ExpandedViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogStructure.isRequired,
 };
 
-function EditorComponent(props) {
-    return (
-        <LogStructureEditor
-            logStructure={props.value}
-            onChange={(logStructure) => props.onChange(logStructure)}
-        />
-    );
-}
-
-EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogStructure.isRequired,
-    onChange: PropTypes.func.isRequired,
+ViewerComponent.Expanded.propTypes = {
+    logStructure: PropTypes.Custom.LogStructure.isRequired,
 };
 
 function LogStructureList() {
@@ -59,9 +45,9 @@ function LogStructureList() {
         <BulletList
             name="Structures"
             dataType="log-structure"
+            valueKey="logStructure"
             ViewerComponent={ViewerComponent}
-            ExpandedViewerComponent={ExpandedViewerComponent}
-            EditorComponent={EditorComponent}
+            EditorComponent={LogStructureEditor}
             selector={{ is_indirectly_managed: false }}
         />
     );

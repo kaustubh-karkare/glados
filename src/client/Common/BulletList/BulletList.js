@@ -110,8 +110,7 @@ class BulletList extends React.Component {
             EditorComponent: this.props.EditorComponent,
             editorProps: { selector: this.props.selector },
             // eslint-disable-next-line react/forbid-foreign-prop-types
-            valueKey: Object.keys(this.props.EditorComponent.propTypes)
-                .find((propName) => propName.startsWith('log')) || 'value',
+            valueKey: this.props.valueKey,
             value: item,
             closeOnSave: true,
         });
@@ -141,6 +140,7 @@ class BulletList extends React.Component {
             return null;
         }
         const { ViewerComponent } = this.props;
+        const viewerComponentProps = { [this.props.valueKey]: this.state.deleteItem };
         return (
             <Modal
                 show
@@ -151,7 +151,7 @@ class BulletList extends React.Component {
                     <Modal.Title>Confirm deletion?</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <ViewerComponent value={this.state.deleteItem} />
+                    <ViewerComponent {...viewerComponentProps} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
@@ -167,27 +167,30 @@ class BulletList extends React.Component {
     }
 
     renderItems() {
-        const { ViewerComponent, ExpandedViewerComponent } = this.props;
-        return this.state.items.map((item, index) => (
-            <BulletListItem
-                index={index}
-                key={item.id}
-                allowReordering={this.props.allowReordering}
-                isExpanded={this.state.isExpanded[item.id]}
-                onToggleButtonClick={() => this.onToggle(item)}
-                onEditButtonClick={(event) => this.onEdit(item, event)}
-                onDeleteButtonClick={(event) => this.deleteItem(item, event)}
-                onMoveUp={(event) => this.onMove(index, -1, event)}
-                onMoveDown={(event) => this.onMove(index, 1, event)}
-            >
-                <ViewerComponent value={item} />
-                {
-                    ExpandedViewerComponent
-                        ? <ExpandedViewerComponent value={item} />
-                        : null
-                }
-            </BulletListItem>
-        ));
+        const { ViewerComponent } = this.props;
+        return this.state.items.map((item, index) => {
+            const viewerComponentProps = { [this.props.valueKey]: item };
+            return (
+                <BulletListItem
+                    index={index}
+                    key={item.id}
+                    allowReordering={this.props.allowReordering}
+                    isExpanded={this.state.isExpanded[item.id]}
+                    onToggleButtonClick={() => this.onToggle(item)}
+                    onEditButtonClick={(event) => this.onEdit(item, event)}
+                    onDeleteButtonClick={(event) => this.deleteItem(item, event)}
+                    onMoveUp={(event) => this.onMove(index, -1, event)}
+                    onMoveDown={(event) => this.onMove(index, 1, event)}
+                >
+                    <ViewerComponent {...viewerComponentProps} />
+                    {
+                        ViewerComponent.Expanded
+                            ? <ViewerComponent.Expanded {...viewerComponentProps} />
+                            : null
+                    }
+                </BulletListItem>
+            );
+        });
     }
 
     renderAdder() {
@@ -246,13 +249,13 @@ class BulletList extends React.Component {
 BulletList.propTypes = {
     name: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
+    valueKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
     // eslint-disable-next-line react/forbid-prop-types
     creator: PropTypes.object,
     allowReordering: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
-    ExpandedViewerComponent: PropTypes.func,
     EditorComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,
 };

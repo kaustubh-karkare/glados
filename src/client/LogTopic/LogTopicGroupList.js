@@ -6,7 +6,7 @@ import PropTypes from '../prop-types';
 
 
 function ViewerComponent(props) {
-    const logTopicGroup = props.value;
+    const { logTopicGroup } = props;
     return (
         <div className="log-viewer">
             {logTopicGroup.name}
@@ -15,11 +15,11 @@ function ViewerComponent(props) {
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogTopicGroup.isRequired,
+    logTopicGroup: PropTypes.Custom.LogTopicGroup.isRequired,
 };
 
-function ExpandedViewerComponent(props) {
-    const logTopicGroup = props.value;
+ViewerComponent.Expanded = (props) => {
+    const { logTopicGroup } = props;
     return (
         <LogTopicList
             name="Topics"
@@ -27,14 +27,14 @@ function ExpandedViewerComponent(props) {
             creator={{ logTopicGroup }}
         />
     );
-}
+};
 
-ExpandedViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogTopicGroup.isRequired,
+ViewerComponent.Expanded.propTypes = {
+    logTopicGroup: PropTypes.Custom.LogTopicGroup.isRequired,
 };
 
 function EditorComponent(props) {
-    const logTopicGroup = props.value;
+    const { logTopicGroup } = props;
     return (
         <InputGroup>
             <InputGroup.Text>
@@ -51,7 +51,7 @@ function EditorComponent(props) {
 }
 
 EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogTopicGroup.isRequired,
+    logTopicGroup: PropTypes.Custom.LogTopicGroup.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
@@ -60,8 +60,8 @@ function LogTopicGroupList() {
         <BulletList
             name="Topic Groups"
             dataType="log-topic-group"
+            valueKey="logTopicGroup"
             ViewerComponent={ViewerComponent}
-            ExpandedViewerComponent={ExpandedViewerComponent}
             EditorComponent={EditorComponent}
             allowReordering
         />

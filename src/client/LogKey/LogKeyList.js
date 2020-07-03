@@ -6,7 +6,7 @@ import { LogKey } from '../../data';
 
 
 function ViewerComponent(props) {
-    const logKey = props.value;
+    const { logKey } = props;
     return (
         <div className="log-viewer">
             {logKey.name}
@@ -16,11 +16,11 @@ function ViewerComponent(props) {
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogKey.isRequired,
+    logKey: PropTypes.Custom.LogKey.isRequired,
 };
 
 function EditorComponent(props) {
-    const logKey = props.value;
+    const { logKey } = props;
     return (
         <InputGroup className="my-1">
             <Dropdown
@@ -39,7 +39,7 @@ function EditorComponent(props) {
 }
 
 EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogKey.isRequired,
+    logKey: PropTypes.Custom.LogKey.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
@@ -48,6 +48,7 @@ function LogKeyList() {
         <BulletList
             name="Keys"
             dataType="log-key"
+            valueKey="logKey"
             ViewerComponent={ViewerComponent}
             EditorComponent={EditorComponent}
         />

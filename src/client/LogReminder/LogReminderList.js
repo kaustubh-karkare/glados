@@ -5,36 +5,17 @@ import LogReminderEditor from './LogReminderEditor';
 
 
 function ViewerComponent(props) {
-    const logReminder = props.value;
     return (
         <TextEditor
             unstyled
             disabled
-            // sources={TextEditorSources}
-            value={logReminder.title}
+            value={props.logReminder.title}
         />
     );
 }
 
 ViewerComponent.propTypes = {
-    value: PropTypes.Custom.LogReminder.isRequired,
-};
-
-function EditorComponent(props) {
-    const logReminder = props.value;
-    return (
-        <LogReminderEditor
-            logReminder={logReminder}
-            onChange={props.onChange}
-            onSpecialKeys={props.onSpecialKeys}
-        />
-    );
-}
-
-EditorComponent.propTypes = {
-    value: PropTypes.Custom.LogReminder.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onSpecialKeys: PropTypes.func.isRequired,
+    logReminder: PropTypes.Custom.LogReminder.isRequired,
 };
 
 function LogReminderList(props) {
@@ -42,13 +23,12 @@ function LogReminderList(props) {
         <BulletList
             {...props}
             dataType="log-reminder"
+            valueKey="logReminder"
             ViewerComponent={ViewerComponent}
-            EditorComponent={EditorComponent}
+            EditorComponent={LogReminderEditor}
             allowReordering
         />
     );
 }
 
-LogReminderList.ViewerComponent = ViewerComponent;
-LogReminderList.EditorComponent = EditorComponent;
 export default LogReminderList;
