@@ -6,6 +6,7 @@ function TextInput(props) {
     return (
         <Form.Control
             value={props.value}
+            disabled={props.disabled}
             onChange={(event) => props.onChange(event.target.value)}
         />
     );
@@ -13,6 +14,7 @@ function TextInput(props) {
 
 TextInput.propTypes = {
     value: PropTypes.string.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

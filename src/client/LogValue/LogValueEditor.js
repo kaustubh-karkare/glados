@@ -12,6 +12,7 @@ function LogValueEditor(props) {
             </InputGroup.Text>
             <TextInput
                 value={logValue.data}
+                disabled={props.disabled}
                 onChange={(newData) => props.onChange({
                     ...logValue,
                     data: newData,
@@ -23,6 +24,7 @@ function LogValueEditor(props) {
 
 LogValueEditor.propTypes = {
     logValue: PropTypes.Custom.LogValue.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

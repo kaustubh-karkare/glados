@@ -35,6 +35,7 @@ class AsyncSelector extends React.Component {
             <Form.Control
                 as="select"
                 value={this.props.value.id}
+                disabled={this.props.disabled}
                 onChange={(event) => this.onChange(parseInt(event.target.value, 10))}
             >
                 {options.map((item) => {
@@ -53,6 +54,7 @@ AsyncSelector.propTypes = {
     value: PropTypes.object,
     // eslint-disable-next-line react/forbid-prop-types
     prefixOptions: PropTypes.array,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

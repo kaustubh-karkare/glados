@@ -119,6 +119,7 @@ class EditorModal extends React.Component {
         }
         const { EditorComponent, editorProps } = this.props;
         editorProps[this.props.valueKey] = this.state.value;
+        editorProps.disabled = !this.state.autoSave && this.state.isSaving;
         return (
             <Modal
                 show

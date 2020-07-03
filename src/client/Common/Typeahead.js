@@ -78,6 +78,9 @@ class Typeahead extends React.Component {
 
     render() {
         const selected = this.props.value ? [this.props.value[this.props.labelKey]] : [];
+        const isDisabled = this.props.disabled || (
+            this.props.value ? !this.props.value[UPDATE_KEY] : false
+        );
         return (
             <>
                 <AsyncTypeahead
@@ -86,7 +89,7 @@ class Typeahead extends React.Component {
                     labelKey={this.props.labelKey}
                     size="small"
                     minLength={0}
-                    disabled={this.props.value ? !this.props.value[UPDATE_KEY] : false}
+                    disabled={isDisabled}
                     onFocus={() => this.onSearch(this.state.text)}
                     onSearch={(query) => this.onSearch(query)}
                     filterBy={this.props.filterBy}
@@ -121,6 +124,7 @@ Typeahead.propTypes = {
     dataType: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.any,
+    disabled: PropTypes.bool.isRequired,
 };
 
 Typeahead.defaultProps = {

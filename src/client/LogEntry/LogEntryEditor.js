@@ -1,10 +1,9 @@
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import React from 'react';
 import {
-    DatePicker, SortableList, TextEditor, Typeahead,
+    DatePicker, SortableList, TextEditor, TextInput, Typeahead,
 } from '../Common';
 import {
     LogEntry, LogValue, isRealItem, isVirtualItem,
@@ -27,13 +26,14 @@ class LogEntryEditor extends React.Component {
             element = (
                 <DatePicker
                     value={this.props.logEntry.date}
+                    disabled={this.props.disabled}
                     onChange={(newDate) => this.updateLogEntry((logEntry) => {
                         logEntry.date = newDate;
                     })}
                 />
             );
         } else {
-            element = <Form.Control disabled value="NA" />;
+            element = <TextInput disabled value="NA" />;
         }
         return (
             <InputGroup className="my-1">
@@ -56,7 +56,7 @@ class LogEntryEditor extends React.Component {
                     focusOnLoad
                     value={this.props.logEntry.title}
                     serverSideTypes={['log-topic']}
-                    disabled={!!this.props.logEntry.logStructure}
+                    disabled={this.props.disabled || !!this.props.logEntry.logStructure}
                     onChange={(newTitle) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.title = newTitle;
@@ -76,6 +76,7 @@ class LogEntryEditor extends React.Component {
                 <TextEditor
                     value={this.props.logEntry.details}
                     serverSideTypes={['log-topic']}
+                    disabled={this.props.disabled}
                     onChange={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
@@ -91,6 +92,7 @@ class LogEntryEditor extends React.Component {
         }
         return (
             <Button
+                disabled={this.props.disabled}
                 onClick={() => this.updateLogEntry((logEntry) => {
                     logEntry.logValues = [...logEntry.logValues, LogValue.createVirtual()];
                 })}
@@ -111,6 +113,7 @@ class LogEntryEditor extends React.Component {
                 <Typeahead
                     dataType="log-structure"
                     value={this.props.logEntry.logStructure}
+                    disabled={this.props.disabled}
                     onChange={(logStructure) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logStructure = logStructure;
@@ -157,6 +160,7 @@ class LogEntryEditor extends React.Component {
 
 LogEntryEditor.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func,
 };

@@ -10,6 +10,7 @@ function DatePicker(props) {
         <DatePickerOriginal
             dateFormat="yyyy-MM-dd"
             selected={new Date(getDateValue(props.value))}
+            disabled={props.disabled}
             onChange={
                 (newDate) => props.onChange(getDateLabel(newDate.valueOf()))
             }
@@ -19,6 +20,7 @@ function DatePicker(props) {
 
 DatePicker.propTypes = {
     value: PropTypes.string.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

@@ -1,7 +1,6 @@
-import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { Dropdown } from '../Common';
+import { Dropdown, TextInput } from '../Common';
 import { LogKey } from '../../data';
 import PropTypes from '../prop-types';
 
@@ -12,11 +11,13 @@ function LogKeyEditor(props) {
             <Dropdown
                 value={logKey.type}
                 options={LogKey.Options}
+                disabled={props.disabled}
                 onChange={(type) => props.onChange({ ...logKey, type })}
             />
-            <Form.Control
+            <TextInput
                 value={logKey.name}
-                onChange={(event) => props.onChange({ ...logKey, name: event.target.value })}
+                disabled={props.disabled}
+                onChange={(newName) => props.onChange({ ...logKey, name: newName })}
             />
         </InputGroup>
     );
@@ -24,6 +25,7 @@ function LogKeyEditor(props) {
 
 LogKeyEditor.propTypes = {
     logKey: PropTypes.Custom.LogKey.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

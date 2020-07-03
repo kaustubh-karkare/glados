@@ -14,6 +14,7 @@ function LogReminderGroupEditor(props) {
                 </InputGroup.Text>
                 <TextInput
                     value={logReminderGroup.name}
+                    disabled={props.disabled}
                     onChange={(newName) => props.onChange({
                         ...logReminderGroup,
                         name: newName,
@@ -27,6 +28,7 @@ function LogReminderGroupEditor(props) {
                 <Selector
                     value={logReminderGroup.type}
                     options={LogReminderGroup.getTypeOptions()}
+                    disabled={props.disabled}
                     onChange={(newType) => props.onChange({
                         ...logReminderGroup,
                         type: newType,
@@ -40,6 +42,7 @@ function LogReminderGroupEditor(props) {
                 <Selector.Binary
                     value={logReminderGroup.onSidebar}
                     options={LogReminderGroup.getTypeOptions()}
+                    disabled={props.disabled}
                     onChange={(onSidebar) => props.onChange({ ...logReminderGroup, onSidebar })}
                 />
             </InputGroup>
@@ -49,6 +52,7 @@ function LogReminderGroupEditor(props) {
 
 LogReminderGroupEditor.propTypes = {
     logReminderGroup: PropTypes.Custom.LogReminderGroup.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

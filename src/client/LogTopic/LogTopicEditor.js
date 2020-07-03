@@ -14,6 +14,7 @@ function LogTopicEditor(props) {
                 <AsyncSelector
                     dataType="log-topic-group"
                     value={logTopic.logTopicGroup}
+                    disabled={props.disabled}
                     onChange={(newLogTopicGroup) => props.onChange({
                         ...logTopic,
                         logTopicGroup: newLogTopicGroup,
@@ -28,6 +29,7 @@ function LogTopicEditor(props) {
                     allowUpdate
                     dataType="log-topic"
                     value={logTopic.name}
+                    disabled={props.disabled}
                     onChange={(newName) => props.onChange({
                         ...logTopic,
                         name: newName,
@@ -40,6 +42,7 @@ function LogTopicEditor(props) {
                 </InputGroup.Text>
                 <TextEditor
                     value={logTopic.details}
+                    disabled={props.disabled}
                     onChange={(newDetails) => props.onChange({
                         ...logTopic,
                         details: newDetails,
@@ -53,6 +56,7 @@ function LogTopicEditor(props) {
 
 LogTopicEditor.propTypes = {
     logTopic: PropTypes.Custom.LogTopic.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

@@ -83,6 +83,7 @@ class ManagementSelector extends React.Component {
                     <Typeahead
                         dataType={this.props.dataType}
                         value={this.props.value}
+                        disabled={this.props.disabled}
                         onChange={(newValue) => {
                             if (newValue) {
                                 newValue = { ...newValue, isIndirectlyManaged: true };
@@ -95,9 +96,9 @@ class ManagementSelector extends React.Component {
             );
         } if (this.state.type === Type.ADD || this.state.type === Type.EDIT) {
             const {
-                EditorComponent, valueKey, value, onChange,
+                EditorComponent, valueKey, value, onChange, disabled,
             } = this.props;
-            const editorProps = { [valueKey]: value, onChange };
+            const editorProps = { [valueKey]: value, disabled, onChange };
             return <EditorComponent {...editorProps} />;
         }
         return null;
@@ -114,6 +115,7 @@ class ManagementSelector extends React.Component {
                     <Selector
                         value={this.state.type}
                         options={isExistingValue ? Options.slice(3) : Options.slice(0, 3)}
+                        disabled={this.props.disabled}
                         onChange={(type) => this.onChange(type)}
                     />
                 </InputGroup>
@@ -128,6 +130,7 @@ ManagementSelector.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.object,
     create: PropTypes.func.isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 
     dataType: PropTypes.string.isRequired,

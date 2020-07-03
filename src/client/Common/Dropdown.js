@@ -28,8 +28,8 @@ function CustomDropdown(props) {
 }
 
 CustomDropdown.propTypes = {
-    disabled: PropTypes.bool,
     value: PropTypes.string.isRequired,
+    disabled: PropTypes.bool.isRequired,
     options: PropTypes.arrayOf(
         PropTypes.shape({
             label: PropTypes.string.isRequired,
@@ -37,10 +37,6 @@ CustomDropdown.propTypes = {
         }),
     ).isRequired,
     onChange: PropTypes.func.isRequired,
-};
-
-CustomDropdown.defaultProps = {
-    disabled: false,
 };
 
 export default CustomDropdown;
