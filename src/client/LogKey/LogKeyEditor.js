@@ -12,7 +12,7 @@ function LogKeyEditor(props) {
             <Dropdown
                 value={logKey.type}
                 options={LogKey.Options}
-                onUpdate={(type) => props.onChange({ ...logKey, type })}
+                onChange={(type) => props.onChange({ ...logKey, type })}
             />
             <Form.Control
                 value={logKey.name}

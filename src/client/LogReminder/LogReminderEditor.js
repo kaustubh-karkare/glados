@@ -19,7 +19,7 @@ class LogReminderEditor extends React.Component {
                     isSingleLine
                     focusOnLoad
                     value={logReminder.title}
-                    onUpdate={(value) => {
+                    onChange={(value) => {
                         const updatedLogReminder = { ...logReminder };
                         updatedLogReminder.title = value;
                         this.props.onChange(updatedLogReminder);

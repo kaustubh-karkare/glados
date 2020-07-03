@@ -57,7 +57,7 @@ class LogEntryEditor extends React.Component {
                     value={this.props.logEntry.title}
                     serverSideTypes={['log-topic']}
                     disabled={!!this.props.logEntry.logStructure}
-                    onUpdate={(newTitle) => this.updateLogEntry((logEntry) => {
+                    onChange={(newTitle) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.title = newTitle;
                     })}
@@ -76,7 +76,7 @@ class LogEntryEditor extends React.Component {
                 <TextEditor
                     value={this.props.logEntry.details}
                     serverSideTypes={['log-topic']}
-                    onUpdate={(value) => this.updateLogEntry((logEntry) => {
+                    onChange={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
                     })}
@@ -111,7 +111,7 @@ class LogEntryEditor extends React.Component {
                 <Typeahead
                     dataType="log-structure"
                     value={this.props.logEntry.logStructure}
-                    onUpdate={(logStructure) => this.updateLogEntry((logEntry) => {
+                    onChange={(logStructure) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.logStructure = logStructure;
                         if (logStructure) {

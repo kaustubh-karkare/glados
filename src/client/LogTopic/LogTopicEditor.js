@@ -40,7 +40,7 @@ function LogTopicEditor(props) {
                 </InputGroup.Text>
                 <TextEditor
                     value={logTopic.details}
-                    onUpdate={(newDetails) => props.onChange({
+                    onChange={(newDetails) => props.onChange({
                         ...logTopic,
                         details: newDetails,
                     })}

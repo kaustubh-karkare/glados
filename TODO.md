@@ -52,7 +52,6 @@
 * BulletList.AdderComponent does not invoke validation!
 
 ### Code Quality
-* Rename onUpdate to onChange.
 * Get the bootstrap.min.css file out of the repository!
 * Move propTypes to data files.
 * Lets just use a single character for suggestions with smarter rendering.

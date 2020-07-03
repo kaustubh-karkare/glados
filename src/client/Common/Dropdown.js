@@ -17,7 +17,7 @@ function CustomDropdown(props) {
                 {props.options.map((option) => (
                     <Dropdown.Item
                         key={option.value}
-                        onMouseDown={() => props.onUpdate(option.value)}
+                        onMouseDown={() => props.onChange(option.value)}
                     >
                         {option.label}
                     </Dropdown.Item>
@@ -36,7 +36,7 @@ CustomDropdown.propTypes = {
             value: PropTypes.string.isRequired,
         }),
     ).isRequired,
-    onUpdate: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 CustomDropdown.defaultProps = {

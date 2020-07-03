@@ -11,27 +11,27 @@ import { LogKey } from '../../data';
 
 class LogStructureEditor extends React.Component {
     onNameUpdate(value) {
-        this.updateStructure((structure) => {
+        this.updateLogStructure((structure) => {
             // eslint-disable-next-line no-param-reassign
             structure.name = value;
         });
     }
 
     onLogKeysUpdate(logKeys) {
-        this.updateStructure((structure) => {
+        this.updateLogStructure((structure) => {
             // eslint-disable-next-line no-param-reassign
             structure.logKeys = logKeys;
         });
     }
 
     onKeyCreate() {
-        this.updateStructure((structure) => {
+        this.updateLogStructure((structure) => {
             // eslint-disable-next-line no-param-reassign
             structure.logKeys.push(LogKey.createVirtual());
         });
     }
 
-    updateStructure(method) {
+    updateLogStructure(method) {
         const logStructure = deepcopy(this.props.logStructure);
         method(logStructure);
         this.props.onChange(logStructure);
@@ -72,9 +72,9 @@ class LogStructureEditor extends React.Component {
                         value={this.props.logStructure.titleTemplate}
                         clientSideOptions={this.props.logStructure.logKeys}
                         serverSideTypes={['log-topic']}
-                        onUpdate={(value) => this.updateStructure((structure) => {
+                        onChange={(value) => this.updateLogStructure((logStructure) => {
                             // eslint-disable-next-line no-param-reassign
-                            structure.titleTemplate = value;
+                            logStructure.titleTemplate = value;
                         })}
                     />
                 </InputGroup>

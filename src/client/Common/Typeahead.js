@@ -29,12 +29,12 @@ class Typeahead extends React.Component {
         });
     }
 
-    onUpdate(option) {
+    onChange(option) {
         if (option && option[INCOMPLETE_KEY]) {
             window.api.send(`${option.__type__}-load`, option)
-                .then((result) => this.props.onUpdate(result));
+                .then((result) => this.props.onChange(result));
         } else {
-            this.props.onUpdate(option);
+            this.props.onChange(option);
         }
     }
 
@@ -46,9 +46,9 @@ class Typeahead extends React.Component {
             <Button
                 onClick={() => {
                     if (this.props.value[UPDATE_KEY]) {
-                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: false });
+                        this.props.onChange({ ...this.props.value, [UPDATE_KEY]: false });
                     } else {
-                        this.props.onUpdate({ ...this.props.value, [UPDATE_KEY]: true });
+                        this.props.onChange({ ...this.props.value, [UPDATE_KEY]: true });
                     }
                 }}
                 size="sm"
@@ -66,7 +66,7 @@ class Typeahead extends React.Component {
         }
         return (
             <Button
-                onClick={() => this.props.onUpdate(null)}
+                onClick={() => this.props.onChange(null)}
                 size="sm"
                 title="Cancel"
                 variant="secondary"
@@ -95,7 +95,7 @@ class Typeahead extends React.Component {
                     onInputChange={(text) => this.onInputChange(text)}
                     onChange={(newSelected) => {
                         if (newSelected.length) {
-                            this.onUpdate(newSelected[0]);
+                            this.onChange(newSelected[0]);
                         }
                     }}
                     renderMenuItemChildren={
@@ -116,7 +116,7 @@ Typeahead.propTypes = {
     allowDelete: PropTypes.bool,
     filterBy: PropTypes.func,
     labelKey: PropTypes.string,
-    onUpdate: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     dataType: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types

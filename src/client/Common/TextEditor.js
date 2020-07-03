@@ -56,10 +56,10 @@ OptionComponent.propTypes = {
 
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
-        if (state.onUpdate) {
+        if (state.onChange) {
             // This component is being updated because onChange is about to be called,
             // and we want to remember the expected new value.
-            delete state.onUpdate;
+            delete state.onChange;
             return state;
         }
         const isFirstTime = !('value' in state);
@@ -142,10 +142,10 @@ class TextEditor extends React.Component {
             TextEditorUtils.fromEditorState(editorState),
             TextEditorUtils.StorageType.DRAFTJS,
         );
-        if (oldValue !== newValue && this.props.onUpdate) {
+        if (oldValue !== newValue && this.props.onChange) {
             this.setState(
-                { onUpdate: true, value: newValue },
-                () => this.props.onUpdate(newValue),
+                { onChange: true, value: newValue },
+                () => this.props.onChange(newValue),
             );
         }
     }
@@ -221,7 +221,7 @@ TextEditor.propTypes = {
     placeholder: PropTypes.string,
 
     value: PropTypes.string.isRequired,
-    onUpdate: PropTypes.func,
+    onChange: PropTypes.func,
 
     focusOnLoad: PropTypes.bool,
     isSingleLine: PropTypes.bool,

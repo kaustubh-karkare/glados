@@ -73,7 +73,7 @@ class LogEntryAdder extends React.Component {
                 value={logEntry.title}
                 serverSideTypes={['log-topic', 'log-structure', 'log-reminder-group']}
                 disabled={isRealItem(logEntry.logStructure)}
-                onUpdate={(value) => {
+                onChange={(value) => {
                     const updatedLogEntry = { ...logEntry };
                     updatedLogEntry.title = value;
                     LogEntry.trigger(updatedLogEntry);

@@ -83,7 +83,7 @@ class ManagementSelector extends React.Component {
                     <Typeahead
                         dataType={this.props.dataType}
                         value={this.props.value}
-                        onUpdate={(newValue) => {
+                        onChange={(newValue) => {
                             if (newValue) {
                                 newValue = { ...newValue, isIndirectlyManaged: true };
                             }
