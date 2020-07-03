@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { LogEntry } from '../../data';
-import LogEntryTitleEditor from './LogEntryTitleEditor';
+import { LogEntry, LogReminder, isRealItem } from '../../data';
 import LogEntryEditor from './LogEntryEditor';
-import { EditorModal, KeyCodes } from '../Common';
+import { EditorModal, KeyCodes, TextEditor } from '../Common';
+import { LogReminderEditor } from '../LogReminder';
 
 class LogEntryAdder extends React.Component {
     constructor(props) {
@@ -13,17 +13,18 @@ class LogEntryAdder extends React.Component {
         };
     }
 
-    onEdit(logEntry) {
+    onEditLogEntry(logEntry) {
         this.setState({ logEntry: LogEntry.createVirtual(this.props.selector) });
         window.modalStack_push(EditorModal, {
             dataType: 'log-entry',
             EditorComponent: LogEntryEditor,
+            valueKey: 'logEntry',
             value: logEntry,
             closeOnSave: true,
         });
     }
 
-    onSave(logEntry) {
+    onSaveLogEntry(logEntry) {
         if (logEntry.name) {
             window.api.send('log-entry-upsert', logEntry)
                 .then((value) => {
@@ -31,24 +32,60 @@ class LogEntryAdder extends React.Component {
                 })
                 .catch((error) => window.modalStack_displayError(error));
         } else {
-            this.onEdit(logEntry);
+            this.onEditLogEntry(logEntry);
+        }
+    }
+
+    onSelectSuggestion(option) {
+        if (option.__type__ === 'log-structure') {
+            const logStructure = option;
+            const updatedLogEntry = LogEntry.createVirtual({
+                ...this.props.selector,
+                logStructure,
+            });
+            LogEntry.trigger(updatedLogEntry);
+            this.onEditLogEntry(updatedLogEntry);
+        } else if (option.__type__ === 'log-reminder-group') {
+            const logReminderGroup = option;
+            const logReminder = LogReminder.createVirtual({
+                logReminderGroup,
+                title: this.state.logEntry.title, // TODO: Remove the mention entity!
+            });
+            this.setState({ logEntry: LogEntry.createVirtual(this.props.selector) });
+            window.modalStack_push(EditorModal, {
+                dataType: 'log-reminder',
+                EditorComponent: LogReminderEditor,
+                valueKey: 'logReminder',
+                value: logReminder,
+                closeOnSave: true,
+            });
         }
     }
 
     render() {
+        const { logEntry } = this.state;
         return (
-            <LogEntryTitleEditor
-                logEntry={this.state.logEntry}
-                selector={this.props.selector}
-                onUpdate={(logEntry) => this.setState({ logEntry })}
-                onMajorUpdate={(logEntry) => this.onEdit(logEntry)}
+            <TextEditor
+                isSingleLine
+                focusOnLoad
                 unstyled
+                placeholder="Add Entry ..."
+                value={logEntry.title}
+                serverSideTypes={['log-topic', 'log-structure', 'log-reminder-group']}
+                disabled={isRealItem(logEntry.logStructure)}
+                onUpdate={(value) => {
+                    const updatedLogEntry = { ...logEntry };
+                    updatedLogEntry.title = value;
+                    LogEntry.trigger(updatedLogEntry);
+                    this.setState({ logEntry: updatedLogEntry });
+                }}
                 onSpecialKeys={(event) => {
                     if (event.keyCode === KeyCodes.ENTER) {
-                        this.onSave(this.state.logEntry);
+                        this.onSaveLogEntry(logEntry);
                     }
                 }}
-                placeholder="Add Entry ..."
+                onSelectSuggestion={(option) => this.onSelectSuggestion(option)}
+                {...this.props}
             />
         );
     }
@@ -57,6 +94,10 @@ class LogEntryAdder extends React.Component {
 LogEntryAdder.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object,
+};
+
+LogEntryAdder.defaultProps = {
+    selector: {},
 };
 
 export default LogEntryAdder;

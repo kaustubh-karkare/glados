@@ -22,6 +22,7 @@ function MentionComponent(props) {
             className="mention"
             title={item.name}
             href="#"
+            onClick={() => window.modalStack_displayError(JSON.stringify(item))}
         >
             {props.children}
         </a>
@@ -228,6 +229,7 @@ TextEditor.propTypes = {
 
     clientSideOptions: PropTypes.arrayOf(
         PropTypes.shape({
+            __type__: PropTypes.string.isRequired,
             id: PropTypes.number.isRequired,
             name: PropTypes.string.isRequired,
         }).isRequired,

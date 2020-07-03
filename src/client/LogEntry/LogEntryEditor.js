@@ -9,7 +9,6 @@ import {
 import {
     LogEntry, LogStructure, LogValue, isRealItem, isVirtualItem,
 } from '../../data';
-import LogEntryTitleEditor from './LogEntryTitleEditor';
 import { LogValueEditor } from '../LogValue';
 import PropTypes from '../prop-types';
 
@@ -19,7 +18,7 @@ class LogEntryEditor extends React.Component {
         const logEntry = { ...this.props.logEntry };
         method(logEntry);
         LogEntry.trigger(logEntry);
-        this.props.onUpdate(logEntry);
+        this.props.onChange(logEntry);
     }
 
     renderDateRow() {
@@ -52,9 +51,16 @@ class LogEntryEditor extends React.Component {
                 <InputGroup.Text>
                     Title
                 </InputGroup.Text>
-                <LogEntryTitleEditor
-                    logEntry={this.props.logEntry}
-                    onUpdate={this.props.onUpdate}
+                <TextEditor
+                    isSingleLine
+                    focusOnLoad
+                    value={this.props.logEntry.title}
+                    serverSideTypes={['log-topic']}
+                    disabled={isRealItem(this.props.logEntry.logStructure)}
+                    onUpdate={(newTitle) => this.updateLogEntry((logEntry) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEntry.title = newTitle;
+                    })}
                     onSpecialKeys={this.props.onSpecialKeys}
                 />
             </InputGroup>
@@ -69,11 +75,11 @@ class LogEntryEditor extends React.Component {
                 </InputGroup.Text>
                 <TextEditor
                     value={this.props.logEntry.details}
+                    serverSideTypes={['log-topic']}
                     onUpdate={(value) => this.updateLogEntry((logEntry) => {
                         // eslint-disable-next-line no-param-reassign
                         logEntry.details = value;
                     })}
-                    serverSideTypes={['log-topic']}
                 />
             </InputGroup>
         );
@@ -154,7 +160,7 @@ class LogEntryEditor extends React.Component {
 
 LogEntryEditor.propTypes = {
     logEntry: PropTypes.Custom.LogEntry.isRequired,
-    onUpdate: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func,
 };
 

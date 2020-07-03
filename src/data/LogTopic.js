@@ -8,7 +8,7 @@ class LogTopic extends Base {
     static createVirtual({ logTopicGroup } = {}) {
         return {
             id: getVirtualID(),
-            logTopicGroup: LogTopicGroup.createVirtual(logTopicGroup),
+            logTopicGroup,
             name: '',
             details: '',
         };

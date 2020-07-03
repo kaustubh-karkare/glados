@@ -30,6 +30,7 @@ class LogReminderGroup extends Base {
 
     static createVirtual({ name, type } = {}) {
         return {
+            __type__: 'log-reminder-group',
             id: getVirtualID(),
             name: name || '',
             type: type || LogReminderType.UNSPECIFIED,
@@ -51,6 +52,7 @@ class LogReminderGroup extends Base {
             this.transaction,
         );
         return {
+            __type__: 'log-reminder-group',
             id: logReminderGroup.id,
             name: logReminderGroup.name,
             type: logReminderGroup.type,

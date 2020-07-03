@@ -7,11 +7,6 @@ import { LogReminder, LogStructure } from '../../data';
 import { LogStructureEditor } from '../LogStructure';
 import PropTypes from '../prop-types';
 
-const NeedsEditOptions = [
-    { label: 'No', value: 'no' },
-    { label: 'Yes', value: 'yes' },
-];
-
 class LogReminderEditor extends React.Component {
     renderTitle() {
         const { logReminder } = this.props;
@@ -37,7 +32,7 @@ class LogReminderEditor extends React.Component {
     }
 
     renderGroupSelector() {
-        const { logReminderGroup } = this.props.logReminder;
+        const { logReminder } = this.props;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -45,10 +40,11 @@ class LogReminderEditor extends React.Component {
                 </InputGroup.Text>
                 <AsyncSelect
                     dataType="log-reminder-group"
-                    value={logReminderGroup}
-                    onChange={(newLogReminderGroup) => this.props.onChange(
-                        LogReminder.createVirtual({ logReminderGroup: newLogReminderGroup }),
-                    )}
+                    value={logReminder.logReminderGroup}
+                    onChange={(newLogReminderGroup) => this.props.onChange({
+                        ...logReminder,
+                        logReminderGroup: newLogReminderGroup,
+                    })}
                 />
             </InputGroup>
         );
@@ -119,18 +115,18 @@ class LogReminderEditor extends React.Component {
     }
 
     renderNeedsEditSelector() {
+        const { logReminder } = this.props;
         return (
             <>
                 <InputGroup className="my-1">
                     <InputGroup.Text>
                         Needs Edit?
                     </InputGroup.Text>
-                    <Select
-                        value={NeedsEditOptions[this.props.logReminder.needsEdit ? 1 : 0].value}
-                        options={NeedsEditOptions}
+                    <Select.Binary
+                        value={logReminder.needsEdit}
                         onChange={(newValue) => this.props.onChange({
                             ...this.props.logReminder,
-                            needsEdit: newValue === NeedsEditOptions[1].value,
+                            needsEdit: newValue,
                         })}
                     />
                 </InputGroup>
@@ -138,7 +134,7 @@ class LogReminderEditor extends React.Component {
         );
     }
 
-    renderStructureSelector() {
+    renderStructureOptions() {
         const { logReminder } = this.props;
         return (
             <InputGroup className="my-1">
@@ -187,7 +183,7 @@ class LogReminderEditor extends React.Component {
                     {this.renderNeedsEditSelector()}
                 </div>
                 <div className="my-3">
-                    {this.renderStructureSelector()}
+                    {this.renderStructureOptions()}
                     {this.props.logReminder.logStructure ? this.renderStructure() : null}
                 </div>
             </>
@@ -198,7 +194,7 @@ class LogReminderEditor extends React.Component {
 LogReminderEditor.propTypes = {
     logReminder: PropTypes.Custom.LogReminder.isRequired,
     onChange: PropTypes.func.isRequired,
-    onSpecialKeys: PropTypes.func.isRequired,
+    onSpecialKeys: PropTypes.func,
 };
 
 export default LogReminderEditor;

@@ -117,7 +117,8 @@ class EditorModal extends React.Component {
         if (!this.props.value) {
             return null;
         }
-        const { EditorComponent } = this.props;
+        const { EditorComponent, editorProps } = this.props;
+        editorProps[this.props.valueKey] = this.state.value;
         return (
             <Modal
                 show
@@ -129,8 +130,7 @@ class EditorModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <EditorComponent
-                        {...this.props.editorProps}
-                        value={this.state.value}
+                        {...editorProps}
                         onChange={(newValue) => this.onChange(newValue)}
                         onSpecialKeys={(event) => {
                             if (!event.shiftKey) return;
@@ -162,6 +162,8 @@ class EditorModal extends React.Component {
 EditorModal.propTypes = {
     dataType: PropTypes.string.isRequired,
     EditorComponent: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    valueKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.object.isRequired,
     onClose: PropTypes.func.isRequired, // provided by ModalStack

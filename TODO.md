@@ -14,6 +14,9 @@
     * Need to spend some time here to import this data.
 
 ### Minor Features
+* Allow reminders to be disassociated with structures.
+* Auto-generate topics from structures.
+* Combine LogStruture structure.
 * Favorite topics bar.
 * Add more options for TextEditor mention suggestions!
 * Create modal for renders information about specific topic. List of relevant events + details form.
@@ -49,12 +52,15 @@
 * BulletList.AdderComponent does not invoke validation!
 
 ### Code Quality
+* Rename onUpdate to onChange.
+* Rename Select to Selector.
 * Get the bootstrap.min.css file out of the repository!
 * Move propTypes to data files.
 * Validate that all database interactions use transactions, via assertions.
 * Lets just use a single character for suggestions with smarter rendering.
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.
+* Rename LogEntry to LogEvent, now that Reminders are a separate concept.
 
 ### Ideas
 * Priorities?

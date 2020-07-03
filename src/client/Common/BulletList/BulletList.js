@@ -109,7 +109,11 @@ class BulletList extends React.Component {
             dataType: this.props.dataType,
             EditorComponent: this.props.EditorComponent,
             editorProps: { selector: this.props.selector },
+            // eslint-disable-next-line react/forbid-foreign-prop-types
+            valueKey: Object.keys(this.props.EditorComponent.propTypes)
+                .find((propName) => propName.startsWith('log')) || 'value',
             value: item,
+            closeOnSave: true,
         });
     }
 
@@ -193,11 +197,7 @@ class BulletList extends React.Component {
         }
         return (
             <AdderWrapper>
-                <AdderComponent
-                    selector={this.props.selector}
-                    onEdit={(item) => this.onEdit(item)}
-                    onSave={(item) => this.saveItem(item)}
-                />
+                <AdderComponent selector={this.props.selector} />
             </AdderWrapper>
         );
     }

@@ -22,10 +22,11 @@ class AsyncSelect extends React.Component {
     }
 
     reload() {
-        window.api.send(`${this.props.dataType}-list`)
+        window.api.send(`${this.props.dataType}-list`, { ordering: true })
             .then((options) => this.setState({
                 options: [...this.props.prefixOptions, ...options],
-            }));
+            }))
+            .catch((error) => window.modalStack_displayError(error.toString()));
     }
 
     render() {
@@ -57,6 +58,7 @@ AsyncSelect.propTypes = {
 
 AsyncSelect.defaultProps = {
     labelKey: 'name',
+    prefixOptions: [],
 };
 
 export default AsyncSelect;

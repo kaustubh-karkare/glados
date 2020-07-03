@@ -44,12 +44,11 @@ function EditorComponent(props) {
     return (
         <LogEntryEditor
             logEntry={props.value}
-            onUpdate={(logEntry) => {
+            onChange={(logEntry) => {
                 LogEntry.trigger(logEntry);
                 props.onChange(logEntry);
             }}
             onSpecialKeys={props.onSpecialKeys}
-            hideReminderSection={props.hideReminderSection}
         />
     );
 }
@@ -58,7 +57,6 @@ EditorComponent.propTypes = {
     value: PropTypes.Custom.LogEntry.isRequired,
     onChange: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func.isRequired,
-    hideReminderSection: PropTypes.bool,
 };
 
 function LogEntryList(props) {

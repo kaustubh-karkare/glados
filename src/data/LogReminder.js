@@ -15,12 +15,21 @@ import { getVirtualID, isRealItem } from './Utils';
 
 
 const DefaultValues = {
-    [LogReminderType.UNSPECIFIED]: {},
+    [LogReminderType.UNSPECIFIED]: {
+        deadline: null,
+        warning: null,
+        frequency: null,
+        lastUpdate: null,
+    },
     [LogReminderType.DEADLINE]: {
         deadline: '{tomorrow}',
         warning: '1 day',
+        frequency: null,
+        lastUpdate: null,
     },
     [LogReminderType.PERIODIC]: {
+        deadline: null,
+        warning: null,
         frequency: 'everyday',
         lastUpdate: '{today}',
     },
@@ -66,10 +75,10 @@ const FrequencyCheck = FrequencyOptions.reduce((result, item) => {
 
 
 class LogReminder extends Base {
-    static createVirtual({ logReminderGroup }) {
+    static createVirtual({ title, logReminderGroup }) {
         const item = {
             id: getVirtualID(),
-            title: '',
+            title: title || '',
             logReminderGroup,
             type: logReminderGroup.type,
             ...DefaultValues[logReminderGroup.type],

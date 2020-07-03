@@ -1,7 +1,7 @@
 import React from 'react';
 import { DataLoader, EditorModal } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
-import { LogEntry } from '../../data';
+import { LogEntry, LogReminder } from '../../data';
 import { LogEntryList } from '../LogEntry';
 import CheckListItem from './CheckListItem';
 import LogReminderList from './LogReminderList';
@@ -74,6 +74,17 @@ class LogReminderCheckList extends React.Component {
             .catch((error) => window.modalStack_displayError(error));
     }
 
+    // eslint-disable-next-line class-methods-use-this
+    onDismissReminder(logReminder) {
+        if (logReminder.type !== LogReminder.Type.PERIODIC) {
+            window.modalStack_displayError('Can only dismiss periodic reminders!');
+            return;
+        }
+        logReminder.lastUpdate = getTodayLabel();
+        window.api.send('log-reminder-upsert', logReminder)
+            .catch((error) => window.modalStack_displayError(error));
+    }
+
     displayEditorModal(logReminder, logEntry) {
         this.closeModal = window.modalStack_push(EditorModal, {
             dataType: 'log-entry',
@@ -87,8 +98,16 @@ class LogReminderCheckList extends React.Component {
         return (
             <CheckListItem
                 key={logReminder.id}
-                onCheckboxClick={(event) => this.onCompleteReminder(logReminder)}
-                onEditButtonClick={() => this.onEditButtonClick(logReminder)}
+                onCheckboxClick={(event) => {
+                    if (event.shiftKey) {
+                        this.onDismissReminder(logReminder);
+                    } else {
+                        this.onCompleteReminder(logReminder);
+                    }
+                }}
+                onEditButtonClick={(event) => {
+                    this.onEditButtonClick(logReminder);
+                }}
             >
                 <LogReminderList.ViewerComponent value={logReminder} />
             </CheckListItem>
