@@ -56,7 +56,6 @@
 * Rename Select to Selector.
 * Get the bootstrap.min.css file out of the repository!
 * Move propTypes to data files.
-* Validate that all database interactions use transactions, via assertions.
 * Lets just use a single character for suggestions with smarter rendering.
 * Avoid unnecessary reloading of data across save/load methods.
 * Clean up dependencies and provide easy install/usage instructions.

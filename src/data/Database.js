@@ -52,6 +52,7 @@ class Database {
     }
 
     async create(name, fields, transaction) {
+        assert(transaction);
         const { id: _id, ...remainingFields } = fields;
         const Model = this._models[name];
         return Model.create(
@@ -62,6 +63,7 @@ class Database {
     }
 
     async update(name, fields, transaction) {
+        assert(transaction);
         const { id, ...remainingFields } = fields;
         const Model = this._models[name];
         const instance = await Model.findByPk(id, { transaction });
@@ -69,6 +71,7 @@ class Database {
     }
 
     async createOrUpdateItem(name, item, fields, transaction) {
+        assert(transaction);
         if (item) {
             return item.update(fields, { transaction });
         }
@@ -76,21 +79,25 @@ class Database {
     }
 
     async findAll(name, where, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         return Model.findAll({ where, transaction });
     }
 
     async findOne(name, where, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         return Model.findOne({ where, transaction });
     }
 
     async findByPk(name, id, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         return Model.findByPk(id, { transaction });
     }
 
     async findItem(name, item, transaction) {
+        assert(transaction);
         if (isRealItem(item)) {
             return this.findByPk(name, item.id, transaction);
         }
@@ -98,11 +105,13 @@ class Database {
     }
 
     async count(name, where, group, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         return Model.count({ where, group, transaction });
     }
 
     async createOrFind(name, where, updateFields, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         const instance = await Model.findOne({ where, transaction });
         if (!instance) {
@@ -112,17 +121,20 @@ class Database {
     }
 
     async deleteAll(name, where, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         return Model.destroy({ where, transaction });
     }
 
     async deleteByPk(name, id, transaction) {
+        assert(transaction);
         const Model = this._models[name];
         const instance = await Model.findByPk(id);
         return instance.destroy({ transaction });
     }
 
     async getEdges(edgeName, leftName, leftId, transaction) {
+        assert(transaction);
         const EdgeModel = this._models[edgeName];
         const edges = await EdgeModel.findAll({
             where: { [leftName]: leftId },
@@ -135,6 +147,7 @@ class Database {
     }
 
     async getNodesByEdge(edgeName, leftName, leftId, rightName, rightType, transaction) {
+        assert(transaction);
         const edges = await this.getEdges(edgeName, leftName, leftId, transaction);
         const NodeModel = this._models[rightType];
         const nodes = await Promise.all(
@@ -144,6 +157,7 @@ class Database {
     }
 
     async setEdges(edgeName, leftName, leftId, rightName, right, transaction) {
+        assert(transaction);
         const Model = this._models[edgeName];
         const existingEdges = await Model.findAll({ where: { [leftName]: leftId } });
         const existingIDs = existingEdges.map((edge) => edge[rightName].toString());

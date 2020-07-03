@@ -235,6 +235,7 @@ class LogReminder extends Base {
     static async delete(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
         const result = await Base.delete.call(this, logReminder.id);
+        // TODO: Disassociate structure instead of deleteing it!
         await manageEntityAfter.call(this, logReminder.structure_id, null, LogStructure);
         return result;
     }
