@@ -20,6 +20,20 @@ ActionsRegistry.dates = async function () {
     return dates.slice(dates.length - 1);
 };
 
+ActionsRegistry['value-typeahead'] = async function (input) {
+    const outputLogEntries = await this.invoke.call(
+        this, 'log-entry-list', { selector: { structure_id: input.structure_id } },
+    );
+    const results = [];
+    outputLogEntries.forEach((outputLogEntry) => {
+        const { value } = outputLogEntry.logStructure.logKeys[input.index];
+        if (value.startsWith(input.query)) {
+            results.push(value);
+        }
+    });
+    return results;
+};
+
 ActionsRegistry['reminder-complete'] = async function (input) {
     const { logEntry: inputLogEntry, logReminder: inputLogReminder } = input;
     let outputLogReminder;

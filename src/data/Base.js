@@ -8,7 +8,7 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
-    static async list({ selector, ordering } = { selector: [] }) {
+    static async list({ selector, ordering } = { selector: {} }) {
         let items = await this.database.findAll(this.DataType.name, selector, this.transaction);
         if (ordering) {
             items = items.sort((left, right) => {

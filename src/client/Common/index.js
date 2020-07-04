@@ -12,5 +12,6 @@ export { default as Selector } from './Selector';
 export { default as SortableList } from './SortableList';
 export { default as TextInput } from './TextInput';
 export { default as TextEditor } from './TextEditor';
-export { default as Typeahead } from './Typeahead';
+export { default as TypeaheadInput } from './TypeaheadInput';
+export { default as TypeaheadSelector } from './TypeaheadSelector';
 export { KeyCodes } from './Utils';

@@ -2,13 +2,21 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import deepcopy from '../../common/deepcopy';
 import {
-    DatePicker, TextEditor, TextInput, Typeahead,
+    DatePicker, TextEditor, TextInput, TypeaheadSelector, TypeaheadInput,
 } from '../Common';
 import { LogEntry } from '../../data';
 import PropTypes from '../prop-types';
 
 
 class LogEntryEditor extends React.Component {
+    onValueSearch(query, index) {
+        return window.api.send('value-typeahead', {
+            structure_id: this.props.logEntry.logStructure.id,
+            query,
+            index,
+        });
+    }
+
     updateLogEntry(method) {
         const logEntry = { ...this.props.logEntry };
         method(logEntry);
@@ -95,7 +103,7 @@ class LogEntryEditor extends React.Component {
                 <InputGroup.Text>
                     Structure
                 </InputGroup.Text>
-                <Typeahead
+                <TypeaheadSelector
                     dataType="log-structure"
                     value={this.props.logEntry.logStructure}
                     disabled={this.props.disabled}
@@ -124,10 +132,12 @@ class LogEntryEditor extends React.Component {
                 <InputGroup.Text>
                     {logKey.name}
                 </InputGroup.Text>
-                <TextInput
+                <TypeaheadInput
+                    id={`value-${logEntry.logStructure.id}-${index}`}
                     value={logKey.value}
                     disabled={this.props.disabled}
                     onChange={(newValue) => this.updateLogValue(index, newValue)}
+                    onSearch={(query) => this.onValueSearch(query, index)}
                 />
             </InputGroup>
         ));

@@ -1,15 +1,14 @@
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
-import { FaRegEdit } from 'react-icons/fa';
 import { GiCancel } from 'react-icons/gi';
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
-import { INCOMPLETE_KEY, UPDATE_KEY } from '../../data';
+import { INCOMPLETE_KEY } from '../../data';
 
 
-class Typeahead extends React.Component {
+class TypeaheadSelector extends React.Component {
     constructor(props) {
         super(props);
         this.state = { isLoading: false, text: '', options: [] };
@@ -38,32 +37,7 @@ class Typeahead extends React.Component {
         }
     }
 
-    renderUpdateButton() {
-        if (!(this.props.value && this.props.allowUpdate)) {
-            return null;
-        }
-        return (
-            <Button
-                onClick={() => {
-                    if (this.props.value[UPDATE_KEY]) {
-                        this.props.onChange({ ...this.props.value, [UPDATE_KEY]: false });
-                    } else {
-                        this.props.onChange({ ...this.props.value, [UPDATE_KEY]: true });
-                    }
-                }}
-                size="sm"
-                title="Edit"
-                variant="secondary"
-            >
-                {this.props.value[UPDATE_KEY] ? <GiCancel /> : <FaRegEdit />}
-            </Button>
-        );
-    }
-
     renderDeleteButton() {
-        if (!(this.props.value && this.props.allowDelete)) {
-            return null;
-        }
         return (
             <Button
                 onClick={() => this.props.onChange(null)}
@@ -78,9 +52,6 @@ class Typeahead extends React.Component {
 
     render() {
         const selected = this.props.value ? [this.props.value[this.props.labelKey]] : [];
-        const isDisabled = this.props.disabled || (
-            this.props.value ? !this.props.value[UPDATE_KEY] : false
-        );
         return (
             <>
                 <AsyncTypeahead
@@ -89,7 +60,7 @@ class Typeahead extends React.Component {
                     labelKey={this.props.labelKey}
                     size="small"
                     minLength={0}
-                    disabled={isDisabled}
+                    disabled={this.props.disabled || this.props.value}
                     onFocus={() => this.onSearch(this.state.text)}
                     onSearch={(query) => this.onSearch(query)}
                     filterBy={this.props.filterBy}
@@ -107,28 +78,26 @@ class Typeahead extends React.Component {
                         )
                     }
                 />
-                {this.renderUpdateButton()}
                 {this.renderDeleteButton()}
             </>
         );
     }
 }
 
-Typeahead.propTypes = {
-    allowUpdate: PropTypes.bool,
-    allowDelete: PropTypes.bool,
-    filterBy: PropTypes.func,
-    labelKey: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    placeholder: PropTypes.string,
+TypeaheadSelector.propTypes = {
     dataType: PropTypes.string.isRequired,
+    labelKey: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.any,
     disabled: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
+
+    placeholder: PropTypes.string,
+    filterBy: PropTypes.func,
 };
 
-Typeahead.defaultProps = {
+TypeaheadSelector.defaultProps = {
     labelKey: 'name',
 };
 
-export default Typeahead;
+export default TypeaheadSelector;

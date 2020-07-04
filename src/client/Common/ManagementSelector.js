@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Selector from './Selector';
-import Typeahead from './Typeahead';
+import TypeaheadSelector from './TypeaheadSelector';
 import Enum from '../../common/Enum';
 
 const [Options, Type] = Enum([
@@ -80,7 +80,7 @@ class ManagementSelector extends React.Component {
                     <InputGroup.Text>
                         Select
                     </InputGroup.Text>
-                    <Typeahead
+                    <TypeaheadSelector
                         dataType={this.props.dataType}
                         value={this.props.value}
                         disabled={this.props.disabled}

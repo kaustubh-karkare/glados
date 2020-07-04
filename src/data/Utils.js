@@ -18,10 +18,6 @@ export function isRealItem(item) {
 // that the item must be loaded before usage.
 export const INCOMPLETE_KEY = '__incomplete_key__';
 
-// This is attached to typeahead options to indicate
-// that an existing item is being updated.
-export const UPDATE_KEY = '__update_key__';
-
 export function awaitSequence(items, method) {
     if (!items) {
         return Promise.resolve();
