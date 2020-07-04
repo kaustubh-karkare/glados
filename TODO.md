@@ -15,15 +15,12 @@
 
 ### Minor Features
 * Auto-generate topics from structures.
-* Favorite topics bar.
 * Add more options for TextEditor mention suggestions!
-* Create modal for renders information about specific topic. List of relevant events + details form.
 * Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
 * Figure out UI for LogEntry.is_minor so that it is easy to toggle between the 2 modes.
 * Add LogEntry.is_resolved, so indicate items are the still pending resolution. Helps with active deliveries.
 * Add a button on the UI that triggers consistency check of custom rules!
 * Add a button on the UI that triggers creation of backups.
-* Client should be aware of the current mode (test vs prod).
 * Provide more LogKeyTypes: Yes/No. Specific Time Vs Duration
 * LogReminderCheckList should have a collapse button to suppress distractions.
 * Add LogTag.details, to maybe store more information about specific people.
@@ -44,6 +41,7 @@
 * BulletList.AdderComponent does not invoke validation!
 
 ### Code Quality
+* Clean up the global state (ModalStack / LogTopicDetails).
 * Get the bootstrap.min.css file out of the repository!
 * Move propTypes to data files.
 * Lets just use a single character for suggestions with smarter rendering.

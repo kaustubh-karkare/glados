@@ -1,3 +1,4 @@
+import { combineClassNames } from '../Common';
 import { MdEdit } from 'react-icons/md';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -30,7 +31,9 @@ class CheckListItem extends React.Component {
     render() {
         return (
             <InputGroup
-                className={this.state.hasFocus ? 'focus' : null}
+                className={combineClassNames({
+                    'focus': this.state.hasFocus,
+                })}
                 tabIndex={0}
                 onMouseEnter={() => this.setState({ hasFocus: true })}
                 onMouseOver={() => this.setState({ hasFocus: true })}

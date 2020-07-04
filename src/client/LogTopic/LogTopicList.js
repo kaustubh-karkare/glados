@@ -7,9 +7,13 @@ import LogTopicEditor from './LogTopicEditor';
 function LogTopicViewer(props) {
     const { logTopic } = props;
     return (
-        <div className="log-viewer">
+        <a
+            key={logTopic.id}
+            href="#"
+            onClick={() => window.logTopic_select(logTopic)}
+        >
             {logTopic.name}
-        </div>
+        </a>
     );
 }
 

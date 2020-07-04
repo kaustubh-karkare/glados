@@ -22,7 +22,7 @@ function MentionComponent(props) {
             className="mention"
             title={item.name}
             href="#"
-            onClick={() => window.modalStack_displayError(JSON.stringify(item))}
+            onClick={() => window.logTopic_select(item)}
         >
             {props.children}
         </a>

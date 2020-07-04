@@ -221,3 +221,48 @@ button.sortableDragHandle.btn {
 .modal-dialog {
     max-width: 800px;
 }
+
+/* Sidebar */
+
+.tab-item {
+    border: 1px solid #222;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 3px 8px 5px;
+    margin: 4px 0;
+}
+
+.tab-item:hover {
+    border-color: #444;
+}
+
+.tab-item.tab-item-selected {
+    background: #333;
+    border-color: #444;
+}
+
+/* Log Topic Details */
+
+.log-topic-details {
+    background: #303030;
+    border-radius: 4px;
+}
+
+.log-topic-details > * {
+    padding: 4px;
+}
+
+.log-topic-details .text-editor {
+    overflow: scroll;
+}
+
+.log-topic-details .public-DraftEditor-content {
+    min-height: 200px;
+}
+
+.log-topic-details > :last-child {
+    border-top: 1px solid #222;
+    color: #9197a3;
+    font-size: 10px;
+    padding: 2px 4px;
+}

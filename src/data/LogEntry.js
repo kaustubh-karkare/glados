@@ -50,6 +50,22 @@ class LogEntry extends Base {
         logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
     }
 
+    static async list(input) {
+        if (input && input.selector && input.selector.topic_id) {
+            const edges = await this.database.getEdges(
+                'LogEntryToLogTopic',
+                'topic_id',
+                input.selector.topic_id,
+                this.transaction,
+            );
+            delete input.selector.topic_id;
+            input.selector.id = {
+                [this.database.Op.in]: edges.map((edge) => edge.entry_id),
+            };
+        }
+        return Base.list.call(this, input);
+    }
+
     static async validateInternal(inputLogEntry) {
         const results = [];
         if (inputLogEntry.date !== null) {

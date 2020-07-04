@@ -14,4 +14,4 @@ export { default as TextInput } from './TextInput';
 export { default as TextEditor } from './TextEditor';
 export { default as TypeaheadInput } from './TypeaheadInput';
 export { default as TypeaheadSelector } from './TypeaheadSelector';
-export { KeyCodes } from './Utils';
+export * from './Utils';
