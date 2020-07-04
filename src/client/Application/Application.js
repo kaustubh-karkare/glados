@@ -5,11 +5,11 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import LogEntryDateList from './LogEntryDateList';
-import LogEntryReminderList from './LogEntryReminderList';
+import DataModeToggle from './DataModeToggle';
+import { LogEntryDateList } from '../LogEntry';
 import { LogStructureList } from '../LogStructure';
-import { LogReminderGroupList } from '../LogReminder';
-import { LogTopicGroupList } from '../LogTopic';
+import { LogReminderSidebar, LogReminderGroupList } from '../LogReminder';
+import { LogTopicSidebar, LogTopicGroupList } from '../LogTopic';
 import { ModalStack } from '../Common';
 
 const TabKeys = {
@@ -30,7 +30,9 @@ class Applicaton extends React.Component {
             <Container fluid>
                 <Row>
                     <Col md={2}>
-                        <LogEntryReminderList />
+                        <DataModeToggle />
+                        <LogTopicSidebar />
+                        <LogReminderSidebar />
                     </Col>
                     <Col md={8} className="mt-2">
                         <Tabs

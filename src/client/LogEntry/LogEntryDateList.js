@@ -1,5 +1,6 @@
 import React from 'react';
-import { LogEntryList } from '../LogEntry';
+import { DataLoader } from '../Common';
+import LogEntryList from './LogEntryList';
 import { getTodayLabel, getDayOfTheWeek } from '../../common/DateUtils';
 
 class LogEntryDateList extends React.Component {
@@ -9,12 +10,14 @@ class LogEntryDateList extends React.Component {
     }
 
     componentDidMount() {
-        this.reload();
+        this.dataLoader = new DataLoader({
+            name: 'dates',
+            callback: (dates) => this.setState({ dates }),
+        });
     }
 
-    reload() {
-        window.api.send('dates')
-            .then((dates) => this.setState({ dates }));
+    componentWillUnmount() {
+        this.dataLoader.stop();
     }
 
     render() {

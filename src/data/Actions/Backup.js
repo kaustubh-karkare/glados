@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 import assert from '../../common/assert';
+import deepcopy from '../../common/deepcopy';
 import { awaitSequence, getCallbackAndPromise } from '../Utils';
 import ActionsRegistry from './Registry';
 
@@ -89,4 +90,25 @@ ActionsRegistry['backup-delete'] = async function ({ filename }) {
     const [callback, promise] = getCallbackAndPromise();
     fs.unlink(path.join(location, filename), callback);
     return promise;
+};
+
+ActionsRegistry['data-mode-get'] = async function () {
+    return (this.config.backup.load_on_startup ? 'test' : 'prod');
+};
+
+ActionsRegistry['data-mode-set'] = async function (dataMode) {
+    const config = deepcopy(this.config);
+    if (dataMode === 'test') {
+        assert(!config.backup.load_on_startup);
+        await this.invoke.call(this, 'backup-save');
+        config.backup.load_on_startup = true;
+    } else if (dataMode === 'prod') {
+        assert(config.backup.load_on_startup);
+        config.backup.load_on_startup = false;
+    } else {
+        assert(false, dataMode);
+    }
+    const [callback, promise] = getCallbackAndPromise();
+    fs.writeFile(this.configPath, JSON.stringify(config, null, 4), callback);
+    await promise;
 };

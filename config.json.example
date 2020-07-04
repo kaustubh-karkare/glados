@@ -7,5 +7,9 @@
         "password": "password",
         "name": "productivity"
     },
+    "backup": {
+        "load_on_startup": false,
+        "save_interval_ms": -1
+    },
     "port": 8080
 }

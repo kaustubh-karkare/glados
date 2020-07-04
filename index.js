@@ -12,18 +12,21 @@ const http = require('http');
 const process = require('process');
 const SocketIO = require('socket.io');
 
+const configPath = './config.json';
+
 async function init() {
-    if (this.loadBackup && this.saveBackups) {
+    if (this.config.backup.load_on_startup && this.config.backup.save_interval_ms) {
         assert(false, 'Not allowed to auto-load and auto-save backups simultaneously.');
     }
 
     this.database = await Database.init(
-        this.appConfig.database,
-        { force: this.loadBackup },
+        this.config.database,
+        { force: this.config.backup.load_on_startup },
     );
-    this.actions = new Actions(this.database);
+    this.actions = new Actions(this);
+    const dataMode = await this.actions.invoke('data-mode-get');
 
-    if (this.loadBackup) {
+    if (this.config.backup.load_on_startup) {
         const { filename } = await this.actions.invoke('backup-load');
         console.info(`Loaded ${filename}`);
     }
@@ -33,20 +36,21 @@ async function init() {
     const io = SocketIO(server);
     io.on('connection', (socket) => SocketRPC.server(socket, this.actions));
     app.get('/', (req, res) => {
-        res.cookie('port', this.appConfig.port);
+        res.cookie('port', this.config.port);
+        res.cookie('data', this.config.backup.load_on_startup ? 'test' : 'prod');
         res.sendFile('index.html', { root: 'dist' });
     });
     app.use(express.static('dist'));
-    this.server = server.listen(this.appConfig.port);
-    console.info('Server ready!');
+    this.server = server.listen(this.config.port);
+    console.info(`Server ready! (data-mode = ${dataMode})`);
 
     // eslint-disable-next-line no-use-before-define
-    this.loopTimeout = setTimeout(loop.bind(this), this.loopInterval);
+    this.loopTimeout = setTimeout(loop.bind(this), this.config.backup.save_interval_ms);
 }
 
 async function loop() {
     clearTimeout(this.loopTimeout);
-    if (this.saveBackups) {
+    if (this.config.backup.save_interval_ms) {
         const { filename, isUnchanged } = await this.actions.invoke('backup-save');
         console.info(`Saved ${filename}${isUnchanged ? ' (unchanged)' : ''}`);
         if (this.previousBackupFilename && this.previousBackupFilename !== filename) {
@@ -54,7 +58,7 @@ async function loop() {
         }
         this.previousBackupFilename = filename;
     }
-    this.loopTimeout = setTimeout(loop.bind(this), this.loopInterval);
+    this.loopTimeout = setTimeout(loop.bind(this), this.config.backup.save_interval_ms);
 }
 
 async function cleanup() {
@@ -73,10 +77,8 @@ async function cleanup() {
 // Put everything together!
 
 const context = {};
-context.appConfig = JSON.parse(fs.readFileSync('./config.json'));
-context.loadBackup = true;
-// context.saveBackups = true;
-context.loopInterval = 60 * 1000;
+context.configPath = configPath;
+context.config = JSON.parse(fs.readFileSync(configPath));
 
 init.call(context)
     .catch((error) => console.error(error));

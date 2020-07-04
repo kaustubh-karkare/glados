@@ -1,0 +1,12 @@
+{
+    "execMap": {
+        "js": "babel-node"
+    },
+    "watch": [
+        "index.js",
+        "src/data/",
+        "src/common/",
+        "config.json"
+    ],
+    "signal": "SIGKILL"
+}

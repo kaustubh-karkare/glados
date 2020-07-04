@@ -2,7 +2,12 @@ import fs from 'fs';
 
 test('verify_config_example_structure', async () => {
     function ensureSameStructure(left, right) {
-        if (typeof left !== 'object' && typeof right !== 'object') {
+        const isLeftAtomic = (typeof left !== 'object');
+        const isRightAtomic = (typeof right !== 'object');
+        if ((isLeftAtomic && right === null) || (left === null && isRightAtomic)) {
+            return;
+        }
+        if (isLeftAtomic && isRightAtomic) {
             expect(typeof left).toEqual(typeof right);
             return;
         }

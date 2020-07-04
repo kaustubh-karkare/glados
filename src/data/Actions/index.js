@@ -4,8 +4,8 @@ import './Custom';
 import './Backup';
 
 export default class {
-    constructor(database) {
-        this.database = database;
+    constructor(context) {
+        this.context = context;
         this.socket = null;
         this.broadcasts = null;
     }
@@ -28,14 +28,15 @@ export default class {
     async invoke(name, input) {
         try {
             const broadcasts = [];
-            const response = await this.database.sequelize.transaction(async (transaction) => {
+            const { sequelize } = this.context.database;
+            const response = await sequelize.transaction(async (transaction) => {
                 const context = {
                     broadcast: (...args) => broadcasts.push(args),
                     invoke(innerName, innerInput) {
                         return ActionsRegistry[innerName].call(context, innerInput);
                     },
-                    database: this.database,
                     transaction,
+                    ...this.context,
                 };
                 const output = await ActionsRegistry[name].call(context, input);
                 return output;

@@ -31,7 +31,7 @@ ActionsRegistry['value-typeahead'] = async function (input) {
             results.push(value);
         }
     });
-    return results;
+    return Array.from(new Set(results));
 };
 
 ActionsRegistry['reminder-complete'] = async function (input) {

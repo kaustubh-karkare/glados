@@ -10,7 +10,8 @@ class DataLoader {
 
     reload() {
         window.api.send(this.name, this.args)
-            .then((data) => this.callback(data));
+            .then((data) => this.callback(data))
+            .catch((error) => window.modalStack_displayError(error));
     }
 
     setupSubscription() {

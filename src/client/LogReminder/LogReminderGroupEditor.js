@@ -41,7 +41,6 @@ function LogReminderGroupEditor(props) {
                 </InputGroup.Text>
                 <Selector.Binary
                     value={logReminderGroup.onSidebar}
-                    options={LogReminderGroup.getTypeOptions()}
                     disabled={props.disabled}
                     onChange={(onSidebar) => props.onChange({ ...logReminderGroup, onSidebar })}
                 />

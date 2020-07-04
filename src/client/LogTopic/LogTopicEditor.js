@@ -1,7 +1,9 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { AsyncSelector, TextEditor, TextInput } from '../Common';
+import {
+    AsyncSelector, Selector, TextEditor, TextInput,
+} from '../Common';
 
 function LogTopicEditor(props) {
     const { logTopic } = props;
@@ -34,6 +36,16 @@ function LogTopicEditor(props) {
                         ...logTopic,
                         name: newName,
                     })}
+                />
+            </InputGroup>
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Sidebar
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={logTopic.onSidebar}
+                    disabled={props.disabled}
+                    onChange={(onSidebar) => props.onChange({ ...logTopic, onSidebar })}
                 />
             </InputGroup>
             <InputGroup className="my-1">

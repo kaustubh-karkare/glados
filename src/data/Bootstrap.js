@@ -33,6 +33,7 @@ async function loadData(actions, data) {
     const logTopics = await awaitSequence(data.logTopics, async (inputLogTopic) => {
         inputLogTopic.id = getVirtualID();
         inputLogTopic.logTopicGroup = logTopicGroupMap[inputLogTopic.group];
+        inputLogTopic.onSidebar = false;
         inputLogTopic.details = inputLogTopic.details || '';
         return actions.invoke('log-topic-upsert', inputLogTopic);
     });

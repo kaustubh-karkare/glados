@@ -16,7 +16,7 @@ export default class Utils {
             name: 'productivity_test',
         };
         const database = await Database.init(config);
-        actions = new Actions(database);
+        actions = new Actions({ database });
     }
 
     static async loadData(data) {
@@ -32,6 +32,6 @@ export default class Utils {
     }
 
     static async afterEach() {
-        if (actions) await actions.database.close();
+        if (actions) await actions.context.database.close();
     }
 }

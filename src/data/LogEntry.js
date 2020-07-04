@@ -1,4 +1,4 @@
-
+import assert from '../common/assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
 import { extractLogTopics, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
@@ -8,6 +8,11 @@ import { getVirtualID } from './Utils';
 
 class LogEntry extends Base {
     static createVirtual({ date, title, logStructure } = {}) {
+        if (logStructure) {
+            logStructure.logKeys.forEach((logKey) => {
+                logKey.value = '';
+            });
+        }
         return {
             __type__: 'log-entry',
             date: date || null,
@@ -17,7 +22,6 @@ class LogEntry extends Base {
             title: title || '',
             details: '',
             logStructure: logStructure || null,
-            logValues: logStructure ? logStructure.logKeys.map((logKey) => '') : null,
         };
     }
 
@@ -82,6 +86,8 @@ class LogEntry extends Base {
             JSON.parse(logEntry.structure_values).forEach((value, index) => {
                 outputLogStructure.logKeys[index].value = value;
             });
+        } else {
+            assert(logEntry.structure_values === null);
         }
         return {
             __type__: 'log-entry',

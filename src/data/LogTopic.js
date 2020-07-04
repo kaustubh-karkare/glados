@@ -37,6 +37,7 @@ class LogTopic extends Base {
             id: logTopic.id,
             logTopicGroup,
             name: logTopic.name,
+            onSidebar: logTopic.on_sidebar,
             details: logTopic.details,
         };
     }
@@ -54,6 +55,7 @@ class LogTopic extends Base {
             group_id: inputLogTopic.logTopicGroup.id,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
+            on_sidebar: inputLogTopic.onSidebar,
             details: inputLogTopic.details,
         };
         logTopic = await this.database.createOrUpdateItem(

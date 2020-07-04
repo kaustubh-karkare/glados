@@ -9,8 +9,9 @@ function suppressUnlessShiftKey(event) {
 }
 
 function ErrorModal(props) {
-    if (!props.error) {
-        return null;
+    let { error } = props;
+    if (typeof error !== 'string') {
+        error = JSON.stringify(error);
     }
     return (
         <Modal
@@ -23,7 +24,7 @@ function ErrorModal(props) {
             </Modal.Header>
             <Modal.Body>
                 <pre>
-                    {props.error}
+                    {error}
                 </pre>
             </Modal.Body>
         </Modal>
@@ -31,7 +32,8 @@ function ErrorModal(props) {
 }
 
 ErrorModal.propTypes = {
-    error: PropTypes.string,
+    // eslint-disable-next-line react/forbid-prop-types
+    error: PropTypes.any,
     onClose: PropTypes.func.isRequired,
 };
 

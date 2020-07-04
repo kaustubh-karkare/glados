@@ -83,7 +83,7 @@ class SocketRPC {
             }
             try {
                 const result = await actions.invoke(name, request);
-                resolve(result);
+                resolve(result || null);
             } catch (error) {
                 reject(error.stack.toString());
             }

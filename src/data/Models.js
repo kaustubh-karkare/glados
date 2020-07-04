@@ -51,6 +51,10 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
+            on_sidebar: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
             details: {
                 type: Sequelize.TEXT,
                 allowNull: false,
