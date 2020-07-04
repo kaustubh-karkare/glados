@@ -11,6 +11,7 @@ class LogTopic extends Base {
             logTopicGroup,
             name: '',
             details: '',
+            onSidebar: false,
         };
     }
 

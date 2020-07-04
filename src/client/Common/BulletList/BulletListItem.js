@@ -48,7 +48,7 @@ class BulletListItem extends React.Component {
                             : <div className="icon" />
                     }
                     <div
-                        className="icon icon-white"
+                        className="icon icon-white mr-1"
                         onClick={this.props.onToggleButtonClick}
                     >
                         {this.props.isExpanded ? <TiMinus /> : <TiPlus />}
@@ -59,7 +59,7 @@ class BulletListItem extends React.Component {
         return (
             <>
                 <div className="icon" />
-                <div className="icon icon-white">
+                <div className="icon icon-white mr-1">
                     {this.props.isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
                 </div>
             </>
@@ -73,7 +73,7 @@ class BulletListItem extends React.Component {
         return (
             <>
                 <div
-                    className="icon mr-1"
+                    className="icon mx-1"
                     title="Edit"
                     onClick={this.props.onEditButtonClick}
                 >
@@ -116,9 +116,7 @@ class BulletListItem extends React.Component {
                     onKeyDown={(event) => this.onKeyDown(event)}
                 >
                     {this.renderPrefix()}
-                    <div className="mx-1">
-                        {this.props.children[0]}
-                    </div>
+                    {this.props.children[0]}
                     {this.renderSuffix()}
                 </InputGroup>
                 {this.renderExpanded()}

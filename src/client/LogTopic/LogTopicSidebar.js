@@ -32,13 +32,14 @@ class LogTopicSidebar extends React.Component {
                     <span>Favorite Topics</span>
                 </div>
                 {this.state.logTopics.map((logTopic) => (
-                    <a
-                        key={logTopic.id}
-                        href="#"
-                        onClick={() => window.logTopic_select(logTopic)}
-                    >
-                        {logTopic.name}
-                    </a>
+                    <div key={logTopic.id}>
+                        <a
+                            href="#"
+                            onClick={() => window.logTopic_select(logTopic)}
+                        >
+                            {logTopic.name}
+                        </a>
+                    </div>
                 ))}
             </div>
         );

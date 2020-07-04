@@ -8,6 +8,7 @@ export { default as ErrorModal } from './ErrorModal';
 export { default as LeftRight } from './LeftRight';
 export { default as ManagementSelector } from './ManagementSelector';
 export { default as ModalStack } from './ModalStack';
+export { default as ScrollableSection } from './ScrollableSection';
 export { default as Selector } from './Selector';
 export { default as SortableList } from './SortableList';
 export { default as TextInput } from './TextInput';

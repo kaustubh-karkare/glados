@@ -14,6 +14,7 @@
     * Need to spend some time here to import this data.
 
 ### Minor Features
+* Create miscellaneous notes section.
 * Auto-generate topics from structures.
 * Add more options for TextEditor mention suggestions!
 * Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
@@ -41,6 +42,7 @@
 * BulletList.AdderComponent does not invoke validation!
 
 ### Code Quality
+* Create common component to render LogTopic.
 * Clean up the global state (ModalStack / LogTopicDetails).
 * Get the bootstrap.min.css file out of the repository!
 * Move propTypes to data files.

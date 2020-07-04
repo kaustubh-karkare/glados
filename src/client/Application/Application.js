@@ -8,12 +8,12 @@ import { LogEntryDateList } from '../LogEntry';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderSidebar, LogReminderGroupList } from '../LogReminder';
 import { LogTopicSidebar, LogTopicGroupList, LogTopicDetails } from '../LogTopic';
-import { ModalStack, combineClassNames } from '../Common';
+import { ModalStack, ScrollableSection, combineClassNames } from '../Common';
 import Enum from '../../common/Enum';
 
 
 const [TabOptions, TabType, TabOptionsMap] = Enum([
-    { label: 'Entries', value: 'log_entries', Component: LogEntryDateList },
+    { label: 'Home', value: 'log_entries', Component: LogEntryDateList },
     { label: 'Manage Structures', value: 'log_structures', Component: LogStructureList },
     { label: 'Manage Reminders', value: 'log_reminders', Component: LogReminderGroupList },
     { label: 'Manage Topics', value: 'log_topics', Component: LogTopicGroupList },
@@ -31,28 +31,34 @@ class Applicaton extends React.Component {
         return (
             <Container fluid>
                 <Row>
-                    <Col md={2}>
-                        {TabOptions.map((option) => (
-                            <div
-                                key={option.value}
-                                className={combineClassNames({
-                                    'tab-item': true,
-                                    'tab-item-selected': this.state.activeTab === option.value,
-                                })}
-                                onClick={() => this.setState({ activeTab: option.value })}
-                            >
-                                {option.label}
-                            </div>
-                        ))}
-                        <LogReminderSidebar />
+                    <Col md={2} className="my-3">
+                        <ScrollableSection>
+                            {TabOptions.map((option) => (
+                                <div
+                                    key={option.value}
+                                    className={combineClassNames({
+                                        'tab-item': true,
+                                        'tab-item-selected': this.state.activeTab === option.value,
+                                    })}
+                                    onClick={() => this.setState({ activeTab: option.value })}
+                                >
+                                    {option.label}
+                                </div>
+                            ))}
+                            <LogReminderSidebar />
+                        </ScrollableSection>
                     </Col>
-                    <Col md={4} className="mt-2">
-                        <Component />
+                    <Col md={4} className="my-3">
+                        <ScrollableSection>
+                            <Component />
+                        </ScrollableSection>
                     </Col>
-                    <Col md={4} className="mt-2">
-                        <LogTopicDetails />
+                    <Col md={4} className="my-3">
+                        <ScrollableSection>
+                            <LogTopicDetails />
+                        </ScrollableSection>
                     </Col>
-                    <Col md={2}>
+                    <Col md={2} className="my-3">
                         <DataModeToggle />
                         <LogTopicSidebar />
                         <li>Exercise Graphs</li>
