@@ -1,7 +1,8 @@
 import React from 'react';
-import { LeftRight, TextEditor, debounce } from '../Common';
+import {
+    LeftRight, TextEditor, debounce,
+} from '../Common';
 import { INCOMPLETE_KEY } from '../../data';
-import LogTopicEntries from './LogTopicEvents';
 
 class LogTopicDetails extends React.Component {
     constructor(props) {
@@ -25,9 +26,9 @@ class LogTopicDetails extends React.Component {
         }
     }
 
-    updateDetails(newDetails) {
+    updateLogTopic(name, value) {
         this.setState((state) => {
-            state.logTopic.details = newDetails;
+            state.logTopic[name] = value;
             state.status = 'Pending ...';
             return state;
         }, this.saveDebounced);
@@ -46,13 +47,22 @@ class LogTopicDetails extends React.Component {
                 <TextEditor
                     unstyled
                     value={this.state.logTopic.details}
-                    onChange={(newDetails) => this.updateDetails(newDetails)}
+                    onChange={(details) => this.updateLogTopic('details', details)}
                     serverSideTypes={['log-topic']}
                 />
                 <div>
                     {this.state.status}
                 </div>
             </div>
+        );
+    }
+
+    renderFavorite() {
+        const { onSidebar } = this.state.logTopic;
+        return (
+            <a href="#" onClick={() => this.updateLogTopic('onSidebar', !onSidebar)}>
+                {onSidebar ? 'Favorite' : 'Default'}
+            </a>
         );
     }
 
@@ -64,10 +74,18 @@ class LogTopicDetails extends React.Component {
             <div>
                 <LeftRight className="mx-1">
                     <div>{this.state.logTopic.name}</div>
-                    <div>Default | Favorite?</div>
+                    <div>
+                        <a
+                            href="#"
+                            onClick={() => window.logEvent_selectTopic(this.state.logTopic)}
+                        >
+                            Events
+                        </a>
+                        {' | '}
+                        {this.renderFavorite()}
+                    </div>
                 </LeftRight>
                 {this.renderDetails()}
-                <LogTopicEntries logTopicId={this.state.logTopic.id} />
             </div>
         );
     }

@@ -9,6 +9,7 @@ function Selector(props) {
             value={props.value}
             disabled={props.disabled}
             onChange={(event) => props.onChange(event.target.value)}
+            size="sm"
         >
             {props.options.map((item) => {
                 const optionProps = { key: item.value, value: item.value };

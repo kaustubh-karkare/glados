@@ -4,7 +4,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import DataModeToggle from './DataModeToggle';
-import { LogEventDateList } from '../LogEvent';
+import { LogEventSelectorList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderSidebar, LogReminderGroupList } from '../LogReminder';
 import { LogTopicSidebar, LogTopicList, LogTopicDetails } from '../LogTopic';
@@ -16,13 +16,13 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
     {
         label: 'Major Events',
         value: 'major_log_events',
-        Component: LogEventDateList,
+        Component: LogEventSelectorList,
         componentProps: { selector: { is_major: true } },
     },
     {
         label: 'All Events',
         value: 'all_log_events',
-        Component: LogEventDateList,
+        Component: LogEventSelectorList,
         componentProps: {
             selector: {},
             allowReordering: true,

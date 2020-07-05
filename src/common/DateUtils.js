@@ -67,6 +67,18 @@ export function getDurationValue(label) {
     return parseInt(regex[1], 10) * MS_IN_DAY;
 }
 
+// Section: Range Utilities
+
+export function getDateRange(startLabel, endLabel) {
+    const startValue = getDateValue(startLabel);
+    const endValue = getDateValue(endLabel);
+    const results = [];
+    for (let currentValue = startValue; currentValue < endValue; currentValue += MS_IN_DAY) {
+        results.push(getDateLabel(currentValue));
+    }
+    return results;
+}
+
 // Section: Template Utilities
 
 export function maybeSubstitute(path, name) {

@@ -38,6 +38,9 @@ class TypeaheadSelector extends React.Component {
     }
 
     renderDeleteButton() {
+        if (!this.props.value) {
+            return null;
+        }
         return (
             <Button
                 onClick={() => this.props.onChange(null)}

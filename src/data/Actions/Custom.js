@@ -14,10 +14,9 @@ ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
 
 ActionsRegistry.dates = async function () {
     const results = await this.database.count('LogEvent', {}, ['date'], this.transaction);
-    let dates = new Set(results.filter((result) => result.date).map((result) => result.date));
+    const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
     dates.add(getTodayLabel());
-    dates = Array.from(dates).sort();
-    return dates.slice(dates.length - 1);
+    return Array.from(dates).sort();
 };
 
 ActionsRegistry['value-typeahead'] = async function (input) {

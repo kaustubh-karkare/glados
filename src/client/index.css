@@ -78,6 +78,7 @@
 }
 
 .input-group > select.form-control {
+    border: none;
     font-size: 13px;
     padding: 0;
 }
