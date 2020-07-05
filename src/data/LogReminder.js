@@ -181,6 +181,7 @@ class LogReminder extends Base {
         return {
             id: logReminder.id,
             title: logReminder.title,
+            isMajor: logReminder.is_major,
             logStructure: outputLogStructure,
             logReminderGroup: outputLogReminderGroup,
             type: logReminder.type,
@@ -218,6 +219,7 @@ class LogReminder extends Base {
             frequency: inputLogReminder.frequency,
             last_update: inputLogReminder.lastUpdate,
             needs_edit: inputLogReminder.needsEdit,
+            is_major: inputLogReminder.isMajor,
             structure_id: nextStructureId,
         };
         logReminder = await this.database.createOrUpdateItem(

@@ -141,6 +141,24 @@ class LogReminderEditor extends React.Component {
         );
     }
 
+    renderIsMajorRow() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Major?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logReminder.isMajor}
+                    disabled={this.props.disabled}
+                    onChange={(newValue) => this.props.onChange({
+                        ...this.props.logReminder,
+                        isMajor: newValue,
+                    })}
+                />
+            </InputGroup>
+        );
+    }
+
     renderStructureManagementSelector() {
         const { logReminder } = this.props;
         return (
@@ -173,6 +191,9 @@ class LogReminderEditor extends React.Component {
                     {type === LogReminder.Type.DEADLINE ? this.renderDeadline() : null}
                     {type === LogReminder.Type.PERIODIC ? this.renderPeriodic() : null}
                     {this.renderNeedsEditSelector()}
+                </div>
+                <div className="my-3">
+                    {this.renderIsMajorRow()}
                 </div>
                 <div className="my-3">
                     {this.renderStructureManagementSelector()}

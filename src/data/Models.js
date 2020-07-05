@@ -156,6 +156,10 @@ export default function (sequelize) {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
+            is_major: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
             structure_id: {
                 type: Sequelize.INTEGER,
                 allowNull: true,
@@ -211,6 +215,10 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
                 defaultValue: '',
+            },
+            is_major: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
             },
             structure_id: {
                 type: Sequelize.INTEGER,

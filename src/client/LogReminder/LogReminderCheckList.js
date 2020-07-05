@@ -10,6 +10,7 @@ class LogReminderCheckList extends React.Component {
     static createLogEventFromReminder(logReminder) {
         const logEvent = LogEvent.createVirtual({
             date: getTodayLabel(),
+            isMajor: logReminder.isMajor,
             logStructure: logReminder.logStructure,
         });
         LogEvent.trigger(logEvent);

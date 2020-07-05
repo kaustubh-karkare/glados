@@ -54,17 +54,32 @@ class BulletList extends React.Component {
     }
 
     componentDidMount() {
-        this.dataLoader = new DataLoader({
-            name: `${this.props.dataType}-list`,
-            args: {
-                selector: this.props.selector,
-                ordering: this.props.allowReordering,
-            },
-            callback: (items) => this.setState((state) => ({
-                items,
-                isExpanded: state.isExpanded || {},
-            })),
-        });
+        this.componentDidUpdate();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!prevProps || (
+            prevProps.dataType !== this.props.dataType
+            || prevProps.selector !== this.props.selector
+            || prevProps.allowReordering !== this.props.allowReordering
+        )) {
+            // eslint-disable-next-line react/no-did-update-set-state
+            this.setState({ items: null });
+            if (this.dataLoader) {
+                this.dataLoader.stop();
+            }
+            this.dataLoader = new DataLoader({
+                name: `${this.props.dataType}-list`,
+                args: {
+                    selector: this.props.selector,
+                    ordering: this.props.allowReordering,
+                },
+                callback: (items) => this.setState((state) => ({
+                    items,
+                    isExpanded: state.isExpanded || {},
+                })),
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -140,7 +155,10 @@ class BulletList extends React.Component {
             return null;
         }
         const { ViewerComponent } = this.props;
-        const viewerComponentProps = { [this.props.valueKey]: this.state.deleteItem };
+        const viewerComponentProps = {
+            [this.props.valueKey]: this.state.deleteItem,
+            ...this.props.viewerComponentProps,
+        };
         return (
             <Modal
                 show
@@ -169,7 +187,10 @@ class BulletList extends React.Component {
     renderItems() {
         const { ViewerComponent } = this.props;
         return this.state.items.map((item, index) => {
-            const viewerComponentProps = { [this.props.valueKey]: item };
+            const viewerComponentProps = {
+                [this.props.valueKey]: item,
+                ...this.props.viewerComponentProps,
+            };
             return (
                 <BulletListItem
                     index={index}
@@ -258,6 +279,8 @@ BulletList.propTypes = {
     ViewerComponent: PropTypes.func.isRequired,
     EditorComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,
+    // eslint-disable-next-line react/forbid-prop-types
+    viewerComponentProps: PropTypes.object,
 };
 
 export default BulletList;

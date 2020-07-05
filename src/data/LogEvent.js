@@ -7,7 +7,9 @@ import { getVirtualID } from './Utils';
 
 
 class LogEvent extends Base {
-    static createVirtual({ date, title, logStructure } = {}) {
+    static createVirtual({
+        date, title, isMajor, logStructure,
+    } = {}) {
         if (logStructure) {
             logStructure.logKeys.forEach((logKey) => {
                 logKey.value = '';
@@ -21,6 +23,7 @@ class LogEvent extends Base {
             name: '',
             title: title || '',
             details: '',
+            isMajor: isMajor || true,
             logStructure: logStructure || null,
         };
     }
@@ -113,6 +116,7 @@ class LogEvent extends Base {
             name: logEvent.name,
             title: logEvent.title,
             details: logEvent.details,
+            isMajor: logEvent.is_major,
             logStructure: outputLogStructure,
         };
     }
@@ -150,6 +154,7 @@ class LogEvent extends Base {
             name: inputLogEvent.name,
             title: inputLogEvent.title,
             details: inputLogEvent.details,
+            is_major: inputLogEvent.isMajor,
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,
         };

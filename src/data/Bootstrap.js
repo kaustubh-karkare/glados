@@ -55,6 +55,7 @@ async function loadData(actions, data) {
         maybeSubstitute(inputLogEvent, 'date');
         inputLogEvent.title = convertPlainTextToDraftContent2(inputLogEvent.title, { '#': logTopics });
         inputLogEvent.details = convertPlainTextToDraftContent2(inputLogEvent.details, { '#': logTopics });
+        inputLogEvent.isMajor = false;
         if (inputLogEvent.structure) {
             inputLogEvent.logStructure = logStructureMap[inputLogEvent.structure];
             if (inputLogEvent.logValues) {
@@ -83,6 +84,7 @@ async function loadData(actions, data) {
             inputLogReminder.title,
             TextEditorUtils.StorageType.PLAINTEXT,
         );
+        inputLogReminder.isMajor = false;
         if (inputLogReminder.structure) {
             inputLogReminder.logStructure = logStructureMap[inputLogReminder.structure];
             inputLogReminder.logStructure.isIndirectlyManaged = true;

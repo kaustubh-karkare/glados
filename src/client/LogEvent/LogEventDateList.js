@@ -1,7 +1,8 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { DataLoader } from '../Common';
-import LogEventList from './LogEventList';
 import { getTodayLabel, getDayOfTheWeek } from '../../common/DateUtils';
+import LogEventList from './LogEventList';
 
 class LogEventDateList extends React.Component {
     constructor(props) {
@@ -25,15 +26,22 @@ class LogEventDateList extends React.Component {
             return 'Loading ...';
         }
         const today = getTodayLabel();
+        const { selector, ...moreProps } = this.props;
         return this.state.dates.map((date) => (
             <LogEventList
                 key={date}
                 name={`${date} : ${getDayOfTheWeek(date)}`}
-                selector={{ date }}
+                selector={{ date, ...selector }}
                 showAdder={date === today}
+                {...moreProps}
             />
         ));
     }
 }
+
+LogEventDateList.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.object,
+};
 
 export default LogEventDateList;

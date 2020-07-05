@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import deepcopy from '../../common/deepcopy';
 import {
-    DatePicker, TextEditor, TextInput, TypeaheadSelector, TypeaheadInput,
+    DatePicker, Selector, TextEditor, TextInput, TypeaheadSelector, TypeaheadInput,
 } from '../Common';
 import { LogEvent } from '../../data';
 import PropTypes from '../prop-types';
@@ -97,6 +97,24 @@ class LogEventEditor extends React.Component {
         );
     }
 
+    renderIsMajorRow() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Major?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logEvent.isMajor}
+                    disabled={this.props.disabled}
+                    onChange={(value) => this.updateLogEvent((logEvent) => {
+                        // eslint-disable-next-line no-param-reassign
+                        logEvent.isMajor = value;
+                    })}
+                />
+            </InputGroup>
+        );
+    }
+
     renderStructureSelector() {
         return (
             <InputGroup className="my-1">
@@ -151,6 +169,7 @@ class LogEventEditor extends React.Component {
                 </div>
                 {this.renderTitleRow()}
                 {this.renderDetailsRow()}
+                {this.renderIsMajorRow()}
                 <div className="my-3">
                     {this.renderStructureSelector()}
                     {this.renderStructureValues()}

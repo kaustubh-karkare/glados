@@ -8,16 +8,20 @@ import LogEventEditor from './LogEventEditor';
 
 function ViewerComponent(props) {
     return (
-        <TextEditor
-            unstyled
-            disabled
-            value={props.logEvent.title}
-        />
+        <>
+            <TextEditor
+                unstyled
+                disabled
+                value={props.logEvent.title}
+            />
+            {props.displayIsMajor && props.logEvent.isMajor ? '(major)' : null}
+        </>
     );
 }
 
 ViewerComponent.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,
+    displayIsMajor: PropTypes.bool,
 };
 
 ViewerComponent.Expanded = (props) => {
@@ -39,25 +43,22 @@ ViewerComponent.Expanded.propTypes = {
 };
 
 function LogEventList(props) {
+    const { showAdder, ...moreProps } = props;
     return (
         <BulletList
-            name={props.name}
+            {...moreProps}
             dataType="log-event"
             valueKey="logEvent"
-            selector={props.selector}
-            allowReordering
             allowSubscription
             ViewerComponent={ViewerComponent}
             EditorComponent={LogEventEditor}
-            AdderComponent={props.showAdder ? LogEventAdder : null}
+            AdderComponent={showAdder ? LogEventAdder : null}
         />
     );
 }
 
 LogEventList.propTypes = {
     name: PropTypes.string.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object.isRequired,
     showAdder: PropTypes.bool.isRequired,
 };
 

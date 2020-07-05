@@ -24,25 +24,16 @@ LogTopicViewer.propTypes = {
 function LogTopicList(props) {
     return (
         <BulletList
-            {...props}
             name="Topics"
             dataType="log-topic"
             valueKey="logTopic"
             ViewerComponent={LogTopicViewer}
             EditorComponent={LogTopicEditor}
             allowReordering
+            {...props}
         />
     );
 }
-
-LogTopicList.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object,
-};
-
-LogTopicList.defaultProps = {
-    selector: { parent_id: null },
-};
 
 LogTopicViewer.Expanded = (props) => {
     const { logTopic } = props;

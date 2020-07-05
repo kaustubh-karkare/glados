@@ -6,11 +6,14 @@ import LogReminderEditor from './LogReminderEditor';
 
 function ViewerComponent(props) {
     return (
-        <TextEditor
-            unstyled
-            disabled
-            value={props.logReminder.title}
-        />
+        <>
+            <TextEditor
+                unstyled
+                disabled
+                value={props.logReminder.title}
+            />
+            {props.logReminder.isMajor ? '(major)' : null}
+        </>
     );
 }
 

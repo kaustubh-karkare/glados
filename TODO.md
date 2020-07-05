@@ -17,14 +17,11 @@
 * Create miscellaneous notes section.
 * Auto-generate topics from structures.
 * Add more options for TextEditor mention suggestions!
-* Add LogEntry.is_minor, so that the minor ones can be hidden from the main view.
-* Figure out UI for LogEntry.is_minor so that it is easy to toggle between the 2 modes.
 * Add LogEntry.is_resolved, so indicate items are the still pending resolution. Helps with active deliveries.
 * Add a button on the UI that triggers consistency check of custom rules!
 * Add a button on the UI that triggers creation of backups.
 * Provide more LogKeyTypes: Yes/No. Specific Time Vs Duration
 * LogReminderCheckList should have a collapse button to suppress distractions.
-* Add LogTag.details, to maybe store more information about specific people.
 * Figure out how to run this in the background as a deamon?
 * Security: Require a password specified in config.json
 * Figure out the smallest size serialization format before writing to DB.
@@ -39,7 +36,6 @@
 ### Minor Bugs
 * For LogCategory.ExpandedViewerComponent, highlight the keys in the template.
 * When the modal closes, the item with focus isn't notified, so not highlighted.
-* BulletList.AdderComponent does not invoke validation!
 
 ### Code Quality
 * Create common component to render LogTopic.

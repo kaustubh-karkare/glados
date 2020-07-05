@@ -13,21 +13,49 @@ import Enum from '../../common/Enum';
 
 
 const [TabOptions, TabType, TabOptionsMap] = Enum([
-    { label: 'Home', value: 'log_entries', Component: LogEventDateList },
-    { label: 'Manage Structures', value: 'log_structures', Component: LogStructureList },
-    { label: 'Manage Reminders', value: 'log_reminders', Component: LogReminderGroupList },
-    { label: 'Manage Topics', value: 'log_topics', Component: LogTopicList },
+    {
+        label: 'Major Events',
+        value: 'major_log_events',
+        Component: LogEventDateList,
+        componentProps: { selector: { is_major: true } },
+    },
+    {
+        label: 'All Events',
+        value: 'all_log_events',
+        Component: LogEventDateList,
+        componentProps: {
+            selector: {},
+            allowReordering: true,
+            viewerComponentProps: { displayIsMajor: true },
+        },
+    },
+    {
+        label: 'Manage Structures',
+        value: 'log_structures',
+        Component: LogStructureList,
+    },
+    {
+        label: 'Manage Reminders',
+        value: 'log_reminders',
+        Component: LogReminderGroupList,
+    },
+    {
+        label: 'Manage Topics',
+        value: 'log_topics',
+        Component: LogTopicList,
+        componentProps: { selector: { parent_id: null } },
+    },
 ]);
 
 
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { activeTab: TabType.LOG_ENTRIES };
+        this.state = { activeTab: TabType.MAJOR_LOG_EVENTS };
     }
 
     render() {
-        const { Component } = TabOptionsMap[this.state.activeTab];
+        const { Component, componentProps } = TabOptionsMap[this.state.activeTab];
         return (
             <Container fluid>
                 <Row>
@@ -50,7 +78,7 @@ class Applicaton extends React.Component {
                     </Col>
                     <Col md={4} className="my-3">
                         <ScrollableSection>
-                            <Component />
+                            <Component {...componentProps} />
                         </ScrollableSection>
                     </Col>
                     <Col md={4} className="my-3">
