@@ -1,8 +1,8 @@
 import Base from './Base';
 import { getVirtualID } from './Utils';
+import Enum from '../common/Enum';
 
-
-const LogReminderTypeOptions = [
+const [ReminderOptions, ReminderType] = Enum([
     {
         value: 'unspecified',
         label: 'Unspecified',
@@ -15,25 +15,15 @@ const LogReminderTypeOptions = [
         value: 'periodic',
         label: 'Periodic',
     },
-];
-
-const LogReminderType = LogReminderTypeOptions.reduce((result, item) => {
-    result[item.value.toUpperCase()] = item.value;
-    return result;
-}, {});
-
+]);
 
 class LogReminderGroup extends Base {
-    static getTypeOptions() {
-        return LogReminderTypeOptions;
-    }
-
     static createVirtual({ name, type } = {}) {
         return {
             __type__: 'log-reminder-group',
             id: getVirtualID(),
             name: name || '',
-            type: type || LogReminderType.UNSPECIFIED,
+            type: type || ReminderType.UNSPECIFIED,
             onSidebar: true,
         };
     }
@@ -41,7 +31,7 @@ class LogReminderGroup extends Base {
     static async validateInternal(inputLogReminderGroup) {
         return [
             this.validateNonEmptyString('.name', inputLogReminderGroup.name),
-            this.validateEnumValue('.type', inputLogReminderGroup.type.toUpperCase(), LogReminderType),
+            this.validateEnumValue('.type', inputLogReminderGroup.type.toUpperCase(), ReminderType),
         ];
     }
 
@@ -81,5 +71,7 @@ class LogReminderGroup extends Base {
     }
 }
 
-export { LogReminderType };
+LogReminderGroup.ReminderOptions = ReminderOptions;
+LogReminderGroup.ReminderType = ReminderType;
+
 export default LogReminderGroup;

@@ -25,7 +25,6 @@ const WrappedContainer = SortableContainer(({ children }) => <div>{children}</di
 const WrappedRow = SortableElement((props) => {
     const disabled = props.wrappedRowDisabled;
     const { children, ...otherProps } = props.originalElement.props;
-    otherProps.disabled = disabled;
     return React.createElement(
         props.originalElement.type,
         otherProps,
@@ -80,6 +79,7 @@ class SortableList extends React.Component {
             // Forwarded to the WrappedRow.
             originalElement: this.props.type({
                 [valueKey]: item,
+                disabled,
                 onChange: (updatedItem) => this.onChange(index, updatedItem),
                 ...moreProps,
             }),

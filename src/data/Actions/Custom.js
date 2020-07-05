@@ -17,34 +17,39 @@ ActionsRegistry.dates = async function () {
     let dates = new Set(results.filter((result) => result.date).map((result) => result.date));
     dates.add(getTodayLabel());
     dates = Array.from(dates).sort();
-    return dates.slice(dates.length - dates.length);
+    return dates.slice(dates.length - 1);
 };
 
 ActionsRegistry['value-typeahead'] = async function (input) {
     const outputLogEvents = await this.invoke.call(
         this, 'log-event-list', { selector: { structure_id: input.structure_id } },
     );
-    const results = [];
+    const resultToFrequencyMap = {};
     outputLogEvents.forEach((outputLogEvent) => {
         const { value } = outputLogEvent.logStructure.logKeys[input.index];
         if (value.startsWith(input.query)) {
-            results.push(value);
+            if (!(value in resultToFrequencyMap)) {
+                resultToFrequencyMap[value] = 0;
+            }
+            resultToFrequencyMap[value] += 1;
         }
     });
-    return Array.from(new Set(results));
+    return Object.entries(resultToFrequencyMap)
+        .sort((left, right) => right[1] - left[1])
+        .map((item) => item[0]);
 };
 
 ActionsRegistry['reminder-complete'] = async function (input) {
     const { logEvent: inputLogEvent, logReminder: inputLogReminder } = input;
     let outputLogReminder;
     if (
-        inputLogReminder.type === LogReminder.Type.UNSPECIFIED
-        || inputLogReminder.type === LogReminder.Type.DEADLINE
+        inputLogReminder.type === LogReminder.ReminderType.UNSPECIFIED
+        || inputLogReminder.type === LogReminder.ReminderType.DEADLINE
     ) {
         await this.invoke.call(this, 'log-reminder-delete', inputLogReminder.id);
         outputLogReminder = null;
     } else if (
-        inputLogReminder.type === LogReminder.Type.PERIODIC
+        inputLogReminder.type === LogReminder.ReminderType.PERIODIC
     ) {
         inputLogReminder.lastUpdate = inputLogEvent.date;
         outputLogReminder = await this.invoke.call(this, 'log-reminder-upsert', inputLogReminder);

@@ -8,6 +8,13 @@ import { LogStructureEditor } from '../LogStructure';
 import PropTypes from '../prop-types';
 
 class LogReminderEditor extends React.Component {
+    updateLogEvent(name, value) {
+        const logReminder = { ...this.props.logReminder };
+        logReminder[name] = value;
+        LogReminder.trigger(logReminder);
+        this.props.onChange(logReminder);
+    }
+
     renderTitle() {
         const { logReminder } = this.props;
         return (
@@ -19,12 +26,8 @@ class LogReminderEditor extends React.Component {
                     isSingleLine
                     focusOnLoad
                     value={logReminder.title}
-                    disabled={this.props.disabled}
-                    onChange={(value) => {
-                        const updatedLogReminder = { ...logReminder };
-                        updatedLogReminder.title = value;
-                        this.props.onChange(updatedLogReminder);
-                    }}
+                    disabled={this.props.disabled || !!logReminder.logStructure}
+                    onChange={(title) => this.updateLogEvent('title', title)}
                     onSpecialKeys={this.props.onSpecialKeys}
                     serverSideTypes={['log-topic']}
                 />
@@ -35,20 +38,32 @@ class LogReminderEditor extends React.Component {
     renderGroupSelector() {
         const { logReminder } = this.props;
         return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Reminder
-                </InputGroup.Text>
-                <AsyncSelector
-                    dataType="log-reminder-group"
-                    value={logReminder.logReminderGroup}
-                    disabled={this.props.disabled}
-                    onChange={(newLogReminderGroup) => this.props.onChange({
-                        ...logReminder,
-                        logReminderGroup: newLogReminderGroup,
-                    })}
-                />
-            </InputGroup>
+            <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Group
+                    </InputGroup.Text>
+                    <AsyncSelector
+                        dataType="log-reminder-group"
+                        value={logReminder.logReminderGroup}
+                        disabled={this.props.disabled}
+                        onChange={
+                            (logReminderGroup) => this.updateLogEvent('logReminderGroup', logReminderGroup)
+                        }
+                    />
+                </InputGroup>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Type
+                    </InputGroup.Text>
+                    <Selector
+                        value={logReminder.type}
+                        options={LogReminder.ReminderOptions}
+                        disabled
+                        onChange={(type) => this.updateLogEvent('type', type)}
+                    />
+                </InputGroup>
+            </>
         );
     }
 
@@ -62,10 +77,7 @@ class LogReminderEditor extends React.Component {
                     <DatePicker
                         value={this.props.logReminder.deadline}
                         disabled={this.props.disabled}
-                        onChange={(newDeadline) => this.props.onChange({
-                            ...this.props.logReminder,
-                            deadline: newDeadline,
-                        })}
+                        onChange={(deadline) => this.updateLogEvent('deadline', deadline)}
                     />
                 </InputGroup>
                 <InputGroup className="my-1">
@@ -74,12 +86,9 @@ class LogReminderEditor extends React.Component {
                     </InputGroup.Text>
                     <Selector
                         value={this.props.logReminder.warning}
-                        options={LogReminder.getDurationOptions()}
+                        options={LogReminder.DurationOptions}
                         disabled={this.props.disabled}
-                        onChange={(newWarning) => this.props.onChange({
-                            ...this.props.logReminder,
-                            warning: newWarning,
-                        })}
+                        onChange={(warning) => this.updateLogEvent('warning', warning)}
                     />
                 </InputGroup>
             </>
@@ -95,12 +104,9 @@ class LogReminderEditor extends React.Component {
                     </InputGroup.Text>
                     <Selector
                         value={this.props.logReminder.frequency}
-                        options={LogReminder.getFrequencyOptions()}
+                        options={LogReminder.FrequencyOptions}
                         disabled={this.props.disabled}
-                        onChange={(newFrequency) => this.props.onChange({
-                            ...this.props.logReminder,
-                            frequency: newFrequency,
-                        })}
+                        onChange={(frequency) => this.updateLogEvent('frequency', frequency)}
                     />
                 </InputGroup>
                 <InputGroup className="my-1">
@@ -110,10 +116,7 @@ class LogReminderEditor extends React.Component {
                     <DatePicker
                         value={this.props.logReminder.lastUpdate}
                         disabled={this.props.disabled}
-                        onChange={(newLastUpdate) => this.props.onChange({
-                            ...this.props.logReminder,
-                            lastUpdate: newLastUpdate,
-                        })}
+                        onChange={(lastUpdate) => this.updateLogEvent('lastUpdate', lastUpdate)}
                     />
                 </InputGroup>
             </>
@@ -131,10 +134,7 @@ class LogReminderEditor extends React.Component {
                     <Selector.Binary
                         value={logReminder.needsEdit}
                         disabled={this.props.disabled}
-                        onChange={(newValue) => this.props.onChange({
-                            ...this.props.logReminder,
-                            needsEdit: newValue,
-                        })}
+                        onChange={(needsEdit) => this.updateLogEvent('needsEdit', needsEdit)}
                     />
                 </InputGroup>
             </>
@@ -150,10 +150,7 @@ class LogReminderEditor extends React.Component {
                 <Selector.Binary
                     value={this.props.logReminder.isMajor}
                     disabled={this.props.disabled}
-                    onChange={(newValue) => this.props.onChange({
-                        ...this.props.logReminder,
-                        isMajor: newValue,
-                    })}
+                    onChange={(isMajor) => this.updateLogEvent('isMajor', isMajor)}
                 />
             </InputGroup>
         );
@@ -167,11 +164,7 @@ class LogReminderEditor extends React.Component {
                 value={logReminder.logStructure}
                 create={() => LogStructure.createVirtual()}
                 disabled={this.props.disabled}
-                onChange={(updatedLogStructure) => {
-                    const updatedLogReminder = { ...logReminder };
-                    updatedLogReminder.logStructure = updatedLogStructure;
-                    this.props.onChange(updatedLogReminder);
-                }}
+                onChange={(logStructure) => this.updateLogEvent('logStructure', logStructure)}
                 dataType="log-structure"
                 valueKey="logStructure"
                 EditorComponent={LogStructureEditor}
@@ -188,8 +181,8 @@ class LogReminderEditor extends React.Component {
                 </div>
                 <div className="my-3">
                     {this.renderGroupSelector()}
-                    {type === LogReminder.Type.DEADLINE ? this.renderDeadline() : null}
-                    {type === LogReminder.Type.PERIODIC ? this.renderPeriodic() : null}
+                    {type === LogReminder.ReminderType.DEADLINE ? this.renderDeadline() : null}
+                    {type === LogReminder.ReminderType.PERIODIC ? this.renderPeriodic() : null}
                     {this.renderNeedsEditSelector()}
                 </div>
                 <div className="my-3">

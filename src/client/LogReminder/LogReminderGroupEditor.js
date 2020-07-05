@@ -4,6 +4,8 @@ import { Selector, TextInput } from '../Common';
 import LogReminderGroup from '../../data/LogReminderGroup';
 import PropTypes from '../prop-types';
 
+const { ReminderOptions } = LogReminderGroup;
+
 function LogReminderGroupEditor(props) {
     const { logReminderGroup } = props;
     return (
@@ -27,7 +29,7 @@ function LogReminderGroupEditor(props) {
                 </InputGroup.Text>
                 <Selector
                     value={logReminderGroup.type}
-                    options={LogReminderGroup.getTypeOptions()}
+                    options={ReminderOptions}
                     disabled={props.disabled}
                     onChange={(newType) => props.onChange({
                         ...logReminderGroup,

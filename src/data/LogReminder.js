@@ -8,28 +8,32 @@ import {
     getTodayDay,
     maybeSubstitute,
 } from '../common/DateUtils';
+import TextEditorUtils from '../common/TextEditorUtils';
 import Base from './Base';
-import LogReminderGroup, { LogReminderType } from './LogReminderGroup';
+import LogReminderGroup from './LogReminderGroup';
 import LogStructure from './LogStructure';
 import {
     getVirtualID, isRealItem, manageEntityBefore, manageEntityAfter,
 } from './Utils';
+import Enum from '../common/Enum';
 
 
-const DefaultValues = {
-    [LogReminderType.UNSPECIFIED]: {
+const { ReminderType } = LogReminderGroup;
+
+const LogReminderTypeDefaultValues = {
+    [ReminderType.UNSPECIFIED]: {
         deadline: null,
         warning: null,
         frequency: null,
         lastUpdate: null,
     },
-    [LogReminderType.DEADLINE]: {
+    [ReminderType.DEADLINE]: {
         deadline: '{tomorrow}',
         warning: '1 day',
         frequency: null,
         lastUpdate: null,
     },
-    [LogReminderType.PERIODIC]: {
+    [ReminderType.PERIODIC]: {
         deadline: null,
         warning: null,
         frequency: 'everyday',
@@ -37,13 +41,7 @@ const DefaultValues = {
     },
 };
 
-const DurationOptions = range(1, 31).map((value) => {
-    const label = `${value.toString()} day${value > 1 ? 's' : ''}`;
-    return { value: label, label };
-});
-
-
-const FrequencyOptions = [
+const FrequencyRawOptions = [
     {
         value: 'everyday',
         label: 'Everyday',
@@ -63,17 +61,19 @@ const FrequencyOptions = [
 ];
 
 DaysOfTheWeek.forEach((day, index) => {
-    FrequencyOptions.push({
+    FrequencyRawOptions.push({
         value: day.toLowerCase(),
         label: day,
         check: () => (getTodayDay() === index),
     });
 });
 
-const FrequencyCheck = FrequencyOptions.reduce((result, item) => {
-    result[item.value] = item.check;
-    return result;
-}, {});
+const [FrequencyOptions, _FrequencyType, FrequencyOptionsMap] = Enum(FrequencyRawOptions);
+
+const DurationOptions = range(1, 31).map((value) => {
+    const label = `${value.toString()} day${value > 1 ? 's' : ''}`;
+    return { value: label, label };
+});
 
 
 class LogReminder extends Base {
@@ -81,9 +81,10 @@ class LogReminder extends Base {
         const item = {
             id: getVirtualID(),
             title: title || '',
+            isMajor: true,
             logReminderGroup,
             type: logReminderGroup.type,
-            ...DefaultValues[logReminderGroup.type],
+            ...LogReminderTypeDefaultValues[logReminderGroup.type],
             needsEdit: true,
             logStructure: null,
         };
@@ -92,25 +93,26 @@ class LogReminder extends Base {
         return item;
     }
 
-    static getDurationOptions() {
-        return DurationOptions;
-    }
-
-    static getFrequencyOptions() {
-        return FrequencyOptions;
+    static trigger(logReminder) {
+        if (logReminder.logStructure) {
+            logReminder.title = TextEditorUtils.serialize(
+                logReminder.logStructure.name,
+                TextEditorUtils.StorageType.PLAINTEXT,
+            );
+        }
     }
 
     // eslint-disable-next-line consistent-return
     static check(logReminder) {
         // input = after loading
-        if (logReminder.type === LogReminderType.UNSPECIFIED) {
+        if (logReminder.type === ReminderType.UNSPECIFIED) {
             return true;
-        } if (logReminder.type === LogReminderType.DEADLINE) {
+        } if (logReminder.type === ReminderType.DEADLINE) {
             return getTodayValue() >= getDateValue(logReminder.deadline)
                 - getDurationValue(logReminder.warning);
-        } if (logReminder.type === LogReminderType.PERIODIC) {
+        } if (logReminder.type === ReminderType.PERIODIC) {
             return getTodayValue() > getDateValue(logReminder.lastUpdate)
-                ? FrequencyCheck[logReminder.frequency]()
+                ? FrequencyOptionsMap[logReminder.frequency].check()
                 : false;
         }
         assert(false, logReminder.dataValues);
@@ -140,17 +142,25 @@ class LogReminder extends Base {
         results.push(this.validateNonEmptyString('.title', inputLogReminder.title));
 
         const { type } = inputLogReminder.logReminderGroup;
-        if (type === LogReminderType.UNSPECIFIED) {
+        if (type === ReminderType.UNSPECIFIED) {
             // no additional fields
-        } else if (type === LogReminderType.DEADLINE) {
+        } else if (type === ReminderType.DEADLINE) {
             results.push(this.validateDateLabel('.deadline', inputLogReminder.deadline));
             results.push(this.validateDuration('.warning', inputLogReminder.warning));
-        } else if (type === LogReminderType.PERIODIC) {
+        } else if (type === ReminderType.PERIODIC) {
             results.push(
-                this.validateEnumValue('.frequency', inputLogReminder.frequency, FrequencyCheck),
+                this.validateEnumValue(
+                    '.frequency',
+                    inputLogReminder.frequency,
+                    FrequencyOptionsMap,
+                ),
             );
             results.push(this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate));
-            results.push(['.logStructure', inputLogReminder.logStructure, 'is required for periodic reminders!']);
+            results.push([
+                '.logStructure',
+                inputLogReminder.logStructure,
+                'is required for periodic reminders!',
+            ]);
         } else {
             results.push(['.type', false, ' is invalid!']);
         }
@@ -243,6 +253,9 @@ class LogReminder extends Base {
     }
 }
 
-LogReminder.Type = LogReminderType;
+LogReminder.ReminderOptions = LogReminderGroup.ReminderOptions;
+LogReminder.ReminderType = ReminderType;
+LogReminder.FrequencyOptions = FrequencyOptions;
+LogReminder.DurationOptions = DurationOptions;
 
 export default LogReminder;

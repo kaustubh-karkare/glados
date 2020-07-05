@@ -7,6 +7,7 @@ function Selector(props) {
         <Form.Control
             as="select"
             value={props.value}
+            disabled={props.disabled}
             onChange={(event) => props.onChange(event.target.value)}
         >
             {props.options.map((item) => {
@@ -25,6 +26,7 @@ Selector.propTypes = {
             value: PropTypes.string.isRequired,
         }),
     ).isRequired,
+    disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
@@ -35,6 +37,7 @@ function BinarySelector(props) {
     ];
     return (
         <Selector
+            {...props}
             value={options[props.value ? 1 : 0].value}
             options={options}
             onChange={(newValue) => props.onChange(newValue === options[1].value)}
