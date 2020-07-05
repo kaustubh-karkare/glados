@@ -1,7 +1,7 @@
 import React from 'react';
 import { LeftRight, TextEditor, debounce } from '../Common';
 import { INCOMPLETE_KEY } from '../../data';
-import LogTopicEntries from './LogTopicEntries';
+import LogTopicEntries from './LogTopicEvents';
 
 class LogTopicDetails extends React.Component {
     constructor(props) {

@@ -4,42 +4,42 @@ import deepcopy from '../../common/deepcopy';
 import {
     DatePicker, TextEditor, TextInput, TypeaheadSelector, TypeaheadInput,
 } from '../Common';
-import { LogEntry } from '../../data';
+import { LogEvent } from '../../data';
 import PropTypes from '../prop-types';
 
 
-class LogEntryEditor extends React.Component {
+class LogEventEditor extends React.Component {
     onValueSearch(query, index) {
         return window.api.send('value-typeahead', {
-            structure_id: this.props.logEntry.logStructure.id,
+            structure_id: this.props.logEvent.logStructure.id,
             query,
             index,
         });
     }
 
-    updateLogEntry(method) {
-        const logEntry = { ...this.props.logEntry };
-        method(logEntry);
-        LogEntry.trigger(logEntry);
-        this.props.onChange(logEntry);
+    updateLogEvent(method) {
+        const logEvent = { ...this.props.logEvent };
+        method(logEvent);
+        LogEvent.trigger(logEvent);
+        this.props.onChange(logEvent);
     }
 
     updateLogValue(index, value) {
-        const logEntry = deepcopy(this.props.logEntry);
-        logEntry.logStructure.logKeys[index].value = value;
-        LogEntry.trigger(logEntry);
-        this.props.onChange(logEntry);
+        const logEvent = deepcopy(this.props.logEvent);
+        logEvent.logStructure.logKeys[index].value = value;
+        LogEvent.trigger(logEvent);
+        this.props.onChange(logEvent);
     }
 
     renderDateRow() {
         let element;
-        if (this.props.logEntry.date) {
+        if (this.props.logEvent.date) {
             element = (
                 <DatePicker
-                    value={this.props.logEntry.date}
+                    value={this.props.logEvent.date}
                     disabled={this.props.disabled}
-                    onChange={(newDate) => this.updateLogEntry((logEntry) => {
-                        logEntry.date = newDate;
+                    onChange={(newDate) => this.updateLogEvent((logEvent) => {
+                        logEvent.date = newDate;
                     })}
                 />
             );
@@ -65,12 +65,12 @@ class LogEntryEditor extends React.Component {
                 <TextEditor
                     isSingleLine
                     focusOnLoad
-                    value={this.props.logEntry.title}
+                    value={this.props.logEvent.title}
                     serverSideTypes={['log-topic']}
-                    disabled={this.props.disabled || !!this.props.logEntry.logStructure}
-                    onChange={(newTitle) => this.updateLogEntry((logEntry) => {
+                    disabled={this.props.disabled || !!this.props.logEvent.logStructure}
+                    onChange={(newTitle) => this.updateLogEvent((logEvent) => {
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.title = newTitle;
+                        logEvent.title = newTitle;
                     })}
                     onSpecialKeys={this.props.onSpecialKeys}
                 />
@@ -85,12 +85,12 @@ class LogEntryEditor extends React.Component {
                     Details
                 </InputGroup.Text>
                 <TextEditor
-                    value={this.props.logEntry.details}
+                    value={this.props.logEvent.details}
                     serverSideTypes={['log-topic']}
                     disabled={this.props.disabled}
-                    onChange={(value) => this.updateLogEntry((logEntry) => {
+                    onChange={(value) => this.updateLogEvent((logEvent) => {
                         // eslint-disable-next-line no-param-reassign
-                        logEntry.details = value;
+                        logEvent.details = value;
                     })}
                 />
             </InputGroup>
@@ -105,16 +105,16 @@ class LogEntryEditor extends React.Component {
                 </InputGroup.Text>
                 <TypeaheadSelector
                     dataType="log-structure"
-                    value={this.props.logEntry.logStructure}
+                    value={this.props.logEvent.logStructure}
                     disabled={this.props.disabled}
-                    onChange={(logStructure) => this.updateLogEntry((logEntry) => {
+                    onChange={(logStructure) => this.updateLogEvent((logEvent) => {
                         // eslint-disable-next-line no-param-reassign
                         if (logStructure) {
                             logStructure.logKeys.forEach((logKey) => {
                                 logKey.value = '';
                             });
                         }
-                        logEntry.logStructure = logStructure;
+                        logEvent.logStructure = logStructure;
                     })}
                     allowDelete
                 />
@@ -123,17 +123,17 @@ class LogEntryEditor extends React.Component {
     }
 
     renderStructureValues() {
-        const { logEntry } = this.props;
-        if (!logEntry.logStructure) {
+        const { logEvent } = this.props;
+        if (!logEvent.logStructure) {
             return null;
         }
-        return logEntry.logStructure.logKeys.map((logKey, index) => (
+        return logEvent.logStructure.logKeys.map((logKey, index) => (
             <InputGroup key={logKey.name} className="my-1">
                 <InputGroup.Text>
                     {logKey.name}
                 </InputGroup.Text>
                 <TypeaheadInput
-                    id={`value-${logEntry.logStructure.id}-${index}`}
+                    id={`value-${logEvent.logStructure.id}-${index}`}
                     value={logKey.value}
                     disabled={this.props.disabled}
                     onChange={(newValue) => this.updateLogValue(index, newValue)}
@@ -160,11 +160,11 @@ class LogEntryEditor extends React.Component {
     }
 }
 
-LogEntryEditor.propTypes = {
-    logEntry: PropTypes.Custom.LogEntry.isRequired,
+LogEventEditor.propTypes = {
+    logEvent: PropTypes.Custom.LogEvent.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     onSpecialKeys: PropTypes.func,
 };
 
-export default LogEntryEditor;
+export default LogEventEditor;

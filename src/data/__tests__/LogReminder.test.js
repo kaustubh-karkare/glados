@@ -1,5 +1,5 @@
 import Utils from './Utils';
-import LogEntry from '../LogEntry';
+import LogEvent from '../LogEvent';
 import LogStructure from '../LogStructure';
 import { getTodayLabel } from '../../common/DateUtils';
 
@@ -100,8 +100,8 @@ test('test_deadline_completion', async () => {
 
     const actions = Utils.getActions();
     const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    const logEntry = LogEntry.createVirtual({ date: getTodayLabel(), title: logReminder.title });
-    await actions.invoke('reminder-complete', { logReminder, logEntry });
+    const logEvent = LogEvent.createVirtual({ date: getTodayLabel(), title: logReminder.title });
+    await actions.invoke('reminder-complete', { logReminder, logEvent });
 
     const logReminders = await actions.invoke('log-reminder-list');
     expect(logReminders.length).toEqual(0);
@@ -135,8 +135,8 @@ test('test_periodic_completion', async () => {
     const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
     const logStructure = await actions.invoke('log-structure-load', { id: 1 });
     const originalLastUpdate = logReminder.lastUpdate;
-    const logEntry = LogEntry.createVirtual({ date: getTodayLabel(), logStructure });
-    const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEntry });
+    const logEvent = LogEvent.createVirtual({ date: getTodayLabel(), logStructure });
+    const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEvent });
     expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
 });
 

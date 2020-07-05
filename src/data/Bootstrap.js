@@ -58,20 +58,20 @@ async function loadData(actions, data) {
         logStructureMap[outputLogStructure.name] = outputLogStructure;
     });
 
-    await awaitSequence(data.logEntries, async (inputLogEntry) => {
-        inputLogEntry.id = getVirtualID();
-        maybeSubstitute(inputLogEntry, 'date');
-        inputLogEntry.title = convertPlainTextToDraftContent2(inputLogEntry.title, { '#': logTopics });
-        inputLogEntry.details = convertPlainTextToDraftContent2(inputLogEntry.details, { '#': logTopics });
-        if (inputLogEntry.structure) {
-            inputLogEntry.logStructure = logStructureMap[inputLogEntry.structure];
-            if (inputLogEntry.logValues) {
-                inputLogEntry.logValues.forEach((value, index) => {
-                    inputLogEntry.logStructure.logKeys[index].value = value;
+    await awaitSequence(data.logEvents, async (inputLogEvent) => {
+        inputLogEvent.id = getVirtualID();
+        maybeSubstitute(inputLogEvent, 'date');
+        inputLogEvent.title = convertPlainTextToDraftContent2(inputLogEvent.title, { '#': logTopics });
+        inputLogEvent.details = convertPlainTextToDraftContent2(inputLogEvent.details, { '#': logTopics });
+        if (inputLogEvent.structure) {
+            inputLogEvent.logStructure = logStructureMap[inputLogEvent.structure];
+            if (inputLogEvent.logValues) {
+                inputLogEvent.logValues.forEach((value, index) => {
+                    inputLogEvent.logStructure.logKeys[index].value = value;
                 });
             }
         }
-        await actions.invoke('log-entry-upsert', inputLogEntry);
+        await actions.invoke('log-event-upsert', inputLogEvent);
     });
 
     const logReminderGroupMap = {};
@@ -156,31 +156,31 @@ async function saveData(actions) {
         return item;
     });
 
-    const logEntries = await actions.invoke('log-entry-list');
-    result.logEntries = logEntries.map((logEntry) => {
+    const logEvents = await actions.invoke('log-event-list');
+    result.logEvents = logEvents.map((logEvent) => {
         const item = {};
-        if (logEntry.date) {
-            item.date = logEntry.date;
+        if (logEvent.date) {
+            item.date = logEvent.date;
         }
-        item.title = convertDraftContentToPlainText2(logEntry.title, { '#': logTopics });
-        if (logEntry.details) {
-            item.details = convertDraftContentToPlainText2(logEntry.details, { '#': logTopics });
+        item.title = convertDraftContentToPlainText2(logEvent.title, { '#': logTopics });
+        if (logEvent.details) {
+            item.details = convertDraftContentToPlainText2(logEvent.details, { '#': logTopics });
         }
-        if (logEntry.logStructure) {
-            item.structure = logEntry.logStructure.name;
+        if (logEvent.logStructure) {
+            item.structure = logEvent.logStructure.name;
             item.logValues = [];
-            logEntry.logStructure.logKeys.forEach((logKey) => {
+            logEvent.logStructure.logKeys.forEach((logKey) => {
                 item.logValues.push(logKey.value);
                 delete logKey.value;
             });
-            if (logEntry.logStructure.titleTemplate) {
+            if (logEvent.logStructure.titleTemplate) {
                 delete item.title;
             }
         }
-        if (logEntry.logReminder) {
+        if (logEvent.logReminder) {
             // get rid of the undefined values
-            item.logReminder = JSON.parse(JSON.stringify(logEntry.logReminder));
-            item.logReminder.group = logEntry.logReminder.logReminderGroup.name;
+            item.logReminder = JSON.parse(JSON.stringify(logEvent.logReminder));
+            item.logReminder.group = logEvent.logReminder.logReminderGroup.name;
             delete item.logReminder.logReminderGroup;
             if (!item.logReminder.needsEdit) {
                 delete item.logReminder.needsEdit;

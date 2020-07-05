@@ -6,7 +6,7 @@ import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
 
-class LogEntry extends Base {
+class LogEvent extends Base {
     static createVirtual({ date, title, logStructure } = {}) {
         if (logStructure) {
             logStructure.logKeys.forEach((logKey) => {
@@ -14,7 +14,7 @@ class LogEntry extends Base {
             });
         }
         return {
-            __type__: 'log-entry',
+            __type__: 'log-event',
             date: date || null,
             orderingIndex: null,
             id: getVirtualID(),
@@ -25,61 +25,61 @@ class LogEntry extends Base {
         };
     }
 
-    static trigger(logEntry) {
-        if (logEntry.logStructure) {
-            if (logEntry.logStructure.titleTemplate) {
+    static trigger(logEvent) {
+        if (logEvent.logStructure) {
+            if (logEvent.logStructure.titleTemplate) {
                 const content = TextEditorUtils.deserialize(
-                    logEntry.logStructure.titleTemplate,
+                    logEvent.logStructure.titleTemplate,
                     TextEditorUtils.StorageType.DRAFTJS,
                 );
                 const plaintext = substituteValuesIntoDraftContent(
                     content,
-                    logEntry.logStructure.logKeys,
+                    logEvent.logStructure.logKeys,
                 );
-                logEntry.title = TextEditorUtils.serialize(
+                logEvent.title = TextEditorUtils.serialize(
                     plaintext,
                     TextEditorUtils.StorageType.PLAINTEXT,
                 );
             } else {
-                logEntry.title = TextEditorUtils.serialize(
-                    logEntry.logStructure.name,
+                logEvent.title = TextEditorUtils.serialize(
+                    logEvent.logStructure.name,
                     TextEditorUtils.StorageType.PLAINTEXT,
                 );
             }
         }
-        logEntry.name = TextEditorUtils.extractPlainText(logEntry.title);
+        logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
     static async list(input) {
         if (input && input.selector && input.selector.topic_id) {
             const edges = await this.database.getEdges(
-                'LogEntryToLogTopic',
+                'LogEventToLogTopic',
                 'topic_id',
                 input.selector.topic_id,
                 this.transaction,
             );
             delete input.selector.topic_id;
             input.selector.id = {
-                [this.database.Op.in]: edges.map((edge) => edge.entry_id),
+                [this.database.Op.in]: edges.map((edge) => edge.event_id),
             };
         }
         return Base.list.call(this, input);
     }
 
-    static async validateInternal(inputLogEntry) {
+    static async validateInternal(inputLogEvent) {
         const results = [];
-        if (inputLogEntry.date !== null) {
-            results.push(this.validateDateLabel('.date', inputLogEntry.date));
+        if (inputLogEvent.date !== null) {
+            results.push(this.validateDateLabel('.date', inputLogEvent.date));
         }
-        results.push(this.validateNonEmptyString('.title', inputLogEntry.name));
-        if (inputLogEntry.logStructure) {
+        results.push(this.validateNonEmptyString('.title', inputLogEvent.name));
+        if (inputLogEvent.logStructure) {
             const logStructureResults = await this.validateRecursive(
-                LogStructure, '.logStructure', inputLogEntry.logStructure,
+                LogStructure, '.logStructure', inputLogEvent.logStructure,
             );
             results.push(...logStructureResults);
 
-            inputLogEntry.logStructure.logKeys.forEach((logKey, index) => {
-                // const logKey = inputLogEntry.logStructure.logKeys[index];
+            inputLogEvent.logStructure.logKeys.forEach((logKey, index) => {
+                // const logKey = inputLogEvent.logStructure.logKeys[index];
                 const prefix = `.logKeys[${index}].value`;
                 // TODO: Validate data using logKey
                 results.push(
@@ -95,86 +95,86 @@ class LogEntry extends Base {
     }
 
     static async load(id) {
-        const logEntry = await this.database.findByPk('LogEntry', id, this.transaction);
+        const logEvent = await this.database.findByPk('LogEvent', id, this.transaction);
         let outputLogStructure = null;
-        if (logEntry.structure_id) {
-            outputLogStructure = await LogStructure.load.call(this, logEntry.structure_id);
-            JSON.parse(logEntry.structure_values).forEach((value, index) => {
+        if (logEvent.structure_id) {
+            outputLogStructure = await LogStructure.load.call(this, logEvent.structure_id);
+            JSON.parse(logEvent.structure_values).forEach((value, index) => {
                 outputLogStructure.logKeys[index].value = value;
             });
         } else {
-            assert(logEntry.structure_values === null);
+            assert(logEvent.structure_values === null);
         }
         return {
-            __type__: 'log-entry',
-            id: logEntry.id,
-            date: logEntry.date,
-            orderingIndex: logEntry.ordering_index,
-            name: logEntry.name,
-            title: logEntry.title,
-            details: logEntry.details,
+            __type__: 'log-event',
+            id: logEvent.id,
+            date: logEvent.date,
+            orderingIndex: logEvent.ordering_index,
+            name: logEvent.name,
+            title: logEvent.title,
+            details: logEvent.details,
             logStructure: outputLogStructure,
         };
     }
 
-    static async save(inputLogEntry) {
-        let logEntry = await this.database.findItem(
-            'LogEntry',
-            inputLogEntry,
+    static async save(inputLogEvent) {
+        let logEvent = await this.database.findItem(
+            'LogEvent',
+            inputLogEvent,
             this.transaction,
         );
 
-        if (logEntry && logEntry.date && logEntry.date !== inputLogEntry.date) {
-            this.broadcast('log-entry-list', {
-                selector: { date: logEntry.date },
+        if (logEvent && logEvent.date && logEvent.date !== inputLogEvent.date) {
+            this.broadcast('log-event-list', {
+                selector: { date: logEvent.date },
             });
         }
-        if (inputLogEntry.date && (logEntry ? inputLogEntry.date !== logEntry.date : true)) {
-            this.broadcast('log-entry-list', {
-                selector: { date: inputLogEntry.date },
+        if (inputLogEvent.date && (logEvent ? inputLogEvent.date !== logEvent.date : true)) {
+            this.broadcast('log-event-list', {
+                selector: { date: inputLogEvent.date },
             });
         }
 
         // TODO(broadcast): Make this more specific!
-        this.broadcast('log-entry-list'); // Update all lists!
+        this.broadcast('log-event-list'); // Update all lists!
 
         const orderingIndex = await Base.getOrderingIndex
-            .call(this, logEntry, { date: inputLogEntry.date });
+            .call(this, logEvent, { date: inputLogEvent.date });
         let logValues;
-        if (inputLogEntry.logStructure) {
-            logValues = inputLogEntry.logStructure.logKeys.map((logKey) => logKey.value);
+        if (inputLogEvent.logStructure) {
+            logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
         }
         const fields = {
-            date: inputLogEntry.date,
+            date: inputLogEvent.date,
             ordering_index: orderingIndex,
-            name: inputLogEntry.name,
-            title: inputLogEntry.title,
-            details: inputLogEntry.details,
-            structure_id: inputLogEntry.logStructure ? inputLogEntry.logStructure.id : null,
+            name: inputLogEvent.name,
+            title: inputLogEvent.title,
+            details: inputLogEvent.details,
+            structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,
         };
-        logEntry = await this.database.createOrUpdateItem(
-            'LogEntry', logEntry, fields, this.transaction,
+        logEvent = await this.database.createOrUpdateItem(
+            'LogEvent', logEvent, fields, this.transaction,
         );
 
         const logTopics = {
             ...extractLogTopics(
                 TextEditorUtils.deserialize(
-                    logEntry.title,
+                    logEvent.title,
                     TextEditorUtils.StorageType.DRAFTJS,
                 ),
             ),
             ...extractLogTopics(
                 TextEditorUtils.deserialize(
-                    logEntry.details,
+                    logEvent.details,
                     TextEditorUtils.StorageType.DRAFTJS,
                 ),
             ),
         };
         await this.database.setEdges(
-            'LogEntryToLogTopic',
-            'entry_id',
-            logEntry.id,
+            'LogEventToLogTopic',
+            'event_id',
+            logEvent.id,
             'topic_id',
             Object.values(logTopics).reduce((result, logTopic) => {
                 // eslint-disable-next-line no-param-reassign
@@ -184,8 +184,8 @@ class LogEntry extends Base {
             this.transaction,
         );
 
-        return logEntry.id;
+        return logEvent.id;
     }
 }
 
-export default LogEntry;
+export default LogEvent;

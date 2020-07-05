@@ -5,7 +5,7 @@ import { DataLoader, TextEditor } from '../Common';
 class LogTopicEntries extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { logEntries: null };
+        this.state = { logEvents: null };
     }
 
     componentDidMount() {
@@ -15,12 +15,12 @@ class LogTopicEntries extends React.Component {
     componentDidUpdate(prevProps) {
         if (!prevProps || prevProps.logTopicId !== this.props.logTopicId) {
             this.dataLoader = new DataLoader({
-                name: 'log-entry-list',
+                name: 'log-event-list',
                 args: {
                     selector: { topic_id: this.props.logTopicId },
                     ordering: true,
                 },
-                callback: (logEntries) => this.setState({ logEntries }),
+                callback: (logEvents) => this.setState({ logEvents }),
             });
         }
     }
@@ -30,15 +30,15 @@ class LogTopicEntries extends React.Component {
     }
 
     render() {
-        if (!this.state.logEntries) {
+        if (!this.state.logEvents) {
             return 'Loading ...';
         }
-        return this.state.logEntries.map((logEntry) => (
+        return this.state.logEvents.map((logEvent) => (
             <TextEditor
-                key={logEntry.id}
+                key={logEvent.id}
                 unstyled
                 disabled
-                value={logEntry.title}
+                value={logEvent.title}
             />
         ));
     }

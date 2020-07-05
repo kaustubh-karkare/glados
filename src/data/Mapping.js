@@ -1,5 +1,5 @@
 import LogStructure from './LogStructure';
-import LogEntry from './LogEntry';
+import LogEvent from './LogEvent';
 import LogReminder from './LogReminder';
 import LogReminderGroup from './LogReminderGroup';
 import LogTopic from './LogTopic';
@@ -11,7 +11,7 @@ export {
     LogStructure,
     LogReminderGroup,
     LogReminder,
-    LogEntry,
+    LogEvent,
 };
 
 const Mapping = {
@@ -20,7 +20,7 @@ const Mapping = {
     'log-structure': LogStructure,
     'log-reminder': LogReminder,
     'log-reminder-group': LogReminderGroup,
-    'log-entry': LogEntry,
+    'log-event': LogEvent,
 };
 
 export function getDataTypeMapping() {

@@ -65,7 +65,7 @@ class LogTopic extends Base {
 
         if (originalName && originalName !== logTopic.name) {
             const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
-            await LogTopic.updateLogEntries.call(this, outputLogTopic);
+            await LogTopic.updateLogEvents.call(this, outputLogTopic);
             await LogTopic.updateLogStructures.call(this, outputLogTopic);
             await LogTopic.updateLogReminders.call(this, outputLogTopic);
             await LogTopic.updateLogTopics.call(this, outputLogTopic);
@@ -75,27 +75,27 @@ class LogTopic extends Base {
         return logTopic.id;
     }
 
-    static async updateLogEntries(updatedLogTopic) {
-        const logEntryEdges = await this.database.getEdges(
-            'LogEntryToLogTopic',
+    static async updateLogEvents(updatedLogTopic) {
+        const logEventEdges = await this.database.getEdges(
+            'LogEventToLogTopic',
             'topic_id',
             updatedLogTopic.id,
             this.transaction,
         );
-        const outputLogEntries = await Promise.all(
-            logEntryEdges.map(
-                (edge) => this.invoke.call(this, 'log-entry-load', { id: edge.entry_id }),
+        const outputLogEvents = await Promise.all(
+            logEventEdges.map(
+                (edge) => this.invoke.call(this, 'log-event-load', { id: edge.event_id }),
             ),
         );
         await Promise.all(
-            outputLogEntries.map((outputLogEntry) => {
-                outputLogEntry.title = LogTopic.updateContent(
-                    outputLogEntry.title, [updatedLogTopic],
+            outputLogEvents.map((outputLogEvent) => {
+                outputLogEvent.title = LogTopic.updateContent(
+                    outputLogEvent.title, [updatedLogTopic],
                 );
-                outputLogEntry.details = LogTopic.updateContent(
-                    outputLogEntry.details, [updatedLogTopic],
+                outputLogEvent.details = LogTopic.updateContent(
+                    outputLogEvent.details, [updatedLogTopic],
                 );
-                return this.invoke.call(this, 'log-entry-upsert', outputLogEntry);
+                return this.invoke.call(this, 'log-event-upsert', outputLogEvent);
             }),
         );
     }

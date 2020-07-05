@@ -39,19 +39,19 @@ test('test_update_propagation', async () => {
         logTopics: [
             { group: 'People', name: 'Hacky' },
         ],
-        logEntries: [
+        logEvents: [
             { date: '{today}', title: 'Spoke to a #1' },
         ],
     });
 
     const actions = Utils.getActions();
-    let logEntry = await actions.invoke('log-entry-load', { id: 1 });
-    expect(logEntry.name).toEqual('Spoke to a Hacky');
+    let logEvent = await actions.invoke('log-event-load', { id: 1 });
+    expect(logEvent.name).toEqual('Spoke to a Hacky');
 
     const logTopic = await actions.invoke('log-topic-load', { id: 1 });
     logTopic.name = 'Noob';
     await actions.invoke('log-topic-upsert', logTopic);
 
-    logEntry = await actions.invoke('log-entry-load', logEntry);
-    expect(logEntry.name).toEqual('Spoke to a Noob');
+    logEvent = await actions.invoke('log-event-load', logEvent);
+    expect(logEvent.name).toEqual('Spoke to a Noob');
 });

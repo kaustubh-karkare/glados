@@ -15,7 +15,7 @@ test('test_title_template', async () => {
                 titleTemplate: 'Cycling: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
             },
         ],
-        logEntries: [
+        logEvents: [
             {
                 date: '2020-06-26',
                 structure: 'Cycling',
@@ -35,8 +35,8 @@ test('test_title_template', async () => {
     });
 
     const actions = Utils.getActions();
-    const logEntries = await actions.invoke('log-entry-list');
-    expect(logEntries[0].name).toEqual('Cycling: 15 miles / 60 minutes (15.00 mph)');
-    expect(logEntries[1].name).toEqual('Cycling: 15 miles / 55 minutes (16.36 mph)');
-    expect(logEntries[2].name).toEqual('Cycling: 15 miles / 50 minutes (18.00 mph)');
+    const logEvents = await actions.invoke('log-event-list');
+    expect(logEvents[0].name).toEqual('Cycling: 15 miles / 60 minutes (15.00 mph)');
+    expect(logEvents[1].name).toEqual('Cycling: 15 miles / 55 minutes (16.36 mph)');
+    expect(logEvents[2].name).toEqual('Cycling: 15 miles / 50 minutes (18.00 mph)');
 });

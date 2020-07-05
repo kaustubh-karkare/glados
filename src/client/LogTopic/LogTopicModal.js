@@ -29,7 +29,7 @@ class LogTopicModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <li>TextEditor for details (with autosave)</li>
-                    <li>LogEntryList for this topic specifically.</li>
+                    <li>LogEventList for this topic specifically.</li>
                     <li>Links to the current topic must be disabled.</li>
                 </Modal.Body>
             </Modal>

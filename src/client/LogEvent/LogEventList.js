@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList, TextEditor } from '../Common';
 
-import LogEntryAdder from './LogEntryAdder';
-import LogEntryEditor from './LogEntryEditor';
+import LogEventAdder from './LogEventAdder';
+import LogEventEditor from './LogEventEditor';
 
 
 function ViewerComponent(props) {
@@ -11,54 +11,54 @@ function ViewerComponent(props) {
         <TextEditor
             unstyled
             disabled
-            value={props.logEntry.title}
+            value={props.logEvent.title}
         />
     );
 }
 
 ViewerComponent.propTypes = {
-    logEntry: PropTypes.Custom.LogEntry.isRequired,
+    logEvent: PropTypes.Custom.LogEvent.isRequired,
 };
 
 ViewerComponent.Expanded = (props) => {
-    const { logEntry } = props;
-    if (!logEntry.details) {
+    const { logEvent } = props;
+    if (!logEvent.details) {
         return null;
     }
     return (
         <TextEditor
             unstyled
             disabled
-            value={logEntry.details}
+            value={logEvent.details}
         />
     );
 };
 
 ViewerComponent.Expanded.propTypes = {
-    logEntry: PropTypes.Custom.LogEntry.isRequired,
+    logEvent: PropTypes.Custom.LogEvent.isRequired,
 };
 
-function LogEntryList(props) {
+function LogEventList(props) {
     return (
         <BulletList
             name={props.name}
-            dataType="log-entry"
-            valueKey="logEntry"
+            dataType="log-event"
+            valueKey="logEvent"
             selector={props.selector}
             allowReordering
             allowSubscription
             ViewerComponent={ViewerComponent}
-            EditorComponent={LogEntryEditor}
-            AdderComponent={props.showAdder ? LogEntryAdder : null}
+            EditorComponent={LogEventEditor}
+            AdderComponent={props.showAdder ? LogEventAdder : null}
         />
     );
 }
 
-LogEntryList.propTypes = {
+LogEventList.propTypes = {
     name: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     selector: PropTypes.object.isRequired,
     showAdder: PropTypes.bool.isRequired,
 };
 
-export default LogEntryList;
+export default LogEventList;

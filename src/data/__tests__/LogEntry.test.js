@@ -14,7 +14,7 @@ test('test_structure_constraint', async () => {
                 ],
             },
         ],
-        logEntries: [
+        logEvents: [
             {
                 date: '2020-06-28',
                 title: 'Cat',
@@ -26,11 +26,11 @@ test('test_structure_constraint', async () => {
 
     const actions = Utils.getActions();
     await expect(() => actions.invoke('log-structure-delete', 1)).rejects.toThrow();
-    await actions.invoke('log-entry-delete', 1);
+    await actions.invoke('log-event-delete', 1);
     await actions.invoke('log-structure-delete', 1);
 });
 
-test('test_entry_update', async () => {
+test('test_event_update', async () => {
     await Utils.loadData({
         logStructures: [
             {
@@ -41,7 +41,7 @@ test('test_entry_update', async () => {
                 ],
             },
         ],
-        logEntries: [
+        logEvents: [
             {
                 date: '2020-06-28',
                 title: 'Cat',
@@ -53,13 +53,13 @@ test('test_entry_update', async () => {
 
     const actions = Utils.getActions();
 
-    const logEntry = await actions.invoke('log-entry-load', { id: 1 });
-    logEntry.title = 'Dog';
-    logEntry.logStructure.logKeys[0].value = 'medium';
-    await actions.invoke('log-entry-upsert', logEntry);
+    const logEvent = await actions.invoke('log-event-load', { id: 1 });
+    logEvent.title = 'Dog';
+    logEvent.logStructure.logKeys[0].value = 'medium';
+    await actions.invoke('log-event-upsert', logEvent);
 });
 
-test('test_log_entry_value_typeahead', async () => {
+test('test_log_event_value_typeahead', async () => {
     await Utils.loadData({
         logStructures: [
             {
@@ -70,7 +70,7 @@ test('test_log_entry_value_typeahead', async () => {
                 ],
             },
         ],
-        logEntries: [
+        logEvents: [
             {
                 date: '2020-06-28',
                 title: 'Cat',
@@ -83,8 +83,8 @@ test('test_log_entry_value_typeahead', async () => {
     const actions = Utils.getActions();
     let logValueSuggestions;
 
-    const logEntry = await actions.invoke('log-entry-load', { id: 1 });
-    const input = { structure_id: logEntry.logStructure.id, index: null, query: '' };
+    const logEvent = await actions.invoke('log-event-load', { id: 1 });
+    const input = { structure_id: logEvent.logStructure.id, index: null, query: '' };
 
     logValueSuggestions = await actions.invoke('value-typeahead', { ...input, index: 0 });
     expect(logValueSuggestions).toEqual(['small']);

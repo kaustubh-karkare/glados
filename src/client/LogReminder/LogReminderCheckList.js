@@ -1,22 +1,22 @@
 import React from 'react';
 import { DataLoader, EditorModal, TextEditor } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
-import { LogEntry, LogReminder } from '../../data';
-import { LogEntryEditor } from '../LogEntry';
+import { LogEvent, LogReminder } from '../../data';
+import { LogEventEditor } from '../LogEvent';
 import CheckListItem from './CheckListItem';
 import PropTypes from '../prop-types';
 
 class LogReminderCheckList extends React.Component {
-    static createLogEntryFromReminder(logReminder) {
-        const logEntry = LogEntry.createVirtual({
+    static createLogEventFromReminder(logReminder) {
+        const logEvent = LogEvent.createVirtual({
             date: getTodayLabel(),
             logStructure: logReminder.logStructure,
         });
-        LogEntry.trigger(logEntry);
-        if (!logEntry.title) {
-            logEntry.title = logReminder.title;
+        LogEvent.trigger(logEvent);
+        if (!logEvent.title) {
+            logEvent.title = logReminder.title;
         }
-        return logEntry;
+        return logEvent;
     }
 
     constructor(props) {
@@ -41,22 +41,22 @@ class LogReminderCheckList extends React.Component {
     }
 
     onEditButtonClick(logReminder) {
-        const logEntry = LogReminderCheckList.createLogEntryFromReminder(logReminder);
-        this.displayEditorModal(logReminder, logEntry);
+        const logEvent = LogReminderCheckList.createLogEventFromReminder(logReminder);
+        this.displayEditorModal(logReminder, logEvent);
     }
 
-    onCompleteReminder(logReminder, logEntry = null) {
-        let wasLogEntryProvided = false;
-        if (logEntry) {
-            wasLogEntryProvided = true;
+    onCompleteReminder(logReminder, logEvent = null) {
+        let wasLogEventProvided = false;
+        if (logEvent) {
+            wasLogEventProvided = true;
         } else {
-            logEntry = LogReminderCheckList.createLogEntryFromReminder(logReminder);
+            logEvent = LogReminderCheckList.createLogEventFromReminder(logReminder);
         }
-        if (logReminder.needsEdit && !wasLogEntryProvided) {
-            this.displayEditorModal(logReminder, logEntry);
+        if (logReminder.needsEdit && !wasLogEventProvided) {
+            this.displayEditorModal(logReminder, logEvent);
             return;
         }
-        window.api.send('reminder-complete', { logReminder, logEntry })
+        window.api.send('reminder-complete', { logReminder, logEvent })
             .then(() => {
                 // Assuming no update needed ...
                 this.setState((state) => {
@@ -84,13 +84,13 @@ class LogReminderCheckList extends React.Component {
             .catch((error) => window.modalStack_displayError(error));
     }
 
-    displayEditorModal(logReminder, logEntry) {
+    displayEditorModal(logReminder, logEvent) {
         this.closeModal = window.modalStack_push(EditorModal, {
-            dataType: 'log-entry',
-            EditorComponent: LogEntryEditor,
-            valueKey: 'logEntry',
-            value: logEntry,
-            onSave: (updatedLogEntry) => this.onCompleteReminder(logReminder, updatedLogEntry),
+            dataType: 'log-event',
+            EditorComponent: LogEventEditor,
+            valueKey: 'logEvent',
+            value: logEvent,
+            onSave: (updatedLogEvent) => this.onCompleteReminder(logReminder, updatedLogEvent),
         });
     }
 

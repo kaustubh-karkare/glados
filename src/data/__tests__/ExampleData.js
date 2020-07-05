@@ -101,7 +101,7 @@ export default {
             group: 'Entertainment',
         },
     ],
-    logEntries: [
+    logEvents: [
         {
             date: '2020-06-22',
             structure: 'Cycling',

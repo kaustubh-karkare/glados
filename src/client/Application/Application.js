@@ -4,7 +4,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import DataModeToggle from './DataModeToggle';
-import { LogEntryDateList } from '../LogEntry';
+import { LogEventDateList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
 import { LogReminderSidebar, LogReminderGroupList } from '../LogReminder';
 import { LogTopicSidebar, LogTopicGroupList, LogTopicDetails } from '../LogTopic';
@@ -13,7 +13,7 @@ import Enum from '../../common/Enum';
 
 
 const [TabOptions, TabType, TabOptionsMap] = Enum([
-    { label: 'Home', value: 'log_entries', Component: LogEntryDateList },
+    { label: 'Home', value: 'log_entries', Component: LogEventDateList },
     { label: 'Manage Structures', value: 'log_structures', Component: LogStructureList },
     { label: 'Manage Reminders', value: 'log_reminders', Component: LogReminderGroupList },
     { label: 'Manage Topics', value: 'log_topics', Component: LogTopicGroupList },

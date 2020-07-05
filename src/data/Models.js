@@ -203,10 +203,10 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    // Should this be called call LogEntry or LogEvent?
+    // Should this be called call LogEvent or LogEvent?
     // LogEvent indicates "events" and not all items in the list are actual events.
     // They might be random thoughts, or reminders, etc.
-    const LogEntry = sequelize.define(
+    const LogEvent = sequelize.define(
         'log_entries',
         {
             id: {
@@ -249,13 +249,13 @@ export default function (sequelize) {
         options,
     );
 
-    const LogEntryToLogTopic = sequelize.define(
-        'log_entries_to_log_topics',
+    const LogEventToLogTopic = sequelize.define(
+        'log_events_to_log_topics',
         {
-            entry_id: {
+            event_id: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: LogEntry,
+                    model: LogEvent,
                     key: 'id',
                 },
             },
@@ -270,23 +270,23 @@ export default function (sequelize) {
         options,
     );
 
-    LogEntry.belongsToMany(LogTopic, {
-        through: LogEntryToLogTopic,
-        foreignKey: 'entry_id',
-        // Deleteing an Entry is allowed!
+    LogEvent.belongsToMany(LogTopic, {
+        through: LogEventToLogTopic,
+        foreignKey: 'event_id',
+        // Deleteing an event is allowed!
         // The links will be broken, and the Tags could be cleaned up.
         onDelete: 'cascade',
         onUpdate: 'cascade',
     });
 
-    LogTopic.belongsToMany(LogEntry, {
-        through: LogEntryToLogTopic,
+    LogTopic.belongsToMany(LogEvent, {
+        through: LogEventToLogTopic,
         foreignKey: 'topic_id',
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    LogEntry.belongsTo(LogStructure, {
+    LogEvent.belongsTo(LogStructure, {
         foreignKey: 'structure_id',
         allowNull: true,
         onDelete: 'restrict',
@@ -301,7 +301,7 @@ export default function (sequelize) {
         ['LogStructure', LogStructure],
         ['LogReminderGroup', LogReminderGroup],
         ['LogReminder', LogReminder],
-        ['LogEntry', LogEntry],
-        ['LogEntryToLogTopic', LogEntryToLogTopic],
+        ['LogEvent', LogEvent],
+        ['LogEventToLogTopic', LogEventToLogTopic],
     ];
 }

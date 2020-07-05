@@ -1,9 +1,9 @@
 import React from 'react';
 import { DataLoader } from '../Common';
-import LogEntryList from './LogEntryList';
+import LogEventList from './LogEventList';
 import { getTodayLabel, getDayOfTheWeek } from '../../common/DateUtils';
 
-class LogEntryDateList extends React.Component {
+class LogEventDateList extends React.Component {
     constructor(props) {
         super(props);
         this.state = { dates: null };
@@ -26,7 +26,7 @@ class LogEntryDateList extends React.Component {
         }
         const today = getTodayLabel();
         return this.state.dates.map((date) => (
-            <LogEntryList
+            <LogEventList
                 key={date}
                 name={`${date} : ${getDayOfTheWeek(date)}`}
                 selector={{ date }}
@@ -36,4 +36,4 @@ class LogEntryDateList extends React.Component {
     }
 }
 
-export default LogEntryDateList;
+export default LogEventDateList;
