@@ -13,14 +13,8 @@ const LogStructure = PropTypes.shape({
     logKeys: LogStructureKey.isRequired,
 });
 
-const LogTopicGroup = PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-});
-
 const LogTopic = PropTypes.shape({
     id: PropTypes.number.isRequired,
-    logTopicGroup: LogTopicGroup.isRequired,
     name: PropTypes.string.isRequired,
 });
 
@@ -44,7 +38,6 @@ const LogReminder = PropTypes.shape({
 });
 
 PropTypes.Custom = {
-    LogTopicGroup,
     LogTopic,
     LogStructureKey,
     LogStructure,

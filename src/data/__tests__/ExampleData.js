@@ -1,14 +1,10 @@
 export default {
-    logTopicGroups: [
-        { name: 'People' },
-        { name: 'General' },
-    ],
     logTopics: [
-        { group: 'People', name: 'Anurag Dubey' },
-        { group: 'People', name: 'Kaustubh Karkare' },
-        { group: 'People', name: 'Vishnu Mohandas' },
-        { group: 'General', name: 'philosophy' },
-        { group: 'General', name: 'productivity' },
+        { name: 'Anurag Dubey' },
+        { name: 'Kaustubh Karkare' },
+        { name: 'Vishnu Mohandas' },
+        { name: 'philosophy' },
+        { name: 'productivity' },
     ],
     logStructures: [
         {

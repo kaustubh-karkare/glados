@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
 import {
-    AsyncSelector, Selector, TextInput,
+    Selector, TextInput, TypeaheadSelector,
 } from '../Common';
 
 function LogTopicEditor(props) {
@@ -11,15 +11,15 @@ function LogTopicEditor(props) {
         <div>
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Group
+                    Parent
                 </InputGroup.Text>
-                <AsyncSelector
-                    dataType="log-topic-group"
-                    value={logTopic.logTopicGroup}
+                <TypeaheadSelector
+                    dataType="log-topic"
+                    value={logTopic.parentLogTopic}
                     disabled={props.disabled}
-                    onChange={(newLogTopicGroup) => props.onChange({
+                    onChange={(newParentLogTopic) => props.onChange({
                         ...logTopic,
-                        logTopicGroup: newLogTopicGroup,
+                        parentLogTopic: newParentLogTopic,
                     })}
                 />
             </InputGroup>

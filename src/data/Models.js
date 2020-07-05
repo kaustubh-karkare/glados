@@ -6,31 +6,6 @@ export default function (sequelize) {
         underscored: true,
     };
 
-    const LogTopicGroup = sequelize.define(
-        'log_topic_groups',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            ordering_index: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-        },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['name'] },
-            ],
-        },
-    );
-
     const LogTopic = sequelize.define(
         'log_topics',
         {
@@ -39,9 +14,9 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            group_id: {
+            parent_id: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
+                allowNull: true,
             },
             ordering_index: {
                 type: Sequelize.INTEGER,
@@ -68,9 +43,9 @@ export default function (sequelize) {
         },
     );
 
-    LogTopic.belongsTo(LogTopicGroup, {
-        foreignKey: 'group_id',
-        allowNull: false,
+    LogTopic.belongsTo(LogTopic, {
+        foreignKey: 'parent_id',
+        allowNull: true,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -207,7 +182,7 @@ export default function (sequelize) {
     // LogEvent indicates "events" and not all items in the list are actual events.
     // They might be random thoughts, or reminders, etc.
     const LogEvent = sequelize.define(
-        'log_entries',
+        'log_events',
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -296,7 +271,6 @@ export default function (sequelize) {
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
-        ['LogTopicGroup', LogTopicGroup],
         ['LogTopic', LogTopic],
         ['LogStructure', LogStructure],
         ['LogReminderGroup', LogReminderGroup],

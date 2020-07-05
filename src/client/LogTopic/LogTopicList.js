@@ -35,4 +35,28 @@ function LogTopicList(props) {
     );
 }
 
+LogTopicList.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.object,
+};
+
+LogTopicList.defaultProps = {
+    selector: { parent_id: null },
+};
+
+LogTopicViewer.Expanded = (props) => {
+    const { logTopic } = props;
+    return (
+        <LogTopicList
+            name="Sub Topics"
+            selector={{ parent_id: logTopic.id }}
+            creator={{ parentLogTopic: logTopic }}
+        />
+    );
+};
+
+LogTopicViewer.Expanded.propTypes = {
+    logTopic: PropTypes.Custom.LogTopic.isRequired,
+};
+
 export default LogTopicList;

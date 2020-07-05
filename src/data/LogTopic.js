@@ -1,14 +1,13 @@
 import { getVirtualID } from './Utils';
 import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
-import LogTopicGroup from './LogTopicGroup';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
-    static createVirtual({ logTopicGroup } = {}) {
+    static createVirtual({ parentLogTopic }) {
         return {
             id: getVirtualID(),
-            logTopicGroup,
+            parentLogTopic: parentLogTopic || null,
             name: '',
             details: '',
             onSidebar: false,
@@ -16,27 +15,24 @@ class LogTopic extends Base {
     }
 
     static async validateInternal(inputLogTopic) {
-        const logTopicGroupResults = await this.validateRecursive(
-            LogTopicGroup,
-            '.logTopicGroup',
-            inputLogTopic.logTopicGroup,
-        );
         return [
             this.validateNonEmptyString('.name', inputLogTopic.name),
-            ...logTopicGroupResults,
         ];
     }
 
     static async load(id) {
         const logTopic = await this.database.findByPk('LogTopic', id, this.transaction);
-        const logTopicGroup = await this.database.findByPk(
-            'LogTopicGroup',
-            logTopic.group_id,
-            this.transaction,
-        );
+        let outputParentLogTopic = null;
+        if (logTopic.parent_id) {
+            const parentLogTopic = await this.database.findByPk('LogTopic', logTopic.parent_id, this.transaction);
+            outputParentLogTopic = {
+                id: parentLogTopic.id,
+                name: parentLogTopic.name,
+            };
+        }
         return {
             id: logTopic.id,
-            logTopicGroup,
+            parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
             onSidebar: logTopic.on_sidebar,
             details: logTopic.details,
@@ -53,7 +49,7 @@ class LogTopic extends Base {
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const fields = {
             id: inputLogTopic.id,
-            group_id: inputLogTopic.logTopicGroup.id,
+            parent_id: inputLogTopic.parentLogTopic ? inputLogTopic.parentLogTopic.id : null,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
             on_sidebar: inputLogTopic.onSidebar,
