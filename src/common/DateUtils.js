@@ -73,7 +73,7 @@ export function getDateRange(startLabel, endLabel) {
     const startValue = getDateValue(startLabel);
     const endValue = getDateValue(endLabel);
     const results = [];
-    for (let currentValue = startValue; currentValue < endValue; currentValue += MS_IN_DAY) {
+    for (let currentValue = startValue; currentValue <= endValue; currentValue += MS_IN_DAY) {
         results.push(getDateLabel(currentValue));
     }
     return results;

@@ -19,8 +19,7 @@ class LogTopicDetails extends React.Component {
 
     select(logTopic) {
         if (logTopic[INCOMPLETE_KEY]) {
-            window.api.send('log-topic-load', logTopic)
-                .then((updatedLogTopic) => this.setState({ logTopic: updatedLogTopic }));
+            window.api.send('log-topic-load', logTopic);
         } else {
             this.setState({ logTopic });
         }

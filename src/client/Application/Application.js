@@ -14,20 +14,9 @@ import Enum from '../../common/Enum';
 
 const [TabOptions, TabType, TabOptionsMap] = Enum([
     {
-        label: 'Major Events',
-        value: 'major_log_events',
+        label: 'Manage Events',
+        value: 'log_events',
         Component: LogEventSelectorList,
-        componentProps: { selector: { is_major: true } },
-    },
-    {
-        label: 'All Events',
-        value: 'all_log_events',
-        Component: LogEventSelectorList,
-        componentProps: {
-            selector: {},
-            allowReordering: true,
-            viewerComponentProps: { displayIsMajor: true },
-        },
     },
     {
         label: 'Manage Structures',
@@ -51,7 +40,7 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { activeTab: TabType.MAJOR_LOG_EVENTS };
+        this.state = { activeTab: TabType.LOG_EVENTS };
     }
 
     render() {
@@ -88,11 +77,8 @@ class Applicaton extends React.Component {
                     </Col>
                     <Col md={2} className="my-3">
                         <DataModeToggle />
+                        <hr />
                         <LogTopicSidebar />
-                        <li>Exercise Graphs</li>
-                        <li>Random Motivation Quotes.</li>
-                        <li>Time since last backup.</li>
-                        <li>Time since last consistency checks.</li>
                     </Col>
                 </Row>
                 <ModalStack />

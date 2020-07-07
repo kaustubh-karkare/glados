@@ -23,7 +23,7 @@ class LogEvent extends Base {
             name: '',
             title: title || '',
             details: '',
-            isMajor: isMajor || true,
+            isMajor: typeof isMajor !== 'undefined' ? isMajor : true,
             logStructure: logStructure || null,
         };
     }

@@ -1,9 +1,18 @@
+body {
+    --background-color: #111;
+    --highlighed-item-color: #333;
+    --text-color: white;
+    --text-disabled-color: #9197a3;
+    --link-color: #3498DB;
+    --topic-color: #00bc8c;
+}
+
 .input-group:focus {
     outline: none;
 }
 
 .input-group.focus {
-    background-color: #444;
+    background-color: var(--highlighed-item-color);
 }
 
 .input-group > * {
@@ -40,7 +49,7 @@
 }
 
 .input-group > .icon > svg {
-    fill: #9197a3;
+    fill: var(--text-disabled-color);
 }
 
 .input-group > .icon:focus {
@@ -50,7 +59,7 @@
 .input-group > .icon:focus > svg,
 .input-group > .icon.focus > svg,
 .input-group > .icon.icon-white > svg {
-    fill: white;
+    fill: var(--text-color);
 }
 
 .input-group > .btn {
@@ -111,12 +120,13 @@
 }
 
 body {
+    background-color: var(--background-color);
     font-size: 13px;
     font-family: Lato;
 }
 
 .log-viewer > span {
-    color: #9197a3;
+    color: var(--text-disabled-color);
 }
 
 /* Sortable */
@@ -169,7 +179,7 @@ button.sortableDragHandle.btn {
 }
 
 .text-editor .link {
-    color: #3498DB;
+    color: var(--link-color);
 }
 
 .text-editor.text-editor-normal .link {
@@ -177,7 +187,7 @@ button.sortableDragHandle.btn {
 }
 
 .text-editor .mention {
-    color: #00bc8c;
+    color: var(--topic-color);
 }
 
 .text-editor.text-editor-normal .mention {
@@ -226,7 +236,7 @@ button.sortableDragHandle.btn {
 /* Sidebar */
 
 .tab-item {
-    border: 1px solid #222;
+    border: 1px solid var(--background-color);
     border-radius: 4px;
     cursor: pointer;
     padding: 3px 8px 5px;
@@ -234,18 +244,18 @@ button.sortableDragHandle.btn {
 }
 
 .tab-item:hover {
-    border-color: #444;
+    border-color: var(--highlighed-item-color);
 }
 
 .tab-item.tab-item-selected {
-    background: #333;
-    border-color: #444;
+    background: #222;
+    border-color: var(--highlighed-item-color);
 }
 
 /* Log Topic Details */
 
 .log-topic-details {
-    background: #303030;
+    background: #222;
     border-radius: 4px;
 }
 
@@ -263,7 +273,7 @@ button.sortableDragHandle.btn {
 
 .log-topic-details > :last-child {
     border-top: 1px solid #222;
-    color: #9197a3;
+    color: var(--text-disabled-color);
     font-size: 10px;
     padding: 2px 4px;
 }

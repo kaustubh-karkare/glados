@@ -33,6 +33,12 @@ class TestModeToggle extends React.Component {
         }
     }
 
+    static onBackup() {
+        window.api.send('backup-save')
+            .then(() => window.modalStack_displayError('Backup complete!'))
+            .catch((error) => window.modalStack_displayError(error));
+    }
+
     // eslint-disable-next-line class-methods-use-this
     renderOptions(options, value) {
         const elements = [];
@@ -58,8 +64,10 @@ class TestModeToggle extends React.Component {
     render() {
         return (
             <div className="log-viewer">
-                <span>{'Data Mode: '}</span>
+                <span>{'Data: '}</span>
                 {this.renderOptions(Options, document.cookies.data)}
+                <span>{' : '}</span>
+                <a href="#" onClick={() => TestModeToggle.onBackup()}>Backup</a>
             </div>
         );
     }

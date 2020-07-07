@@ -19,6 +19,11 @@ async function init() {
         assert(false, 'Not allowed to auto-load and auto-save backups simultaneously.');
     }
 
+    if (this.config.backup.load_on_startup) {
+        // Sequelize doesn't drop tables in the proper order,
+        // so we just delete the whole file.
+        fs.unlinkSync(this.config.database.storage);
+    }
     this.database = await Database.init(
         this.config.database,
         { force: this.config.backup.load_on_startup },
@@ -36,12 +41,12 @@ async function init() {
     const io = SocketIO(server);
     io.on('connection', (socket) => SocketRPC.server(socket, this.actions));
     app.get('/', (req, res) => {
-        res.cookie('port', this.config.port);
+        res.cookie('port', this.config.server.port);
         res.cookie('data', this.config.backup.load_on_startup ? 'test' : 'prod');
         res.sendFile('index.html', { root: 'dist' });
     });
     app.use(express.static('dist'));
-    this.server = server.listen(this.config.port);
+    this.server = server.listen(this.config.server.port, this.config.server.host);
     console.info(`Server ready! (data-mode = ${dataMode})`);
 
     // eslint-disable-next-line no-use-before-define
