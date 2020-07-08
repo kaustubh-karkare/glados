@@ -22,7 +22,9 @@ async function init() {
     if (this.config.backup.load_on_startup) {
         // Sequelize doesn't drop tables in the proper order,
         // so we just delete the whole file.
-        fs.unlinkSync(this.config.database.storage);
+        if (fs.existsSync(this.config.database.storage)) {
+            fs.unlinkSync(this.config.database.storage);
+        }
     }
     this.database = await Database.init(
         this.config.database,

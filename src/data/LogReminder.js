@@ -10,36 +10,44 @@ import {
 } from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import Base from './Base';
-import LogReminderGroup from './LogReminderGroup';
+import LogTopic from './LogTopic';
 import LogStructure from './LogStructure';
-import {
-    getVirtualID, isRealItem, manageEntityBefore, manageEntityAfter,
-} from './Utils';
+import { getVirtualID, isRealItem } from './Utils';
 import Enum from '../common/Enum';
 
 
-const { ReminderType } = LogReminderGroup;
-
-const LogReminderTypeDefaultValues = {
-    [ReminderType.UNSPECIFIED]: {
-        deadline: null,
-        warning: null,
-        frequency: null,
-        lastUpdate: null,
+const [ReminderOptions, ReminderType, ReminderOptionsMap] = Enum([
+    {
+        value: 'unspecified',
+        label: 'Unspecified',
+        default: {
+            deadline: null,
+            warning: null,
+            frequency: null,
+            lastUpdate: null,
+        },
     },
-    [ReminderType.DEADLINE]: {
-        deadline: '{tomorrow}',
-        warning: '1 day',
-        frequency: null,
-        lastUpdate: null,
+    {
+        value: 'deadline',
+        label: 'Deadline',
+        default: {
+            deadline: '{tomorrow}',
+            warning: '1 day',
+            frequency: null,
+            lastUpdate: null,
+        },
     },
-    [ReminderType.PERIODIC]: {
-        deadline: null,
-        warning: null,
-        frequency: 'everyday',
-        lastUpdate: '{today}',
+    {
+        value: 'periodic',
+        label: 'Periodic',
+        default: {
+            deadline: null,
+            warning: null,
+            frequency: 'everyday',
+            lastUpdate: '{today}',
+        },
     },
-};
+]);
 
 const FrequencyRawOptions = [
     {
@@ -77,14 +85,14 @@ const DurationOptions = range(1, 31).map((value) => {
 
 
 class LogReminder extends Base {
-    static createVirtual({ title, logReminderGroup }) {
+    static createVirtual({ title, logTopic }) {
         const item = {
             id: getVirtualID(),
             title: title || '',
             isMajor: true,
-            logReminderGroup,
-            type: logReminderGroup.type,
-            ...LogReminderTypeDefaultValues[logReminderGroup.type],
+            logTopic,
+            type: logTopic.reminderType,
+            ...ReminderOptionsMap[logTopic.reminderType].default,
             needsEdit: true,
             logStructure: null,
         };
@@ -135,13 +143,14 @@ class LogReminder extends Base {
             return [];
         }
 
-        if (!isRealItem(inputLogReminder.logReminderGroup)) {
-            results.push(['.logReminderGroup', false, 'is missing!']);
-            return results;
-        }
+        const logTopic = await this.validateRecursive(
+            LogTopic, '.parentLogTopic', inputLogReminder.parentLogTopic,
+        );
+        results.push(...logTopic);
+
         results.push(this.validateNonEmptyString('.title', inputLogReminder.title));
 
-        const { type } = inputLogReminder.logReminderGroup;
+        const { type } = inputLogReminder;
         if (type === ReminderType.UNSPECIFIED) {
             // no additional fields
         } else if (type === ReminderType.DEADLINE) {
@@ -156,34 +165,15 @@ class LogReminder extends Base {
                 ),
             );
             results.push(this.validateDateLabel('.lastUpdate', inputLogReminder.lastUpdate));
-            results.push([
-                '.logStructure',
-                inputLogReminder.logStructure,
-                'is required for periodic reminders!',
-            ]);
         } else {
             results.push(['.type', false, ' is invalid!']);
-        }
-
-        if (inputLogReminder.logStructure) {
-            const logStructureResults = await this.validateRecursive(
-                LogStructure, '.logStructure', inputLogReminder.logStructure,
-            );
-            results.push(...logStructureResults);
-            if (inputLogReminder.logStructure.logKeys.length > 0) {
-                results.push([
-                    '.needsEdit',
-                    inputLogReminder.needsEdit,
-                    'should be set for structures with keys!',
-                ]);
-            }
         }
         return results;
     }
 
     static async load(id) {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
-        const outputLogReminderGroup = await LogReminderGroup.load.call(this, logReminder.group_id);
+        const outputParentLogTopic = await LogTopic.load.call(this, logReminder.parent_topic_id);
         let outputLogStructure = null;
         if (logReminder.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logReminder.structure_id);
@@ -193,7 +183,7 @@ class LogReminder extends Base {
             title: logReminder.title,
             isMajor: logReminder.is_major,
             logStructure: outputLogStructure,
-            logReminderGroup: outputLogReminderGroup,
+            parentLogTopic: outputParentLogTopic,
             type: logReminder.type,
             deadline: logReminder.deadline,
             warning: logReminder.warning,
@@ -210,34 +200,32 @@ class LogReminder extends Base {
             this.transaction,
         );
 
-        const prevStructureId = logReminder && logReminder.structure_id;
-        const nextStructureId = await manageEntityBefore.call(
-            this, inputLogReminder.logStructure, LogStructure,
+        const prevLogTopicId = logReminder && logReminder.parent_topic_id;
+        const nextLogTopicId = await Base.manageEntityBefore.call(
+            this, inputLogReminder.parentLogTopic, LogTopic,
         );
 
-        assert(isRealItem(inputLogReminder.logReminderGroup));
+        assert(isRealItem(inputLogReminder.parentLogTopic));
         const orderingIndex = await Base.getOrderingIndex.call(this, logReminder, {
-            group_id: inputLogReminder.logReminderGroup.id,
+            parent_topic_id: nextLogTopicId,
         });
         const fields = {
             title: inputLogReminder.title,
-            group_id: inputLogReminder.logReminderGroup.id,
+            parent_topic_id: nextLogTopicId,
             ordering_index: orderingIndex,
-            type: inputLogReminder.logReminderGroup.type,
+            type: inputLogReminder.type,
             deadline: inputLogReminder.deadline,
             warning: inputLogReminder.warning,
             frequency: inputLogReminder.frequency,
             last_update: inputLogReminder.lastUpdate,
             needs_edit: inputLogReminder.needsEdit,
-            is_major: inputLogReminder.isMajor,
-            structure_id: nextStructureId,
         };
         logReminder = await this.database.createOrUpdateItem(
             'LogReminder', logReminder, fields, this.transaction,
         );
 
-        await manageEntityAfter.call(
-            this, prevStructureId, inputLogReminder.logStructure, LogStructure,
+        await Base.manageEntityAfter.call(
+            this, prevLogTopicId, inputLogReminder.parentLogTopic, LogTopic,
         );
 
         this.broadcast('log-reminder-list');
@@ -248,12 +236,12 @@ class LogReminder extends Base {
         const logReminder = await this.database.findByPk('LogReminder', id, this.transaction);
         const result = await Base.delete.call(this, logReminder.id);
         // TODO: Disassociate structure instead of deleteing it!
-        await manageEntityAfter.call(this, logReminder.structure_id, null, LogStructure);
+        await Base.manageEntityAfter.call(this, logReminder.structure_id, null, LogStructure);
         return result;
     }
 }
 
-LogReminder.ReminderOptions = LogReminderGroup.ReminderOptions;
+LogReminder.ReminderOptions = ReminderOptions;
 LogReminder.ReminderType = ReminderType;
 LogReminder.FrequencyOptions = FrequencyOptions;
 LogReminder.DurationOptions = DurationOptions;

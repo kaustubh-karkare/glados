@@ -1,6 +1,5 @@
 import Utils from './Utils';
 import LogEvent from '../LogEvent';
-import LogStructure from '../LogStructure';
 import { getTodayLabel } from '../../common/DateUtils';
 
 beforeEach(Utils.beforeEach);
@@ -8,22 +7,21 @@ afterEach(Utils.afterEach);
 
 test('test_deadline_check', async () => {
     await Utils.loadData({
-        logReminderGroups: [
-            {
-                name: 'Todo',
-                type: 'deadline',
-            },
+        logTopics: [
+            { name: 'Todo' },
         ],
         logReminders: [
             {
                 title: 'Important thing!',
-                group: 'Todo',
+                parentTopicName: 'Todo',
+                type: 'deadline',
                 deadline: '{tomorrow}',
                 warning: '1 day',
             },
             {
                 title: 'Less important thing',
-                group: 'Todo',
+                parentTopicName: 'Todo',
+                type: 'deadline',
                 deadline: '{+2 days}',
                 warning: '1 day',
             },
@@ -32,7 +30,6 @@ test('test_deadline_check', async () => {
 
     const actions = Utils.getActions();
     const logReminders = await actions.invoke('log-reminder-list', {
-        selector: { group_id: 1 },
         isActive: true,
     });
     expect(logReminders.length).toEqual(1);
@@ -42,28 +39,24 @@ test('test_deadline_check', async () => {
 test('test_periodic_check', async () => {
     await Utils.loadData({
         logStructures: [
-            {
-                name: 'Things',
-            },
+            { name: 'Things' },
         ],
-        logReminderGroups: [
-            {
-                name: 'Daily Routine',
-                type: 'periodic',
-                structure: '',
-            },
+        logTopics: [
+            { name: 'Daily Routine' },
         ],
         logReminders: [
             {
                 title: 'Very important thing',
-                group: 'Daily Routine',
+                parentTopicName: 'Daily Routine',
+                type: 'periodic',
                 frequency: 'everyday',
                 lastUpdate: '{today}',
                 structure: 'Things',
             },
             {
                 title: 'Not very important thing',
-                group: 'Daily Routine',
+                parentTopicName: 'Daily Routine',
+                type: 'periodic',
                 frequency: 'everyday',
                 lastUpdate: '{yesterday}',
                 structure: 'Things',
@@ -73,7 +66,6 @@ test('test_periodic_check', async () => {
 
     const actions = Utils.getActions();
     const logReminders = await actions.invoke('log-reminder-list', {
-        selector: { group_id: 1 },
         isActive: true,
     });
     expect(logReminders.length).toEqual(1);
@@ -82,16 +74,14 @@ test('test_periodic_check', async () => {
 
 test('test_deadline_completion', async () => {
     await Utils.loadData({
-        logReminderGroups: [
-            {
-                name: 'Todo',
-                type: 'deadline',
-            },
+        logTopics: [
+            { name: 'Todo' },
         ],
         logReminders: [
             {
                 title: 'Important thing!',
-                group: 'Todo',
+                parentTopicName: 'Todo',
+                type: 'deadline',
                 deadline: '{tomorrow}',
                 warning: '1 day',
             },
@@ -110,20 +100,16 @@ test('test_deadline_completion', async () => {
 test('test_periodic_completion', async () => {
     await Utils.loadData({
         logStructures: [
-            {
-                name: 'Things',
-            },
+            { name: 'Things' },
         ],
-        logReminderGroups: [
-            {
-                name: 'Daily Routine',
-                type: 'periodic',
-            },
+        logTopics: [
+            { name: 'Daily Routine' },
         ],
         logReminders: [
             {
                 title: 'Important thing!',
-                group: 'Daily Routine',
+                parentTopicName: 'Daily Routine',
+                type: 'periodic',
                 frequency: 'everyday',
                 lastUpdate: '{yesterday}',
                 structure: 'Things',
@@ -138,50 +124,4 @@ test('test_periodic_completion', async () => {
     const logEvent = LogEvent.createVirtual({ date: getTodayLabel(), logStructure });
     const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEvent });
     expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
-});
-
-test('test_reminder_structure_upsert', async () => {
-    await Utils.loadData({
-        logReminderGroups: [
-            {
-                name: 'Todo',
-                type: 'unspecified',
-            },
-        ],
-        logReminders: [
-            {
-                title: 'Read a book',
-                group: 'Todo',
-            },
-        ],
-    });
-
-    const actions = Utils.getActions();
-    let logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    let logStructure = LogStructure.createVirtual({ name: 'Structure' });
-
-    // add
-    logReminder.logStructure = logStructure;
-    logReminder.logStructure.isIndirectlyManaged = true;
-    logReminder = await actions.invoke('log-reminder-upsert', logReminder);
-    expect(logReminder.logStructure).not.toEqual(null);
-    logStructure = logReminder.logStructure;
-    expect((await actions.invoke('log-structure-list')).length).toEqual(1);
-
-    // disassociate
-    logReminder.logStructure.isIndirectlyManaged = false;
-    logReminder = await actions.invoke('log-reminder-upsert', logReminder);
-    expect(logReminder.logStructure).toEqual(null);
-    expect((await actions.invoke('log-structure-list')).length).toEqual(1);
-
-    // associate
-    logReminder.logStructure = logStructure;
-    logReminder.logStructure.isIndirectlyManaged = true;
-    logReminder = await actions.invoke('log-reminder-upsert', logReminder);
-    expect(logReminder.logStructure).not.toEqual(null);
-    expect((await actions.invoke('log-structure-list')).length).toEqual(1);
-
-    // delete
-    logReminder = await actions.invoke('log-reminder-delete', logReminder.id);
-    expect((await actions.invoke('log-structure-list')).length).toEqual(0);
 });

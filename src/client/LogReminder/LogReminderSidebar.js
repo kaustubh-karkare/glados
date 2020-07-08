@@ -10,7 +10,7 @@ class LogReminderSidebar extends React.Component {
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            name: 'log-reminder-group-list',
+            name: 'reminder-groups',
             args: {
                 selector: { on_sidebar: true },
                 ordering: true,

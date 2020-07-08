@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import DataModeToggle from './DataModeToggle';
 import { LogEventSelectorList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
-import { LogReminderSidebar, LogReminderGroupList } from '../LogReminder';
+import { LogReminderSidebar } from '../LogReminder';
 import { LogTopicSidebar, LogTopicList, LogTopicDetails } from '../LogTopic';
 import { ModalStack, ScrollableSection, combineClassNames } from '../Common';
 import Enum from '../../common/Enum';
@@ -26,7 +26,7 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
     {
         label: 'Manage Reminders',
         value: 'log_reminders',
-        Component: LogReminderGroupList,
+        Component: LogTopicList,
     },
     {
         label: 'Manage Topics',

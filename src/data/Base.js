@@ -73,6 +73,25 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
+    static async manageEntityBefore(inputSubItem, DataType) {
+        if (inputSubItem) {
+            // Condition? add, edit
+
+            // Warning! Having to change context here is an abstraction leak!
+            return DataType.save.call({ ...this, DataType }, inputSubItem);
+        }
+        return null;
+    }
+
+    static async manageEntityAfter(prevItemId, inputSubItem, DataType) {
+        if (prevItemId && !inputSubItem) {
+            // Condition? delete
+
+            // Warning! Having to change context here is an abstraction leak!
+            await DataType.delete.call({ ...this, DataType }, prevItemId);
+        }
+    }
+
     static async getOrderingIndex(item, selector = {}) {
         if (item) {
             return item.ordering_index;

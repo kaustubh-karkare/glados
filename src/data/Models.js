@@ -6,50 +6,6 @@ export default function (sequelize) {
         underscored: true,
     };
 
-    const LogTopic = sequelize.define(
-        'log_topics',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            parent_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
-            ordering_index: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            on_sidebar: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-            },
-            details: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-        },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['name'] },
-            ],
-        },
-    );
-
-    LogTopic.belongsTo(LogTopic, {
-        foreignKey: 'parent_id',
-        allowNull: true,
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
     const LogStructure = sequelize.define(
         'log_structures',
         {
@@ -84,13 +40,17 @@ export default function (sequelize) {
         },
     );
 
-    const LogReminderGroup = sequelize.define(
-        'log_reminder_groups',
+    const LogTopic = sequelize.define(
+        'log_topics',
         {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
+            },
+            parent_topic_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
             },
             ordering_index: {
                 type: Sequelize.INTEGER,
@@ -100,17 +60,48 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            type: {
-                type: Sequelize.STRING,
+            details: {
+                type: Sequelize.TEXT,
                 allowNull: false,
             },
             on_sidebar: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
+            is_major: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+                // If unset, any LogEvent referencing this topic
+                // will be considered marked as a minor event too.
+            },
+            structure_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+                // If set, any LogEvent referencing this topic
+                // must have the values for this structure.
+            },
         },
-        options,
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['name'] },
+            ],
+        },
     );
+
+    LogTopic.belongsTo(LogTopic, {
+        foreignKey: 'parent_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
+    LogTopic.belongsTo(LogStructure, {
+        foreignKey: 'structure_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
 
     const LogReminder = sequelize.define(
         'log_reminders',
@@ -120,7 +111,7 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            group_id: {
+            parent_topic_id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
@@ -156,28 +147,20 @@ export default function (sequelize) {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
-            is_major: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-            },
-            structure_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-            },
         },
         options,
     );
 
-    LogReminder.belongsTo(LogReminderGroup, {
-        foreignKey: 'group_id',
+    LogReminder.belongsTo(LogTopic, {
+        foreignKey: 'parent_topic_id',
         allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    LogReminder.belongsTo(LogStructure, {
-        foreignKey: 'structure_id',
-        allowNull: false,
+    LogReminder.belongsTo(LogTopic, {
+        foreignKey: 'topic_id',
+        allowNull: true,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -279,9 +262,8 @@ export default function (sequelize) {
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
-        ['LogTopic', LogTopic],
         ['LogStructure', LogStructure],
-        ['LogReminderGroup', LogReminderGroup],
+        ['LogTopic', LogTopic],
         ['LogReminder', LogReminder],
         ['LogEvent', LogEvent],
         ['LogEventToLogTopic', LogEventToLogTopic],

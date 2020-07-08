@@ -1,11 +1,4 @@
 export default {
-    logTopics: [
-        { name: 'Anurag Dubey' },
-        { name: 'Kaustubh Karkare' },
-        { name: 'Vishnu Mohandas' },
-        { name: 'philosophy' },
-        { name: 'productivity' },
-    ],
     logStructures: [
         {
             name: 'Cycling',
@@ -62,39 +55,39 @@ export default {
             titleTemplate: 'Article: $1',
         },
     ],
-    logReminderGroups: [
+    logTopics: [
+        { name: 'Anurag Dubey' },
+        { name: 'Kaustubh Karkare' },
+        { name: 'Vishnu Mohandas' },
+        { name: 'Daily Routine' },
         {
-            name: 'Daily Routine',
-            type: 'periodic',
-            onSidebar: true,
+            name: 'Surya Namaskar',
+            parentTopicName: 'Daily Routine',
+            structureName: 'Surya Namaskar',
         },
-        {
-            name: 'Research',
-            type: 'deadline',
-        },
-        {
-            name: 'Entertainment',
-            type: 'unspecified',
-        },
+        { name: 'Research' },
+        { name: 'Entertainment' },
     ],
     logReminders: [
         {
             title: 'Surya Namaskar',
-            group: 'Daily Routine',
+            parentTopicName: 'Surya Namaskar',
+            type: 'periodic',
             frequency: 'everyday',
             lastUpdate: '2020-06-26',
-            structure: 'Surya Namaskar',
             needsEdit: true,
         },
         {
             title: 'Read article about Paxos',
-            group: 'Research',
+            parentTopicName: 'Research',
+            type: 'deadline',
             deadline: '2020-06-30',
             warning: '3 days',
         },
         {
             title: 'Movie some movie!',
-            group: 'Entertainment',
+            parentTopicName: 'Entertainment',
+            type: 'unspecified',
         },
     ],
     logEvents: [

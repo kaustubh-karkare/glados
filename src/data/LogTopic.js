@@ -1,6 +1,7 @@
 import { getVirtualID } from './Utils';
 import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
+import LogStructure from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
@@ -8,6 +9,7 @@ class LogTopic extends Base {
         return {
             id: getVirtualID(),
             parentLogTopic: parentLogTopic || null,
+            reminderType: null,
             name: '',
             details: '',
             onSidebar: false,
@@ -15,9 +17,15 @@ class LogTopic extends Base {
     }
 
     static async validateInternal(inputLogTopic) {
-        return [
-            this.validateNonEmptyString('.name', inputLogTopic.name),
-        ];
+        const results = [];
+        results.push(this.validateNonEmptyString('.name', inputLogTopic.name));
+        if (inputLogTopic.logStructure) {
+            const logStructureResults = await this.validateRecursive(
+                LogStructure, '.logStructure', inputLogTopic.logStructure,
+            );
+            results.push(...logStructureResults);
+        }
+        return results;
     }
 
     static async load(id) {
@@ -30,12 +38,18 @@ class LogTopic extends Base {
                 name: parentLogTopic.name,
             };
         }
+        let outputLogStructure = null;
+        if (logTopic.structure_id) {
+            outputLogStructure = await this.invoke.call(this, 'log-structure-load', { id: logTopic.structure_id });
+        }
         return {
             id: logTopic.id,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
-            onSidebar: logTopic.on_sidebar,
             details: logTopic.details,
+            onSidebar: logTopic.on_sidebar,
+            isMajor: logTopic.is_major,
+            logStructure: outputLogStructure,
         };
     }
 
@@ -45,6 +59,12 @@ class LogTopic extends Base {
             inputLogTopic,
             this.transaction,
         );
+
+        const prevLogStructureId = logTopic && logTopic.structure_id;
+        const nextLogStructureId = await Base.manageEntityBefore.call(
+            this, inputLogTopic.logStructure, LogStructure,
+        );
+
         const originalName = logTopic ? logTopic.name : null;
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const fields = {
@@ -52,11 +72,17 @@ class LogTopic extends Base {
             parent_id: inputLogTopic.parentLogTopic ? inputLogTopic.parentLogTopic.id : null,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
-            on_sidebar: inputLogTopic.onSidebar,
             details: inputLogTopic.details,
+            on_sidebar: inputLogTopic.onSidebar,
+            is_major: inputLogTopic.isMajor,
+            structure_id: nextLogStructureId,
         };
         logTopic = await this.database.createOrUpdateItem(
             'LogTopic', logTopic, fields, this.transaction,
+        );
+
+        await Base.manageEntityAfter.call(
+            this, prevLogStructureId, inputLogTopic.logStructure, LogStructure,
         );
 
         if (originalName && originalName !== logTopic.name) {
