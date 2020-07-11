@@ -1,5 +1,6 @@
 import ActionsRegistry from './Registry';
 import './Standard';
+import './Reminders';
 import './Custom';
 import './Backup';
 

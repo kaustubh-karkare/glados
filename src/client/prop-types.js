@@ -24,13 +24,8 @@ const LogEvent = PropTypes.shape({
     logStructure: LogStructure,
 });
 
-const LogReminderGroup = PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-});
-
 const LogReminder = PropTypes.shape({
-    logReminderGroup: LogReminderGroup.isRequired,
+    parentLogTopic: LogTopic.isRequired,
     deadline: PropTypes.string,
     warning: PropTypes.string,
     frequency: PropTypes.string,
@@ -41,7 +36,6 @@ PropTypes.Custom = {
     LogTopic,
     LogStructureKey,
     LogStructure,
-    LogReminderGroup,
     LogReminder,
     LogEvent,
 };

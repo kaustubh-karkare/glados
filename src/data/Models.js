@@ -90,7 +90,7 @@ export default function (sequelize) {
     );
 
     LogTopic.belongsTo(LogTopic, {
-        foreignKey: 'parent_id',
+        foreignKey: 'parent_topic_id',
         allowNull: true,
         onDelete: 'restrict',
         onUpdate: 'restrict',

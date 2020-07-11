@@ -24,15 +24,10 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
         Component: LogStructureList,
     },
     {
-        label: 'Manage Reminders',
-        value: 'log_reminders',
-        Component: LogTopicList,
-    },
-    {
         label: 'Manage Topics',
         value: 'log_topics',
         Component: LogTopicList,
-        componentProps: { selector: { parent_id: null } },
+        componentProps: { selector: { parent_topic_id: null } },
     },
 ]);
 

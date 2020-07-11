@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataLoader, EditorModal, TextEditor } from '../Common';
+import { EditorModal, TextEditor } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent, LogReminder } from '../../data';
 import { LogEventEditor } from '../LogEvent';
@@ -20,27 +20,6 @@ class LogReminderCheckList extends React.Component {
         return logEvent;
     }
 
-    constructor(props) {
-        super(props);
-        this.state = { logReminders: null };
-    }
-
-    componentDidMount() {
-        this.dataLoader = new DataLoader({
-            name: 'log-reminder-list',
-            args: {
-                selector: { group_id: this.props.logReminderGroup.id },
-                ordering: true,
-                isActive: true,
-            },
-            callback: (logReminders) => this.setState({ logReminders }),
-        });
-    }
-
-    componentWillUnmount() {
-        this.dataLoader.stop();
-    }
-
     onEditButtonClick(logReminder) {
         const logEvent = LogReminderCheckList.createLogEventFromReminder(logReminder);
         this.displayEditorModal(logReminder, logEvent);
@@ -59,13 +38,6 @@ class LogReminderCheckList extends React.Component {
         }
         window.api.send('reminder-complete', { logReminder, logEvent })
             .then(() => {
-                // Assuming no update needed ...
-                this.setState((state) => {
-                    state.logReminders = state.logReminders.filter(
-                        (item) => item.id !== logReminder.id,
-                    );
-                    return state;
-                });
                 if (this.closeModal) {
                     this.closeModal();
                     delete this.closeModal;
@@ -120,19 +92,17 @@ class LogReminderCheckList extends React.Component {
     }
 
     renderContent() {
-        if (this.state.logReminders === null) {
-            return 'Loading ...';
-        } if (this.state.logReminders.length === 0) {
+        if (this.props.logReminders.length === 0) {
             return <div className="ml-3">All done for now!</div>;
         }
-        return this.state.logReminders.map((logReminder) => this.renderItem(logReminder));
+        return this.props.logReminders.map((logReminder) => this.renderItem(logReminder));
     }
 
     render() {
         return (
             <div>
                 <div className="log-viewer">
-                    <span>{this.props.logReminderGroup.name}</span>
+                    <span>{this.props.logTopic.name}</span>
                 </div>
                 {this.renderContent()}
             </div>
@@ -141,7 +111,8 @@ class LogReminderCheckList extends React.Component {
 }
 
 LogReminderCheckList.propTypes = {
-    logReminderGroup: PropTypes.Custom.LogReminderGroup.isRequired,
+    logTopic: PropTypes.Custom.LogTopic.isRequired,
+    logReminders: PropTypes.arrayOf(PropTypes.Custom.LogReminder.isRequired).isRequired,
 };
 
 export default LogReminderCheckList;

@@ -38,9 +38,6 @@ test('test_deadline_check', async () => {
 
 test('test_periodic_check', async () => {
     await Utils.loadData({
-        logStructures: [
-            { name: 'Things' },
-        ],
         logTopics: [
             { name: 'Daily Routine' },
         ],
@@ -51,7 +48,6 @@ test('test_periodic_check', async () => {
                 type: 'periodic',
                 frequency: 'everyday',
                 lastUpdate: '{today}',
-                structure: 'Things',
             },
             {
                 title: 'Not very important thing',
@@ -59,7 +55,6 @@ test('test_periodic_check', async () => {
                 type: 'periodic',
                 frequency: 'everyday',
                 lastUpdate: '{yesterday}',
-                structure: 'Things',
             },
         ],
     });
@@ -99,9 +94,6 @@ test('test_deadline_completion', async () => {
 
 test('test_periodic_completion', async () => {
     await Utils.loadData({
-        logStructures: [
-            { name: 'Things' },
-        ],
         logTopics: [
             { name: 'Daily Routine' },
         ],
@@ -112,16 +104,49 @@ test('test_periodic_completion', async () => {
                 type: 'periodic',
                 frequency: 'everyday',
                 lastUpdate: '{yesterday}',
-                structure: 'Things',
             },
         ],
     });
 
     const actions = Utils.getActions();
     const logReminder = await actions.invoke('log-reminder-load', { id: 1 });
-    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
     const originalLastUpdate = logReminder.lastUpdate;
-    const logEvent = LogEvent.createVirtual({ date: getTodayLabel(), logStructure });
+    const logEvent = LogEvent.createVirtual({ date: getTodayLabel(), title: logReminder.title });
     const { logReminder: updatedLogReminder } = await actions.invoke('reminder-complete', { logReminder, logEvent });
     expect(updatedLogReminder.lastUpdate).not.toEqual(originalLastUpdate);
+});
+
+test('test_sidebar_reminders', async () => {
+    await Utils.loadData({
+        logTopics: [
+            { name: 'Daily Routine' },
+            { name: 'Exercise', parentTopicName: 'Daily Routine' },
+            { name: 'Entertainment' },
+        ],
+        logReminders: [
+            {
+                title: 'Exercise',
+                parentTopicName: 'Exercise',
+                type: 'periodic',
+                frequency: 'everyday',
+                lastUpdate: '{yesterday}',
+            },
+            {
+                title: 'Watch Movie',
+                parentTopicName: 'Entertainment',
+                type: 'unspecified',
+            },
+            {
+                title: 'Watch TV Show',
+                parentTopicName: 'Entertainment',
+                type: 'unspecified',
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    const results = await actions.invoke('sidebar-reminders');
+    expect(results.length).toEqual(2);
+    expect(results[0].logReminders.length).toEqual(1);
+    expect(results[1].logReminders.length).toEqual(2);
 });

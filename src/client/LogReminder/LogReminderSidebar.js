@@ -5,17 +5,13 @@ import { DataLoader } from '../Common';
 class LogReminderSidebar extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { logReminderGroups: null };
+        this.state = { logTopicAndReminders: null };
     }
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            name: 'reminder-groups',
-            args: {
-                selector: { on_sidebar: true },
-                ordering: true,
-            },
-            callback: (logReminderGroups) => this.setState({ logReminderGroups }),
+            name: 'sidebar-reminders',
+            callback: (logTopicAndReminders) => this.setState({ logTopicAndReminders }),
         });
     }
 
@@ -24,13 +20,14 @@ class LogReminderSidebar extends React.Component {
     }
 
     render() {
-        if (this.state.logReminderGroups === null) {
+        if (this.state.logTopicAndReminders === null) {
             return 'Loading ...';
         }
-        return this.state.logReminderGroups.map((logReminderGroup) => (
+        return this.state.logTopicAndReminders.map(({ logTopic, logReminders }) => (
             <LogReminderCheckList
-                key={logReminderGroup.id}
-                logReminderGroup={logReminderGroup}
+                key={logTopic.id}
+                logTopic={logTopic}
+                logReminders={logReminders}
             />
         ));
     }

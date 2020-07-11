@@ -31,8 +31,12 @@ class LogTopic extends Base {
     static async load(id) {
         const logTopic = await this.database.findByPk('LogTopic', id, this.transaction);
         let outputParentLogTopic = null;
-        if (logTopic.parent_id) {
-            const parentLogTopic = await this.database.findByPk('LogTopic', logTopic.parent_id, this.transaction);
+        if (logTopic.parent_topic_id) {
+            const parentLogTopic = await this.database.findByPk(
+                'LogTopic',
+                logTopic.parent_topic_id,
+                this.transaction,
+            );
             outputParentLogTopic = {
                 id: parentLogTopic.id,
                 name: parentLogTopic.name,
@@ -40,7 +44,7 @@ class LogTopic extends Base {
         }
         let outputLogStructure = null;
         if (logTopic.structure_id) {
-            outputLogStructure = await this.invoke.call(this, 'log-structure-load', { id: logTopic.structure_id });
+            outputLogStructure = await LogStructure.load.call(this, logTopic.structure_id);
         }
         return {
             id: logTopic.id,
@@ -69,7 +73,7 @@ class LogTopic extends Base {
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const fields = {
             id: inputLogTopic.id,
-            parent_id: inputLogTopic.parentLogTopic ? inputLogTopic.parentLogTopic.id : null,
+            parent_topic_id: inputLogTopic.parentLogTopic ? inputLogTopic.parentLogTopic.id : null,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
             details: inputLogTopic.details,

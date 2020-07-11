@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    AsyncSelector, DatePicker, ManagementSelector, Selector, TextEditor,
+    DatePicker, ManagementSelector, Selector, TextEditor,
 } from '../Common';
 import { LogReminder, LogStructure } from '../../data';
 import { LogStructureEditor } from '../LogStructure';
@@ -35,35 +35,20 @@ class LogReminderEditor extends React.Component {
         );
     }
 
-    renderGroupSelector() {
+    renderTypeSelector() {
         const { logReminder } = this.props;
         return (
-            <>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Group
-                    </InputGroup.Text>
-                    <AsyncSelector
-                        dataType="log-reminder-group"
-                        value={logReminder.logReminderGroup}
-                        disabled={this.props.disabled}
-                        onChange={
-                            (logReminderGroup) => this.updateLogEvent('logReminderGroup', logReminderGroup)
-                        }
-                    />
-                </InputGroup>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Type
-                    </InputGroup.Text>
-                    <Selector
-                        value={logReminder.type}
-                        options={LogReminder.ReminderOptions}
-                        disabled
-                        onChange={(type) => this.updateLogEvent('type', type)}
-                    />
-                </InputGroup>
-            </>
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Type
+                </InputGroup.Text>
+                <Selector
+                    value={logReminder.type}
+                    options={LogReminder.ReminderOptions}
+                    disabled={this.props.disabled}
+                    onChange={(type) => this.updateLogEvent('type', type)}
+                />
+            </InputGroup>
         );
     }
 
@@ -141,21 +126,6 @@ class LogReminderEditor extends React.Component {
         );
     }
 
-    renderIsMajorRow() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Is Major?
-                </InputGroup.Text>
-                <Selector.Binary
-                    value={this.props.logReminder.isMajor}
-                    disabled={this.props.disabled}
-                    onChange={(isMajor) => this.updateLogEvent('isMajor', isMajor)}
-                />
-            </InputGroup>
-        );
-    }
-
     renderStructureManagementSelector() {
         const { logReminder } = this.props;
         return (
@@ -173,20 +143,17 @@ class LogReminderEditor extends React.Component {
     }
 
     render() {
-        const { type } = this.props.logReminder.logReminderGroup;
+        const { type } = this.props.logReminder;
         return (
             <>
                 <div className="my-3">
                     {this.renderTitle()}
                 </div>
                 <div className="my-3">
-                    {this.renderGroupSelector()}
+                    {this.renderTypeSelector()}
                     {type === LogReminder.ReminderType.DEADLINE ? this.renderDeadline() : null}
                     {type === LogReminder.ReminderType.PERIODIC ? this.renderPeriodic() : null}
                     {this.renderNeedsEditSelector()}
-                </div>
-                <div className="my-3">
-                    {this.renderIsMajorRow()}
                 </div>
                 <div className="my-3">
                     {this.renderStructureManagementSelector()}

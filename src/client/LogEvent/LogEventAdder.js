@@ -71,7 +71,7 @@ class LogEventAdder extends React.Component {
                 unstyled
                 placeholder="Add Event ..."
                 value={logEvent.title}
-                serverSideTypes={['log-topic', 'log-structure', 'log-reminder-group']}
+                serverSideTypes={['log-topic']}
                 disabled={isRealItem(logEvent.logStructure)}
                 onChange={(value) => {
                     const updatedLogEvent = { ...logEvent };

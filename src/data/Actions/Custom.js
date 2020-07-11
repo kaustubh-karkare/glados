@@ -1,8 +1,7 @@
 /* eslint-disable func-names */
 
-import assert from '../../common/assert';
 import { getTodayLabel } from '../../common/DateUtils';
-import { LogReminder, LogTopic } from '../Mapping';
+import { LogTopic } from '../Mapping';
 import ActionsRegistry from './Registry';
 
 ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
@@ -36,28 +35,6 @@ ActionsRegistry['value-typeahead'] = async function (input) {
     return Object.entries(resultToFrequencyMap)
         .sort((left, right) => right[1] - left[1])
         .map((item) => item[0]);
-};
-
-ActionsRegistry['reminder-complete'] = async function (input) {
-    const { logEvent: inputLogEvent, logReminder: inputLogReminder } = input;
-    let outputLogReminder;
-    if (
-        inputLogReminder.type === LogReminder.ReminderType.UNSPECIFIED
-        || inputLogReminder.type === LogReminder.ReminderType.DEADLINE
-    ) {
-        await this.invoke.call(this, 'log-reminder-delete', inputLogReminder.id);
-        outputLogReminder = null;
-    } else if (
-        inputLogReminder.type === LogReminder.ReminderType.PERIODIC
-    ) {
-        inputLogReminder.lastUpdate = inputLogEvent.date;
-        outputLogReminder = await this.invoke.call(this, 'log-reminder-upsert', inputLogReminder);
-    } else {
-        assert(false, inputLogReminder.type);
-    }
-    const outputLogEvent = await this.invoke.call(this, 'log-event-upsert', inputLogEvent);
-    this.broadcast('log-event-list', { selector: { date: inputLogEvent.date } });
-    return { logEvent: outputLogEvent, logReminder: outputLogReminder };
 };
 
 ActionsRegistry.consistency = async function () {
