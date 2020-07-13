@@ -1,9 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { LogEvent, LogReminder, isRealItem } from '../../data';
+import { LogEvent, isRealItem } from '../../data';
 import LogEventEditor from './LogEventEditor';
 import { EditorModal, KeyCodes, TextEditor } from '../Common';
-import { LogReminderEditor } from '../LogReminder';
 
 class LogEventAdder extends React.Component {
     constructor(props) {
@@ -45,20 +44,6 @@ class LogEventAdder extends React.Component {
             });
             LogEvent.trigger(updatedLogEvent);
             this.onEditLogEvent(updatedLogEvent);
-        } else if (option.__type__ === 'log-reminder-group') {
-            const logReminderGroup = option;
-            const logReminder = LogReminder.createVirtual({
-                logReminderGroup,
-                title: this.state.logEvent.title, // TODO: Remove the mention entity!
-            });
-            this.setState({ logEvent: LogEvent.createVirtual(this.props.selector) });
-            window.modalStack_push(EditorModal, {
-                dataType: 'log-reminder',
-                EditorComponent: LogReminderEditor,
-                valueKey: 'logReminder',
-                value: logReminder,
-                closeOnSave: true,
-            });
         }
     }
 
@@ -71,7 +56,7 @@ class LogEventAdder extends React.Component {
                 unstyled
                 placeholder="Add Event ..."
                 value={logEvent.title}
-                serverSideTypes={['log-topic']}
+                serverSideTypes={['log-topic', 'log-structure']}
                 disabled={isRealItem(logEvent.logStructure)}
                 onChange={(value) => {
                     const updatedLogEvent = { ...logEvent };

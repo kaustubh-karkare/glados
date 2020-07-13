@@ -10,7 +10,7 @@ class LogReminderSidebar extends React.Component {
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            name: 'sidebar-reminders',
+            name: 'reminder-sidebar',
             callback: (logTopicAndReminders) => this.setState({ logTopicAndReminders }),
         });
     }

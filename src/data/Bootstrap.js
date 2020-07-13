@@ -57,6 +57,7 @@ async function loadData(actions, data) {
         inputLogTopic.details = inputLogTopic.details || '';
         inputLogTopic.onSidebar = false;
         inputLogTopic.isMajor = true;
+        inputLogTopic.isPeriodicReminder = false;
         const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
         logTopicsMap[outputLogTopic.name] = outputLogTopic;
         return outputLogTopic;

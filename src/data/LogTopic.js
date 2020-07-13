@@ -13,6 +13,8 @@ class LogTopic extends Base {
             name: '',
             details: '',
             onSidebar: false,
+            isMajor: true,
+            isPeriodicReminder: false,
         };
     }
 
@@ -54,6 +56,7 @@ class LogTopic extends Base {
             onSidebar: logTopic.on_sidebar,
             isMajor: logTopic.is_major,
             logStructure: outputLogStructure,
+            isPeriodicReminder: logTopic.is_periodic_reminder,
         };
     }
 
@@ -80,6 +83,7 @@ class LogTopic extends Base {
             on_sidebar: inputLogTopic.onSidebar,
             is_major: inputLogTopic.isMajor,
             structure_id: nextLogStructureId,
+            is_periodic_reminder: inputLogTopic.isPeriodicReminder,
         };
         logTopic = await this.database.createOrUpdateItem(
             'LogTopic', logTopic, fields, this.transaction,

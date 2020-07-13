@@ -80,6 +80,10 @@ export default function (sequelize) {
                 // If set, any LogEvent referencing this topic
                 // must have the values for this structure.
             },
+            is_periodic_reminder: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
         },
         {
             ...options,

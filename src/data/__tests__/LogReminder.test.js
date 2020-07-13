@@ -145,7 +145,7 @@ test('test_sidebar_reminders', async () => {
     });
 
     const actions = Utils.getActions();
-    const results = await actions.invoke('sidebar-reminders');
+    const results = await actions.invoke('reminder-sidebar');
     expect(results.length).toEqual(2);
     expect(results[0].logReminders.length).toEqual(1);
     expect(results[1].logReminders.length).toEqual(2);

@@ -4,7 +4,7 @@ import assert from '../../common/assert';
 import { LogReminder } from '../Mapping';
 import ActionsRegistry from './Registry';
 
-ActionsRegistry['sidebar-reminders'] = async function (input) {
+ActionsRegistry['reminder-sidebar'] = async function (input) {
     const logReminders = await this.invoke.call(this, 'log-reminder-list');
     const results = {};
     logReminders.forEach((logReminder) => {
@@ -46,6 +46,13 @@ ActionsRegistry['reminder-complete'] = async function (input) {
         assert(false, inputLogReminder.type);
     }
     const outputLogEvent = await this.invoke.call(this, 'log-event-upsert', inputLogEvent);
-    this.broadcast('sidebar-reminders');
+    this.broadcast('reminder-sidebar');
     return { logEvent: outputLogEvent, logReminder: outputLogReminder };
+};
+
+ActionsRegistry['reminder-dismiss'] = async function (input) {
+    const { logReminder: inputLogReminder } = input;
+    const outputLogReminder = await this.invoke.call(this, 'log-reminder-upsert', inputLogReminder);
+    this.broadcast('reminder-sidebar');
+    return { logReminder: outputLogReminder };
 };

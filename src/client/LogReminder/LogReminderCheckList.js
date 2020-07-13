@@ -10,8 +10,8 @@ class LogReminderCheckList extends React.Component {
     static createLogEventFromReminder(logReminder) {
         const logEvent = LogEvent.createVirtual({
             date: getTodayLabel(),
-            isMajor: logReminder.isMajor,
-            logStructure: logReminder.logStructure,
+            isMajor: logReminder.parentLogTopic.isMajor,
+            logStructure: logReminder.parentLogTopic.logStructure,
         });
         LogEvent.trigger(logEvent);
         if (!logEvent.title) {
@@ -48,12 +48,12 @@ class LogReminderCheckList extends React.Component {
 
     // eslint-disable-next-line class-methods-use-this
     onDismissReminder(logReminder) {
-        if (logReminder.type !== LogReminder.Type.PERIODIC) {
+        if (logReminder.type !== LogReminder.ReminderType.PERIODIC) {
             window.modalStack_displayError('Can only dismiss periodic reminders!');
             return;
         }
         logReminder.lastUpdate = getTodayLabel();
-        window.api.send('log-reminder-upsert', logReminder)
+        window.api.send('reminder-dismiss', { logReminder })
             .catch((error) => window.modalStack_displayError(error));
     }
 

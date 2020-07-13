@@ -44,7 +44,8 @@ class CheckListItem extends React.Component {
                     type="checkbox"
                     inline
                     checked={false}
-                    onChange={this.props.onCheckboxClick}
+                    readOnly
+                    onClick={this.props.onCheckboxClick}
                     style={{ marginRight: 'none' }}
                 />
                 {this.props.children}

@@ -37,6 +37,9 @@ function LogTopicList(props) {
 
 LogTopicViewer.Expanded = (props) => {
     const { logTopic } = props;
+    if (logTopic.isPeriodicReminder) {
+        return null;
+    }
     return (
         <>
             <LogTopicList

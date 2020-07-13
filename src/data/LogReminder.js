@@ -16,7 +16,7 @@ import { getVirtualID, isRealItem } from './Utils';
 import Enum from '../common/Enum';
 
 
-const [ReminderOptions, ReminderType, ReminderOptionsMap] = Enum([
+const [ReminderOptions, ReminderType] = Enum([
     {
         value: 'unspecified',
         label: 'Unspecified',
@@ -85,14 +85,13 @@ const DurationOptions = range(1, 31).map((value) => {
 
 
 class LogReminder extends Base {
-    static createVirtual({ title, logTopic }) {
+    static createVirtual({ title, parentLogTopic }) {
         const item = {
             id: getVirtualID(),
             title: title || '',
             isMajor: true,
-            logTopic,
-            type: logTopic.reminderType,
-            ...ReminderOptionsMap[logTopic.reminderType].default,
+            parentLogTopic,
+            type: ReminderType.UNSPECIFIED,
             needsEdit: true,
             logStructure: null,
         };
@@ -143,10 +142,10 @@ class LogReminder extends Base {
             return [];
         }
 
-        const logTopic = await this.validateRecursive(
+        const parentLogTopicResults = await this.validateRecursive(
             LogTopic, '.parentLogTopic', inputLogReminder.parentLogTopic,
         );
-        results.push(...logTopic);
+        results.push(...parentLogTopicResults);
 
         results.push(this.validateNonEmptyString('.title', inputLogReminder.title));
 
