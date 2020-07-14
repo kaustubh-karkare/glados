@@ -6,40 +6,6 @@ export default function (sequelize) {
         underscored: true,
     };
 
-    const LogStructure = sequelize.define(
-        'log_structures',
-        {
-            id: {
-                type: Sequelize.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-            },
-            keys: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-            title_template: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-            is_indirectly_managed: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-                comment: 'If true, this structure is tightly coupled with a reminder.',
-            },
-        },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['name'] },
-            ],
-        },
-    );
-
     const LogTopic = sequelize.define(
         'log_topics',
         {
@@ -68,19 +34,7 @@ export default function (sequelize) {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
-            is_major: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-                // If unset, any LogEvent referencing this topic
-                // will be considered marked as a minor event too.
-            },
-            structure_id: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-                // If set, any LogEvent referencing this topic
-                // must have the values for this structure.
-            },
-            is_periodic_reminder: {
+            has_structure: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
@@ -100,45 +54,52 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    LogTopic.belongsTo(LogStructure, {
-        foreignKey: 'structure_id',
-        allowNull: true,
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
-    const LogReminder = sequelize.define(
-        'log_reminders',
+    const LogStructureGroup = sequelize.define(
+        'log_structure_groups',
         {
             id: {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
             },
-            parent_topic_id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
             ordering_index: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            title: {
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        options,
+    );
+
+    const LogStructure = sequelize.define(
+        'log_structures',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            group_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            topic_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            // Should this structure have key-value-pairs?
+            keys: {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            type: {
-                type: Sequelize.STRING,
+            title_template: {
+                type: Sequelize.TEXT,
                 allowNull: false,
             },
-            deadline: {
-                type: Sequelize.STRING,
-                allowNull: true,
-            },
-            warning: {
-                type: Sequelize.STRING,
-                allowNull: true,
-            },
+            // Should this structure have reminders?
             frequency: {
                 type: Sequelize.STRING,
                 allowNull: true,
@@ -147,24 +108,30 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: true,
             },
-            needs_edit: {
+            // Additional fields to be copied to events.
+            is_major: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
         },
-        options,
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['topic_id'] },
+            ],
+        },
     );
 
-    LogReminder.belongsTo(LogTopic, {
-        foreignKey: 'parent_topic_id',
+    LogStructure.belongsTo(LogStructureGroup, {
+        foreignKey: 'group_id',
         allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
 
-    LogReminder.belongsTo(LogTopic, {
+    LogStructure.belongsTo(LogTopic, {
         foreignKey: 'topic_id',
-        allowNull: true,
+        allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -198,15 +165,6 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            details: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-                defaultValue: '',
-            },
-            is_major: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-            },
             structure_id: {
                 type: Sequelize.INTEGER,
                 allowNull: true,
@@ -214,6 +172,18 @@ export default function (sequelize) {
             structure_values: {
                 type: Sequelize.TEXT,
                 allowNull: true,
+            },
+            details: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            is_major: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
+            is_complete: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
             },
         },
         options,
@@ -266,9 +236,9 @@ export default function (sequelize) {
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
-        ['LogStructure', LogStructure],
         ['LogTopic', LogTopic],
-        ['LogReminder', LogReminder],
+        ['LogStructureGroup', LogStructureGroup],
+        ['LogStructure', LogStructure],
         ['LogEvent', LogEvent],
         ['LogEventToLogTopic', LogEventToLogTopic],
     ];

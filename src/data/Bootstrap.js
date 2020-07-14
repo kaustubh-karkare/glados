@@ -5,11 +5,12 @@ import {
     convertDraftContentToPlainText,
     convertPlainTextToDraftContent,
 } from '../common/DraftContentUtils';
+import LogTopic from './LogTopic';
 
 
 function convertPlainTextToDraftContent2(value, symbolToMapping) {
     if (!value) {
-        return value;
+        return value || '';
     }
     const content = convertPlainTextToDraftContent(
         value,
@@ -22,10 +23,47 @@ function convertPlainTextToDraftContent2(value, symbolToMapping) {
 }
 
 
+function getBool(item, key, defaultValue) {
+    return typeof item[key] === 'undefined' ? defaultValue : item[key];
+}
+
+
 async function loadData(actions, data) {
+    const logTopicsMap = {};
+    const logTopics = [null];
+    await awaitSequence(data.logTopics, async (inputLogTopic) => {
+        inputLogTopic.id = getVirtualID();
+        if (inputLogTopic.parentTopicName) {
+            inputLogTopic.parentLogTopic = logTopicsMap[inputLogTopic.parentTopicName];
+            delete inputLogTopic.parentTopicName;
+        }
+        inputLogTopic.details = inputLogTopic.details || '';
+        inputLogTopic.onSidebar = false;
+        inputLogTopic.hasStructure = false;
+        const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
+        logTopicsMap[outputLogTopic.name] = outputLogTopic;
+        logTopics.push(outputLogTopic);
+    });
+
+    const logStructureGroupMap = {};
+    await awaitSequence(data.logStructureGroups, async (inputLogStructureGroup) => {
+        inputLogStructureGroup.id = getVirtualID();
+        const outputLogStructureGroup = await actions.invoke(
+            'log-structure-group-upsert',
+            inputLogStructureGroup,
+        );
+        logStructureGroupMap[outputLogStructureGroup.name] = outputLogStructureGroup;
+    });
+
     const logStructureMap = {};
     await awaitSequence(data.logStructures, async (inputLogStructure) => {
         inputLogStructure.id = getVirtualID();
+        inputLogStructure.logStructureGroup = logStructureGroupMap[inputLogStructure.groupName];
+        delete inputLogStructure.groupName;
+        inputLogStructure.logTopic = LogTopic.createVirtual({
+            name: inputLogStructure.name,
+            hasStructure: true,
+        });
         if (inputLogStructure.logKeys) {
             inputLogStructure.logKeys.forEach((logKey, index) => {
                 logKey.__type__ = 'log-structure-key';
@@ -35,32 +73,18 @@ async function loadData(actions, data) {
             inputLogStructure.logKeys = [];
         }
         inputLogStructure.titleTemplate = convertPlainTextToDraftContent2(
-            inputLogStructure.titleTemplate || '',
-            { $: inputLogStructure.logKeys },
+            inputLogStructure.titleTemplate || '$0',
+            { $: [inputLogStructure.logTopic, ...inputLogStructure.logKeys] },
         );
-        inputLogStructure.isIndirectlyManaged = false;
-        const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
-        logStructureMap[outputLogStructure.name] = outputLogStructure;
-    });
 
-    const logTopicsMap = {};
-    const logTopics = await awaitSequence(data.logTopics, async (inputLogTopic) => {
-        inputLogTopic.id = getVirtualID();
-        if (inputLogTopic.parentTopicName) {
-            inputLogTopic.parentLogTopic = logTopicsMap[inputLogTopic.parentTopicName];
-            delete inputLogTopic.parentTopicName;
-        }
-        if (inputLogTopic.structureName) {
-            inputLogTopic.logStructure = logStructureMap[inputLogTopic.structureName];
-            delete inputLogTopic.structureName;
-        }
-        inputLogTopic.details = inputLogTopic.details || '';
-        inputLogTopic.onSidebar = false;
-        inputLogTopic.isMajor = true;
-        inputLogTopic.isPeriodicReminder = false;
-        const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
-        logTopicsMap[outputLogTopic.name] = outputLogTopic;
-        return outputLogTopic;
+        inputLogStructure.frequency = inputLogStructure.frequency || null;
+        inputLogStructure.lastUpdate = inputLogStructure.lastUpdate || null;
+        maybeSubstitute(inputLogStructure, 'lastUpdate');
+
+        inputLogStructure.isMajor = false;
+        const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
+        logStructureMap[outputLogStructure.logTopic.name] = outputLogStructure;
+        logTopics.push(outputLogStructure.logTopic);
     });
 
     await awaitSequence(data.logEvents, async (inputLogEvent) => {
@@ -69,8 +93,9 @@ async function loadData(actions, data) {
         inputLogEvent.title = convertPlainTextToDraftContent2(inputLogEvent.title, { '#': logTopics });
         inputLogEvent.details = convertPlainTextToDraftContent2(inputLogEvent.details, { '#': logTopics });
         inputLogEvent.isMajor = false;
-        if (inputLogEvent.structure) {
-            inputLogEvent.logStructure = logStructureMap[inputLogEvent.structure];
+        inputLogEvent.isComplete = getBool(inputLogEvent, 'isComplete', true);
+        if (inputLogEvent.structureName) {
+            inputLogEvent.logStructure = logStructureMap[inputLogEvent.structureName];
             if (inputLogEvent.logValues) {
                 inputLogEvent.logValues.forEach((value, index) => {
                     inputLogEvent.logStructure.logKeys[index].value = value;
@@ -78,29 +103,6 @@ async function loadData(actions, data) {
             }
         }
         await actions.invoke('log-event-upsert', inputLogEvent);
-    });
-
-    await awaitSequence(data.logReminders, async (inputLogReminder) => {
-        inputLogReminder.id = getVirtualID();
-        inputLogReminder.title = TextEditorUtils.serialize(
-            inputLogReminder.title,
-            TextEditorUtils.StorageType.PLAINTEXT,
-        );
-        inputLogReminder.isMajor = false;
-        if (inputLogReminder.structure) {
-            inputLogReminder.logStructure = logStructureMap[inputLogReminder.structure];
-            inputLogReminder.logStructure.isIndirectlyManaged = true;
-        }
-        if (inputLogReminder.parentTopicName) {
-            inputLogReminder.parentLogTopic = logTopicsMap[
-                inputLogReminder.parentTopicName
-            ];
-            delete inputLogReminder.parentTopicName;
-        }
-        maybeSubstitute(inputLogReminder, 'deadline');
-        maybeSubstitute(inputLogReminder, 'lastUpdate');
-        inputLogReminder.needsEdit = inputLogReminder.needsEdit || false;
-        await actions.invoke('log-reminder-upsert', inputLogReminder);
     });
 }
 
@@ -121,23 +123,34 @@ async function saveData(actions) {
     const result = {};
 
     const logTopics = await actions.invoke('log-topic-list');
-    result.logTopics = logTopics.map((logTopic) => {
-        const item = { name: logTopic.name };
-        if (logTopic.details) {
-            item.details = logTopic.details;
-        }
-        if (logTopic.parentLogTopic) {
-            item.parentTopicName = logTopic.parentLogTopic.name;
-        }
-        if (logTopic.logStructure) {
-            item.structureName = logTopic.logStructure.name;
-        }
+    logTopics.unshift(null);
+    result.logTopics = logTopics
+        .filter((logTopic) => logTopic && !logTopic.hasStructure)
+        .map((logTopic) => {
+            const item = { name: logTopic.name };
+            if (logTopic.details) {
+                item.details = logTopic.details;
+            }
+            if (logTopic.parentLogTopic) {
+                item.parentTopicName = logTopic.parentLogTopic.name;
+            }
+            if (logTopic.logStructure) {
+                item.structureName = logTopic.logStructure.name;
+            }
+            return item;
+        });
+
+    const logStructureGroups = await actions.invoke('log-structure-group-list');
+    result.logStructureGroups = logStructureGroups.map((logStructureGroup) => {
+        const item = { name: logStructureGroup.name };
         return item;
     });
 
     const logStructures = await actions.invoke('log-structure-list');
     result.logStructures = logStructures.map((logStructure) => {
-        const item = { name: logStructure.name };
+        const item = {};
+        item.groupName = logStructure.logStructureGroup.name;
+        item.name = logStructure.logTopic.name;
         if (logStructure.logKeys) {
             item.logKeys = logStructure.logKeys.map((logKey) => {
                 const outputLogKey = { name: logKey.name, type: logKey.type };
@@ -147,8 +160,13 @@ async function saveData(actions) {
         if (logStructure.titleTemplate) {
             item.titleTemplate = convertDraftContentToPlainText2(
                 logStructure.titleTemplate,
-                { $: logStructure.logKeys, '#': logTopics },
+                { $: [logStructure.logTopic, ...logStructure.logKeys], '#': logTopics },
             );
+        }
+        if (logStructure.isPeriodic) {
+            item.isPeriodic = true;
+            item.frequency = logStructure.frequency;
+            item.lastUpdate = logStructure.lastUpdate;
         }
         return item;
     });
@@ -156,15 +174,13 @@ async function saveData(actions) {
     const logEvents = await actions.invoke('log-event-list');
     result.logEvents = logEvents.map((logEvent) => {
         const item = {};
-        if (logEvent.date) {
-            item.date = logEvent.date;
-        }
+        item.date = logEvent.date;
         item.title = convertDraftContentToPlainText2(logEvent.title, { '#': logTopics });
         if (logEvent.details) {
             item.details = convertDraftContentToPlainText2(logEvent.details, { '#': logTopics });
         }
         if (logEvent.logStructure) {
-            item.structure = logEvent.logStructure.name;
+            item.structureName = logEvent.logStructure.logTopic.name;
             item.logValues = [];
             logEvent.logStructure.logKeys.forEach((logKey) => {
                 item.logValues.push(logKey.value);
@@ -174,35 +190,9 @@ async function saveData(actions) {
                 delete item.title;
             }
         }
-        if (logEvent.logReminder) {
-            // get rid of the undefined values
-            item.logReminder = JSON.parse(JSON.stringify(logEvent.logReminder));
-            item.logReminder.group = logEvent.logReminder.logReminderGroup.name;
-            delete item.logReminder.logReminderGroup;
-            if (!item.logReminder.needsEdit) {
-                delete item.logReminder.needsEdit;
-            }
+        if (!logEvent.isComplete) {
+            item.isComplete = false;
         }
-        return item;
-    });
-
-    const logReminders = await actions.invoke('log-reminder-list');
-    result.logReminders = logReminders.map((logReminder) => {
-        const item = {};
-        item.title = TextEditorUtils.deserialize(
-            logReminder.title,
-            TextEditorUtils.StorageType.PLAINTEXT,
-        );
-        if (logReminder.logStructure) {
-            item.structure = logReminder.logStructure.name;
-        }
-        item.parentTopicName = logReminder.parentLogTopic.name;
-        item.type = logReminder.type;
-        if (logReminder.deadline) item.deadline = logReminder.deadline;
-        if (logReminder.warning) item.warning = logReminder.warning;
-        if (logReminder.frequency) item.frequency = logReminder.frequency;
-        if (logReminder.lastUpdate) item.lastUpdate = logReminder.lastUpdate;
-        if (logReminder.needsEdit) item.needsEdit = true;
         return item;
     });
 

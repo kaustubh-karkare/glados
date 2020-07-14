@@ -28,10 +28,10 @@ class Base extends ValidationBase {
     }
 
     // eslint-disable-next-line no-unused-vars
-    static async typeahead({ query }) {
+    static async typeahead({ query, selector }) {
         const options = await this.database.findAll(
             this.DataType.name,
-            { name: { [this.database.Op.like]: `${query}%` } },
+            { ...selector, name: { [this.database.Op.like]: `${query}%` } },
             this.transaction,
         );
         return options.map((option) => ({

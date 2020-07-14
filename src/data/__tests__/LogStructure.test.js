@@ -5,30 +5,36 @@ afterEach(Utils.afterEach);
 
 test('test_title_template', async () => {
     await Utils.loadData({
+        logStructureGroups: [
+            {
+                name: 'Exercise',
+            },
+        ],
         logStructures: [
             {
+                groupName: 'Exercise',
                 name: 'Cycling',
                 logKeys: [
                     { name: 'Distance (miles)', type: 'integer' },
                     { name: 'Time (minutes)', type: 'integer' },
                 ],
-                titleTemplate: 'Cycling: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
+                titleTemplate: '$0: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
             },
         ],
         logEvents: [
             {
                 date: '2020-06-26',
-                structure: 'Cycling',
+                structureName: 'Cycling',
                 logValues: ['15', '60'],
             },
             {
                 date: '2020-06-27',
-                structure: 'Cycling',
+                structureName: 'Cycling',
                 logValues: ['15', '55'],
             },
             {
                 date: '2020-06-28',
-                structure: 'Cycling',
+                structureName: 'Cycling',
                 logValues: ['15', '50'],
             },
         ],

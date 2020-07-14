@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from '../prop-types';
 import { BulletList } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
-import LogReminderList from '../LogReminder/LogReminderList';
 
 function LogTopicViewer(props) {
     const { logTopic } = props;
@@ -37,22 +36,12 @@ function LogTopicList(props) {
 
 LogTopicViewer.Expanded = (props) => {
     const { logTopic } = props;
-    if (logTopic.isPeriodicReminder) {
-        return null;
-    }
     return (
-        <>
-            <LogTopicList
-                name="Sub Topics"
-                selector={{ parent_topic_id: logTopic.id }}
-                creator={{ parentLogTopic: logTopic }}
-            />
-            <LogReminderList
-                name="Reminders"
-                selector={{ parent_topic_id: logTopic.id }}
-                creator={{ parentLogTopic: logTopic }}
-            />
-        </>
+        <LogTopicList
+            name="Sub Topics"
+            selector={{ parent_topic_id: logTopic.id }}
+            creator={{ parentLogTopic: logTopic }}
+        />
     );
 };
 

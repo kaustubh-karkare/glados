@@ -5,8 +5,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import DataModeToggle from './DataModeToggle';
 import { LogEventSelectorList } from '../LogEvent';
-import { LogStructureList } from '../LogStructure';
-import { LogReminderSidebar } from '../LogReminder';
+import { LogStructureGroupList } from '../LogStructure';
+import { ReminderSidebar } from '../Reminders';
 import { LogTopicSidebar, LogTopicList, LogTopicDetails } from '../LogTopic';
 import { ModalStack, ScrollableSection, combineClassNames } from '../Common';
 import Enum from '../../common/Enum';
@@ -21,13 +21,13 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
     {
         label: 'Manage Structures',
         value: 'log_structures',
-        Component: LogStructureList,
+        Component: LogStructureGroupList,
     },
     {
         label: 'Manage Topics',
         value: 'log_topics',
         Component: LogTopicList,
-        componentProps: { selector: { parent_topic_id: null } },
+        componentProps: { selector: { parent_topic_id: null, has_structure: false } },
     },
 ]);
 
@@ -57,7 +57,7 @@ class Applicaton extends React.Component {
                                     {option.label}
                                 </div>
                             ))}
-                            <LogReminderSidebar />
+                            <ReminderSidebar />
                         </ScrollableSection>
                     </Col>
                     <Col md={4} className="my-3">

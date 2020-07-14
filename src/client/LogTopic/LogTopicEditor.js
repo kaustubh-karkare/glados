@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
 import {
-    Selector, TextInput, TypeaheadSelector,
+    TextInput, TypeaheadSelector,
 } from '../Common';
 
 class LogTopicEditor extends React.Component {
@@ -15,7 +15,7 @@ class LogTopicEditor extends React.Component {
     render() {
         const { logTopic } = this.props;
         return (
-            <div>
+            <>
                 <InputGroup className="my-1">
                     <InputGroup.Text>
                         Parent
@@ -39,17 +39,7 @@ class LogTopicEditor extends React.Component {
                         onChange={(name) => this.updateLogTopic('name', name)}
                     />
                 </InputGroup>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Sidebar
-                    </InputGroup.Text>
-                    <Selector.Binary
-                        value={logTopic.onSidebar}
-                        disabled={this.props.disabled}
-                        onChange={(onSidebar) => this.updateLogTopic('onSidebar', onSidebar)}
-                    />
-                </InputGroup>
-            </div>
+            </>
         );
     }
 }

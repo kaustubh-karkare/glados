@@ -4,77 +4,187 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
 import deepcopy from '../../common/deepcopy';
-import { SortableList, TextInput, TextEditor } from '../Common';
+import { maybeSubstitute } from '../../common/DateUtils';
+import {
+    DatePicker, SortableList, Selector, TextEditor, TextInput,
+} from '../Common';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
 import { LogStructure } from '../../data';
 
 class LogStructureEditor extends React.Component {
-    updateLogStructure(method) {
-        const logStructure = deepcopy(this.props.logStructure);
-        method(logStructure);
-        this.props.onChange(logStructure);
+    updateLogStructure(methodOrName, maybeValue) {
+        const updatedLogStructure = deepcopy(this.props.logStructure);
+        if (typeof methodOrName === 'function') {
+            methodOrName(updatedLogStructure);
+        } else {
+            updatedLogStructure[methodOrName] = maybeValue;
+        }
+        LogStructure.trigger(updatedLogStructure);
+        this.props.onChange(updatedLogStructure);
+    }
+
+    updateIsPeriodic(newValue) {
+        this.updateLogStructure((updatedLogStructure) => {
+            if (newValue) {
+                updatedLogStructure.isPeriodic = true;
+                updatedLogStructure.frequency = (
+                    updatedLogStructure._frequency || LogStructure.FrequencyType.EVERYDAY
+                );
+                updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
+                maybeSubstitute(updatedLogStructure, 'lastUpdate');
+            } else {
+                updatedLogStructure.isPeriodic = false;
+                updatedLogStructure._frequency = updatedLogStructure.frequency;
+                updatedLogStructure.frequency = null;
+                updatedLogStructure._lastUpdate = updatedLogStructure.lastUpdate;
+                updatedLogStructure.lastUpdate = null;
+            }
+        });
+    }
+
+    renderName() {
+        const { logTopic } = this.props.logStructure;
+        return (
+            <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Name
+                    </InputGroup.Text>
+                    <TextInput
+                        allowUpdate
+                        dataType="log-topic"
+                        value={logTopic.name}
+                        disabled={this.props.disabled}
+                        onChange={(newName) => this.updateLogStructure((updatedLogStructure) => {
+                            updatedLogStructure.logTopic.name = newName;
+                        })}
+                    />
+                </InputGroup>
+            </>
+        );
+    }
+
+    renderTitleTemplateEditor() {
+        const { logStructure } = this.props;
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text style={{ height: 'inherit', width: 99 }}>
+                    Title Template
+                </InputGroup.Text>
+                <TextEditor
+                    isSingleLine
+                    value={logStructure.titleTemplate}
+                    clientSideOptions={[logStructure.logTopic, ...logStructure.logKeys]}
+                    disabled={this.props.disabled}
+                    onChange={(titleTemplate) => this.updateLogStructure('titleTemplate', titleTemplate)}
+                />
+                <Button
+                    disabled={this.props.disabled}
+                    onClick={() => {
+                        this.updateLogStructure((updatedLogStructure) => {
+                            const index = updatedLogStructure.logKeys.length;
+                            // eslint-disable-next-line no-param-reassign
+                            updatedLogStructure.logKeys.push(LogStructure.createNewKey({ index }));
+                        });
+                    }}
+                    size="sm"
+                    style={{ height: 'inherit' }}
+                    variant="secondary"
+                >
+                    <MdAddCircleOutline />
+                </Button>
+            </InputGroup>
+        );
+    }
+
+    renderPeriodicDetails() {
+        return (
+            <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Frequency
+                    </InputGroup.Text>
+                    <Selector
+                        value={this.props.logStructure.frequency}
+                        options={LogStructure.FrequencyOptions}
+                        disabled={this.props.disabled}
+                        onChange={(frequency) => this.updateLogStructure('frequency', frequency)}
+                    />
+                </InputGroup>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Last Update
+                    </InputGroup.Text>
+                    <DatePicker
+                        value={this.props.logStructure.lastUpdate}
+                        disabled={this.props.disabled}
+                        onChange={(lastUpdate) => this.updateLogStructure('lastUpdate', lastUpdate)}
+                    />
+                </InputGroup>
+            </>
+        );
+    }
+
+    renderPeriodic() {
+        return (
+            <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Is Periodic?
+                    </InputGroup.Text>
+                    <Selector.Binary
+                        value={this.props.logStructure.isPeriodic}
+                        disabled={this.props.disabled}
+                        onChange={(isPeriodic) => this.updateIsPeriodic(isPeriodic)}
+                    />
+                </InputGroup>
+                {this.props.logStructure.isPeriodic ? this.renderPeriodicDetails() : null}
+            </>
+        );
+    }
+
+    renderIsMajorSelector() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Major?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logStructure.isMajor}
+                    disabled={this.props.disabled}
+                    onChange={(isMajor) => this.updateLogStructure('isMajor', isMajor)}
+                />
+            </InputGroup>
+        );
     }
 
     render() {
         return (
             <>
-                <InputGroup className="my-1">
-                    <InputGroup.Text style={{ width: 100 }}>
-                        Name
-                    </InputGroup.Text>
-                    <TextInput
-                        value={this.props.logStructure.name}
+                <div className="my-3">
+                    {this.renderName()}
+                </div>
+                <div className="my-3">
+                    {this.renderTitleTemplateEditor()}
+                    <SortableList
+                        items={this.props.logStructure.logKeys}
                         disabled={this.props.disabled}
-                        onChange={(newName) => {
+                        onChange={(logKeys) => {
                             this.updateLogStructure((structure) => {
                                 // eslint-disable-next-line no-param-reassign
-                                structure.name = newName;
+                                structure.logKeys = logKeys;
                             });
                         }}
+                        type={LogStructureKeyEditor}
+                        valueKey="logKey"
                     />
-                    <Button
-                        disabled={this.props.disabled}
-                        onClick={() => {
-                            this.updateLogStructure((logStructure) => {
-                                const index = logStructure.logKeys.length;
-                                // eslint-disable-next-line no-param-reassign
-                                logStructure.logKeys.push(LogStructure.createNewKey({ index }));
-                            });
-                        }}
-                        size="sm"
-                        variant="secondary"
-                    >
-                        <MdAddCircleOutline />
-                    </Button>
-                </InputGroup>
-                <SortableList
-                    items={this.props.logStructure.logKeys}
-                    disabled={this.props.disabled}
-                    onChange={(logKeys) => {
-                        this.updateLogStructure((structure) => {
-                            // eslint-disable-next-line no-param-reassign
-                            structure.logKeys = logKeys;
-                        });
-                    }}
-                    type={LogStructureKeyEditor}
-                    valueKey="logKey"
-                />
-                <InputGroup className="my-1">
-                    <InputGroup.Text style={{ height: 'inherit', width: 99 }}>
-                        Title Template
-                    </InputGroup.Text>
-                    <TextEditor
-                        isSingleLine
-                        value={this.props.logStructure.titleTemplate}
-                        clientSideOptions={this.props.logStructure.logKeys}
-                        serverSideTypes={['log-topic']}
-                        disabled={this.props.disabled}
-                        onChange={(value) => this.updateLogStructure((logStructure) => {
-                            // eslint-disable-next-line no-param-reassign
-                            logStructure.titleTemplate = value;
-                        })}
-                    />
-                </InputGroup>
+                </div>
+                <div className="my-3">
+                    {this.renderPeriodic()}
+                </div>
+                <div className="my-3">
+                    {this.renderIsMajorSelector()}
+                </div>
             </>
         );
     }

@@ -1,32 +1,24 @@
 import { getVirtualID } from './Utils';
 import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
-import LogStructure from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
-    static createVirtual({ parentLogTopic }) {
+    static createVirtual({ parentLogTopic, name, hasStructure }) {
         return {
+            __type__: 'log-topic',
             id: getVirtualID(),
             parentLogTopic: parentLogTopic || null,
-            reminderType: null,
-            name: '',
+            name: name || '',
             details: '',
             onSidebar: false,
-            isMajor: true,
-            isPeriodicReminder: false,
+            hasStructure: typeof hasStructure !== 'undefined' ? hasStructure : false,
         };
     }
 
     static async validateInternal(inputLogTopic) {
         const results = [];
         results.push(this.validateNonEmptyString('.name', inputLogTopic.name));
-        if (inputLogTopic.logStructure) {
-            const logStructureResults = await this.validateRecursive(
-                LogStructure, '.logStructure', inputLogTopic.logStructure,
-            );
-            results.push(...logStructureResults);
-        }
         return results;
     }
 
@@ -44,19 +36,14 @@ class LogTopic extends Base {
                 name: parentLogTopic.name,
             };
         }
-        let outputLogStructure = null;
-        if (logTopic.structure_id) {
-            outputLogStructure = await LogStructure.load.call(this, logTopic.structure_id);
-        }
         return {
+            __type__: 'log-topic',
             id: logTopic.id,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
             details: logTopic.details,
             onSidebar: logTopic.on_sidebar,
-            isMajor: logTopic.is_major,
-            logStructure: outputLogStructure,
-            isPeriodicReminder: logTopic.is_periodic_reminder,
+            hasStructure: logTopic.has_structure,
         };
     }
 
@@ -65,11 +52,6 @@ class LogTopic extends Base {
             'LogTopic',
             inputLogTopic,
             this.transaction,
-        );
-
-        const prevLogStructureId = logTopic && logTopic.structure_id;
-        const nextLogStructureId = await Base.manageEntityBefore.call(
-            this, inputLogTopic.logStructure, LogStructure,
         );
 
         const originalName = logTopic ? logTopic.name : null;
@@ -81,23 +63,16 @@ class LogTopic extends Base {
             name: inputLogTopic.name,
             details: inputLogTopic.details,
             on_sidebar: inputLogTopic.onSidebar,
-            is_major: inputLogTopic.isMajor,
-            structure_id: nextLogStructureId,
-            is_periodic_reminder: inputLogTopic.isPeriodicReminder,
+            has_structure: inputLogTopic.hasStructure,
         };
         logTopic = await this.database.createOrUpdateItem(
             'LogTopic', logTopic, fields, this.transaction,
-        );
-
-        await Base.manageEntityAfter.call(
-            this, prevLogStructureId, inputLogTopic.logStructure, LogStructure,
         );
 
         if (originalName && originalName !== logTopic.name) {
             const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
             await LogTopic.updateLogEvents.call(this, outputLogTopic);
             await LogTopic.updateLogStructures.call(this, outputLogTopic);
-            await LogTopic.updateLogReminders.call(this, outputLogTopic);
             await LogTopic.updateLogTopics.call(this, outputLogTopic);
         }
 
@@ -138,18 +113,6 @@ class LogTopic extends Base {
                     outputLogStructure.titleTemplate, [updatedLogTopic],
                 );
                 return this.invoke.call(this, 'log-structure-upsert', outputLogStructure);
-            }),
-        );
-    }
-
-    static async updateLogReminders(updatedLogTopic) {
-        const outputLogReminders = await this.invoke.call(this, 'log-reminder-list');
-        await Promise.all(
-            outputLogReminders.map((outputLogReminder) => {
-                outputLogReminder.title = LogTopic.updateContent(
-                    outputLogReminder.title, [updatedLogTopic],
-                );
-                return this.invoke.call(this, 'log-reminder-upsert', outputLogReminder);
             }),
         );
     }

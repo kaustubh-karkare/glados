@@ -15,7 +15,7 @@ class LogEvent extends Base {
                 logKey.value = '';
             });
         }
-        return {
+        const logEvent = {
             __type__: 'log-event',
             date: date || null,
             orderingIndex: null,
@@ -24,8 +24,11 @@ class LogEvent extends Base {
             title: title || '',
             details: '',
             isMajor: typeof isMajor !== 'undefined' ? isMajor : true,
+            isComplete: true,
             logStructure: logStructure || null,
         };
+        LogEvent.trigger(logEvent);
+        return logEvent;
     }
 
     static trigger(logEvent) {
@@ -49,6 +52,7 @@ class LogEvent extends Base {
                     TextEditorUtils.StorageType.PLAINTEXT,
                 );
             }
+            logEvent.isMajor = logEvent.logStructure.isMajor;
         }
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
@@ -117,6 +121,7 @@ class LogEvent extends Base {
             title: logEvent.title,
             details: logEvent.details,
             isMajor: logEvent.is_major,
+            isComplete: logEvent.is_complete,
             logStructure: outputLogStructure,
         };
     }
@@ -142,6 +147,9 @@ class LogEvent extends Base {
         // TODO(broadcast): Make this more specific!
         this.broadcast('log-event-list'); // Update all lists!
 
+        if (inputLogEvent.date === null) {
+            assert(!inputLogEvent.isComplete);
+        }
         const orderingIndex = await Base.getOrderingIndex
             .call(this, logEvent, { date: inputLogEvent.date });
         let logValues;
@@ -155,6 +163,7 @@ class LogEvent extends Base {
             title: inputLogEvent.title,
             details: inputLogEvent.details,
             is_major: inputLogEvent.isMajor,
+            is_complete: inputLogEvent.isComplete,
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,
         };

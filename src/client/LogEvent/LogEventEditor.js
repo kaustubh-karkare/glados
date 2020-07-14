@@ -9,6 +9,15 @@ import PropTypes from '../prop-types';
 
 
 class LogEventEditor extends React.Component {
+    onSelectSuggestion(option) {
+        if (option.__type__ === 'log-topic') {
+            const logTopic = option;
+            if (logTopic.hasStructure) {
+                this.updateLogStructure(logTopic);
+            }
+        }
+    }
+
     onValueSearch(query, index) {
         return window.api.send('value-typeahead', {
             structure_id: this.props.logEvent.logStructure.id,
@@ -17,11 +26,29 @@ class LogEventEditor extends React.Component {
         });
     }
 
-    updateLogEvent(method) {
-        const logEvent = { ...this.props.logEvent };
-        method(logEvent);
-        LogEvent.trigger(logEvent);
-        this.props.onChange(logEvent);
+    updateLogEvent(methodOrName, maybeValue) {
+        const updatedLogEvent = { ...this.props.logEvent };
+        if (typeof methodOrName === 'function') {
+            methodOrName(updatedLogEvent);
+        } else {
+            updatedLogEvent[methodOrName] = maybeValue;
+        }
+        LogEvent.trigger(updatedLogEvent);
+        this.props.onChange(updatedLogEvent);
+    }
+
+    updateLogStructure(logTopic) {
+        if (logTopic) {
+            window.api.send('log-structure-list', { selector: { topic_id: logTopic.id } })
+                .then(([logStructure]) => {
+                    logStructure.logKeys.forEach((logKey) => {
+                        logKey.value = '';
+                    });
+                    this.updateLogEvent('logStructure', logStructure);
+                });
+        } else {
+            this.updateLogEvent('logStructure', null);
+        }
     }
 
     updateLogValue(index, value) {
@@ -38,9 +65,7 @@ class LogEventEditor extends React.Component {
                 <DatePicker
                     value={this.props.logEvent.date}
                     disabled={this.props.disabled}
-                    onChange={(newDate) => this.updateLogEvent((logEvent) => {
-                        logEvent.date = newDate;
-                    })}
+                    onChange={(date) => this.updateLogEvent('date', date)}
                 />
             );
         } else {
@@ -68,11 +93,9 @@ class LogEventEditor extends React.Component {
                     value={this.props.logEvent.title}
                     serverSideTypes={['log-topic']}
                     disabled={this.props.disabled || !!this.props.logEvent.logStructure}
-                    onChange={(newTitle) => this.updateLogEvent((logEvent) => {
-                        // eslint-disable-next-line no-param-reassign
-                        logEvent.title = newTitle;
-                    })}
+                    onChange={(title) => this.updateLogEvent('title', title)}
                     onSpecialKeys={this.props.onSpecialKeys}
+                    onSelectSuggestion={(option) => this.onSelectSuggestion(option)}
                 />
             </InputGroup>
         );
@@ -88,10 +111,7 @@ class LogEventEditor extends React.Component {
                     value={this.props.logEvent.details}
                     serverSideTypes={['log-topic']}
                     disabled={this.props.disabled}
-                    onChange={(value) => this.updateLogEvent((logEvent) => {
-                        // eslint-disable-next-line no-param-reassign
-                        logEvent.details = value;
-                    })}
+                    onChange={(details) => this.updateLogEvent('details', details)}
                 />
             </InputGroup>
         );
@@ -106,34 +126,40 @@ class LogEventEditor extends React.Component {
                 <Selector.Binary
                     value={this.props.logEvent.isMajor}
                     disabled={this.props.disabled}
-                    onChange={(value) => this.updateLogEvent((logEvent) => {
-                        // eslint-disable-next-line no-param-reassign
-                        logEvent.isMajor = value;
-                    })}
+                    onChange={(isMajor) => this.updateLogEvent('isMajor', isMajor)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderIsCompleteRow() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Complete?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logEvent.isComplete}
+                    disabled={this.props.disabled}
+                    onChange={(isComplete) => this.updateLogEvent('isComplete', isComplete)}
                 />
             </InputGroup>
         );
     }
 
     renderStructureSelector() {
+        const { logStructure } = this.props.logEvent;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Structure
                 </InputGroup.Text>
                 <TypeaheadSelector
-                    dataType="log-structure"
-                    value={this.props.logEvent.logStructure}
+                    dataType="log-topic"
+                    selector={{ has_structure: true }}
+                    value={logStructure ? logStructure.logTopic : null}
                     disabled={this.props.disabled}
-                    onChange={(logStructure) => this.updateLogEvent((logEvent) => {
-                        // eslint-disable-next-line no-param-reassign
-                        if (logStructure) {
-                            logStructure.logKeys.forEach((logKey) => {
-                                logKey.value = '';
-                            });
-                        }
-                        logEvent.logStructure = logStructure;
-                    })}
+                    onChange={(logTopic) => this.updateLogStructure(logTopic)}
                     allowDelete
                 />
             </InputGroup>
@@ -170,6 +196,7 @@ class LogEventEditor extends React.Component {
                 {this.renderTitleRow()}
                 {this.renderDetailsRow()}
                 {this.renderIsMajorRow()}
+                {this.renderIsCompleteRow()}
                 <div className="my-3">
                     {this.renderStructureSelector()}
                     {this.renderStructureValues()}

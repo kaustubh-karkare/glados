@@ -36,14 +36,19 @@ class LogEventAdder extends React.Component {
     }
 
     onSelectSuggestion(option) {
-        if (option.__type__ === 'log-structure') {
-            const logStructure = option;
-            const updatedLogEvent = LogEvent.createVirtual({
-                ...this.props.selector,
-                logStructure,
-            });
-            LogEvent.trigger(updatedLogEvent);
-            this.onEditLogEvent(updatedLogEvent);
+        if (option.__type__ === 'log-topic') {
+            const logTopic = option;
+            if (logTopic.hasStructure) {
+                window.api.send('log-structure-list', { selector: { topic_id: logTopic.id } })
+                    .then(([logStructure]) => {
+                        const updatedLogEvent = LogEvent.createVirtual({
+                            ...this.props.selector,
+                            logStructure,
+                        });
+                        LogEvent.trigger(updatedLogEvent);
+                        this.onEditLogEvent(updatedLogEvent);
+                    });
+            }
         }
     }
 
@@ -56,7 +61,7 @@ class LogEventAdder extends React.Component {
                 unstyled
                 placeholder="Add Event ..."
                 value={logEvent.title}
-                serverSideTypes={['log-topic', 'log-structure']}
+                serverSideTypes={['log-topic']}
                 disabled={isRealItem(logEvent.logStructure)}
                 onChange={(value) => {
                     const updatedLogEvent = { ...logEvent };

@@ -1,0 +1,127 @@
+import React from 'react';
+import { EditorModal, TextEditor } from '../Common';
+import assert from '../../common/assert';
+import { getTodayLabel } from '../../common/DateUtils';
+import { LogEvent } from '../../data';
+import { LogEventEditor } from '../LogEvent';
+import CheckListItem from './CheckListItem';
+import PropTypes from '../prop-types';
+
+class ReminderCheckList extends React.Component {
+    static getLogEventFromItem(item) {
+        if (item.__type__ === 'log-structure') {
+            const logStructure = item;
+            return LogEvent.createVirtual({ date: getTodayLabel(), logStructure });
+        }
+        assert(item.__type__ === 'log-event');
+        return { ...item, date: getTodayLabel(), isComplete: true };
+    }
+
+    onEditButtonClick(item) {
+        const logEvent = ReminderCheckList.getLogEventFromItem(item);
+        this.displayLogEventEditorModal(item, logEvent);
+    }
+
+    onCompleteReminder(item, logEvent = null) {
+        const wasLogEventProvided = !!logEvent;
+        if (!logEvent) {
+            logEvent = ReminderCheckList.getLogEventFromItem(item);
+        }
+        let logStructure;
+        if (item.__type__ === 'log-structure') {
+            logStructure = item;
+            logStructure.lastUpdate = getTodayLabel();
+            if (logStructure.logKeys.length > 0 && !wasLogEventProvided) {
+                this.displayLogEventEditorModal(item, logEvent);
+                return;
+            }
+        }
+        window.api.send('reminder-complete', { logStructure, logEvent })
+            .then(() => {
+                if (this.closeModal) {
+                    this.closeModal();
+                    delete this.closeModal;
+                }
+            })
+            .catch((error) => window.modalStack_displayError(error));
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    onDismissReminder(item) {
+        if (item.__type__ !== 'log-structure') {
+            window.modalStack_displayError('Can only dismiss periodic reminders!');
+            return;
+        }
+        const logStructure = item;
+        logStructure.lastUpdate = getTodayLabel();
+        window.api.send('reminder-dismiss', { logStructure })
+            .catch((error) => window.modalStack_displayError(error));
+    }
+
+    displayLogEventEditorModal(item, logEvent) {
+        this.closeModal = window.modalStack_push(EditorModal, {
+            dataType: 'log-event',
+            EditorComponent: LogEventEditor,
+            valueKey: 'logEvent',
+            value: logEvent,
+            onSave: (updatedLogEvent) => this.onCompleteReminder(item, updatedLogEvent),
+        });
+    }
+
+    renderItem(item) {
+        let title;
+        if (item.__type__ === 'log-structure') {
+            title = item.logTopic.name;
+        } else {
+            title = (
+                <TextEditor
+                    unstyled
+                    disabled
+                    value={item.title}
+                />
+            );
+        }
+        return (
+            <CheckListItem
+                key={item.id}
+                onCheckboxClick={(event) => {
+                    if (event.shiftKey) {
+                        this.onDismissReminder(item);
+                    } else {
+                        this.onCompleteReminder(item);
+                    }
+                }}
+                onEditButtonClick={(event) => {
+                    this.onEditButtonClick(item);
+                }}
+            >
+                {title}
+            </CheckListItem>
+        );
+    }
+
+    renderContent() {
+        if (this.props.items.length === 0) {
+            return <div className="ml-3">All done for now!</div>;
+        }
+        return this.props.items.map((item) => this.renderItem(item));
+    }
+
+    render() {
+        return (
+            <div>
+                <div className="log-viewer">
+                    <span>{this.props.name}</span>
+                </div>
+                {this.renderContent()}
+            </div>
+        );
+    }
+}
+
+ReminderCheckList.propTypes = {
+    name: PropTypes.string.isRequired,
+    items: PropTypes.arrayOf(PropTypes.any.isRequired).isRequired,
+};
+
+export default ReminderCheckList;

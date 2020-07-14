@@ -1,19 +1,19 @@
-import LogStructure from './LogStructure';
-import LogEvent from './LogEvent';
-import LogReminder from './LogReminder';
 import LogTopic from './LogTopic';
+import LogStructure from './LogStructure';
+import LogStructureGroup from './LogStructureGroup';
+import LogEvent from './LogEvent';
 
 export {
     LogTopic,
+    LogStructureGroup,
     LogStructure,
-    LogReminder,
     LogEvent,
 };
 
 const Mapping = {
     'log-topic': LogTopic,
+    'log-structure-group': LogStructureGroup,
     'log-structure': LogStructure,
-    'log-reminder': LogReminder,
     'log-event': LogEvent,
 };
 

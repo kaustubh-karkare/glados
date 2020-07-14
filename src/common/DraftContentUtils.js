@@ -28,7 +28,9 @@ function convertDraftContentToPlainText(contentState, symbolToItems) {
     Object.entries(symbolToItems).forEach(([symbol, items]) => {
         const mapping = {};
         items.forEach((item, index) => {
-            mapping[item.id] = index + 1;
+            if (item) {
+                mapping[item.id] = index;
+            }
         });
         symbolToMapping[symbol] = mapping;
     });
@@ -62,7 +64,7 @@ function convertPlainTextToDraftContent(value, symbolToItems) {
             const symbol = value[ii];
             ii += 1;
             // Assumption: Single digit.
-            const index = parseInt(value[ii], 10) - 1;
+            const index = parseInt(value[ii], 10);
             const items = symbolToItems[symbol];
             const item = { ...items[index], symbol };
             pendingEntities.push([
@@ -162,7 +164,11 @@ function substituteValuesIntoDraftContent(contentState, logKeysWithValues) {
     }, (start, end) => {
         result += text.substring(previous, start);
         const logKey = currentEntity.getData()[PLUGIN_NAME];
-        result += logKeysWithValues[logKey.id].value || '???';
+        if (logKey.__type__ === 'log-structure-key') {
+            result += logKeysWithValues[logKey.id].value || '???';
+        } else {
+            result += logKey.name;
+        }
         previous = end;
     });
     result += text.substring(previous, text.length);

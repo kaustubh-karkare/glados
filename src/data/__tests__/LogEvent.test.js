@@ -5,8 +5,12 @@ afterEach(Utils.afterEach);
 
 test('test_structure_constraint', async () => {
     await Utils.loadData({
+        logStructureGroups: [
+            { name: 'Testing' },
+        ],
         logStructures: [
             {
+                groupName: 'Testing',
                 name: 'Animals',
                 logKeys: [
                     { name: 'Size', type: 'string' },
@@ -18,7 +22,7 @@ test('test_structure_constraint', async () => {
             {
                 date: '2020-06-28',
                 title: 'Cat',
-                structure: 'Animals',
+                structureName: 'Animals',
                 logValues: ['small', '4'],
             },
         ],
@@ -32,8 +36,12 @@ test('test_structure_constraint', async () => {
 
 test('test_event_update', async () => {
     await Utils.loadData({
+        logStructureGroups: [
+            { name: 'Testing' },
+        ],
         logStructures: [
             {
+                groupName: 'Testing',
                 name: 'Animals',
                 logKeys: [
                     { name: 'Size', type: 'string' },
@@ -45,7 +53,7 @@ test('test_event_update', async () => {
             {
                 date: '2020-06-28',
                 title: 'Cat',
-                structure: 'Animals',
+                structureName: 'Animals',
                 logValues: ['small', '4'],
             },
         ],
@@ -61,8 +69,12 @@ test('test_event_update', async () => {
 
 test('test_log_event_value_typeahead', async () => {
     await Utils.loadData({
+        logStructureGroups: [
+            { name: 'Testing' },
+        ],
         logStructures: [
             {
+                groupName: 'Testing',
                 name: 'Animals',
                 logKeys: [
                     { name: 'Size', type: 'string' },
@@ -74,7 +86,7 @@ test('test_log_event_value_typeahead', async () => {
             {
                 date: '2020-06-28',
                 title: 'Cat',
-                structure: 'Animals',
+                structureName: 'Animals',
                 logValues: ['small', '4'],
             },
         ],
