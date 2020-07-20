@@ -98,10 +98,10 @@ function convertPlainTextToDraftContent(value, symbolToItems) {
 }
 
 function updateDraftContent(contentState, oldItems, newItems) {
-    const mapping = {};
-    newItems.forEach((newItem, index) => {
-        const key = oldItems ? oldItems[index].id : newItem.id;
-        mapping[key] = newItem;
+    const keyToIndex = {};
+    oldItems.forEach((oldItem, index) => {
+        const key = `${oldItem.type}:${oldItem.id}`;
+        keyToIndex[key] = index;
     });
 
     const pendingEntities = [];
@@ -119,9 +119,19 @@ function updateDraftContent(contentState, oldItems, newItems) {
             return false;
         }, (start, end) => {
             const prevItem = currentEntity.getData()[PLUGIN_NAME];
-            if (prevItem.id in mapping) {
-                // The symbol is forwarded only for testing!
-                const nextItem = { ...mapping[prevItem.id], symbol: prevItem.symbol };
+            const key = `${prevItem.type}:${prevItem.id}`;
+            if (key in keyToIndex) {
+                let nextItem = newItems[keyToIndex[key]];
+                if (typeof nextItem === 'object') {
+                    if (
+                        prevItem.id === nextItem.id
+                        && prevItem.name === nextItem.name
+                    ) {
+                        return; // no change
+                    }
+                    // The symbol is forwarded only for testing!
+                    nextItem = { ...nextItem, symbol: prevItem.symbol };
+                }
                 pendingEntities.push([currentBlockKey, start, end, currentEntityKey, nextItem]);
             }
         });
@@ -134,61 +144,76 @@ function updateDraftContent(contentState, oldItems, newItems) {
             focusOffset: end,
             hasFocus: true,
         });
-        contentState = Modifier.replaceText(
-            contentState,
-            selectionState,
-            item.name,
-            null,
-            entityKey,
-        ).replaceEntityData(
-            entityKey,
-            { [PLUGIN_NAME]: item },
-        );
+        if (typeof item === 'object') {
+            contentState = Modifier.replaceText(
+                contentState,
+                selectionState,
+                item.name,
+                null,
+                entityKey,
+            ).replaceEntityData(
+                entityKey,
+                { [PLUGIN_NAME]: item },
+            );
+        } else {
+            // item is a string
+            contentState = Modifier.replaceText(
+                contentState,
+                selectionState,
+                item,
+                null,
+                null,
+            );
+        }
     });
 
     return contentState;
 }
 
-function substituteValuesIntoDraftContent(contentState, logKeysWithValues) {
-    const contentBlock = contentState.getFirstBlock();
-    const text = contentBlock.getText();
+function evaluateDraftContentExpressions(contentState) {
+    const pendingExpressions = [];
 
-    let previous = 0;
-    let currentEntity;
-    let result = '';
-    contentBlock.findEntityRanges((charMetadata) => {
-        const entityKey = charMetadata.getEntity();
-        if (entityKey) {
-            currentEntity = contentState.getEntity(entityKey);
-            return currentEntity.getType() === ENTITY_TYPE;
-        }
-        return false;
-    }, (start, end) => {
-        result += text.substring(previous, start);
-        const logKey = currentEntity.getData()[PLUGIN_NAME];
-        if (logKey.__type__ === 'log-structure-key') {
-            result += logKeysWithValues[logKey.id].value || '???';
-        } else {
-            result += logKey.name;
-        }
-        previous = end;
-    });
-    result += text.substring(previous, text.length);
-
-    return Array.from(result.matchAll(/(?:\{[^}]*\}|[^{}]*)/g))
-        .map(([part]) => {
-            if (part.startsWith('{') && part.endsWith('}')) {
-                try {
-                    // eslint-disable-next-line no-eval
-                    return eval(part.substring(1, part.length - 1)).toString();
-                } catch (error) {
-                    return part;
+    contentState.getBlocksAsArray().forEach((contentBlock) => {
+        const currentBlockKey = contentBlock.getKey();
+        let start = 0;
+        Array.from(contentBlock.getText().matchAll(/(?:\{[^}]*\}|[^{}]*)/g))
+            .forEach(([part]) => {
+                if (part.startsWith('{') && part.endsWith('}')) {
+                    try {
+                        // eslint-disable-next-line no-eval
+                        const result = eval(part.substring(1, part.length - 1)).toString();
+                        pendingExpressions.push([
+                            currentBlockKey,
+                            start,
+                            start + part.length,
+                            result,
+                        ]);
+                    } catch (error) {
+                        // eslint-disable-next-line no-console
+                        console.info(error);
+                    }
                 }
-            } else {
-                return part;
-            }
-        })
-        .join('');
+                start += part.length;
+            });
+    });
+
+    pendingExpressions.reverse().forEach(([blockKey, start, end, result]) => {
+        let selectionState = SelectionState.createEmpty(blockKey);
+        selectionState = selectionState.merge({
+            anchorOffset: start,
+            focusOffset: end,
+            hasFocus: true,
+        });
+        contentState = Modifier.replaceText(
+            contentState,
+            selectionState,
+            result,
+            null,
+            null,
+        );
+    });
+
+    return contentState;
 }
 
 export {
@@ -196,5 +221,5 @@ export {
     convertDraftContentToPlainText,
     convertPlainTextToDraftContent,
     updateDraftContent,
-    substituteValuesIntoDraftContent,
+    evaluateDraftContentExpressions,
 };

@@ -178,7 +178,6 @@ async function saveData(actions) {
     result.logEvents = logEvents.map((logEvent) => {
         const item = {};
         item.date = logEvent.date;
-        item.title = convertDraftContentToPlainText2(logEvent.title, { '#': logTopics });
         if (logEvent.details) {
             item.details = convertDraftContentToPlainText2(logEvent.details, { '#': logTopics });
         }
@@ -192,6 +191,8 @@ async function saveData(actions) {
             if (logEvent.logStructure.titleTemplate) {
                 delete item.title;
             }
+        } else {
+            item.title = convertDraftContentToPlainText2(logEvent.title, { '#': logTopics });
         }
         if (!logEvent.isComplete) {
             item.isComplete = false;

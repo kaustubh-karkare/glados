@@ -1,7 +1,7 @@
 import assert from '../common/assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
-import { extractLogTopics, substituteValuesIntoDraftContent } from '../common/DraftContentUtils';
+import { extractLogTopics, updateDraftContent, evaluateDraftContentExpressions } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
@@ -33,25 +33,20 @@ class LogEvent extends Base {
 
     static trigger(logEvent) {
         if (logEvent.logStructure) {
-            if (logEvent.logStructure.titleTemplate) {
-                const content = TextEditorUtils.deserialize(
-                    logEvent.logStructure.titleTemplate,
-                    TextEditorUtils.StorageType.DRAFTJS,
-                );
-                const plaintext = substituteValuesIntoDraftContent(
-                    content,
-                    logEvent.logStructure.logKeys,
-                );
-                logEvent.title = TextEditorUtils.serialize(
-                    plaintext,
-                    TextEditorUtils.StorageType.PLAINTEXT,
-                );
-            } else {
-                logEvent.title = TextEditorUtils.serialize(
-                    logEvent.logStructure.name,
-                    TextEditorUtils.StorageType.PLAINTEXT,
-                );
-            }
+            let content = TextEditorUtils.deserialize(
+                logEvent.logStructure.titleTemplate,
+                TextEditorUtils.StorageType.DRAFTJS,
+            );
+            content = updateDraftContent(
+                content,
+                logEvent.logStructure.logKeys,
+                logEvent.logStructure.logKeys.map((logKey) => logKey.value),
+            );
+            content = evaluateDraftContentExpressions(content);
+            logEvent.title = TextEditorUtils.serialize(
+                content,
+                TextEditorUtils.StorageType.DRAFTJS,
+            );
             logEvent.isMajor = logEvent.logStructure.isMajor;
         }
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);

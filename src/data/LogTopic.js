@@ -134,7 +134,7 @@ class LogTopic extends Base {
             value,
             TextEditorUtils.StorageType.DRAFTJS,
         );
-        content = updateDraftContent(content, null, logTopics);
+        content = updateDraftContent(content, logTopics, logTopics);
         return TextEditorUtils.serialize(
             content,
             TextEditorUtils.StorageType.DRAFTJS,

@@ -62,7 +62,7 @@ class ValidationBase {
                 'is missing a validator.',
             ];
         }
-        if (value.length === 0) {
+        if (!value) {
             return [
                 name,
                 false,

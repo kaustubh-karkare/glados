@@ -3,6 +3,7 @@
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogTopic } from '../Mapping';
 import ActionsRegistry from './Registry';
+import { awaitSequence } from '../Utils';
 
 ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
     const options = await Promise.all(
@@ -38,17 +39,22 @@ ActionsRegistry['value-typeahead'] = async function (input) {
 };
 
 ActionsRegistry.consistency = async function () {
-    const outputLogTopics = await this.invoke.call(this, 'log-topic-list');
-    const outputLogEvents = await this.invoke.call(this, 'log-event-list');
-    await Promise.all(
-        outputLogEvents.map((outputLogEvent) => {
-            outputLogEvent.title = LogTopic.updateContent(
-                outputLogEvent.title, outputLogTopics,
+    const results = [];
+    // Update logEvent using latest topic-names & structure-title-template.
+    const logTopics = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
+    const logEvents = await this.invoke.call(this, 'log-event-list');
+    await awaitSequence(logEvents, async (logEvent) => {
+        try {
+            logEvent.title = LogTopic.updateContent(
+                logEvent.title, logTopics,
             );
-            outputLogEvent.details = LogTopic.updateContent(
-                outputLogEvent.details, outputLogTopics,
+            logEvent.details = LogTopic.updateContent(
+                logEvent.details, logTopics,
             );
-            return this.invoke.call(this, 'log-event-upsert', outputLogEvent);
-        }),
-    );
+            await this.invoke.call(this, 'log-event-upsert', logEvent);
+        } catch (error) {
+            results.push([logEvent, error.toString()]);
+        }
+    });
+    return results;
 };

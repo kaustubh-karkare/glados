@@ -24,6 +24,11 @@ const [KeyOptions, KeyType, KeyOptionsMap] = Enum([
         label: 'Integer',
         validator: (data) => !!data.match(/^\d+$/),
     },
+    {
+        value: 'number',
+        label: 'Number',
+        validator: (data) => !!data.match(/^\d+(?:\.\d+)?$/),
+    },
 ]);
 
 const FrequencyRawOptions = [
@@ -170,7 +175,6 @@ class LogStructure extends Base {
         const nextLogTopicId = await Base.manageEntityBefore.call(
             this, inputLogStructure.logTopic, LogTopic,
         );
-        const logTopic = { ...inputLogStructure.logTopic, id: nextLogTopicId };
 
         if (!logStructure) {
             let content = TextEditorUtils.deserialize(
@@ -180,7 +184,7 @@ class LogStructure extends Base {
             content = updateDraftContent(
                 content,
                 [inputLogStructure.logTopic],
-                [logTopic],
+                [{ ...inputLogStructure.logTopic, id: nextLogTopicId }],
             );
             inputLogStructure.titleTemplate = TextEditorUtils.serialize(
                 content,
