@@ -77,6 +77,8 @@ async function loadData(actions, data) {
             { $: [inputLogStructure.logTopic, ...inputLogStructure.logKeys] },
         );
 
+        inputLogStructure.isPeriodic = inputLogStructure.isPeriodic || false;
+        inputLogStructure.reminderText = inputLogStructure.reminderText || null;
         inputLogStructure.frequency = inputLogStructure.frequency || null;
         inputLogStructure.lastUpdate = inputLogStructure.lastUpdate || null;
         maybeSubstitute(inputLogStructure, 'lastUpdate');
@@ -165,6 +167,7 @@ async function saveData(actions) {
         }
         if (logStructure.isPeriodic) {
             item.isPeriodic = true;
+            if (logStructure.reminderText) item.reminderText = logStructure.reminderText;
             item.frequency = logStructure.frequency;
             item.lastUpdate = logStructure.lastUpdate;
         }

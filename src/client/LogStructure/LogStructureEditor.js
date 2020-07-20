@@ -6,7 +6,7 @@ import PropTypes from '../prop-types';
 import deepcopy from '../../common/deepcopy';
 import { maybeSubstitute } from '../../common/DateUtils';
 import {
-    DatePicker, SortableList, Selector, TextEditor, TextInput,
+    DatePicker, SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
 } from '../Common';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
 import { LogStructure } from '../../data';
@@ -27,6 +27,7 @@ class LogStructureEditor extends React.Component {
         this.updateLogStructure((updatedLogStructure) => {
             if (newValue) {
                 updatedLogStructure.isPeriodic = true;
+                updatedLogStructure.reminderText = updatedLogStructure._reminderText || '';
                 updatedLogStructure.frequency = (
                     updatedLogStructure._frequency || LogStructure.FrequencyType.EVERYDAY
                 );
@@ -34,6 +35,8 @@ class LogStructureEditor extends React.Component {
                 maybeSubstitute(updatedLogStructure, 'lastUpdate');
             } else {
                 updatedLogStructure.isPeriodic = false;
+                updatedLogStructure._reminderText = updatedLogStructure.reminderText;
+                updatedLogStructure.reminderText = null;
                 updatedLogStructure._frequency = updatedLogStructure.frequency;
                 updatedLogStructure.frequency = null;
                 updatedLogStructure._lastUpdate = updatedLogStructure.lastUpdate;
@@ -47,6 +50,17 @@ class LogStructureEditor extends React.Component {
         return (
             <>
                 <InputGroup className="my-1">
+                    <InputGroup className="my-1">
+                        <InputGroup.Text>
+                            Group
+                        </InputGroup.Text>
+                        <TypeaheadSelector
+                            dataType="log-structure-group"
+                            value={this.props.logStructure.logStructureGroup}
+                            disabled={this.props.disabled}
+                            onChange={(logStructureGroup) => this.updateLogTopic('logStructureGroup', logStructureGroup)}
+                        />
+                    </InputGroup>
                     <InputGroup.Text>
                         Name
                     </InputGroup.Text>
@@ -100,6 +114,16 @@ class LogStructureEditor extends React.Component {
     renderPeriodicDetails() {
         return (
             <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Reminder Text
+                    </InputGroup.Text>
+                    <TextInput
+                        value={this.props.logStructure.reminderText}
+                        disabled={this.props.disabled}
+                        onChange={(reminderText) => this.updateLogStructure('reminderText', reminderText)}
+                    />
+                </InputGroup>
                 <InputGroup className="my-1">
                     <InputGroup.Text>
                         Frequency

@@ -19,7 +19,8 @@ async function init() {
         assert(false, 'Not allowed to auto-load and auto-save backups simultaneously.');
     }
 
-    if (this.action === 'backup-load') {
+    const backupLoad = this.action === 'backup-load';
+    if (backupLoad) {
         // Sequelize doesn't drop tables in the proper order,
         // so we just delete the whole file.
         if (fs.existsSync(this.config.database.location)) {
@@ -28,11 +29,11 @@ async function init() {
     }
     this.database = await Database.init(
         this.config.database,
-        { force: this.config.backup.load_on_startup },
+        { force: backupLoad },
     );
     this.actions = new Actions(this);
 
-    if (this.action === 'backup-load') {
+    if (backupLoad) {
         const { filename } = await this.actions.invoke('backup-load');
         console.info(`Loaded ${filename}`);
         return;

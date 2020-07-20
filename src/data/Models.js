@@ -100,6 +100,14 @@ export default function (sequelize) {
                 allowNull: false,
             },
             // Should this structure have reminders?
+            is_periodic: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
+            reminder_text: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
             frequency: {
                 type: Sequelize.STRING,
                 allowNull: true,

@@ -66,6 +66,7 @@ class LogStructure extends Base {
             logKeys: [],
             titleTemplate: '',
             isPeriodic: false,
+            reminderText: null,
             frequency: null,
             lastUpdate: null,
             isMajor: true,
@@ -73,13 +74,13 @@ class LogStructure extends Base {
     }
 
     static trigger(logStructure) {
-        const content = TextEditorUtils.deserialize(
+        let content = TextEditorUtils.deserialize(
             logStructure.titleTemplate,
             TextEditorUtils.StorageType.DRAFTJS,
         );
         // TODO: If a key is deleted, remove it from the content.
-        const options = [logStructure.logTopic, logStructure.logKeys];
-        updateDraftContent(content, options, options);
+        const options = [logStructure.logTopic, ...logStructure.logKeys];
+        content = updateDraftContent(content, options, options);
         logStructure.titleTemplate = TextEditorUtils.serialize(
             content,
             TextEditorUtils.StorageType.DRAFTJS,
@@ -150,7 +151,8 @@ class LogStructure extends Base {
             logTopic: outputLogStructure,
             logKeys: JSON.parse(logStructure.keys),
             titleTemplate: logStructure.title_template,
-            isPeriodic: logStructure.frequency !== null,
+            isPeriodic: logStructure.is_periodic,
+            reminderText: logStructure.reminder_text,
             frequency: logStructure.frequency,
             lastUpdate: logStructure.last_update,
             isMajor: logStructure.is_major,
@@ -191,6 +193,8 @@ class LogStructure extends Base {
             topic_id: nextLogTopicId,
             keys: JSON.stringify(inputLogStructure.logKeys),
             title_template: inputLogStructure.titleTemplate,
+            is_periodic: inputLogStructure.isPeriodic,
+            reminder_text: inputLogStructure.reminderText,
             frequency: inputLogStructure.frequency,
             last_update: inputLogStructure.lastUpdate,
             is_major: inputLogStructure.isMajor,

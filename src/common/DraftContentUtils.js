@@ -15,7 +15,9 @@ function extractLogTopics(content) {
         .filter((entity) => entity.type === ENTITY_TYPE)
         .forEach((entity) => {
             const logTopic = entity.data[PLUGIN_NAME];
-            logTopics[logTopic.id] = logTopic;
+            if (logTopic.__type__ === 'log-topic') {
+                logTopics[logTopic.id] = logTopic;
+            }
         });
     return logTopics;
 }
