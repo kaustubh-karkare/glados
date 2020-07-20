@@ -9,8 +9,6 @@ import deepcopy from '../../common/deepcopy';
 import { awaitSequence, getCallbackAndPromise } from '../Utils';
 import ActionsRegistry from './Registry';
 
-const location = 'database';
-
 function getDateAndTime() {
     const date = new Date();
     let dateLabel = date.getFullYear();
@@ -52,7 +50,7 @@ ActionsRegistry['backup-save'] = async function () {
 
     const [callback, promise] = getCallbackAndPromise();
     const filename = getFileName({ date, time, hash });
-    fs.writeFile(path.join(location, filename), data, callback);
+    fs.writeFile(path.join(this.config.backup.location, filename), data, callback);
     await promise;
     return {
         filename, date, time, hash,
@@ -61,7 +59,7 @@ ActionsRegistry['backup-save'] = async function () {
 
 ActionsRegistry['backup-latest'] = async function () {
     const [callback, promise] = getCallbackAndPromise();
-    fs.readdir(location, callback);
+    fs.readdir(this.config.backup.location, callback);
     let filenames = await promise;
     filenames = filenames.filter((filename) => filename.startsWith('backup-')).sort();
     assert(filenames.length, 'no backups found');
@@ -74,7 +72,7 @@ ActionsRegistry['backup-load'] = async function () {
     const latestBackup = await this.invoke.call(this, 'backup-latest');
 
     const [callback, promise] = getCallbackAndPromise();
-    fs.readFile(path.join(location, latestBackup.filename), callback);
+    fs.readFile(path.join(this.config.backup.location, latestBackup.filename), callback);
     const filedata = await promise;
     const data = JSON.parse(filedata);
 
@@ -88,7 +86,7 @@ ActionsRegistry['backup-load'] = async function () {
 
 ActionsRegistry['backup-delete'] = async function ({ filename }) {
     const [callback, promise] = getCallbackAndPromise();
-    fs.unlink(path.join(location, filename), callback);
+    fs.unlink(path.join(this.config.backup.location, filename), callback);
     return promise;
 };
 

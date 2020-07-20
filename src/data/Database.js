@@ -19,7 +19,7 @@ class Database {
             options.host = 'localhost';
         } else if (config.type === 'sqlite') {
             options.dialect = 'sqlite';
-            options.storage = config.storage;
+            options.storage = config.location;
         } else {
             assert(false, 'unknown database type');
         }

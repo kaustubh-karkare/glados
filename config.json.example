@@ -1,13 +1,13 @@
 {
     "database": {
-        "type": "mysql",
-        "storage": "data/test.sqlite",
-        "host": "localhost",
+        "type": "sqlite",
+        "location": "data/test.sqlite",
         "username": "kaustubh",
         "password": "password",
         "name": "productivity"
     },
     "backup": {
+        "location": "data",
         "load_on_startup": false,
         "save_interval_ms": -1
     },

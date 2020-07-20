@@ -4,11 +4,12 @@
   "description": "",
   "private": true,
   "scripts": {
-    "main": "babel-node index.js",
-    "client": "webpack --watch --progress --config webpack.config.js",
-    "server": "nodemon --config nodemon.config.json --trace-warnings index.js",
+    "server": "webpack --config webpack.config.js && babel-node index.js",
+    "dev-client": "webpack --watch --progress --config webpack.config.js",
+    "dev-server": "nodemon --config nodemon.config.json --trace-warnings index.js",
     "lint": "eslint -c eslint.config.js --ext .js,.jsx --fix .",
-    "test": "jest --testPathPattern='test.js'"
+    "test": "jest --testPathPattern='test.js'",
+    "kill": "ps -A | grep _babel-node | awk '{ print \"kill -9\", $1 }' | zsh"
   },
   "husky": {
     "hooks": {
