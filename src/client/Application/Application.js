@@ -3,7 +3,7 @@ import React from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import DataModeToggle from './DataModeToggle';
+import BackupSidebar from './BackupSidebar';
 import { LogEventSelectorList } from '../LogEvent';
 import { LogStructureGroupList } from '../LogStructure';
 import { ReminderSidebar } from '../Reminders';
@@ -71,8 +71,7 @@ class Applicaton extends React.Component {
                         </ScrollableSection>
                     </Col>
                     <Col md={2} className="my-3">
-                        <DataModeToggle />
-                        <hr />
+                        <BackupSidebar />
                         <LogTopicSidebar />
                     </Col>
                 </Row>

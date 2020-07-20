@@ -5,7 +5,6 @@ import fs from 'fs';
 import path from 'path';
 
 import assert from '../../common/assert';
-import deepcopy from '../../common/deepcopy';
 import { awaitSequence, getCallbackAndPromise } from '../Utils';
 import ActionsRegistry from './Registry';
 
@@ -20,13 +19,25 @@ function getDateAndTime() {
     return { date: dateLabel, time: timeLabel };
 }
 
+function parseDateAndTime(date, time) {
+    return `${date.substr(0, 4)
+    }-${date.substr(4, 2)
+    }-${date.substr(4, 2)
+    } ${time.substr(0, 2)
+    }:${time.substr(2, 2)
+    }:${time.substr(4, 2)}`;
+}
+
 function getFileName({ date, time, hash }) {
     return `backup-${date}-${time}-${hash}.json`;
 }
 
 function parseFileName(filename) {
     const matchResult = filename.match(/^backup-(\d+)-(\d+)-(\w+)\.json$/);
-    return { date: matchResult[1], time: matchResult[2], hash: matchResult[3] };
+    return {
+        hash: matchResult[3],
+        timetamp: parseDateAndTime(matchResult[1], matchResult[2]),
+    };
 }
 
 ActionsRegistry['backup-save'] = async function () {
@@ -41,7 +52,7 @@ ActionsRegistry['backup-save'] = async function () {
 
     try {
         const latestBackup = await this.invoke.call(this, 'backup-latest');
-        if (hash === latestBackup.hash) {
+        if (latestBackup && hash === latestBackup.hash) {
             return { ...latestBackup, isUnchanged: true };
         }
     } catch (error) {
@@ -52,6 +63,7 @@ ActionsRegistry['backup-save'] = async function () {
     const filename = getFileName({ date, time, hash });
     fs.writeFile(path.join(this.config.backup.location, filename), data, callback);
     await promise;
+    this.broadcast('backup-latest');
     return {
         filename, date, time, hash,
     };
@@ -62,6 +74,9 @@ ActionsRegistry['backup-latest'] = async function () {
     fs.readdir(this.config.backup.location, callback);
     let filenames = await promise;
     filenames = filenames.filter((filename) => filename.startsWith('backup-')).sort();
+    if (!filenames.length) {
+        return null;
+    }
     assert(filenames.length, 'no backups found');
     const filename = filenames[filenames.length - 1];
     const components = parseFileName(filename);
@@ -70,6 +85,7 @@ ActionsRegistry['backup-latest'] = async function () {
 
 ActionsRegistry['backup-load'] = async function () {
     const latestBackup = await this.invoke.call(this, 'backup-latest');
+    assert(latestBackup, 'at least one backup is required');
 
     const [callback, promise] = getCallbackAndPromise();
     fs.readFile(path.join(this.config.backup.location, latestBackup.filename), callback);
@@ -88,25 +104,4 @@ ActionsRegistry['backup-delete'] = async function ({ filename }) {
     const [callback, promise] = getCallbackAndPromise();
     fs.unlink(path.join(this.config.backup.location, filename), callback);
     return promise;
-};
-
-ActionsRegistry['data-mode-get'] = async function () {
-    return (this.config.backup.load_on_startup ? 'test' : 'prod');
-};
-
-ActionsRegistry['data-mode-set'] = async function (dataMode) {
-    const config = deepcopy(this.config);
-    if (dataMode === 'test') {
-        assert(!config.backup.load_on_startup);
-        await this.invoke.call(this, 'backup-save');
-        config.backup.load_on_startup = true;
-    } else if (dataMode === 'prod') {
-        assert(config.backup.load_on_startup);
-        config.backup.load_on_startup = false;
-    } else {
-        assert(false, dataMode);
-    }
-    const [callback, promise] = getCallbackAndPromise();
-    fs.writeFile(this.configPath, JSON.stringify(config, null, 4), callback);
-    await promise;
 };

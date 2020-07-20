@@ -11,19 +11,19 @@ const fs = require('fs');
 const http = require('http');
 const process = require('process');
 const SocketIO = require('socket.io');
+const yargs = require('yargs');
 
-const configPath = './config.json';
 
 async function init() {
     if (this.config.backup.load_on_startup && this.config.backup.save_interval_ms) {
         assert(false, 'Not allowed to auto-load and auto-save backups simultaneously.');
     }
 
-    if (this.config.backup.load_on_startup) {
+    if (this.action === 'backup-load') {
         // Sequelize doesn't drop tables in the proper order,
         // so we just delete the whole file.
-        if (fs.existsSync(this.config.database.storage)) {
-            fs.unlinkSync(this.config.database.storage);
+        if (fs.existsSync(this.config.database.location)) {
+            fs.unlinkSync(this.config.database.location);
         }
     }
     this.database = await Database.init(
@@ -31,11 +31,15 @@ async function init() {
         { force: this.config.backup.load_on_startup },
     );
     this.actions = new Actions(this);
-    const dataMode = await this.actions.invoke('data-mode-get');
 
-    if (this.config.backup.load_on_startup) {
+    if (this.action === 'backup-load') {
         const { filename } = await this.actions.invoke('backup-load');
         console.info(`Loaded ${filename}`);
+        return;
+    } if (this.action === 'backup-save') {
+        const { filename, isUnchanged } = await this.actions.invoke('backup-save');
+        console.info(`Saved ${filename}${isUnchanged ? ' (unchanged)' : ''}`);
+        return;
     }
 
     const app = express();
@@ -49,7 +53,7 @@ async function init() {
     });
     app.use(express.static('dist'));
     this.server = server.listen(this.config.server.port, this.config.server.host);
-    console.info(`Server ready! (data-mode = ${dataMode})`);
+    console.info('Server ready!');
 
     // eslint-disable-next-line no-use-before-define
     this.loopTimeout = setTimeout(loop.bind(this), this.config.backup.save_interval_ms);
@@ -83,9 +87,16 @@ async function cleanup() {
 
 // Put everything together!
 
+const { argv } = yargs
+    .option('configPath', { alias: 'c', default: 'config.json' })
+    .demandOption('configPath')
+    .option('action', { alias: 'a' })
+    .choices('action', ['backup-load', 'backup-save']);
+
 const context = {};
-context.configPath = configPath;
-context.config = JSON.parse(fs.readFileSync(configPath));
+context.configPath = argv.configPath;
+context.config = JSON.parse(fs.readFileSync(argv.configPath));
+context.action = argv.action;
 
 init.call(context)
     .catch((error) => console.error(error));
