@@ -118,6 +118,7 @@ class LogEventSelectorList extends React.Component {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps = { displayIsMajor: true };
         }
+        selector.is_complete = true;
         return this.state.dates.map((date) => (
             <LogEventList
                 key={date}

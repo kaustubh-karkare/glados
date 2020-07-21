@@ -176,21 +176,26 @@ class LogStructure extends Base {
             this, inputLogStructure.logTopic, LogTopic,
         );
 
-        if (!logStructure) {
-            let content = TextEditorUtils.deserialize(
-                inputLogStructure.titleTemplate,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
-            content = updateDraftContent(
-                content,
-                [inputLogStructure.logTopic],
-                [{ ...inputLogStructure.logTopic, id: nextLogTopicId }],
-            );
-            inputLogStructure.titleTemplate = TextEditorUtils.serialize(
-                content,
+        let originalTitleTemplate = null;
+        if (logStructure) {
+            originalTitleTemplate = TextEditorUtils.deserialize(
+                logStructure.titleTemplate,
                 TextEditorUtils.StorageType.DRAFTJS,
             );
         }
+        let updatedTitleTemplate = TextEditorUtils.deserialize(
+            inputLogStructure.titleTemplate,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
+        updatedTitleTemplate = updateDraftContent(
+            updatedTitleTemplate,
+            [inputLogStructure.logTopic],
+            [{ ...inputLogStructure.logTopic, id: nextLogTopicId }],
+        );
+        inputLogStructure.titleTemplate = TextEditorUtils.serialize(
+            updatedTitleTemplate,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
 
         const fields = {
             group_id: inputLogStructure.logStructureGroup.id,
@@ -211,8 +216,28 @@ class LogStructure extends Base {
             this, prevLogTopicId, inputLogStructure.logTopic, LogTopic,
         );
 
+        if (
+            originalTitleTemplate
+            && !TextEditorUtils.equals(originalTitleTemplate, updatedTitleTemplate)
+        ) {
+            await LogStructure.updateLogEvents.call(this, logStructure.id);
+        }
+
         this.broadcast('log-structure-list');
         return logStructure.id;
+    }
+
+    static async updateLogEvents(logStructureId) {
+        const outputLogEvents = await this.invoke.call(
+            this,
+            'log-event-list',
+            { selector: { structure_id: logStructureId } },
+        );
+        await Promise.all(
+            outputLogEvents.map(
+                (outputLogEvent) => this.invoke.call(this, 'log-event-upsert', outputLogEvent),
+            ),
+        );
     }
 
     // Log Structure Keys

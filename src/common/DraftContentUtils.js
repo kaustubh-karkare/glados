@@ -100,7 +100,7 @@ function convertPlainTextToDraftContent(value, symbolToItems) {
 function updateDraftContent(contentState, oldItems, newItems) {
     const keyToIndex = {};
     oldItems.forEach((oldItem, index) => {
-        const key = `${oldItem.type}:${oldItem.id}`;
+        const key = `${oldItem.__type__}:${oldItem.id}`;
         keyToIndex[key] = index;
     });
 
@@ -119,7 +119,7 @@ function updateDraftContent(contentState, oldItems, newItems) {
             return false;
         }, (start, end) => {
             const prevItem = currentEntity.getData()[PLUGIN_NAME];
-            const key = `${prevItem.type}:${prevItem.id}`;
+            const key = `${prevItem.__type__}:${prevItem.id}`;
             if (key in keyToIndex) {
                 let nextItem = newItems[keyToIndex[key]];
                 if (typeof nextItem === 'object') {
@@ -190,7 +190,7 @@ function evaluateDraftContentExpressions(contentState) {
                         ]);
                     } catch (error) {
                         // eslint-disable-next-line no-console
-                        console.info(error);
+                        console.error(error);
                     }
                 }
                 start += part.length;
