@@ -82,11 +82,15 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
+            topic_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
             group_id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            topic_id: {
+            ordering_index: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },

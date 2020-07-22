@@ -6,7 +6,9 @@ import ActionsRegistry from './Registry';
 ActionsRegistry['reminder-sidebar'] = async function (input) {
     const reminderGroups = [];
 
-    const logStructureGroups = await this.invoke.call(this, 'log-structure-group-list');
+    const logStructureGroups = await this.invoke.call(this, 'log-structure-group-list', {
+        ordering: true,
+    });
     const periodicLogStructures = await this.invoke.call(this, 'log-structure-list', {
         selector: {
             frequency: { [this.database.Op.ne]: null },

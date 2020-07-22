@@ -34,13 +34,14 @@ class Base extends ValidationBase {
             { ...selector, name: { [this.database.Op.like]: `${query}%` } },
             this.transaction,
         );
+        const dataType = this.DataType.name
+            .split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-');
         return options.map((option) => ({
-            __type__: this.DataType.name
-                .split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-'),
+            __type__: dataType,
             id: option.id,
             name: option.name,
             [INCOMPLETE_KEY]: true,
-        }));
+        })).sort((left, right) => left.name.localeCompare(right.name));
     }
 
     static async validateInternal() {

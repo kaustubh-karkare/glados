@@ -41,6 +41,15 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
         },
     },
     {
+        label: 'Last 3 days',
+        value: 'last_3_days',
+        getDates: () => {
+            const today = getTodayLabel();
+            const before = getDateLabel(getTodayValue() - getDurationValue('2 days'));
+            return getDateRange(before, today);
+        },
+    },
+    {
         label: 'Last 7 days',
         value: 'last_7_days',
         getDates: () => {

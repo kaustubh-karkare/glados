@@ -178,7 +178,7 @@ class LogEventEditor extends React.Component {
                 </InputGroup.Text>
                 <TypeaheadInput
                     id={`value-${logEvent.logStructure.id}-${index}`}
-                    value={logKey.value}
+                    value={logKey.value || ""}
                     disabled={this.props.disabled}
                     onChange={(newValue) => this.updateLogValue(index, newValue)}
                     onSearch={(query) => this.onValueSearch(query, index)}

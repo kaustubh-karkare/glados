@@ -58,7 +58,7 @@ class LogStructureEditor extends React.Component {
                             dataType="log-structure-group"
                             value={this.props.logStructure.logStructureGroup}
                             disabled={this.props.disabled}
-                            onChange={(logStructureGroup) => this.updateLogTopic('logStructureGroup', logStructureGroup)}
+                            onChange={(logStructureGroup) => this.updateLogStructure('logStructureGroup', logStructureGroup)}
                         />
                     </InputGroup>
                     <InputGroup.Text>

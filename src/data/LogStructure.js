@@ -197,9 +197,11 @@ class LogStructure extends Base {
             TextEditorUtils.StorageType.DRAFTJS,
         );
 
+        const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
-            group_id: inputLogStructure.logStructureGroup.id,
             topic_id: nextLogTopicId,
+            group_id: inputLogStructure.logStructureGroup.id,
+            ordering_index: orderingIndex,
             keys: JSON.stringify(inputLogStructure.logKeys),
             title_template: inputLogStructure.titleTemplate,
             is_periodic: inputLogStructure.isPeriodic,
