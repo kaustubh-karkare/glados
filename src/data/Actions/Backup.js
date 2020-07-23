@@ -22,7 +22,7 @@ function getDateAndTime() {
 function parseDateAndTime(date, time) {
     return `${date.substr(0, 4)
     }-${date.substr(4, 2)
-    }-${date.substr(4, 2)
+    }-${date.substr(6, 2)
     } ${time.substr(0, 2)
     }:${time.substr(2, 2)
     }:${time.substr(4, 2)}`;

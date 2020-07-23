@@ -111,6 +111,21 @@ class LogStructureEditor extends React.Component {
         );
     }
 
+    renderNeedsEditSelector() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Needs Edit?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logStructure.needsEdit}
+                    disabled={this.props.disabled}
+                    onChange={(needsEdit) => this.updateLogStructure('needsEdit', needsEdit)}
+                />
+            </InputGroup>
+        );
+    }
+
     renderPeriodicDetails() {
         return (
             <>
@@ -202,6 +217,7 @@ class LogStructureEditor extends React.Component {
                         type={LogStructureKeyEditor}
                         valueKey="logKey"
                     />
+                    {this.renderNeedsEditSelector()}
                 </div>
                 <div className="my-3">
                     {this.renderPeriodic()}

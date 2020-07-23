@@ -103,6 +103,10 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
+            needs_edit: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
             // Should this structure have reminders?
             is_periodic: {
                 type: Sequelize.BOOLEAN,

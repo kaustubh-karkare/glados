@@ -90,6 +90,9 @@ class LogStructure extends Base {
             content,
             TextEditorUtils.StorageType.DRAFTJS,
         );
+        if (logStructure.logKeys.length) {
+            logStructure.needsEdit = true;
+        }
     }
 
     static periodicCheck(logStructure) {
@@ -156,6 +159,7 @@ class LogStructure extends Base {
             logTopic: outputLogStructure,
             logKeys: JSON.parse(logStructure.keys),
             titleTemplate: logStructure.title_template,
+            needsEdit: logStructure.needs_edit,
             isPeriodic: logStructure.is_periodic,
             reminderText: logStructure.reminder_text,
             frequency: logStructure.frequency,
@@ -204,6 +208,7 @@ class LogStructure extends Base {
             ordering_index: orderingIndex,
             keys: JSON.stringify(inputLogStructure.logKeys),
             title_template: inputLogStructure.titleTemplate,
+            needs_edit: inputLogStructure.needsEdit,
             is_periodic: inputLogStructure.isPeriodic,
             reminder_text: inputLogStructure.reminderText,
             frequency: inputLogStructure.frequency,

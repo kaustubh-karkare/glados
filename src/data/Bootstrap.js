@@ -76,6 +76,7 @@ async function loadData(actions, data) {
             inputLogStructure.titleTemplate || '$0',
             { $: [inputLogStructure.logTopic, ...inputLogStructure.logKeys] },
         );
+        inputLogStructure.needsEdit = inputLogStructure.needsEdit || false;
 
         inputLogStructure.isPeriodic = inputLogStructure.isPeriodic || false;
         inputLogStructure.reminderText = inputLogStructure.reminderText || null;

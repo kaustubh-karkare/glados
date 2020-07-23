@@ -31,7 +31,7 @@ class ReminderCheckList extends React.Component {
         if (item.__type__ === 'log-structure') {
             logStructure = item;
             logStructure.lastUpdate = getTodayLabel();
-            if (logStructure.logKeys.length > 0 && !wasLogEventProvided) {
+            if (logStructure.needsEdit && !wasLogEventProvided) {
                 this.displayLogEventEditorModal(item, logEvent);
                 return;
             }
