@@ -105,6 +105,7 @@ body {
 
 .input-group > .text-editor {
     flex-grow: 1;
+    max-width: 500px;
     width: 1px;
     height: auto;
 }
@@ -252,26 +253,26 @@ button.sortableDragHandle.btn {
     border-color: var(--highlighed-item-color);
 }
 
-/* Log Topic Details */
+/* Details Section */
 
-.log-topic-details {
+.details-section {
     background: #222;
     border-radius: 4px;
 }
 
-.log-topic-details > * {
+.details-section > * {
     padding: 4px;
 }
 
-.log-topic-details .text-editor {
+.details-section .text-editor {
     overflow: scroll;
 }
 
-.log-topic-details .public-DraftEditor-content {
+.details-section .public-DraftEditor-content {
     min-height: 200px;
 }
 
-.log-topic-details > :last-child {
+.details-section > :last-child {
     border-top: 1px solid #222;
     color: var(--text-disabled-color);
     font-size: 10px;

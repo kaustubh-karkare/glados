@@ -58,8 +58,7 @@ class EditorModal extends React.Component {
             .finally(() => this.setState({ isValidating: false }))
             .then((validationErrors) => this.setState({
                 status: validationErrors.join('\n') || 'No validation errors!',
-            }))
-            .catch((error) => window.modalStack_displayError(error));
+            }));
     }
 
     saveItemNotDebounced() {
@@ -80,8 +79,7 @@ class EditorModal extends React.Component {
             .then((value) => {
                 this.setState({ status: 'Saved!', value });
                 if (this.props.closeOnSave) this.props.onClose();
-            })
-            .catch((error) => window.modalStack_displayError(error));
+            });
     }
 
     renderAutoSaveToggle() {

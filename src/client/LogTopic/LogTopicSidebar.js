@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataLoader } from '../Common';
+import { Coordinator, DataLoader } from '../Common';
 
 class LogTopicSidebar extends React.Component {
     constructor(props) {
@@ -35,7 +35,7 @@ class LogTopicSidebar extends React.Component {
                     <div key={logTopic.id}>
                         <a
                             href="#"
-                            onClick={() => window.logTopic_select(logTopic)}
+                            onClick={() => Coordinator.invoke('details', logTopic)}
                         >
                             {logTopic.name}
                         </a>

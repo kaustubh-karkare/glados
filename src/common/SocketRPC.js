@@ -22,13 +22,13 @@ class SocketRPC {
         return instance;
     }
 
-    static client(socket) {
-        const instance = new SocketRPC(CLIENT_SIDE, socket);
+    static client(socket, errorCallback) {
+        const instance = new SocketRPC(CLIENT_SIDE, socket, errorCallback);
         instance.registerSubscriptions();
         return instance;
     }
 
-    constructor(type, socket) {
+    constructor(type, socket, errorCallback) {
         this.type = type;
         this.socket = socket;
         if (type === SERVER_SIDE) {
@@ -37,6 +37,7 @@ class SocketRPC {
         } else if (type === CLIENT_SIDE) {
             this.counter = 0;
             this.subscriptions = {};
+            this.errorCallback = errorCallback;
         }
     }
 
@@ -44,7 +45,7 @@ class SocketRPC {
 
     send(name, request) {
         assert(this.type === CLIENT_SIDE);
-        return new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, reject) => {
             this.counter += 1;
             const { counter } = this;
             const responseEventName = GENERAL_RESPONSE + counter.toString();
@@ -60,6 +61,7 @@ class SocketRPC {
             });
             this.socket.emit(GENERAL_REQUEST, { counter, name, request });
         });
+        return promise.catch((error) => this.errorCallback(error));
     }
 
     registerActions(actions) {

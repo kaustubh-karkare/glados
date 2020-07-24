@@ -4,7 +4,7 @@ import React from 'react';
 import {
     getTodayLabel, getTodayValue, getDateLabel, getDayOfTheWeek, getDurationValue, getDateRange,
 } from '../../common/DateUtils';
-import { Selector, TypeaheadSelector } from '../Common';
+import { Coordinator, Selector, TypeaheadSelector } from '../Common';
 import Enum from '../../common/Enum';
 import LogEventList from './LogEventList';
 
@@ -70,7 +70,10 @@ class LogEventSelectorList extends React.Component {
             selectedLogTopic: null,
             displayMajorEventsOnly: true,
         };
-        window.logEvent_selectTopic = (selectedLogTopic) => this.setState({ selectedLogTopic });
+        Coordinator.register(
+            'topic-select',
+            (selectedLogTopic) => this.setState({ selectedLogTopic }),
+        );
     }
 
     onDateRangeSelectorUpdate(value) {
@@ -141,10 +144,10 @@ class LogEventSelectorList extends React.Component {
 
     render() {
         return (
-            <>
+            <div style={{ marginBottom: '128px' }}>
                 {this.renderFilters()}
                 {this.renderLogEvents()}
-            </>
+            </div>
         );
     }
 }

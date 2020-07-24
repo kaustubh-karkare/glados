@@ -1,5 +1,6 @@
 import React from 'react';
 import assert from '../../common/assert';
+import Coordinator from './Coordinator';
 import ErrorModal from './ErrorModal';
 
 class ModalStack extends React.Component {
@@ -8,8 +9,8 @@ class ModalStack extends React.Component {
         this.state = {
             components: [],
         };
-        window.modalStack_push = this.push.bind(this);
-        window.modalStack_displayError = (error) => this.push(ErrorModal, { error });
+        Coordinator.register('modal', this.push.bind(this));
+        Coordinator.register('modal-error', (error) => this.push(ErrorModal, { error }));
     }
 
     push(ComponentClass, componentProps) {

@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
+import Coordinator from '../Coordinator';
 import DataLoader from '../DataLoader';
 import EditorModal from '../EditorModal';
 import { getDataTypeMapping } from '../../../data';
@@ -22,12 +23,10 @@ function AdderWrapper(props) {
     return (
         <InputGroup size="sm">
             <div className="icon" />
-            <div className="icon">
+            <div className="icon mr-1">
                 <GoPrimitiveDot />
             </div>
-            <div className="mx-1">
-                {children}
-            </div>
+            {children}
         </InputGroup>
     );
 }
@@ -103,8 +102,7 @@ class BulletList extends React.Component {
             ordering: orderedItems.map((item) => item.id),
         };
         window.api.send(`${this.props.dataType}-reorder`, input)
-            .then(() => this.setState({ items: orderedItems }))
-            .catch((error) => window.modalStack_displayError(error));
+            .then(() => this.setState({ items: orderedItems }));
     }
 
     onToggle(item) {
@@ -120,7 +118,7 @@ class BulletList extends React.Component {
             event.preventDefault();
             event.stopPropagation();
         }
-        window.modalStack_push(EditorModal, {
+        Coordinator.invoke('modal', EditorModal, {
             dataType: this.props.dataType,
             EditorComponent: this.props.EditorComponent,
             editorProps: { selector: this.props.selector },
@@ -146,8 +144,7 @@ class BulletList extends React.Component {
                     state.deleteItem = null;
                     return state;
                 });
-            })
-            .catch((error) => window.modalStack_displayError(error));
+            });
     }
 
     renderDeleteConfirmationModal() {

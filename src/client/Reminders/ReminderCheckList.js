@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorModal, TextEditor } from '../Common';
+import { Coordinator, EditorModal, TextEditor } from '../Common';
 import assert from '../../common/assert';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -42,24 +42,22 @@ class ReminderCheckList extends React.Component {
                     this.closeModal();
                     delete this.closeModal;
                 }
-            })
-            .catch((error) => window.modalStack_displayError(error));
+            });
     }
 
     // eslint-disable-next-line class-methods-use-this
     onDismissReminder(item) {
         if (item.__type__ !== 'log-structure') {
-            window.modalStack_displayError('Can only dismiss periodic reminders!');
+            Coordinator.invoke('modal-error', 'Can only dismiss periodic reminders!');
             return;
         }
         const logStructure = item;
         logStructure.lastUpdate = getTodayLabel();
-        window.api.send('reminder-dismiss', { logStructure })
-            .catch((error) => window.modalStack_displayError(error));
+        window.api.send('reminder-dismiss', { logStructure });
     }
 
     displayLogEventEditorModal(item, logEvent) {
-        this.closeModal = window.modalStack_push(EditorModal, {
+        this.closeModal = Coordinator.invoke('modal', EditorModal, {
             dataType: 'log-event',
             EditorComponent: LogEventEditor,
             valueKey: 'logEvent',

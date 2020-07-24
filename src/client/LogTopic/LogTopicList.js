@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList } from '../Common';
+import { BulletList, Coordinator } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 
 function LogTopicViewer(props) {
@@ -9,7 +9,7 @@ function LogTopicViewer(props) {
         <a
             key={logTopic.id}
             href="#"
-            onClick={() => window.logTopic_select(logTopic)}
+            onClick={() => Coordinator.invoke('details', logTopic)}
         >
             {logTopic.name}
         </a>

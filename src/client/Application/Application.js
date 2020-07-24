@@ -7,8 +7,9 @@ import BackupSidebar from './BackupSidebar';
 import { LogEventSelectorList } from '../LogEvent';
 import { LogStructureGroupList } from '../LogStructure';
 import { ReminderSidebar } from '../Reminders';
-import { LogTopicSidebar, LogTopicList, LogTopicDetails } from '../LogTopic';
+import { LogTopicSidebar, LogTopicList } from '../LogTopic';
 import { ModalStack, ScrollableSection, combineClassNames } from '../Common';
+import DetailsSection from './DetailsSection';
 import Enum from '../../common/Enum';
 
 
@@ -67,7 +68,7 @@ class Applicaton extends React.Component {
                     </Col>
                     <Col md={4} className="my-3">
                         <ScrollableSection>
-                            <LogTopicDetails />
+                            <DetailsSection />
                         </ScrollableSection>
                     </Col>
                     <Col md={2} className="my-3">

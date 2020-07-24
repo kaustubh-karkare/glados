@@ -1,11 +1,10 @@
 import React from 'react';
-import { DataLoader, LeftRight } from '../Common';
+import { Coordinator, DataLoader, LeftRight } from '../Common';
 
 class BackupSidebar extends React.Component {
     static onClick() {
         window.api.send('backup-save')
-            .then(({ isUnchanged }) => window.modalStack_displayError(isUnchanged ? 'Backup unchanged!' : 'Backup complete!'))
-            .catch((error) => window.modalStack_displayError(error));
+            .then(({ isUnchanged }) => Coordinator.invoke('modal-error', isUnchanged ? 'Backup unchanged!' : 'Backup complete!'));
     }
 
     constructor(props) {

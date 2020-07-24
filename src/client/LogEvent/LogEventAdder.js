@@ -2,7 +2,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { LogEvent, isRealItem } from '../../data';
 import LogEventEditor from './LogEventEditor';
-import { EditorModal, KeyCodes, TextEditor } from '../Common';
+import {
+    Coordinator, EditorModal, KeyCodes, TextEditor,
+} from '../Common';
 
 class LogEventAdder extends React.Component {
     constructor(props) {
@@ -14,7 +16,7 @@ class LogEventAdder extends React.Component {
 
     onEditLogEvent(logEvent) {
         this.setState({ logEvent: LogEvent.createVirtual(this.props.selector) });
-        window.modalStack_push(EditorModal, {
+        Coordinator.invoke('modal', EditorModal, {
             dataType: 'log-event',
             EditorComponent: LogEventEditor,
             valueKey: 'logEvent',
@@ -28,8 +30,7 @@ class LogEventAdder extends React.Component {
             window.api.send('log-event-upsert', logEvent)
                 .then((value) => {
                     this.setState({ logEvent: LogEvent.createVirtual(this.props.selector) });
-                })
-                .catch((error) => window.modalStack_displayError(error));
+                });
         } else {
             this.onEditLogEvent(logEvent);
         }
@@ -46,7 +47,11 @@ class LogEventAdder extends React.Component {
                             logStructure,
                         });
                         LogEvent.trigger(updatedLogEvent);
-                        this.onEditLogEvent(updatedLogEvent);
+                        if (logStructure.needsEdit) {
+                            this.onEditLogEvent(updatedLogEvent);
+                        } else {
+                            this.onSaveLogEvent(updatedLogEvent);
+                        }
                     });
             }
         }

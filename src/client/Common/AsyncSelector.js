@@ -25,8 +25,7 @@ class AsyncSelector extends React.Component {
         window.api.send(`${this.props.dataType}-list`, { ordering: true })
             .then((options) => this.setState({
                 options: [...this.props.prefixOptions, ...options],
-            }))
-            .catch((error) => window.modalStack_displayError(error.toString()));
+            }));
     }
 
     render() {

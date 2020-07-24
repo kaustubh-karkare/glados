@@ -11,6 +11,7 @@ import TextEditorUtils from '../../common/TextEditorUtils';
 import { INCOMPLETE_KEY } from '../../data';
 import { KeyCodes, combineClassNames } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
+import Coordinator from './Coordinator';
 
 import 'draft-js/dist/Draft.css';
 
@@ -22,7 +23,7 @@ function MentionComponent(props) {
             className="mention"
             title={item.name}
             href="#"
-            onClick={() => window.logTopic_select(item)}
+            onClick={() => Coordinator.invoke('details', item)}
         >
             {props.children}
         </a>
