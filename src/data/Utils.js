@@ -14,9 +14,9 @@ export function isRealItem(item) {
     return item && item.id > 0;
 }
 
-// This is attached to typeahead suggestions, telling the client-side
-// that the item must be loaded before usage.
-export const INCOMPLETE_KEY = '__incomplete_key__';
+export function getPartialItem(item) {
+    return item ? { __type__: item.__type__, id: item.id, name: item.name } : null;
+}
 
 export function awaitSequence(items, method) {
     if (!items) {

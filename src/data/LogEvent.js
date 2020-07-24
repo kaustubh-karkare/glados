@@ -39,7 +39,7 @@ class LogEvent extends Base {
             content = TextEditorUtils.updateDraftContent(
                 content,
                 logEvent.logStructure.logKeys,
-                logEvent.logStructure.logKeys.map((logKey) => logKey.value),
+                logEvent.logStructure.logKeys.map((logKey) => logKey.value || logKey.name),
             );
             content = TextEditorUtils.evaluateDraftContentExpressions(content);
             logEvent.title = TextEditorUtils.serialize(
@@ -70,27 +70,26 @@ class LogEvent extends Base {
     static async validateInternal(inputLogEvent) {
         const results = [];
         if (inputLogEvent.date !== null) {
-            results.push(this.validateDateLabel('.date', inputLogEvent.date));
+            results.push(Base.validateDateLabel('.date', inputLogEvent.date));
         }
-        results.push(this.validateNonEmptyString('.title', inputLogEvent.name));
+        results.push(Base.validateNonEmptyString('.title', inputLogEvent.name));
         if (inputLogEvent.logStructure) {
-            const logStructureResults = await this.validateRecursive(
+            const logStructureResults = await Base.validateRecursive(
                 LogStructure, '.logStructure', inputLogEvent.logStructure,
             );
             results.push(...logStructureResults);
 
-            inputLogEvent.logStructure.logKeys.forEach((logKey, index) => {
-                // const logKey = inputLogEvent.logStructure.logKeys[index];
-                const prefix = `.logKeys[${index}].value`;
-                // TODO: Validate data using logKey
-                results.push(
-                    this.validateUsingLambda(
-                        prefix,
-                        logKey.value,
-                        LogStructure.KeyOptionsMap[logKey.type].validator,
-                    ),
-                );
-            });
+            const logKeyResults = await Promise.all(
+                inputLogEvent.logStructure.logKeys.map(async (logKey, index) => {
+                    if (logKey.isOptional && !logKey.value) return null;
+                    const name = `.logKeys[${index}].value`;
+                    if (!logKey.value) return [name, false, 'must be non-empty.'];
+                    const method = LogStructure.KeyOptionsMap[logKey.type].validator;
+                    const isValid = await method(logKey.value, logKey, this);
+                    return [name, isValid, 'fails validation for specified type.'];
+                }),
+            );
+            results.push(...logKeyResults.filter((result) => result));
         }
         return results;
     }
@@ -179,6 +178,13 @@ class LogEvent extends Base {
                 ),
             ),
         };
+        if (logValues) {
+            logValues.forEach((value) => {
+                if (typeof value === 'object' && value && value.__type__ === 'log-topic') {
+                    logTopics[value.id] = value;
+                }
+            });
+        }
         await this.database.setEdges(
             'LogEventToLogTopic',
             'event_id',

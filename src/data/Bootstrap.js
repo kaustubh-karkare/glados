@@ -1,6 +1,7 @@
 import { maybeSubstitute } from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { awaitSequence, getVirtualID } from './Utils';
+import LogStructure from './LogStructure';
 import LogTopic from './LogTopic';
 
 
@@ -49,6 +50,10 @@ async function loadData(actions, data) {
             inputLogStructure.logKeys.forEach((logKey, index) => {
                 logKey.__type__ = 'log-structure-key';
                 logKey.id = index;
+                if (logKey.parentTopicName) {
+                    logKey.parentLogTopic = logTopicsMap[logKey.parentTopicName];
+                    delete logKey.parentTopicName;
+                }
             });
         } else {
             inputLogStructure.logKeys = [];
@@ -88,7 +93,12 @@ async function loadData(actions, data) {
             inputLogEvent.logStructure = logStructureMap[inputLogEvent.structureName];
             if (inputLogEvent.logValues) {
                 inputLogEvent.logValues.forEach((value, index) => {
-                    inputLogEvent.logStructure.logKeys[index].value = value;
+                    const logKey = inputLogEvent.logStructure.logKeys[index];
+                    if (logKey.type === LogStructure.KeyType.LOG_TOPIC) {
+                        logKey.value = logTopicsMap[value];
+                    } else {
+                        logKey.value = value;
+                    }
                 });
             }
         }

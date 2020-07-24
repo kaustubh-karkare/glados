@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 
 import ValidationBase from './ValidationBase';
-import { INCOMPLETE_KEY } from './Utils';
 
 class Base extends ValidationBase {
     static createVirtual() {
@@ -40,7 +39,6 @@ class Base extends ValidationBase {
             __type__: dataType,
             id: option.id,
             name: option.name,
-            [INCOMPLETE_KEY]: true,
         })).sort((left, right) => left.name.localeCompare(right.name));
     }
 

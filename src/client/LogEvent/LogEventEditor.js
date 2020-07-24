@@ -1,11 +1,11 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import deepcopy from '../../common/deepcopy';
 import {
-    DatePicker, Selector, TextEditor, TextInput, TypeaheadSelector, TypeaheadInput,
+    DatePicker, Selector, TextEditor, TextInput, TypeaheadSelector,
 } from '../Common';
 import { LogEvent } from '../../data';
 import PropTypes from '../prop-types';
+import LogEventValueEditor from './LogEventValueEditor';
 
 
 class LogEventEditor extends React.Component {
@@ -16,14 +16,6 @@ class LogEventEditor extends React.Component {
                 this.updateLogStructure(logTopic);
             }
         }
-    }
-
-    onValueSearch(query, index) {
-        return window.api.send('value-typeahead', {
-            structure_id: this.props.logEvent.logStructure.id,
-            query,
-            index,
-        });
     }
 
     updateLogEvent(methodOrName, maybeValue) {
@@ -40,22 +32,10 @@ class LogEventEditor extends React.Component {
     updateLogStructure(logTopic) {
         if (logTopic) {
             window.api.send('log-structure-list', { selector: { topic_id: logTopic.id } })
-                .then(([logStructure]) => {
-                    logStructure.logKeys.forEach((logKey) => {
-                        logKey.value = '';
-                    });
-                    this.updateLogEvent('logStructure', logStructure);
-                });
+                .then(([logStructure]) => this.updateLogEvent('logStructure', logStructure));
         } else {
             this.updateLogEvent('logStructure', null);
         }
-    }
-
-    updateLogValue(index, value) {
-        const logEvent = deepcopy(this.props.logEvent);
-        logEvent.logStructure.logKeys[index].value = value;
-        LogEvent.trigger(logEvent);
-        this.props.onChange(logEvent);
     }
 
     renderDateRow() {
@@ -172,18 +152,15 @@ class LogEventEditor extends React.Component {
             return null;
         }
         return logEvent.logStructure.logKeys.map((logKey, index) => (
-            <InputGroup key={logKey.name} className="my-1">
-                <InputGroup.Text>
-                    {logKey.name}
-                </InputGroup.Text>
-                <TypeaheadInput
-                    id={`value-${logEvent.logStructure.id}-${index}`}
-                    value={logKey.value || ''}
-                    disabled={this.props.disabled}
-                    onChange={(newValue) => this.updateLogValue(index, newValue)}
-                    onSearch={(query) => this.onValueSearch(query, index)}
-                />
-            </InputGroup>
+            <LogEventValueEditor
+                key={logKey.id}
+                logStructure={logEvent.logStructure}
+                index={index}
+                disabled={this.props.disabled}
+                onChange={(updatedLogKey) => this.updateLogEvent((updatedLogEvent) => {
+                    updatedLogEvent.logStructure.logKeys[index] = updatedLogKey;
+                })}
+            />
         ));
     }
 

@@ -51,6 +51,15 @@ const WrappedRow = SortableElement((props) => {
 
 
 class SortableList extends React.Component {
+    constructor(props) {
+        super(props);
+        let { type } = props;
+        if (type.constructor) {
+            type = (innerProps) => React.createElement(props.type, innerProps);
+        }
+        this.state = { type };
+    }
+
     onReorder({ oldIndex, newIndex }) {
         this.props.onChange(arrayMove(this.props.items, oldIndex, newIndex));
     }
@@ -77,7 +86,7 @@ class SortableList extends React.Component {
             index,
             disabled,
             // Forwarded to the WrappedRow.
-            originalElement: this.props.type({
+            originalElement: this.state.type({
                 [valueKey]: item,
                 disabled,
                 onChange: (updatedItem) => this.onChange(index, updatedItem),

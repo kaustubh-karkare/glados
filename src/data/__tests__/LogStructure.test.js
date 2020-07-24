@@ -5,7 +5,7 @@ import TextEditorUtils from '../../common/TextEditorUtils';
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
-test('test_title_template', async () => {
+test('test_structure_title_template', async () => {
     await Utils.loadData({
         logStructureGroups: [
             {
@@ -59,4 +59,42 @@ test('test_title_template', async () => {
     expect(logEvents[0].name).toEqual('Cycling: 15 miles / 60 minutes (15.00 mph)');
     expect(logEvents[1].name).toEqual('Cycling: 15 miles / 55 minutes (16.36 mph)');
     expect(logEvents[2].name).toEqual('Cycling: 15 miles / 50 minutes (18.00 mph)');
+});
+
+test('test_structure_with_topic', async () => {
+    await Utils.loadData({
+        logTopics: [
+            { name: 'Books' },
+            { name: 'Harry Potter', parentTopicName: 'Books' },
+            { name: 'Foundation', parentTopicName: 'Books' },
+        ],
+        logStructureGroups: [
+            { name: 'Education' },
+        ],
+        logStructures: [
+            {
+                groupName: 'Education',
+                name: 'Reading',
+                logKeys: [
+                    { name: 'Book', type: 'log_topic', parentTopicName: 'Books' },
+                    { name: 'Progress', type: 'string' },
+                ],
+                titleTemplate: '$0: $1 ($2)',
+            },
+        ],
+        logEvents: [
+            {
+                date: '2020-07-23',
+                structureName: 'Reading',
+                logValues: ['Harry Potter', '60'],
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    await expect(() => actions.invoke('log-topic-delete', 2)).rejects.toThrow();
+    const logEvent = await actions.invoke('log-event-load', { id: 1 });
+    logEvent.logStructure.logKeys[0].value = await actions.invoke('log-topic-load', { id: 3 });
+    await actions.invoke('log-event-upsert', logEvent);
+    await actions.invoke('log-topic-delete', 2);
 });

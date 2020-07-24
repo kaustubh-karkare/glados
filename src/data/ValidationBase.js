@@ -46,36 +46,6 @@ class ValidationBase {
         ];
     }
 
-    static validateDuration(name, duration) {
-        return [
-            name,
-            !!duration.match(/(?:(\d+) days?)/),
-            'is an invalid duration.',
-        ];
-    }
-
-    static validateUsingLambda(name, value, method) {
-        if (!method) {
-            return [
-                name,
-                false,
-                'is missing a validator.',
-            ];
-        }
-        if (!value) {
-            return [
-                name,
-                false,
-                'must be non-empty.',
-            ];
-        }
-        return [
-            name,
-            method(value),
-            'fails validation for specified type.',
-        ];
-    }
-
     static async validateRecursive(DataType, name, item) {
         const result = await DataType.validateInternal(item);
         const prefix = name;
@@ -107,7 +77,7 @@ class ValidationBase {
 
     static async validate(inputItem) {
         const { DataType } = this;
-        const result = await DataType.validateInternal(inputItem);
+        const result = await DataType.validateInternal.call(this, inputItem);
         let prefix = DataType.name;
         prefix = prefix[0].toLowerCase() + prefix.substring(1);
         for (let jj = 0; jj < result.length; jj += 1) {

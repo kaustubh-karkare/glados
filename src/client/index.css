@@ -81,6 +81,7 @@ body {
 }
 
 .input-group > input.form-control {
+    border: none;
     font-size: 13px;
     height: 20px;
     padding: 0 4px;

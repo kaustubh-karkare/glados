@@ -16,17 +16,25 @@ const [KeyOptions, KeyType, KeyOptionsMap] = Enum([
     {
         value: 'string',
         label: 'String',
-        validator: () => true,
+        validator: async () => true,
     },
     {
         value: 'integer',
         label: 'Integer',
-        validator: (data) => !!data.match(/^\d+$/),
+        validator: async (value) => !!value.match(/^\d+$/),
     },
     {
         value: 'number',
         label: 'Number',
-        validator: (data) => !!data.match(/^\d+(?:\.\d+)?$/),
+        validator: async (value) => !!value.match(/^\d+(?:\.\d+)?$/),
+    },
+    {
+        value: 'log_topic',
+        label: 'Topic',
+        validator: async (value, logKey, that) => {
+            const logTopic = await that.invoke.call(that, 'log-topic-load', value);
+            return logTopic.parentLogTopic.id === logKey.parentLogTopic.id;
+        },
     },
 ]);
 
@@ -69,6 +77,7 @@ class LogStructure extends Base {
             logTopic: logTopic || LogTopic.createVirtual({ hasStructure: true }),
             logKeys: [],
             titleTemplate: '',
+            needsEdit: false,
             isPeriodic: false,
             reminderText: null,
             frequency: null,
@@ -107,15 +116,22 @@ class LogStructure extends Base {
     static async validateInternal(inputLogStructure) {
         const results = [];
 
-        const logTopicResults = await this.validateRecursive(
+        const logTopicResults = await Base.validateRecursive(
             LogTopic, '.logTopic', inputLogStructure.logTopic,
         );
         results.push(...logTopicResults);
 
         inputLogStructure.logKeys.forEach((logKey, index) => {
             const prefix = `.logKey[${index}]`;
-            results.push(this.validateNonEmptyString(`${prefix}.name`, logKey.name));
-            results.push(this.validateNonEmptyString(`${prefix}.type`, logKey.type));
+            results.push(Base.validateNonEmptyString(`${prefix}.name`, logKey.name));
+            results.push(Base.validateNonEmptyString(`${prefix}.type`, logKey.type));
+            if (logKey.type === KeyType.LOG_TOPIC) {
+                results.push([
+                    `${prefix}.parentLogTopic`,
+                    logKey.parentLogTopic,
+                    'must be provided!',
+                ]);
+            }
         });
 
         const content = TextEditorUtils.deserialize(
@@ -151,12 +167,17 @@ class LogStructure extends Base {
         const outputLogStructureGroup = await LogStructureGroup.load.call(
             this, logStructure.group_id,
         );
+        const logKeys = await Promise.all(
+            JSON.parse(logStructure.keys).map(
+                (logKey) => LogStructure.loadKey.call(this, logKey),
+            ),
+        );
         return {
             __type__: 'log-structure',
             id: logStructure.id,
             logStructureGroup: outputLogStructureGroup,
             logTopic: outputLogStructure,
-            logKeys: JSON.parse(logStructure.keys),
+            logKeys,
             titleTemplate: logStructure.title_template,
             needsEdit: logStructure.needs_edit,
             isPeriodic: logStructure.is_periodic,
@@ -205,7 +226,9 @@ class LogStructure extends Base {
             topic_id: nextLogTopicId,
             group_id: inputLogStructure.logStructureGroup.id,
             ordering_index: orderingIndex,
-            keys: JSON.stringify(inputLogStructure.logKeys),
+            keys: JSON.stringify(inputLogStructure.logKeys.map(
+                (logKey) => LogStructure.saveKey.call(this, logKey),
+            )),
             title_template: inputLogStructure.titleTemplate,
             needs_edit: inputLogStructure.needsEdit,
             is_periodic: inputLogStructure.isPeriodic,
@@ -254,7 +277,31 @@ class LogStructure extends Base {
             id: index,
             name: '',
             type: KeyType.STRING,
+            isOptional: false,
+            parentLogTopic: null,
         };
+    }
+
+    static async loadKey(logKey) {
+        logKey.__type__ = 'log-structure-key';
+        logKey.isOptional = logKey.is_optional;
+        delete logKey.is_optional;
+        if (logKey.parent_topic_id) {
+            logKey.parentLogTopic = await LogTopic.load.call(this, logKey.parent_topic_id);
+        }
+        delete logKey.parent_topic_id;
+        return logKey;
+    }
+
+    static saveKey(logKey) {
+        delete logKey.__type__;
+        logKey.is_optional = logKey.isOptional;
+        delete logKey.isOptional;
+        if (logKey.parentLogTopic) {
+            logKey.parent_topic_id = logKey.parentLogTopic.id;
+        }
+        delete logKey.parentLogTopic;
+        return logKey;
     }
 }
 

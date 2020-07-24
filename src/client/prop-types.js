@@ -5,12 +5,12 @@ const LogTopic = PropTypes.shape({
     name: PropTypes.string.isRequired,
 });
 
-const LogStructureKey = PropTypes.arrayOf(
-    PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        type: PropTypes.string.isRequired,
-    }).isRequired,
-);
+const LogStructureKey = PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    isOptional: PropTypes.bool,
+    parentTopic: LogTopic,
+});
 
 const LogStructureGroup = PropTypes.shape({
     id: PropTypes.number.isRequired,
@@ -20,7 +20,7 @@ const LogStructureGroup = PropTypes.shape({
 const LogStructure = PropTypes.shape({
     id: PropTypes.number.isRequired,
     logTopic: LogTopic.isRequired,
-    logKeys: LogStructureKey.isRequired,
+    logKeys: PropTypes.arrayOf(LogStructureKey.isRequired).isRequired,
 });
 
 const LogEvent = PropTypes.shape({

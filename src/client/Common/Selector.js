@@ -3,15 +3,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 function Selector(props) {
+    const { onChange, options, ...moreProps } = props;
     return (
         <Form.Control
+            {...moreProps}
             as="select"
-            value={props.value}
-            disabled={props.disabled}
-            onChange={(event) => props.onChange(event.target.value)}
+            onChange={(event) => onChange(event.target.value)}
             size="sm"
         >
-            {props.options.map((item) => {
+            {options.map((item) => {
                 const optionProps = { key: item.value, value: item.value };
                 return <option {...optionProps}>{item.label}</option>;
             })}
@@ -32,16 +32,19 @@ Selector.propTypes = {
 };
 
 function BinarySelector(props) {
+    const {
+        noLabel, yesLabel, value, onChange, ...moreProps
+    } = props;
     const options = [
-        { label: props.noLabel, value: 'no' },
-        { label: props.yesLabel, value: 'yes' },
+        { label: noLabel, value: 'no' },
+        { label: yesLabel, value: 'yes' },
     ];
     return (
         <Selector
-            {...props}
-            value={options[props.value ? 1 : 0].value}
+            {...moreProps}
+            value={options[value ? 1 : 0].value}
             options={options}
-            onChange={(newValue) => props.onChange(newValue === options[1].value)}
+            onChange={(newValue) => onChange(newValue === options[1].value)}
         />
     );
 }

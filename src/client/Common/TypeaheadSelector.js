@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
-import { INCOMPLETE_KEY } from '../../data';
 
 
 class TypeaheadSelector extends React.Component {
@@ -29,12 +28,8 @@ class TypeaheadSelector extends React.Component {
     }
 
     onChange(option) {
-        if (option && option[INCOMPLETE_KEY]) {
-            window.api.send(`${option.__type__}-load`, option)
-                .then((result) => this.props.onChange(result));
-        } else {
-            this.props.onChange(option);
-        }
+        window.api.send(`${option.__type__}-load`, option)
+            .then((result) => this.props.onChange(result));
     }
 
     renderDeleteButton() {

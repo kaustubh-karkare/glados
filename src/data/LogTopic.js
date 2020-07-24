@@ -17,7 +17,7 @@ class LogTopic extends Base {
 
     static async validateInternal(inputLogTopic) {
         const results = [];
-        results.push(this.validateNonEmptyString('.name', inputLogTopic.name));
+        results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));
         return results;
     }
 
