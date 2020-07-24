@@ -106,7 +106,6 @@ body {
 
 .input-group > .text-editor {
     flex-grow: 1;
-    max-width: 500px;
     width: 1px;
     height: auto;
 }
@@ -252,6 +251,16 @@ button.sortableDragHandle.btn {
 .tab-item.tab-item-selected {
     background: #222;
     border-color: var(--highlighed-item-color);
+}
+
+/* Index Section */
+
+.index-section {
+    margin-bottom: 128px;
+}
+
+.index-section .text-editor {
+    max-width: 500px;
 }
 
 /* Details Section */

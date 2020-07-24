@@ -1,14 +1,14 @@
-import React from 'react';
-
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
+import classNames from 'classnames';
 import Col from 'react-bootstrap/Col';
-import BackupSidebar from './BackupSidebar';
+import Container from 'react-bootstrap/Container';
+import React from 'react';
+import Row from 'react-bootstrap/Row';
 import { LogEventSelectorList } from '../LogEvent';
 import { LogStructureGroupList } from '../LogStructure';
-import { ReminderSidebar } from '../Reminders';
 import { LogTopicSidebar, LogTopicList } from '../LogTopic';
-import { ModalStack, ScrollableSection, combineClassNames } from '../Common';
+import { ModalStack, ScrollableSection } from '../Common';
+import { ReminderSidebar } from '../Reminders';
+import BackupSidebar from './BackupSidebar';
 import DetailsSection from './DetailsSection';
 import Enum from '../../common/Enum';
 
@@ -49,7 +49,7 @@ class Applicaton extends React.Component {
                             {TabOptions.map((option) => (
                                 <div
                                     key={option.value}
-                                    className={combineClassNames({
+                                    className={classNames({
                                         'tab-item': true,
                                         'tab-item-selected': this.state.activeTab === option.value,
                                     })}

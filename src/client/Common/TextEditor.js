@@ -1,4 +1,5 @@
 
+import classNames from 'classnames';
 import Editor from 'draft-js-plugins-editor';
 import { RichUtils } from 'draft-js';
 import PropTypes from 'prop-types';
@@ -8,7 +9,7 @@ import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
 
 import TextEditorUtils from '../../common/TextEditorUtils';
-import { KeyCodes, combineClassNames } from './Utils';
+import { KeyCodes } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 import Coordinator from './Coordinator';
 
@@ -187,7 +188,7 @@ class TextEditor extends React.Component {
 
     render() {
         return (
-            <div className={combineClassNames({
+            <div className={classNames({
                 'text-editor': true,
                 'text-editor-normal': !this.props.unstyled,
                 'text-editor-disabled': this.props.disabled,

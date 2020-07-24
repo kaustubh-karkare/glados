@@ -10,24 +10,11 @@ import LogEventList from './LogEventList';
 
 const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
     {
-        label: 'All Time',
-        value: 'all_time',
-        getDates: () => null,
-    },
-    {
         label: 'Today',
         value: 'today',
         getDates: () => {
             const today = getTodayLabel();
             return [today];
-        },
-    },
-    {
-        label: 'Yesterday',
-        value: 'yesterday',
-        getDates: () => {
-            const yesterday = getDateLabel(getTodayValue() - getDurationValue('1 day'));
-            return [yesterday];
         },
     },
     {
@@ -41,15 +28,6 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
         },
     },
     {
-        label: 'Last 3 days',
-        value: 'last_3_days',
-        getDates: () => {
-            const today = getTodayLabel();
-            const before = getDateLabel(getTodayValue() - getDurationValue('2 days'));
-            return getDateRange(before, today);
-        },
-    },
-    {
         label: 'Last 7 days',
         value: 'last_7_days',
         getDates: () => {
@@ -57,6 +35,11 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
             const before = getDateLabel(getTodayValue() - getDurationValue('6 days'));
             return getDateRange(before, today);
         },
+    },
+    {
+        label: 'All Time',
+        value: 'all_time',
+        getDates: () => null,
     },
 ]);
 
@@ -144,7 +127,7 @@ class LogEventSelectorList extends React.Component {
 
     render() {
         return (
-            <div style={{ marginBottom: '128px' }}>
+            <div className="index-section">
                 {this.renderFilters()}
                 {this.renderLogEvents()}
             </div>

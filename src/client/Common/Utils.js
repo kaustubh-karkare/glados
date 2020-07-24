@@ -1,12 +1,6 @@
-function combineClassNames(map) {
-    return Object.entries(map)
-        .filter((pair) => pair[1])
-        .map((pair) => pair[0])
-        .join(' ');
-}
 
 // https://davidwalsh.name/javascript-debounce-function
-function debounce(func, wait, immediate) {
+export function debounce(func, wait, immediate) {
     let timeout;
     return function inner(...args) {
         const context = this;
@@ -21,7 +15,7 @@ function debounce(func, wait, immediate) {
     };
 }
 
-const KeyCodes = {
+export const KeyCodes = {
     DELETE: 8,
     ENTER: 13,
     ESCAPE: 27,
@@ -29,6 +23,3 @@ const KeyCodes = {
     UP_ARROW: 38,
     DOWN_ARROW: 40,
 };
-
-// eslint-disable-next-line import/prefer-default-export
-export { combineClassNames, debounce, KeyCodes };

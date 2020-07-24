@@ -57,7 +57,7 @@ class DetailsSection extends React.Component {
                     </div>
                 </LeftRight>
             );
-        } if (this.state.item.__type__ === 'log-event') {
+        } else if (this.state.item.__type__ === 'log-event') {
             const logEvent = this.state.item;
             return (
                 <TextEditor
