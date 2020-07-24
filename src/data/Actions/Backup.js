@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 import assert from '../../common/assert';
+// import TextEditorUtils from '../../common/TextEditorUtils';
 import { awaitSequence, getCallbackAndPromise } from '../Utils';
 import ActionsRegistry from './Registry';
 
@@ -47,6 +48,32 @@ ActionsRegistry['backup-save'] = async function () {
         const items = await model.findAll({ transaction: this.transaction });
         result[model.name] = items.map((item) => item.dataValues);
     });
+
+    /*
+    if (false) {
+        // Switch to using markdown instead of draftjs content, which takes less space.
+        const convert = (value) => {
+            return TextEditorUtils.serialize(
+                TextEditorUtils.deserialize(
+                    value,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                ),
+                TextEditorUtils.StorageType.MARKDOWN,
+            );
+        }
+        result.log_topics.forEach(log_topic => {
+            log_topic.details = convert(log_topic.details);
+        });
+        result.log_structures.forEach(log_structure => {
+            log_structure.title_template = convert(log_structure.title_template);
+        });
+        result.log_events.forEach(log_event => {
+            log_event.title = convert(log_event.title);
+            log_event.details = convert(log_event.details);
+        });
+    }
+    */
+
     const data = JSON.stringify(result, null, '\t');
     const hash = crypto.createHash('md5').update(data).digest('hex');
 

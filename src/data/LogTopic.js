@@ -1,5 +1,4 @@
 import { getVirtualID } from './Utils';
-import { updateDraftContent } from '../common/DraftContentUtils';
 import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
 
@@ -134,7 +133,7 @@ class LogTopic extends Base {
             value,
             TextEditorUtils.StorageType.DRAFTJS,
         );
-        content = updateDraftContent(content, logTopics, logTopics);
+        content = TextEditorUtils.updateDraftContent(content, logTopics, logTopics);
         return TextEditorUtils.serialize(
             content,
             TextEditorUtils.StorageType.DRAFTJS,

@@ -1,23 +1,9 @@
 import Utils from './Utils';
 
 import TextEditorUtils from '../../common/TextEditorUtils';
-import {
-    convertPlainTextToDraftContent,
-} from '../../common/DraftContentUtils';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
-
-function convertPlainTextToDraftContent2(value, symbolToMapping) {
-    const content = convertPlainTextToDraftContent(
-        value,
-        symbolToMapping,
-    );
-    return TextEditorUtils.serialize(
-        content,
-        TextEditorUtils.StorageType.DRAFTJS,
-    );
-}
 
 test('test_title_template', async () => {
     await Utils.loadData({
@@ -63,7 +49,7 @@ test('test_title_template', async () => {
     expect(logEvents[2].name).toEqual('Cycling: 15 miles / 50 minutes');
 
     const { logStructure } = logEvents[0];
-    logStructure.titleTemplate = convertPlainTextToDraftContent2(
+    logStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
         '$0: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
         { $: [logStructure.logTopic, ...logStructure.logKeys] },
     );

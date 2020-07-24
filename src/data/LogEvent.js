@@ -1,7 +1,6 @@
 import assert from '../common/assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
-import { extractLogTopics, updateDraftContent, evaluateDraftContentExpressions } from '../common/DraftContentUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
@@ -37,12 +36,12 @@ class LogEvent extends Base {
                 logEvent.logStructure.titleTemplate,
                 TextEditorUtils.StorageType.DRAFTJS,
             );
-            content = updateDraftContent(
+            content = TextEditorUtils.updateDraftContent(
                 content,
                 logEvent.logStructure.logKeys,
                 logEvent.logStructure.logKeys.map((logKey) => logKey.value),
             );
-            content = evaluateDraftContentExpressions(content);
+            content = TextEditorUtils.evaluateDraftContentExpressions(content);
             logEvent.title = TextEditorUtils.serialize(
                 content,
                 TextEditorUtils.StorageType.DRAFTJS,
@@ -167,13 +166,13 @@ class LogEvent extends Base {
         );
 
         const logTopics = {
-            ...extractLogTopics(
+            ...TextEditorUtils.extractLogTopics(
                 TextEditorUtils.deserialize(
                     logEvent.title,
                     TextEditorUtils.StorageType.DRAFTJS,
                 ),
             ),
-            ...extractLogTopics(
+            ...TextEditorUtils.extractLogTopics(
                 TextEditorUtils.deserialize(
                     logEvent.details,
                     TextEditorUtils.StorageType.DRAFTJS,

@@ -1,26 +1,7 @@
 import { maybeSubstitute } from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { awaitSequence, getVirtualID } from './Utils';
-import {
-    convertDraftContentToPlainText,
-    convertPlainTextToDraftContent,
-} from '../common/DraftContentUtils';
 import LogTopic from './LogTopic';
-
-
-function convertPlainTextToDraftContent2(value, symbolToMapping) {
-    if (!value) {
-        return value || '';
-    }
-    const content = convertPlainTextToDraftContent(
-        value,
-        symbolToMapping,
-    );
-    return TextEditorUtils.serialize(
-        content,
-        TextEditorUtils.StorageType.DRAFTJS,
-    );
-}
 
 
 function getBool(item, key, defaultValue) {
@@ -72,7 +53,7 @@ async function loadData(actions, data) {
         } else {
             inputLogStructure.logKeys = [];
         }
-        inputLogStructure.titleTemplate = convertPlainTextToDraftContent2(
+        inputLogStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
             inputLogStructure.titleTemplate || '$0',
             { $: [inputLogStructure.logTopic, ...inputLogStructure.logKeys] },
         );
@@ -93,8 +74,14 @@ async function loadData(actions, data) {
     await awaitSequence(data.logEvents, async (inputLogEvent) => {
         inputLogEvent.id = getVirtualID();
         maybeSubstitute(inputLogEvent, 'date');
-        inputLogEvent.title = convertPlainTextToDraftContent2(inputLogEvent.title, { '#': logTopics });
-        inputLogEvent.details = convertPlainTextToDraftContent2(inputLogEvent.details, { '#': logTopics });
+        inputLogEvent.title = TextEditorUtils.convertPlainTextToDraftContent(
+            inputLogEvent.title || '',
+            { '#': logTopics },
+        );
+        inputLogEvent.details = TextEditorUtils.convertPlainTextToDraftContent(
+            inputLogEvent.details || '',
+            { '#': logTopics },
+        );
         inputLogEvent.isMajor = false;
         inputLogEvent.isComplete = getBool(inputLogEvent, 'isComplete', true);
         if (inputLogEvent.structureName) {
@@ -107,18 +94,6 @@ async function loadData(actions, data) {
         }
         await actions.invoke('log-event-upsert', inputLogEvent);
     });
-}
-
-
-function convertDraftContentToPlainText2(value, symbolToMapping) {
-    if (!value) {
-        return undefined;
-    }
-    const content = TextEditorUtils.deserialize(
-        value,
-        TextEditorUtils.StorageType.DRAFTJS,
-    );
-    return convertDraftContentToPlainText(content, symbolToMapping);
 }
 
 
@@ -161,7 +136,7 @@ async function saveData(actions) {
             });
         }
         if (logStructure.titleTemplate) {
-            item.titleTemplate = convertDraftContentToPlainText2(
+            item.titleTemplate = TextEditorUtils.convertDraftContentToPlainText(
                 logStructure.titleTemplate,
                 { $: [logStructure.logTopic, ...logStructure.logKeys], '#': logTopics },
             );
@@ -180,7 +155,10 @@ async function saveData(actions) {
         const item = {};
         item.date = logEvent.date;
         if (logEvent.details) {
-            item.details = convertDraftContentToPlainText2(logEvent.details, { '#': logTopics });
+            item.details = TextEditorUtils.convertDraftContentToPlainText(
+                logEvent.details,
+                { '#': logTopics },
+            );
         }
         if (logEvent.logStructure) {
             item.structureName = logEvent.logStructure.logTopic.name;
@@ -193,7 +171,10 @@ async function saveData(actions) {
                 delete item.title;
             }
         } else {
-            item.title = convertDraftContentToPlainText2(logEvent.title, { '#': logTopics });
+            item.title = TextEditorUtils.convertDraftContentToPlainText(
+                logEvent.title,
+                { '#': logTopics },
+            );
         }
         if (!logEvent.isComplete) {
             item.isComplete = false;

@@ -2,7 +2,6 @@ import React from 'react';
 import {
     LeftRight, TextEditor, debounce,
 } from '../Common';
-import { INCOMPLETE_KEY } from '../../data';
 
 class LogTopicDetails extends React.Component {
     constructor(props) {
@@ -18,12 +17,8 @@ class LogTopicDetails extends React.Component {
     }
 
     select(logTopic) {
-        if (logTopic[INCOMPLETE_KEY]) {
-            window.api.send('log-topic-load', logTopic)
-                .then((completeLogTopic) => this.setState({ logTopic: completeLogTopic }));
-        } else {
-            this.setState({ logTopic });
-        }
+        window.api.send('log-topic-load', logTopic)
+            .then((completeLogTopic) => this.setState({ logTopic: completeLogTopic }));
     }
 
     updateLogTopic(name, value) {

@@ -2,7 +2,6 @@ import Base from './Base';
 import { getVirtualID } from './Utils';
 import Enum from '../common/Enum';
 import TextEditorUtils from '../common/TextEditorUtils';
-import { extractLogTopics, updateDraftContent } from '../common/DraftContentUtils';
 import LogTopic from './LogTopic';
 import LogStructureGroup from './LogStructureGroup';
 
@@ -85,7 +84,7 @@ class LogStructure extends Base {
         );
         // TODO: If a key is deleted, remove it from the content.
         const options = [logStructure.logTopic, ...logStructure.logKeys];
-        content = updateDraftContent(content, options, options);
+        content = TextEditorUtils.updateDraftContent(content, options, options);
         logStructure.titleTemplate = TextEditorUtils.serialize(
             content,
             TextEditorUtils.StorageType.DRAFTJS,
@@ -125,7 +124,7 @@ class LogStructure extends Base {
         );
         results.push([
             '.titleTemplate',
-            inputLogStructure.logTopic.id in extractLogTopics(content),
+            inputLogStructure.logTopic.id in TextEditorUtils.extractLogTopics(content),
             'must mention the topic!',
         ]);
 
@@ -191,7 +190,7 @@ class LogStructure extends Base {
             inputLogStructure.titleTemplate,
             TextEditorUtils.StorageType.DRAFTJS,
         );
-        updatedTitleTemplate = updateDraftContent(
+        updatedTitleTemplate = TextEditorUtils.updateDraftContent(
             updatedTitleTemplate,
             [inputLogStructure.logTopic],
             [{ ...inputLogStructure.logTopic, id: nextLogTopicId }],
