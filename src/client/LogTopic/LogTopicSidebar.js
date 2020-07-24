@@ -12,9 +12,10 @@ class LogTopicSidebar extends React.Component {
             name: 'log-topic-list',
             args: {
                 selector: { on_sidebar: true },
-                ordering: true,
             },
-            callback: (logTopics) => this.setState({ logTopics }),
+            callback: (logTopics) => this.setState({
+                logTopics: logTopics.sort((left, right) => left.name.localeCompare(right.name)),
+            }),
         });
     }
 

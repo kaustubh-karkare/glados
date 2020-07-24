@@ -51,7 +51,7 @@ class LogEvent extends Base {
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
-    static async list(input) {
+    static async updateSelector(input) {
         if (input && input.selector && input.selector.topic_id) {
             const edges = await this.database.getEdges(
                 'LogEventToLogTopic',
@@ -64,6 +64,11 @@ class LogEvent extends Base {
                 [this.database.Op.in]: edges.map((edge) => edge.event_id),
             };
         }
+        return input;
+    }
+
+    static async list(input) {
+        input = await LogEvent.updateSelector.call(this, input);
         return Base.list.call(this, input);
     }
 

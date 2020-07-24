@@ -1,7 +1,6 @@
 /* eslint-disable func-names */
 
-import { getTodayLabel } from '../../common/DateUtils';
-import { LogTopic } from '../Mapping';
+import { LogEvent, LogTopic } from '../Mapping';
 import ActionsRegistry from './Registry';
 import { awaitSequence } from '../Utils';
 
@@ -12,10 +11,15 @@ ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
     return options.flat();
 };
 
-ActionsRegistry.dates = async function () {
-    const results = await this.database.count('LogEvent', {}, ['date'], this.transaction);
+ActionsRegistry['log-event-dates'] = async function (input) {
+    input = await LogEvent.updateSelector.call(this, input);
+    const results = await this.database.count(
+        'LogEvent',
+        input.selector,
+        ['date'],
+        this.transaction,
+    );
     const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
-    dates.add(getTodayLabel());
     return Array.from(dates).sort();
 };
 

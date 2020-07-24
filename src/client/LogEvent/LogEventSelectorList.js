@@ -37,8 +37,8 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
         },
     },
     {
-        label: 'All Time',
-        value: 'all_time',
+        label: 'Unspecified',
+        value: 'unspecified',
         getDates: () => null,
     },
 ]);
@@ -46,27 +46,45 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
 class LogEventSelectorList extends React.Component {
     constructor(props) {
         super(props);
-        const selected = DateRangeOptionType.LAST_2_DAYS;
         this.state = {
-            dateRangeSelectorValue: selected,
-            dates: DateRangeOptionsMap[selected].getDates(),
-            selectedLogTopic: null,
-            displayMajorEventsOnly: true,
+            isMajor: true,
+            logTopic: null,
         };
+        this.afterUpdate = this.afterUpdate.bind(this);
         Coordinator.register(
             'topic-select',
-            (selectedLogTopic) => this.setState({ selectedLogTopic }),
+            (logTopic) => this.setState({ logTopic }, this.afterUpdate),
         );
     }
 
-    onDateRangeSelectorUpdate(value) {
-        this.setState({
-            dateRangeSelectorValue: value,
-            dates: DateRangeOptionsMap[value].getDates(),
-        });
-        if (value === DateRangeOptionType.ALL_TIME) {
-            window.api.send('dates')
-                .then((dates) => this.setState({ dates }));
+    componentDidMount() {
+        this.setState({ dateRange: DateRangeOptionType.UNSPECIFIED }, this.afterUpdate);
+    }
+
+    getSelector() {
+        const selector = { ...this.props.selector };
+        if (this.state.isMajor) {
+            selector.is_major = true;
+        }
+        if (this.state.logTopic) {
+            selector.topic_id = this.state.logTopic.id;
+        }
+        selector.is_complete = true;
+        return selector;
+    }
+
+    afterUpdate() {
+        const option = DateRangeOptionsMap[this.state.dateRange];
+        if (option.value === DateRangeOptionType.UNSPECIFIED) {
+            const selector = this.getSelector();
+            if (selector.topic_id) {
+                window.api.send('log-event-dates', { selector })
+                    .then((dates) => this.setState({ dates }));
+            } else {
+                this.setState({ dates: [getTodayLabel()] });
+            }
+        } else {
+            this.setState({ dates: option.getDates() });
         }
     }
 
@@ -75,45 +93,35 @@ class LogEventSelectorList extends React.Component {
             <InputGroup className="mb-2">
                 <Selector
                     options={DateRangeOptions}
-                    value={this.state.dateRangeSelectorValue}
+                    value={this.state.dateRange}
                     disabled={this.props.disabled}
-                    onChange={(value) => this.onDateRangeSelectorUpdate(value)}
+                    onChange={(dateRange) => this.setState({ dateRange }, this.afterUpdate)}
                 />
                 <Selector.Binary
                     noLabel="All Events"
                     yesLabel="Major Events"
-                    value={this.state.displayMajorEventsOnly}
+                    value={this.state.isMajor}
                     disabled={this.props.disabled}
-                    onChange={(value) => this.setState({ displayMajorEventsOnly: value })}
+                    onChange={(isMajor) => this.setState({ isMajor }, this.afterUpdate)}
                 />
                 <TypeaheadSelector
                     dataType="log-topic"
-                    value={this.state.selectedLogTopic}
+                    value={this.state.logTopic}
                     disabled={this.props.disabled}
-                    onChange={(selectedLogTopic) => this.setState({ selectedLogTopic })}
+                    onChange={(logTopic) => this.setState({ logTopic }, this.afterUpdate)}
                 />
             </InputGroup>
         );
     }
 
     renderLogEvents() {
-        if (this.state.dates === null) {
-            return 'Loading ...';
-        }
         const today = getTodayLabel();
-        let { selector, ...moreProps } = this.props;
-        selector = { ...selector };
-        moreProps = { ...moreProps };
-        if (this.state.selectedLogTopic) {
-            selector.topic_id = this.state.selectedLogTopic.id;
-        }
-        if (this.state.displayMajorEventsOnly) {
-            selector.is_major = true;
-        } else {
+        const { selector: _selector, ...moreProps } = this.props;
+        const selector = this.getSelector();
+        if (!this.state.isMajor) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps = { displayIsMajor: true };
         }
-        selector.is_complete = true;
         return this.state.dates.map((date) => (
             <LogEventList
                 key={date}
@@ -126,6 +134,9 @@ class LogEventSelectorList extends React.Component {
     }
 
     render() {
+        if (!this.state.dates) {
+            return 'Loading ...';
+        }
         return (
             <div className="index-section">
                 {this.renderFilters()}

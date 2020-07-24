@@ -38,7 +38,8 @@ class DetailsSection extends React.Component {
     }
 
     renderHeader() {
-        if (this.state.item.__type__ === 'log-topic') {
+        const type = this.state.item.__type__;
+        if (type === 'log-topic') {
             const logTopic = this.state.item;
             return (
                 <LeftRight className="mx-1">
@@ -57,7 +58,7 @@ class DetailsSection extends React.Component {
                     </div>
                 </LeftRight>
             );
-        } else if (this.state.item.__type__ === 'log-event') {
+        } if (type === 'log-event') {
             const logEvent = this.state.item;
             return (
                 <TextEditor
