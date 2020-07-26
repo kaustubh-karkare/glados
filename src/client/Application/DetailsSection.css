@@ -1,5 +1,5 @@
 .details-section {
-    background: #222;
+    background: var(--component-color);
     border-radius: 4px;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .details-section > :last-child {
-    border-top: 1px solid #222;
+    border-top: 1px solid var(--component-color);
     color: var(--text-disabled-color);
     font-size: 10px;
     padding: 2px 4px;

@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-test('verify_config_example_structure', async () => {
+test('verify_config_example_structure', () => {
     function ensureSameStructure(left, right) {
         const isLeftAtomic = (typeof left !== 'object');
         const isRightAtomic = (typeof right !== 'object');

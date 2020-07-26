@@ -3,7 +3,7 @@
 }
 
 .form-control:disabled {
-    background-color: #ccc;
+    background-color: var(--input-disabled-background);
 }
 
 body {
@@ -20,9 +20,9 @@ body {
 
 .dropdown-menu,
 .mention-suggestions > div {
-    background-color: #222;
-    border: 1px solid #444;
-    box-shadow: 0px 4px 30px 0px #222;
+    background-color: var(--component-color);
+    border: 1px solid var(--component-highlight-color);
+    box-shadow: 0px 4px 30px 0px var(--component-color);
     font-size: 13px;
     font-family: Lato;
     min-width: 100px;
@@ -40,7 +40,7 @@ body {
 }
 
 .mention-suggestions > div > div[aria-selected="true"] {
-    background-color: #375a7f;
+    background-color: var(--suggestion-highlight-color);
 }
 
 /* Modal */

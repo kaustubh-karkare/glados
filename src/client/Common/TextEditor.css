@@ -12,7 +12,7 @@
 }
 
 .text-editor.text-editor-normal .link {
-    background: rgba(80, 151, 213, 0.4);
+    background: var(--link-background-color);
 }
 
 .text-editor .mention {
@@ -20,7 +20,7 @@
 }
 
 .text-editor.text-editor-normal .mention {
-    background: rgba(108, 235, 182, 0.4);
+    background: var(--topic-background-color);
 }
 
 .text-editor.text-editor-normal .link,
@@ -31,13 +31,13 @@
 }
 
 .text-editor.text-editor-normal .public-DraftEditor-content {
-    background: white;
+    background: var(--input-background);
     border-radius: 0 0.2rem 0.2rem 0;
-    color: #444;
+    color: var(--input-text);
     min-height: 20px;
     padding: 1px 4px 0;
 }
 
 .text-editor.text-editor-normal.text-editor-disabled .public-DraftEditor-content {
-    background: #ccc;
+    background: var(--input-disabled-background);
 }

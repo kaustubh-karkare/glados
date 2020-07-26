@@ -5,10 +5,10 @@ import SocketRPC from '../common/SocketRPC';
 import { Application } from './Application';
 import { Coordinator } from './Common';
 
-import './bootstrap.min.css';
+import './bootstrap.min.css'; // This is actually the Bootswatch Darkly Theme.
 import './colors.css';
-import './index.css';
-import './InputGroup.css'; // react-bootstrap component
+import './index.css'; // TODO: Eliminate this.
+import './InputGroup.css';
 
 function initCookies() {
     document.cookies = document.cookie.split('; ').reduce((result, item) => {

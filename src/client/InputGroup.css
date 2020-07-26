@@ -3,7 +3,7 @@
 }
 
 .input-group.focus {
-    background-color: var(--highlighed-item-color);
+    background-color: var(--component-highlight-color);
 }
 
 .input-group > * {

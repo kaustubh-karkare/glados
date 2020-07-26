@@ -8,12 +8,12 @@
 }
 
 .sidebar-section:hover {
-    border-color: var(--highlighed-item-color);
+    border-color: var(--component-highlight-color);
 }
 
 .sidebar-section.sidebar-section-selected {
-    background: #222;
-    border-color: var(--highlighed-item-color);
+    background: var(--component-color);
+    border-color: var(--component-highlight-color);
 }
 
 .sidebar-section > .sidebar-section-header {
@@ -21,7 +21,7 @@
 }
 
 .sidebar-section > .sidebar-section-separator {
-    border-bottom: 1px solid var(--highlighed-item-color);
+    border-bottom: 1px solid var(--component-highlight-color);
     margin-bottom: 4px;
     padding-bottom: 4px;
 }
