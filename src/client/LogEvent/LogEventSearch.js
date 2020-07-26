@@ -53,22 +53,28 @@ class LogEventSearch extends React.Component {
             logTopic: null,
         };
         this.afterUpdate = this.afterUpdate.bind(this);
-        Coordinator.register(
-            'event-created',
-            (logEvent) => this.setState((state) => {
-                if (!logEvent.isMajor && state.isMajor) state.isMajor = false;
-                // TODO: Reset topic filter if event does not contain it.
-                return state;
-            }, this.afterUpdate),
-        );
-        Coordinator.register(
-            'topic-select',
-            (logTopic) => this.setState({ logTopic }, this.afterUpdate),
-        );
+        this.deregisterCallbacks = [
+            Coordinator.register(
+                'event-created',
+                (logEvent) => this.setState((state) => {
+                    if (!logEvent.isMajor && state.isMajor) state.isMajor = false;
+                    // TODO: Reset topic filter if event does not contain it.
+                    return state;
+                }, this.afterUpdate),
+            ),
+            Coordinator.register(
+                'topic-select',
+                (logTopic) => this.setState({ logTopic }, this.afterUpdate),
+            ),
+        ];
     }
 
     componentDidMount() {
         this.setState({ dateRange: DateRangeOptionType.UNSPECIFIED }, this.afterUpdate);
+    }
+
+    componentWillUnmount() {
+        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
     getSelector() {

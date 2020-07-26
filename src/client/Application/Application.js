@@ -57,9 +57,15 @@ class Applicaton extends React.Component {
             activeItem: null,
             disabled: false,
         };
-        Coordinator.register('details', this.onDetailsChange.bind(this));
-        Coordinator.register('layout-list', () => [LayoutOptions, this.state.activeLayout]);
-        Coordinator.register('layout', (activeLayout) => this.setState({ activeLayout }));
+        this.deregisterCallbacks = [
+            Coordinator.register('details', this.onDetailsChange.bind(this)),
+            Coordinator.register('layout-list', () => [LayoutOptions, this.state.activeLayout]),
+            Coordinator.register('layout', (activeLayout) => this.setState({ activeLayout })),
+        ];
+    }
+
+    componentWillUnmount() {
+        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
     onTabChange(tabType) {

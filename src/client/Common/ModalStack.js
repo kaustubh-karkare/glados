@@ -9,8 +9,14 @@ class ModalStack extends React.Component {
         this.state = {
             components: [],
         };
-        Coordinator.register('modal', this.push.bind(this));
-        Coordinator.register('modal-error', (error) => this.push(ErrorModal, { error }));
+        this.deregisterCallbacks = [
+            Coordinator.register('modal', this.push.bind(this)),
+            Coordinator.register('modal-error', (error) => this.push(ErrorModal, { error })),
+        ];
+    }
+
+    componentWillUnmount() {
+        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
     push(ComponentClass, componentProps) {
