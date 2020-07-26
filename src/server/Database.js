@@ -1,6 +1,6 @@
 import assert from '../common/assert';
-import defineModels from './Models';
-import { isRealItem } from './Utils';
+import defineModels from '../data/Models';
+import { isRealItem } from '../data';
 
 const Sequelize = require('sequelize');
 

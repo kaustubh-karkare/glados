@@ -49,8 +49,4 @@ module.exports = {
         // Otherwise, every non-required propType would need defaultValue.
         'react/require-default-props': [0],
     },
-    ignorePatterns: [
-        'dist/*',
-        'src/client/Common/draft-js-mention-plugin/*',
-    ],
 };

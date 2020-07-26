@@ -14,7 +14,7 @@ import AddLinkPlugin from './AddLinkPlugin';
 import Coordinator from './Coordinator';
 
 import 'draft-js/dist/Draft.css';
-
+import './TextEditor.css';
 
 function MentionComponent(props) {
     const item = props.mention;

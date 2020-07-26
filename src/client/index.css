@@ -1,108 +1,3 @@
-.input-group:focus {
-    outline: none;
-}
-
-.input-group.focus {
-    background-color: var(--highlighed-item-color);
-}
-
-.input-group > * {
-    border-radius: 0;
-    height: 20px;
-}
-
-.input-group > :first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-}
-
-.input-group > :last-child {
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-}
-
-.input-group > .input-group-text {
-    font-size: 13px;
-}
-
-.input-group > .input-group-text {
-    border: none;
-    display: block;
-    padding: 1px;
-    text-align: center;
-    width: 100px;
-}
-
-.input-group > .icon {
-    cursor: pointer;
-    height: 20px;
-    width: 13px;
-}
-
-.input-group > .icon > svg {
-    fill: var(--text-disabled-color);
-}
-
-.input-group > .icon:focus {
-    outline: none;
-}
-
-.input-group > .icon:focus > svg,
-.input-group > .icon.focus > svg,
-.input-group > .icon.icon-white > svg {
-    fill: var(--text-color);
-}
-
-.input-group > .btn {
-    width: 20px;
-    padding: 0px;
-}
-
-.input-group > .dropdown > .btn {
-    border-radius: 0;
-    height: 20px;
-    padding: 0;
-    position: relative;
-    top: -1px;
-    width: 100px;
-}
-
-.input-group > .dropdown:not(:first-child) > .btn {
-    width: 80px;
-}
-
-.input-group > input.form-control {
-    border: none;
-    font-size: 13px;
-    height: 20px;
-    padding: 0 4px;
-}
-
-.input-group > select.form-control {
-    border: none;
-    font-size: 13px;
-    padding: 0;
-}
-
-.input-group > .form-check-inline {
-    margin-right: 0;
-    width: 16px;
-}
-
-.input-group > .rbt input:first-child {
-    padding: 0 4px;
-    height: 20px;
-    border-width: 0 1px;
-}
-
-.input-group > .text-editor {
-    flex-grow: 1;
-    width: 1px;
-    height: auto;
-}
-
-/* Misc */
-
 .btn.dropdown-toggle {
     box-shadow: none !important;
 }
@@ -119,17 +14,6 @@ body {
 
 .log-viewer > span {
     color: var(--text-disabled-color);
-}
-
-/* Sortable */
-
-button.sortableDragHandle.btn {
-    cursor: grab;
-}
-
-.sortableDraggedItem {
-    cursor: grab;
-    z-index: 10000;
 }
 
 /* Dropdown & Mention Suggestions */
@@ -159,66 +43,6 @@ button.sortableDragHandle.btn {
     background-color: #375a7f;
 }
 
-/* Text Editor */
-
-.public-DraftStyleDefault-ul,
-.public-DraftStyleDefault-ol {
-    margin: 0;
-}
-
-.text-editor .public-DraftEditor-content {
-    min-width: 100px;
-}
-
-.text-editor .link {
-    color: var(--link-color);
-}
-
-.text-editor.text-editor-normal .link {
-    background: rgba(80, 151, 213, 0.4);
-}
-
-.text-editor .mention {
-    color: var(--topic-color);
-}
-
-.text-editor.text-editor-normal .mention {
-    background: rgba(108, 235, 182, 0.4);
-}
-
-.text-editor.text-editor-normal .link,
-.text-editor.text-editor-normal .mention {
-    color: black;
-    border-radius: 2px;
-    padding: 0 2px;
-}
-
-.text-editor.text-editor-normal .public-DraftEditor-content {
-    background: white;
-    border-radius: 0 0.2rem 0.2rem 0;
-    color: #444;
-    min-height: 20px;
-    padding: 1px 4px 0;
-}
-
-.text-editor.text-editor-normal.text-editor-disabled .public-DraftEditor-content {
-    background: #ccc;
-}
-
-/* Date Picker */
-
-.react-datepicker-wrapper {
-    flex-grow: 1;
-}
-
-.react-datepicker-wrapper input {
-    border: none;
-    height: 20px;
-    outline: none;
-    padding: 0 4px;
-    width: 100%;
-}
-
 /* Modal */
 
 .modal-dialog {
@@ -233,30 +57,4 @@ button.sortableDragHandle.btn {
 
 .index-section .text-editor {
     max-width: 500px;
-}
-
-/* Details Section */
-
-.details-section {
-    background: #222;
-    border-radius: 4px;
-}
-
-.details-section > * {
-    padding: 4px;
-}
-
-.details-section .text-editor {
-    overflow: scroll;
-}
-
-.details-section .public-DraftEditor-content {
-    min-height: 200px;
-}
-
-.details-section > :last-child {
-    border-top: 1px solid #222;
-    color: var(--text-disabled-color);
-    font-size: 10px;
-    padding: 2px 4px;
 }

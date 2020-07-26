@@ -1,4 +1,4 @@
-export * from './Utils';
-export { default as Database } from './Database';
+// Models.js is being deliberately excluded from here,
+// to prevent the client having a dependency on it!
 export * from './Mapping';
-export * from './Bootstrap';
+export * from './Utils';

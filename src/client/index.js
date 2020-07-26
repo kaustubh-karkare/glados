@@ -8,6 +8,7 @@ import { Coordinator } from './Common';
 import './bootstrap.min.css';
 import './colors.css';
 import './index.css';
+import './InputGroup.css'; // react-bootstrap component
 
 function initCookies() {
     document.cookies = document.cookie.split('; ').reduce((result, item) => {

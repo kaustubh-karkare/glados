@@ -7,6 +7,8 @@ import {
     Coordinator, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
 
+import './DetailsSection.css';
+
 class DetailsSection extends React.Component {
     constructor(props) {
         super(props);

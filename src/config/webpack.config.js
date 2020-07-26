@@ -3,12 +3,16 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const path = require('path');
 
+function fromProjectRoot(relativePath) {
+    return path.resolve(__dirname, '../..', relativePath);
+}
+
 module.exports = {
     mode: 'development',
-    entry: './src/client/index.js',
+    entry: fromProjectRoot('src/client/index.js'),
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js',
+        path: fromProjectRoot('dist'),
+        filename: 'index.js',
         publicPath: '/',
     },
     devServer: {
@@ -21,11 +25,7 @@ module.exports = {
         rules: [
             {
                 test: /\.[tj]sx?$/,
-                use: [
-                    'babel-loader',
-                    'ts-loader',
-                    'linaria/loader',
-                ],
+                use: ['babel-loader'],
                 exclude: /node_modules/,
             },
             {
@@ -42,10 +42,20 @@ module.exports = {
     plugins: [
         // new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
-            filename: 'styles.css',
+            filename: 'index.css',
         }),
         new HtmlWebpackPlugin({
-            template: './src/client/index.html',
+            template: fromProjectRoot('src/client/index.html'),
         }),
     ],
+    stats: {
+        assets: false,
+        builtAt: true, // the one signal I wanted
+        children: false,
+        entrypoints: false,
+        hash: false,
+        modules: false,
+        timings: false,
+        version: false,
+    },
 };

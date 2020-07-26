@@ -1,0 +1,102 @@
+.input-group:focus {
+    outline: none;
+}
+
+.input-group.focus {
+    background-color: var(--highlighed-item-color);
+}
+
+.input-group > * {
+    border-radius: 0;
+    height: 20px;
+}
+
+.input-group > :first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.input-group > :last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.input-group > .input-group-text {
+    font-size: 13px;
+}
+
+.input-group > .input-group-text {
+    border: none;
+    display: block;
+    padding: 1px;
+    text-align: center;
+    width: 100px;
+}
+
+.input-group > .icon {
+    cursor: pointer;
+    height: 20px;
+    width: 13px;
+}
+
+.input-group > .icon > svg {
+    fill: var(--text-disabled-color);
+}
+
+.input-group > .icon:focus {
+    outline: none;
+}
+
+.input-group > .icon:focus > svg,
+.input-group > .icon.focus > svg,
+.input-group > .icon.icon-white > svg {
+    fill: var(--text-color);
+}
+
+.input-group > .btn {
+    width: 20px;
+    padding: 0px;
+}
+
+.input-group > .dropdown > .btn {
+    border-radius: 0;
+    height: 20px;
+    padding: 0;
+    position: relative;
+    top: -1px;
+    width: 100px;
+}
+
+.input-group > .dropdown:not(:first-child) > .btn {
+    width: 80px;
+}
+
+.input-group > input.form-control {
+    border: none;
+    font-size: 13px;
+    height: 20px;
+    padding: 0 4px;
+}
+
+.input-group > select.form-control {
+    border: none;
+    font-size: 13px;
+    padding: 0;
+}
+
+.input-group > .form-check-inline {
+    margin-right: 0;
+    width: 16px;
+}
+
+.input-group > .rbt input:first-child {
+    padding: 0 4px;
+    height: 20px;
+    border-width: 0 1px;
+}
+
+.input-group > .text-editor {
+    flex-grow: 1;
+    width: 1px;
+    height: auto;
+}

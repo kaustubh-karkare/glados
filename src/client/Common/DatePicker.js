@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { getDateLabel, getDateValue } from '../../common/DateUtils';
 
 import 'react-datepicker/dist/react-datepicker.css';
+import './DatePicker.css';
 
 function DatePicker(props) {
     return (

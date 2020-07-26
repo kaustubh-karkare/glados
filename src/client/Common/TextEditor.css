@@ -1,0 +1,43 @@
+.public-DraftStyleDefault-ul,
+.public-DraftStyleDefault-ol {
+    margin: 0;
+}
+
+.text-editor .public-DraftEditor-content {
+    min-width: 100px;
+}
+
+.text-editor .link {
+    color: var(--link-color);
+}
+
+.text-editor.text-editor-normal .link {
+    background: rgba(80, 151, 213, 0.4);
+}
+
+.text-editor .mention {
+    color: var(--topic-color);
+}
+
+.text-editor.text-editor-normal .mention {
+    background: rgba(108, 235, 182, 0.4);
+}
+
+.text-editor.text-editor-normal .link,
+.text-editor.text-editor-normal .mention {
+    color: black;
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.text-editor.text-editor-normal .public-DraftEditor-content {
+    background: white;
+    border-radius: 0 0.2rem 0.2rem 0;
+    color: #444;
+    min-height: 20px;
+    padding: 1px 4px 0;
+}
+
+.text-editor.text-editor-normal.text-editor-disabled .public-DraftEditor-content {
+    background: #ccc;
+}

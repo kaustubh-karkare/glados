@@ -1,4 +1,4 @@
-import ActionsRegistry from './Registry';
+import ActionsRegistry from './ActionsRegistry';
 import './Standard';
 import './Reminders';
 import './Custom';

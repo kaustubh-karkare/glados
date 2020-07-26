@@ -4,10 +4,10 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
-import assert from '../../common/assert';
-// import TextEditorUtils from '../../common/TextEditorUtils';
-import { awaitSequence, getCallbackAndPromise } from '../Utils';
-import ActionsRegistry from './Registry';
+import assert from '../common/assert';
+// import TextEditorUtils from '../common/TextEditorUtils';
+import { awaitSequence, getCallbackAndPromise } from '../data';
+import ActionsRegistry from './ActionsRegistry';
 
 function getDateAndTime() {
     const date = new Date();

@@ -1,8 +1,7 @@
 /* eslint-disable func-names */
 
-import { LogEvent, LogTopic } from '../Mapping';
-import ActionsRegistry from './Registry';
-import { awaitSequence } from '../Utils';
+import { LogEvent, LogTopic, awaitSequence } from '../data';
+import ActionsRegistry from './ActionsRegistry';
 
 ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
     const options = await Promise.all(

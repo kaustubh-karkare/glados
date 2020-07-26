@@ -7,6 +7,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 
+import './SortableList.css';
+
 const SortableDragHandle = SortableHandle((props) => (
     <Button
         className="sortableDragHandle"

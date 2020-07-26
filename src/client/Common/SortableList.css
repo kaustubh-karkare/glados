@@ -1,0 +1,8 @@
+button.sortableDragHandle.btn {
+    cursor: grab;
+}
+
+.sortableDraggedItem {
+    cursor: grab;
+    z-index: 10000;
+}

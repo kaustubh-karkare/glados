@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 
-import { LogStructure } from '../Mapping';
-import ActionsRegistry from './Registry';
+import { LogStructure } from '../data';
+import ActionsRegistry from './ActionsRegistry';
 
 ActionsRegistry['reminder-sidebar'] = async function (input) {
     const reminderGroups = [];

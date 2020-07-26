@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
-import './src/common/polyfill';
-import assert from './src/common/assert';
-import { Database } from './src/data';
-import Actions from './src/data/Actions';
-import SocketRPC from './src/common/SocketRPC';
+import '../common/polyfill';
+import assert from '../common/assert';
+import Database from './Database';
+import Actions from './Actions';
+import SocketRPC from '../common/SocketRPC';
 
 const express = require('express');
 const fs = require('fs');

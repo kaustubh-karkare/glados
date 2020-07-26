@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping } from '../Mapping';
-import ActionsRegistry from './Registry';
+import { getDataTypeMapping } from '../data';
+import ActionsRegistry from './ActionsRegistry';
 
 Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;

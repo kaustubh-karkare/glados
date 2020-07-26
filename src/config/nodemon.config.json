@@ -3,9 +3,9 @@
         "js": "babel-node"
     },
     "watch": [
-        "index.js",
         "src/data/",
         "src/common/",
+        "src/server/",
         "config.json"
     ],
     "signal": "SIGKILL"
