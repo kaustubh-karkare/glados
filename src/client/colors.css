@@ -1,0 +1,8 @@
+body {
+    --background-color: #111;
+    --highlighed-item-color: #333;
+    --text-color: white;
+    --text-disabled-color: #9197a3;
+    --link-color: #3498DB;
+    --topic-color: #00bc8c;
+}

@@ -1,18 +1,20 @@
-import classNames from 'classnames';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
+import {
+    Coordinator, ModalStack, ScrollableSection, SidebarSection,
+} from '../Common';
 import { LogStructureGroupList } from '../LogStructure';
-import { LogTopicSidebar, LogTopicList } from '../LogTopic';
-import { Coordinator, ModalStack, ScrollableSection } from '../Common';
-import { ReminderSidebar } from '../Reminders';
+import { LogTopicList } from '../LogTopic';
 import BackupSection from './BackupSection';
+import ConsistencySection from './ConsistencySection';
+import DetailsSection from './DetailsSection';
+import Enum from '../../common/Enum';
 import LayoutSection from './LayoutSection';
 import LogEventSearch from './LogEventSearch';
-import DetailsSection from './DetailsSection';
-import ConsistencySection from './ConsistencySection';
-import Enum from '../../common/Enum';
+import FavoriteTopicsSection from './FavoriteTopicsSection';
+import { ReminderSidebar } from '../Reminders';
 
 
 const [TabOptions, TabType, TabOptionsMap] = Enum([
@@ -72,16 +74,13 @@ class Applicaton extends React.Component {
             <Col md={2} className="my-3">
                 <ScrollableSection>
                     {TabOptions.map((option) => (
-                        <div
+                        <SidebarSection
                             key={option.value}
-                            className={classNames({
-                                'tab-item': true,
-                                'tab-item-selected': this.state.activeTab === option.value,
-                            })}
                             onClick={() => this.onTabChange(option.value)}
+                            selected={this.state.activeTab === option.value}
                         >
                             {option.label}
-                        </div>
+                        </SidebarSection>
                     ))}
                     <ReminderSidebar />
                 </ScrollableSection>
@@ -125,7 +124,7 @@ class Applicaton extends React.Component {
                 <LayoutSection />
                 <BackupSection />
                 <ConsistencySection />
-                <LogTopicSidebar />
+                <FavoriteTopicsSection />
             </Col>
         );
     }

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Coordinator, EditorModal, TextEditor } from '../Common';
+import {
+    Coordinator, EditorModal, SidebarSection, TextEditor,
+} from '../Common';
 import assert from '../../common/assert';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -108,12 +110,9 @@ class ReminderCheckList extends React.Component {
 
     render() {
         return (
-            <div>
-                <div className="log-viewer">
-                    <span>{this.props.name}</span>
-                </div>
+            <SidebarSection title={this.props.name}>
                 {this.renderContent()}
-            </div>
+            </SidebarSection>
         );
     }
 }

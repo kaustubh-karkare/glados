@@ -1,12 +1,3 @@
-body {
-    --background-color: #111;
-    --highlighed-item-color: #333;
-    --text-color: white;
-    --text-disabled-color: #9197a3;
-    --link-color: #3498DB;
-    --topic-color: #00bc8c;
-}
-
 .input-group:focus {
     outline: none;
 }
@@ -232,25 +223,6 @@ button.sortableDragHandle.btn {
 
 .modal-dialog {
     max-width: 800px;
-}
-
-/* Sidebar */
-
-.tab-item {
-    border: 1px solid var(--background-color);
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 3px 8px 5px;
-    margin: 4px 0;
-}
-
-.tab-item:hover {
-    border-color: var(--highlighed-item-color);
-}
-
-.tab-item.tab-item-selected {
-    background: #222;
-    border-color: var(--highlighed-item-color);
 }
 
 /* Index Section */

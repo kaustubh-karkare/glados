@@ -1,5 +1,7 @@
 import React from 'react';
-import { Coordinator, DataLoader, LeftRight } from '../Common';
+import {
+    Coordinator, DataLoader, LeftRight, SidebarSection,
+} from '../Common';
 
 class BackupSection extends React.Component {
     static onClick() {
@@ -26,10 +28,12 @@ class BackupSection extends React.Component {
     render() {
         const { latestBackup } = this.state;
         return (
-            <LeftRight className="tab-item">
-                <a href="#" onClick={() => BackupSection.onClick()}>Backup</a>
-                {latestBackup ? `${latestBackup.timetamp}` : 'No backup found!' }
-            </LeftRight>
+            <SidebarSection>
+                <LeftRight>
+                    <a href="#" onClick={() => BackupSection.onClick()}>Backup</a>
+                    {latestBackup ? `${latestBackup.timetamp}` : 'No backup found!' }
+                </LeftRight>
+            </SidebarSection>
         );
     }
 }

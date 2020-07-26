@@ -11,6 +11,7 @@ export { default as ManagementSelector } from './ManagementSelector';
 export { default as ModalStack } from './ModalStack';
 export { default as ScrollableSection } from './ScrollableSection';
 export { default as Selector } from './Selector';
+export { default as SidebarSection } from './SidebarSection';
 export { default as SortableList } from './SortableList';
 export { default as TextInput } from './TextInput';
 export { default as TextEditor } from './TextEditor';

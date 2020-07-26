@@ -1,5 +1,5 @@
 import React from 'react';
-import { Coordinator, LeftRight } from '../Common';
+import { Coordinator, LeftRight, SidebarSection } from '../Common';
 
 class LayoutSidebar extends React.Component {
     constructor(props) {
@@ -42,10 +42,12 @@ class LayoutSidebar extends React.Component {
     render() {
         if (!this.state.layoutOptions) return null;
         return (
-            <LeftRight className="tab-item">
-                {'Layout: '}
-                <div>{this.renderOptions()}</div>
-            </LeftRight>
+            <SidebarSection>
+                <LeftRight>
+                    {'Layout: '}
+                    <div>{this.renderOptions()}</div>
+                </LeftRight>
+            </SidebarSection>
         );
     }
 }

@@ -6,6 +6,7 @@ import { Application } from './Application';
 import { Coordinator } from './Common';
 
 import './bootstrap.min.css';
+import './colors.css';
 import './index.css';
 
 function initCookies() {

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Coordinator, DataLoader } from '../Common';
+import { Coordinator, DataLoader, SidebarSection } from '../Common';
 
-class LogTopicSidebar extends React.Component {
+class FavoriteTopicsSection extends React.Component {
     constructor(props) {
         super(props);
         this.state = { logTopics: null };
@@ -28,23 +28,20 @@ class LogTopicSidebar extends React.Component {
             return 'Loading ...';
         }
         return (
-            <div>
-                <div className="log-viewer">
-                    <span>Favorite Topics</span>
-                </div>
+            <SidebarSection title="Favorite Topics">
                 {this.state.logTopics.map((logTopic) => (
-                    <div key={logTopic.id}>
+                    <li key={logTopic.id}>
                         <a
                             href="#"
                             onClick={() => Coordinator.invoke('details', logTopic)}
                         >
                             {logTopic.name}
                         </a>
-                    </div>
+                    </li>
                 ))}
-            </div>
+            </SidebarSection>
         );
     }
 }
 
-export default LogTopicSidebar;
+export default FavoriteTopicsSection;

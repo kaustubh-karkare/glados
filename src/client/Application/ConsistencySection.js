@@ -1,5 +1,5 @@
 import React from 'react';
-import { LeftRight } from '../Common';
+import { LeftRight, SidebarSection } from '../Common';
 
 class ConsistencySection extends React.Component {
     constructor(props) {
@@ -16,10 +16,12 @@ class ConsistencySection extends React.Component {
 
     render() {
         return (
-            <LeftRight className="tab-item">
-                <a href="#" onClick={() => this.onClick()}>Consistency</a>
-                {this.state.isProcessing ? 'Processing!' : null}
-            </LeftRight>
+            <SidebarSection>
+                <LeftRight>
+                    <a href="#" onClick={() => this.onClick()}>Consistency</a>
+                    {this.state.isProcessing ? 'Processing!' : null}
+                </LeftRight>
+            </SidebarSection>
         );
     }
 }
