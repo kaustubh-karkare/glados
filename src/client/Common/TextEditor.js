@@ -20,7 +20,7 @@ function MentionComponent(props) {
     const item = props.mention;
     return (
         <a
-            className="mention"
+            className="topic"
             title={item.name}
             href="#"
             onClick={() => Coordinator.invoke('details', item)}

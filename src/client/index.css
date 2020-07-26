@@ -18,3 +18,13 @@ body {
     font-size: var(--font-size);
     font-family: var(--font-family);
 }
+
+a,
+a:hover {
+    color: var(--link-color);
+}
+
+a.topic,
+a.topic:hover {
+    color: var(--topic-color);
+}

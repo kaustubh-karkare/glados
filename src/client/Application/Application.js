@@ -11,6 +11,7 @@ import { LogTopicSearch } from '../LogTopic';
 import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import ConsistencySection from './ConsistencySection';
+import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import Enum from '../../common/Enum';
 import FavoriteTopicsSection from './FavoriteTopicsSection';
@@ -131,6 +132,7 @@ class Applicaton extends React.Component {
                 <BackupSection />
                 <ConsistencySection />
                 <FavoriteTopicsSection />
+                <CreditsSection />
             </Col>
         );
     }

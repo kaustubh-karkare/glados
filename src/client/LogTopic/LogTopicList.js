@@ -7,6 +7,7 @@ function LogTopicViewer(props) {
     const { logTopic } = props;
     return (
         <a
+            className="topic"
             key={logTopic.id}
             href="#"
             onClick={() => Coordinator.invoke('details', logTopic)}

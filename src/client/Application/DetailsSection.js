@@ -2,7 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { MdFavorite, MdFavoriteBorder, MdSearch } from 'react-icons/md';
+import { RiLoaderLine } from 'react-icons/ri';
+import {
+    MdCheckCircle, MdFavorite, MdFavoriteBorder, MdSearch,
+} from 'react-icons/md';
 import {
     Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
@@ -14,7 +17,7 @@ class DetailsSection extends React.Component {
         super(props);
         this.state = {
             item: null,
-            status: 'Unchanged!',
+            isDirty: false,
         };
         this.saveDebounced = debounce(this.saveNotDebounced, 500);
     }
@@ -44,16 +47,16 @@ class DetailsSection extends React.Component {
     onUpdate(name, value) {
         this.setState((state) => {
             state.item[name] = value;
-            state.status = 'Pending ...';
+            state.isDirty = true;
             return state;
         }, this.saveDebounced);
     }
 
     saveNotDebounced() {
-        this.setState({ status: 'Saving ...' });
         const { item } = this.state;
+        this.setState({ isDirty: true });
         window.api.send(`${item.__type__}-upsert`, item)
-            .then((newItem) => this.setState({ status: 'Saved!', item: newItem }));
+            .then((newItem) => this.setState({ isDirty: false, item: newItem }));
     }
 
     renderHeader() {
@@ -74,6 +77,12 @@ class DetailsSection extends React.Component {
             return (
                 <InputGroup>
                     <Button
+                        onClick={() => Coordinator.invoke('topic-select', logTopic)}
+                        title="Search"
+                    >
+                        <MdSearch />
+                    </Button>
+                    <Button
                         onClick={() => this.onUpdate('onSidebar', !logTopic.onSidebar)}
                         title="Favorite?"
                     >
@@ -85,11 +94,8 @@ class DetailsSection extends React.Component {
                         disabled={this.props.disabled}
                         onChange={(newItem) => this.onChange(newItem)}
                     />
-                    <Button
-                        onClick={() => Coordinator.invoke('topic-select', logTopic)}
-                        title="Search"
-                    >
-                        <MdSearch />
+                    <Button title="Status">
+                        {this.state.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
                     </Button>
                 </InputGroup>
             );
@@ -129,12 +135,9 @@ class DetailsSection extends React.Component {
                 <div className="mb-1">
                     {this.renderHeader()}
                 </div>
-                <ScrollableSection padding={20 + 4 + 4 + 15}>
+                <ScrollableSection padding={20 + 4}>
                     {this.renderDetails()}
                 </ScrollableSection>
-                <div className="footer mt-1">
-                    {this.state.item ? this.state.status : null}
-                </div>
             </div>
         );
     }

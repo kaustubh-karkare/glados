@@ -32,6 +32,7 @@ class FavoriteTopicsSection extends React.Component {
                 {this.state.logTopics.map((logTopic) => (
                     <li key={logTopic.id}>
                         <a
+                            className="topic"
                             href="#"
                             onClick={() => Coordinator.invoke('details', logTopic)}
                         >
