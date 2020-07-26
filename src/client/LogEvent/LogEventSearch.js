@@ -4,26 +4,24 @@ import React from 'react';
 import {
     getTodayLabel, getTodayValue, getDateLabel, getDayOfTheWeek, getDurationValue, getDateRange,
 } from '../../common/DateUtils';
-import { Coordinator, Selector, TypeaheadSelector } from '../Common';
+import {
+    Coordinator, ScrollableSection, Selector, TypeaheadSelector,
+} from '../Common';
 import Enum from '../../common/Enum';
-import { LogEventList } from '../LogEvent';
+import LogEventList from './LogEventList';
 
 const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
+    {
+        label: 'Unspecified',
+        value: 'unspecified',
+        getDates: () => null,
+    },
     {
         label: 'Today',
         value: 'today',
         getDates: () => {
             const today = getTodayLabel();
             return [today];
-        },
-    },
-    {
-        label: 'Last 7 days',
-        value: 'last_7_days',
-        getDates: () => {
-            const today = getTodayLabel();
-            const before = getDateLabel(getTodayValue() - getDurationValue('6 days'));
-            return getDateRange(before, today);
         },
     },
     {
@@ -37,13 +35,17 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
         },
     },
     {
-        label: 'Unspecified',
-        value: 'unspecified',
-        getDates: () => null,
+        label: 'Last 7 days',
+        value: 'last_7_days',
+        getDates: () => {
+            const today = getTodayLabel();
+            const before = getDateLabel(getTodayValue() - getDurationValue('6 days'));
+            return getDateRange(before, today);
+        },
     },
 ]);
 
-class LogEventSelectorList extends React.Component {
+class LogEventSearch extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -70,7 +72,7 @@ class LogEventSelectorList extends React.Component {
     }
 
     getSelector() {
-        const selector = { ...this.props.selector };
+        const selector = {};
         if (this.state.isMajor) {
             selector.is_major = true;
         }
@@ -98,7 +100,7 @@ class LogEventSelectorList extends React.Component {
 
     renderFilters() {
         return (
-            <InputGroup className="mb-2">
+            <InputGroup>
                 <Selector
                     options={DateRangeOptions}
                     value={this.state.dateRange}
@@ -125,8 +127,8 @@ class LogEventSelectorList extends React.Component {
 
     renderLogEvents() {
         const today = getTodayLabel();
-        const { selector: _selector, ...moreProps } = this.props;
         const selector = this.getSelector();
+        const moreProps = {};
         if (!this.state.isMajor) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps = { displayIsMajor: true };
@@ -144,25 +146,23 @@ class LogEventSelectorList extends React.Component {
 
     render() {
         if (!this.state.dates) {
-            return 'Loading ...';
+            return null;
         }
         return (
-            <div className="index-section">
-                {this.renderFilters()}
-                {this.renderLogEvents()}
-            </div>
+            <>
+                <div className="mb-1">
+                    {this.renderFilters()}
+                </div>
+                <ScrollableSection padding={20 + 4}>
+                    {this.renderLogEvents()}
+                </ScrollableSection>
+            </>
         );
     }
 }
 
-LogEventSelectorList.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object,
-    disabled: PropTypes.bool,
+LogEventSearch.propTypes = {
+    disabled: PropTypes.bool.isRequired,
 };
 
-LogEventSelectorList.defaultProps = {
-    disabled: false,
-};
-
-export default LogEventSelectorList;
+export default LogEventSearch;

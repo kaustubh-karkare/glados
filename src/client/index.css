@@ -1,60 +1,20 @@
-.btn.dropdown-toggle {
-    box-shadow: none !important;
-}
-
-.form-control:disabled {
-    background-color: var(--input-disabled-background);
-}
-
 body {
+    --background-color: #111;
+    --component-color: #222;
+    --component-highlight-color: #333;
+    --text-color: white;
+    --text-disabled-color: #9197a3;
+    --link-color: #3498DB;
+    --topic-color: #00bc8c;
+    --input-text-color: #fff;
+    --input-background: #333;
+    --input-disabled-background: #222;
+    --suggestion-highlight-color: #375a7f;
+
+    --font-size: 13px;
+    --font-family: Lato;
+
     background-color: var(--background-color);
-    font-size: 13px;
-    font-family: Lato;
-}
-
-.log-viewer > span {
-    color: var(--text-disabled-color);
-}
-
-/* Dropdown & Mention Suggestions */
-
-.dropdown-menu,
-.mention-suggestions > div {
-    background-color: var(--component-color);
-    border: 1px solid var(--component-highlight-color);
-    box-shadow: 0px 4px 30px 0px var(--component-color);
-    font-size: 13px;
-    font-family: Lato;
-    min-width: 100px;
-}
-
-.dropdown-item,
-.mention-suggestions > div > div {
-    padding: 1px 16px;
-}
-
-.mention-suggestions > div > div > span {
-    font-size: inherit;
-    margin: 0;
-    overflow: inherit;
-}
-
-.mention-suggestions > div > div[aria-selected="true"] {
-    background-color: var(--suggestion-highlight-color);
-}
-
-/* Modal */
-
-.modal-dialog {
-    max-width: 800px;
-}
-
-/* Index Section */
-
-.index-section {
-    margin-bottom: 128px;
-}
-
-.index-section .text-editor {
-    max-width: 500px;
+    font-size: var(--font-size);
+    font-family: var(--font-family);
 }

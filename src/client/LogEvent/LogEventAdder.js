@@ -21,7 +21,6 @@ class LogEventAdder extends React.Component {
             EditorComponent: LogEventEditor,
             valueKey: 'logEvent',
             value: logEvent,
-            closeOnSave: true,
         });
     }
 

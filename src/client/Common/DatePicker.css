@@ -3,7 +3,9 @@
 }
 
 .react-datepicker-wrapper input {
+    background-color: var(--input-background);
     border: none;
+    color: var(--input-text-color);
     height: 20px;
     outline: none;
     padding: 0 4px;

@@ -1,9 +1,8 @@
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import assert from '../../common/assert';
 import LeftRight from './LeftRight';
 import { KeyCodes, debounce } from './Utils';
 
@@ -18,15 +17,12 @@ function suppressUnlessShiftKey(event) {
 class EditorModal extends React.Component {
     constructor(props) {
         super(props);
-        assert(!(props.allowAutoSave && (props.onSave || props.closeOnSave)));
         this.state = {
-            autoSave: false,
             value: props.value,
             status: 'Pending Validation ...',
             isSaving: false,
             isValidating: false,
         };
-        this.saveItemDebounced = debounce(this.saveItemNotDebounced, 500);
         this.validateItemDebounced = debounce(this.validateItemNotDebounced, 500);
     }
 
@@ -35,13 +31,7 @@ class EditorModal extends React.Component {
     }
 
     onChange(value) {
-        this.setState({ value }, () => {
-            if (this.state.autoSave) {
-                this.saveItemDebounced();
-            } else {
-                this.validateItemDebounced();
-            }
-        });
+        this.setState({ value }, () => this.validateItemDebounced());
     }
 
     onSave() {
@@ -65,6 +55,8 @@ class EditorModal extends React.Component {
         this.setState({ isSaving: true, status: 'Saving ...' });
         let promise;
         if (this.props.onSave) {
+            // A custom onSave method is used for because reminder completion needs to
+            // create the event and update the structure as part of same single transaction.
             promise = this.props.onSave(this.state.value);
             if (!(promise instanceof Promise)) {
                 // If the custom onSave method does not return a promise,
@@ -78,35 +70,18 @@ class EditorModal extends React.Component {
             .finally(() => this.setState({ isSaving: false }))
             .then((value) => {
                 this.setState({ status: 'Saved!', value });
-                if (this.props.closeOnSave) this.props.onClose();
+                this.props.onClose();
             });
-    }
-
-    renderAutoSaveToggle() {
-        return (
-            <Form.Check
-                id="auto-save"
-                type="switch"
-                label="Auto-save"
-                checked={this.state.autoSave}
-                onChange={(event) => {
-                    this.setState({ autoSave: event.target.checked });
-                }}
-                style={{ display: 'inline-block', marginRight: '20px' }}
-            />
-        );
     }
 
     renderSaveButton() {
         return (
             <Button
                 disabled={this.state.isSaving || this.state.isValidating}
-                onClick={() => (this.state.autoSave ? this.onClose() : this.onSave())}
-                size="sm"
-                variant="secondary"
+                onClick={() => this.onSave()}
                 style={{ width: '50px' }}
             >
-                {this.state.autoSave ? 'Close' : 'Save'}
+                Save
             </Button>
         );
     }
@@ -117,7 +92,7 @@ class EditorModal extends React.Component {
         }
         const { EditorComponent, editorProps } = this.props;
         editorProps[this.props.valueKey] = this.state.value;
-        editorProps.disabled = !this.state.autoSave && this.state.isSaving;
+        editorProps.disabled = this.state.isSaving;
         return (
             <Modal
                 show
@@ -146,10 +121,9 @@ class EditorModal extends React.Component {
                         <div style={{ whiteSpace: 'pre-wrap' }}>
                             {this.state.status}
                         </div>
-                        <div>
-                            {this.props.allowAutoSave ? this.renderAutoSaveToggle() : null}
+                        <InputGroup>
                             {this.renderSaveButton()}
-                        </div>
+                        </InputGroup>
                     </LeftRight>
                 </Modal.Body>
             </Modal>
@@ -169,15 +143,11 @@ EditorModal.propTypes = {
 
     // eslint-disable-next-line react/forbid-prop-types
     editorProps: PropTypes.object,
-    allowAutoSave: PropTypes.bool,
     onSave: PropTypes.func,
-    closeOnSave: PropTypes.bool,
 };
 
 EditorModal.defaultProps = {
     editorProps: {},
-    allowAutoSave: false,
-    closeOnSave: false,
 };
 
 

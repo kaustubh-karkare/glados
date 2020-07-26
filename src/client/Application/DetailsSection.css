@@ -1,23 +1,15 @@
-.details-section {
-    background: var(--component-color);
-    border-radius: 4px;
-}
-
-.details-section > * {
-    padding: 4px;
-}
-
 .details-section .text-editor {
-    overflow: scroll;
+    background-color: var(--component-color);
+    padding: 4px;
 }
 
 .details-section .public-DraftEditor-content {
     min-height: 200px;
 }
 
-.details-section > :last-child {
-    border-top: 1px solid var(--component-color);
+.details-section .footer {
+    background-color: var(--component-color);
     color: var(--text-disabled-color);
     font-size: 10px;
-    padding: 2px 4px;
+    padding: 0 4px;
 }

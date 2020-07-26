@@ -190,8 +190,9 @@ class TextEditor extends React.Component {
         return (
             <div className={classNames({
                 'text-editor': true,
-                'text-editor-normal': !this.props.unstyled,
-                'text-editor-disabled': this.props.disabled,
+                unstyled: this.props.unstyled,
+                styled: !this.props.unstyled,
+                disabled: this.props.disabled,
             })}
             >
                 <Editor

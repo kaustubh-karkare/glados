@@ -22,6 +22,7 @@ LogStructureGroupViewer.Expanded = (props) => {
         <LogStructureList
             selector={{ group_id: logStructureGroup.id }}
             creator={{ logStructureGroup }}
+            allowReordering
         />
     );
 };

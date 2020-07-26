@@ -43,6 +43,9 @@ class BulletListTitle extends React.Component {
     }
 
     renderAddButton() {
+        if (!this.props.onAddButtonClick) {
+            return null;
+        }
         return (
             <BulletListIcon
                 title="Create New"
@@ -77,7 +80,7 @@ BulletListTitle.propTypes = {
     name: PropTypes.string.isRequired,
     areAllExpanded: PropTypes.bool.isRequired,
     onToggleButtonClick: PropTypes.func.isRequired,
-    onAddButtonClick: PropTypes.func.isRequired,
+    onAddButtonClick: PropTypes.func,
 };
 
 export default BulletListTitle;

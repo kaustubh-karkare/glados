@@ -9,7 +9,6 @@ function Selector(props) {
             {...moreProps}
             as="select"
             onChange={(event) => onChange(event.target.value)}
-            size="sm"
         >
             {options.map((item) => {
                 const optionProps = { key: item.value, value: item.value };

@@ -21,7 +21,7 @@ function AdderWrapper(props) {
     // eslint-disable-next-line react/prop-types
     const { children } = props;
     return (
-        <InputGroup size="sm">
+        <InputGroup>
             <div className="icon" />
             <div className="icon mr-1">
                 <GoPrimitiveDot />
@@ -85,6 +85,14 @@ class BulletList extends React.Component {
         this.dataLoader.stop();
     }
 
+    onAddButtonClick(event) {
+        const DataType = getDataTypeMapping()[this.props.dataType];
+        const newItem = DataType.createVirtual(
+            this.props.creator ? this.props.creator : this.props.selector,
+        );
+        this.onEdit(newItem, event);
+    }
+
     onMove(index, delta, event) {
         if (!event.shiftKey) return;
         const otherIndex = index + delta;
@@ -125,7 +133,6 @@ class BulletList extends React.Component {
             // eslint-disable-next-line react/forbid-foreign-prop-types
             valueKey: this.props.valueKey,
             value: item,
-            closeOnSave: true,
         });
     }
 
@@ -169,11 +176,7 @@ class BulletList extends React.Component {
                     <ViewerComponent {...viewerComponentProps} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button
-                        onClick={() => this.deleteItem(this.state.deleteItem)}
-                        size="sm"
-                        variant="secondary"
-                    >
+                    <Button onClick={() => this.deleteItem(this.state.deleteItem)}>
                         Delete
                     </Button>
                 </Modal.Footer>
@@ -227,7 +230,6 @@ class BulletList extends React.Component {
         if (!this.state.items) {
             return <div>Loading ...</div>;
         }
-        const DataType = getDataTypeMapping()[this.props.dataType];
         return (
             <div>
                 {this.renderDeleteConfirmationModal()}
@@ -244,12 +246,9 @@ class BulletList extends React.Component {
                             ),
                         };
                     })}
-                    onAddButtonClick={(event) => this.onEdit(
-                        DataType.createVirtual(
-                            this.props.creator ? this.props.creator : this.props.selector,
-                        ),
-                        event,
-                    )}
+                    onAddButtonClick={this.props.allowCreation
+                        ? (event) => this.onAddButtonClick(event)
+                        : null}
                 />
                 <WrappedContainer
                     helperClass="sortableDraggedItem"
@@ -272,12 +271,17 @@ BulletList.propTypes = {
     selector: PropTypes.object,
     // eslint-disable-next-line react/forbid-prop-types
     creator: PropTypes.object,
+    allowCreation: PropTypes.bool,
     allowReordering: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
     EditorComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,
     // eslint-disable-next-line react/forbid-prop-types
     viewerComponentProps: PropTypes.object,
+};
+
+BulletList.defaultProps = {
+    allowCreation: true,
 };
 
 export default BulletList;

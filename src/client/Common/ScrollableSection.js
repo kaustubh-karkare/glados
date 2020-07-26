@@ -34,7 +34,9 @@ class ScrollableSection extends React.Component {
     }
 
     render() {
-        const height = this.state.height - 30; // Why 30? 15px padding at top/bottom.
+        const height = this.state.height
+            - this.props.padding
+            - 32; // Why 32? 16px padding at top/bottom.
         return (
             <div className="scrollable-section" style={{ height, overflow: 'scroll' }}>
                 {this.props.children}
@@ -44,8 +46,13 @@ class ScrollableSection extends React.Component {
 }
 
 ScrollableSection.propTypes = {
+    padding: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
+};
+
+ScrollableSection.defaultProps = {
+    padding: 0,
 };
 
 export default ScrollableSection;

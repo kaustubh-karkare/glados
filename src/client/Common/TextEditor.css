@@ -3,34 +3,20 @@
     margin: 0;
 }
 
+.text-editor {
+    position: relative;
+}
+
 .text-editor .public-DraftEditor-content {
     min-width: 100px;
 }
 
-.text-editor .link {
-    color: var(--link-color);
+.text-editor.styled {
+    background: var(--input-background);
+    color: var(--input-text-color);
 }
 
-.text-editor.text-editor-normal .link {
-    background: var(--link-background-color);
-}
-
-.text-editor .mention {
-    color: var(--topic-color);
-}
-
-.text-editor.text-editor-normal .mention {
-    background: var(--topic-background-color);
-}
-
-.text-editor.text-editor-normal .link,
-.text-editor.text-editor-normal .mention {
-    color: black;
-    border-radius: 2px;
-    padding: 0 2px;
-}
-
-.text-editor.text-editor-normal .public-DraftEditor-content {
+.text-editor.styled .public-DraftEditor-content {
     background: var(--input-background);
     border-radius: 0 0.2rem 0.2rem 0;
     color: var(--input-text);
@@ -38,6 +24,35 @@
     padding: 1px 4px 0;
 }
 
-.text-editor.text-editor-normal.text-editor-disabled .public-DraftEditor-content {
+.text-editor.styled.disabled .public-DraftEditor-content {
     background: var(--input-disabled-background);
+}
+
+/* TextEditor Mention Suggestions + RBT Suggestions */
+
+.rbt-menu.dropdown-menu,
+.text-editor .mention-suggestions > div {
+    background-color: var(--component-color);
+    border: 1px solid var(--component-highlight-color);
+    box-shadow: 0px 4px 30px 0px var(--component-color);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    min-width: 100px;
+    position: absolute;
+    z-index: 2;
+}
+
+.rbt-menu > .dropdown-item,
+.text-editor .mention-suggestions > div > div {
+    padding: 1px 16px;
+}
+
+.text-editor .mention-suggestions > div > div > span {
+    font-size: inherit;
+    margin: 0;
+    overflow: inherit;
+}
+
+.text-editor .mention-suggestions > div > div[aria-selected="true"] {
+    background-color: var(--suggestion-highlight-color);
 }

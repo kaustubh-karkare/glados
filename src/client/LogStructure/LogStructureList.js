@@ -28,7 +28,6 @@ function LogStructureList(props) {
             valueKey="logStructure"
             ViewerComponent={LogStructureViewer}
             EditorComponent={LogStructureEditor}
-            allowReordering
         />
     );
 }

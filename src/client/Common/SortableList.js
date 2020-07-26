@@ -1,4 +1,4 @@
-import { FaRegTrashAlt } from 'react-icons/fa';
+import { GoTrashcan } from 'react-icons/go';
 import { GrDrag } from 'react-icons/gr';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
@@ -13,8 +13,6 @@ const SortableDragHandle = SortableHandle((props) => (
     <Button
         className="sortableDragHandle"
         disabled={props.disabled}
-        size="sm"
-        variant="secondary"
     >
         <GrDrag />
     </Button>
@@ -41,11 +39,9 @@ const WrappedRow = SortableElement((props) => {
                 key="delete"
                 disabled={disabled}
                 onClick={props.onDelete}
-                size="sm"
                 title="Delete"
-                variant="secondary"
             >
-                <FaRegTrashAlt />
+                <GoTrashcan />
             </Button>,
         ],
     );

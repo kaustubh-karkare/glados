@@ -7,26 +7,32 @@
 }
 
 .input-group > * {
+    border-style: solid;
+    border-color: transparent;
     border-radius: 0;
+    border-width: 0px 0px;
+    font-size: var(--font-size);
     height: 20px;
+}
+
+.input-group *:focus {
+    outline: none;
 }
 
 .input-group > :first-child {
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px;
+    border-left-width: 0;
 }
 
 .input-group > :last-child {
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
+    border-right-width: 0;
 }
 
 .input-group > .input-group-text {
-    font-size: 13px;
-}
-
-.input-group > .input-group-text {
-    border: none;
+    background: var(--component-color);
     display: block;
     padding: 1px;
     text-align: center;
@@ -43,10 +49,6 @@
     fill: var(--text-disabled-color);
 }
 
-.input-group > .icon:focus {
-    outline: none;
-}
-
 .input-group > .icon:focus > svg,
 .input-group > .icon.focus > svg,
 .input-group > .icon.icon-white > svg {
@@ -54,33 +56,26 @@
 }
 
 .input-group > .btn {
+    background: var(--input-background);
     width: 20px;
     padding: 0px;
 }
 
-.input-group > .dropdown > .btn {
-    border-radius: 0;
-    height: 20px;
-    padding: 0;
+.input-group > .btn > svg {
     position: relative;
     top: -1px;
-    width: 100px;
-}
-
-.input-group > .dropdown:not(:first-child) > .btn {
-    width: 80px;
 }
 
 .input-group > input.form-control {
-    border: none;
-    font-size: 13px;
+    background-color: var(--input-background);
+    color: var(--input-text-color);
     height: 20px;
     padding: 0 4px;
 }
 
 .input-group > select.form-control {
-    border: none;
-    font-size: 13px;
+    background-color: var(--input-background);
+    color: var(--input-text-color);
     padding: 0;
 }
 
@@ -90,9 +85,14 @@
 }
 
 .input-group > .rbt input:first-child {
+    background-color: var(--input-background);
+    border: none;
+    border-radius: 0;
+    border-width: 0 1px;
+    color: var(--input-text-color);
+    font-size: var(--font-size);
     padding: 0 4px;
     height: 20px;
-    border-width: 0 1px;
 }
 
 .input-group > .text-editor {

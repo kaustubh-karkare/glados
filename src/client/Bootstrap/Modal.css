@@ -1,0 +1,8 @@
+.modal-dialog {
+    max-width: 800px;
+}
+
+.modal-content {
+    background-color: var(--background-color);
+    border-color: var(--component-highlight-color);
+}

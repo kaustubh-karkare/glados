@@ -20,7 +20,6 @@ class TypeaheadInput extends React.Component {
             <>
                 <AsyncTypeahead
                     id={this.props.id}
-                    size="small"
                     minLength={0}
                     disabled={this.props.disabled}
                     onFocus={() => this.onSearch(this.props.value)}

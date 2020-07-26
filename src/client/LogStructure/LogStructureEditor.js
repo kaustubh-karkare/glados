@@ -101,9 +101,7 @@ class LogStructureEditor extends React.Component {
                             updatedLogStructure.logKeys.push(LogStructure.createNewKey({ index }));
                         });
                     }}
-                    size="sm"
                     style={{ height: 'inherit' }}
-                    variant="secondary"
                 >
                     <MdAddCircleOutline />
                 </Button>

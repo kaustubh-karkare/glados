@@ -10,9 +10,7 @@ function CustomDropdown(props) {
             <DropdownButton
                 disabled={props.disabled}
                 onSelect={() => null}
-                size="sm"
                 title={selectedOption.label}
-                variant="secondary"
             >
                 {props.options.map((option) => (
                     <Dropdown.Item

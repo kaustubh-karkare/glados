@@ -5,16 +5,17 @@ import Row from 'react-bootstrap/Row';
 import {
     Coordinator, ModalStack, ScrollableSection, SidebarSection,
 } from '../Common';
-import { LogStructureGroupList } from '../LogStructure';
-import { LogTopicList } from '../LogTopic';
+import { LogEventSearch } from '../LogEvent';
+import { LogStructureSearch } from '../LogStructure';
+import { LogTopicSearch } from '../LogTopic';
+import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import ConsistencySection from './ConsistencySection';
 import DetailsSection from './DetailsSection';
 import Enum from '../../common/Enum';
-import LayoutSection from './LayoutSection';
-import LogEventSearch from './LogEventSearch';
 import FavoriteTopicsSection from './FavoriteTopicsSection';
-import { ReminderSidebar } from '../Reminders';
+import IndexSection from './IndexSection';
+import LayoutSection from './LayoutSection';
 
 
 const [TabOptions, TabType, TabOptionsMap] = Enum([
@@ -26,13 +27,12 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
     {
         label: 'Manage Topics',
         value: 'log_topics',
-        Component: LogTopicList,
-        componentProps: { selector: { parent_topic_id: null, has_structure: false } },
+        Component: LogTopicSearch,
     },
     {
         label: 'Manage Structures',
         value: 'log_structures',
-        Component: LogStructureGroupList,
+        Component: LogStructureSearch,
     },
 ]);
 
@@ -55,6 +55,7 @@ class Applicaton extends React.Component {
             activeTab: TabType.LOG_EVENTS,
             activeLayout: LayoutType.DEFAULT,
             activeItem: null,
+            disabled: false,
         };
         Coordinator.register('details', this.onDetailsChange.bind(this));
         Coordinator.register('layout-list', () => [LayoutOptions, this.state.activeLayout]);
@@ -77,7 +78,10 @@ class Applicaton extends React.Component {
                         <SidebarSection
                             key={option.value}
                             onClick={() => this.onTabChange(option.value)}
-                            selected={this.state.activeTab === option.value}
+                            selected={
+                                this.state.activeTab === option.value
+                                && this.state.activeLayout === LayoutType.DEFAULT
+                            }
                         >
                             {option.label}
                         </SidebarSection>
@@ -89,28 +93,24 @@ class Applicaton extends React.Component {
     }
 
     renderLayout() {
-        const { Component, componentProps } = TabOptionsMap[this.state.activeTab];
+        const { Component } = TabOptionsMap[this.state.activeTab];
         if (this.state.activeLayout === LayoutType.DEFAULT) {
             return (
                 <>
                     <Col md={4} className="my-3">
-                        <ScrollableSection>
-                            <Component {...componentProps} />
-                        </ScrollableSection>
+                        <IndexSection>
+                            <Component disabled={this.state.disabled} />
+                        </IndexSection>
                     </Col>
                     <Col md={4} className="my-3">
-                        <ScrollableSection>
-                            <DetailsSection item={this.state.activeItem} />
-                        </ScrollableSection>
+                        <DetailsSection item={this.state.activeItem} />
                     </Col>
                 </>
             );
         } if (this.state.activeLayout === LayoutType.FOCUS) {
             return (
                 <Col md={8} className="my-3">
-                    <ScrollableSection>
-                        <DetailsSection item={this.state.activeItem} />
-                    </ScrollableSection>
+                    <DetailsSection item={this.state.activeItem} />
                 </Col>
             );
         }

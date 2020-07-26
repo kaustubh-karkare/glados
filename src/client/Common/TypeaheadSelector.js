@@ -39,9 +39,7 @@ class TypeaheadSelector extends React.Component {
         return (
             <Button
                 onClick={() => this.props.onChange(null)}
-                size="sm"
                 title="Cancel"
-                variant="secondary"
             >
                 <MdClose style={{ fill: 'white !important' }} />
             </Button>
@@ -56,7 +54,6 @@ class TypeaheadSelector extends React.Component {
                     {...this.state}
                     id={this.props.dataType}
                     labelKey={this.props.labelKey}
-                    size="small"
                     minLength={0}
                     disabled={this.props.disabled || this.props.value}
                     onFocus={() => this.onSearch(this.state.text)}

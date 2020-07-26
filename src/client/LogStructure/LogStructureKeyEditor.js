@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    Dropdown, Selector, TextInput, TypeaheadSelector,
+    Selector, TextInput, TypeaheadSelector,
 } from '../Common';
 import { LogStructure } from '../../data';
 import PropTypes from '../prop-types';
@@ -17,18 +17,19 @@ class LogStructureKeyEditor extends React.Component {
         this.props.onChange(logStructureKey);
     }
 
-    renderTypeDropdown() {
+    renderTypeSelector() {
         return (
-            <Dropdown
+            <Selector
                 value={this.props.logStructureKey.type}
                 options={LogStructure.KeyOptions}
                 disabled={this.props.disabled}
                 onChange={(type) => this.update('type', type)}
+                style={{ borderRight: '2px solid transparent' }}
             />
         );
     }
 
-    renderInput() {
+    renderNameInput() {
         return (
             <TextInput
                 value={this.props.logStructureKey.name}
@@ -58,7 +59,7 @@ class LogStructureKeyEditor extends React.Component {
                 onChange={(isOptional) => this.update('isOptional', isOptional)}
                 yesLabel="Optional"
                 noLabel="Required"
-                style={{ borderLeft: '1px solid' }}
+                style={{ borderLeft: '1px solid transparent' }}
             />
         );
     }
@@ -69,8 +70,11 @@ class LogStructureKeyEditor extends React.Component {
         return (
             <InputGroup className="my-1">
                 {children.shift()}
-                {this.renderTypeDropdown()}
-                {this.renderInput()}
+                <InputGroup.Text style={{ width: 80 }}>
+                    Key
+                </InputGroup.Text>
+                {this.renderTypeSelector()}
+                {this.renderNameInput()}
                 {this.props.logStructureKey.type === LogStructure.KeyType.LOG_TOPIC
                     ? this.renderParentTopic() : null}
                 {this.renderOptionalSelector()}
