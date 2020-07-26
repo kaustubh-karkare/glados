@@ -1,6 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { MdFavorite, MdFavoriteBorder, MdSearch } from 'react-icons/md';
 import {
-    Coordinator, LeftRight, TextEditor, debounce,
+    Coordinator, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
 
 class DetailsSection extends React.Component {
@@ -10,19 +14,32 @@ class DetailsSection extends React.Component {
             item: null,
             status: 'Unchanged!',
         };
-
         this.saveDebounced = debounce(this.saveNotDebounced, 500);
-
-        Coordinator.register('details', this.select.bind(this));
     }
 
-    select(partialItem) {
-        partialItem.__type__ = partialItem.__type__ || 'log-topic';
-        window.api.send(`${partialItem.__type__}-load`, partialItem)
-            .then((item) => this.setState({ item }));
+    componentDidMount() {
+        this.componentDidUpdate();
     }
 
-    updateItem(name, value) {
+    componentDidUpdate(prevProps) {
+        const left = this.props.item;
+        const right = this.state.item;
+        if (!left && right) {
+            // eslint-disable-next-line react/no-did-update-set-state
+            this.setState({ item: null });
+        }
+        if (left && (!right || left.__type__ !== right.__type__ || left.id !== right.id)) {
+            window.api.send(`${left.__type__}-load`, left)
+                .then((item) => this.setState({ item }, this.afterUpdate));
+        }
+    }
+
+    onChange(item) {
+        Coordinator.invoke('details', item);
+        this.setState({ item }, this.afterUpdate);
+    }
+
+    onUpdate(name, value) {
         this.setState((state) => {
             state.item[name] = value;
             state.status = 'Pending ...';
@@ -38,27 +55,8 @@ class DetailsSection extends React.Component {
     }
 
     renderHeader() {
-        const type = this.state.item.__type__;
-        if (type === 'log-topic') {
-            const logTopic = this.state.item;
-            return (
-                <LeftRight className="mx-1">
-                    <div>{logTopic.name}</div>
-                    <div>
-                        <a
-                            href="#"
-                            onClick={() => Coordinator.invoke('topic-select', logTopic)}
-                        >
-                            Events
-                        </a>
-                        {' | '}
-                        <a href="#" onClick={() => this.updateItem('onSidebar', !logTopic.onSidebar)}>
-                            {logTopic.onSidebar ? 'Favorite' : 'Default'}
-                        </a>
-                    </div>
-                </LeftRight>
-            );
-        } if (type === 'log-event') {
+        const { item } = this.state;
+        if (item && item.__type__ === 'log-event') {
             const logEvent = this.state.item;
             return (
                 <TextEditor
@@ -69,16 +67,58 @@ class DetailsSection extends React.Component {
                 />
             );
         }
-        return null;
+        if (item && item.__type__ === 'log-topic') {
+            const logTopic = this.state.item;
+            return (
+                <InputGroup>
+                    <Button
+                        onClick={() => Coordinator.invoke('topic-select', logTopic)}
+                        size="sm"
+                        title="Search"
+                        variant="secondary"
+                    >
+                        <MdSearch />
+                    </Button>
+                    <Button
+                        onClick={() => this.onUpdate('onSidebar', !logTopic.onSidebar)}
+                        size="sm"
+                        title="Favorite?"
+                        variant="secondary"
+                    >
+                        {logTopic.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
+                    </Button>
+                    <TypeaheadSelector
+                        dataType="log-topic"
+                        value={logTopic}
+                        disabled={this.props.disabled}
+                        onChange={(newItem) => this.onChange(newItem)}
+                    />
+                </InputGroup>
+            );
+        }
+        return (
+            <InputGroup>
+                <TypeaheadSelector
+                    dataType="log-topic"
+                    value={null}
+                    disabled={this.props.disabled}
+                    onChange={(newItem) => this.onChange(newItem)}
+                    placeholder="Topic Details ..."
+                />
+            </InputGroup>
+        );
     }
 
     renderDetails() {
+        if (!this.state.item) {
+            return null;
+        }
         return (
             <div className="details-section my-1">
                 <TextEditor
                     unstyled
                     value={this.state.item.details}
-                    onChange={(details) => this.updateItem('details', details)}
+                    onChange={(details) => this.onUpdate('details', details)}
                     serverSideTypes={['log-topic']}
                 />
                 <div>
@@ -89,9 +129,6 @@ class DetailsSection extends React.Component {
     }
 
     render() {
-        if (!this.state.item) {
-            return null;
-        }
         return (
             <div>
                 {this.renderHeader()}
@@ -100,5 +137,15 @@ class DetailsSection extends React.Component {
         );
     }
 }
+
+DetailsSection.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    item: PropTypes.any,
+    disabled: PropTypes.bool,
+};
+
+DetailsSection.defaultProps = {
+    disabled: false,
+};
 
 export default DetailsSection;

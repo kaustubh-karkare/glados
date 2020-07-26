@@ -42,6 +42,7 @@ class ReminderCheckList extends React.Component {
                     this.closeModal();
                     delete this.closeModal;
                 }
+                Coordinator.invoke('event-created', logEvent);
             });
     }
 

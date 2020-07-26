@@ -4,7 +4,11 @@ test('verify_config_example_structure', async () => {
     function ensureSameStructure(left, right) {
         const isLeftAtomic = (typeof left !== 'object');
         const isRightAtomic = (typeof right !== 'object');
-        if ((isLeftAtomic && right === null) || (left === null && isRightAtomic)) {
+        if (
+            (isLeftAtomic && right === null)
+            || (left === null && isRightAtomic)
+            || (left === null && right === null)
+        ) {
             return;
         }
         if (isLeftAtomic && isRightAtomic) {

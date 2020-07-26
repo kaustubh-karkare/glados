@@ -144,6 +144,7 @@ class LogEvent extends Base {
 
         // TODO(broadcast): Make this more specific!
         this.broadcast('log-event-list'); // Update all lists!
+        this.broadcast('reminder-sidebar');
 
         if (inputLogEvent.date === null) {
             assert(!inputLogEvent.isComplete);

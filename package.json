@@ -4,7 +4,8 @@
   "description": "",
   "private": true,
   "scripts": {
-    "server": "webpack --config webpack.config.js && babel-node index.js",
+    "build": "webpack --config webpack.config.js",
+    "server": "babel-node index.js",
     "backup-save": "babel-node index.js -a backup-save",
     "backup-load": "babel-node index.js -a backup-load",
     "dev-client": "webpack --watch --progress --config webpack.config.js",

@@ -253,6 +253,7 @@ class LogStructure extends Base {
         }
 
         this.broadcast('log-structure-list');
+        this.broadcast('reminder-sidebar');
         return logStructure.id;
     }
 

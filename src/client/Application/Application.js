@@ -3,12 +3,13 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
-import { LogEventSelectorList } from '../LogEvent';
 import { LogStructureGroupList } from '../LogStructure';
 import { LogTopicSidebar, LogTopicList } from '../LogTopic';
-import { ModalStack, ScrollableSection } from '../Common';
+import { Coordinator, ModalStack, ScrollableSection } from '../Common';
 import { ReminderSidebar } from '../Reminders';
-import BackupSidebar from './BackupSidebar';
+import BackupSection from './BackupSection';
+import LayoutSection from './LayoutSection';
+import LogEventSelectorList from './LogEventSelectorList';
 import DetailsSection from './DetailsSection';
 import Enum from '../../common/Enum';
 
@@ -20,15 +21,26 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
         Component: LogEventSelectorList,
     },
     {
-        label: 'Manage Structures',
-        value: 'log_structures',
-        Component: LogStructureGroupList,
-    },
-    {
         label: 'Manage Topics',
         value: 'log_topics',
         Component: LogTopicList,
         componentProps: { selector: { parent_topic_id: null, has_structure: false } },
+    },
+    {
+        label: 'Manage Structures',
+        value: 'log_structures',
+        Component: LogStructureGroupList,
+    },
+]);
+
+const [LayoutOptions, LayoutType] = Enum([
+    {
+        label: 'Default',
+        value: 'default',
+    },
+    {
+        label: 'Focus',
+        value: 'focus',
     },
 ]);
 
@@ -36,31 +48,51 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { activeTab: TabType.LOG_EVENTS };
+        this.state = {
+            activeTab: TabType.LOG_EVENTS,
+            activeLayout: LayoutType.DEFAULT,
+            activeItem: null,
+        };
+        Coordinator.register('details', this.onDetailsChange.bind(this));
+        Coordinator.register('layout-list', () => [LayoutOptions, this.state.activeLayout]);
+        Coordinator.register('layout', (activeLayout) => this.setState({ activeLayout }));
     }
 
-    render() {
-        const { Component, componentProps } = TabOptionsMap[this.state.activeTab];
+    onTabChange(tabType) {
+        this.setState({ activeTab: tabType, activeLayout: LayoutType.DEFAULT });
+    }
+
+    onDetailsChange(item) {
+        this.setState({ activeItem: item });
+    }
+
+    renderLeftSidebar() {
         return (
-            <Container fluid>
-                <Row>
-                    <Col md={2} className="my-3">
-                        <ScrollableSection>
-                            {TabOptions.map((option) => (
-                                <div
-                                    key={option.value}
-                                    className={classNames({
-                                        'tab-item': true,
-                                        'tab-item-selected': this.state.activeTab === option.value,
-                                    })}
-                                    onClick={() => this.setState({ activeTab: option.value })}
-                                >
-                                    {option.label}
-                                </div>
-                            ))}
-                            <ReminderSidebar />
-                        </ScrollableSection>
-                    </Col>
+            <Col md={2} className="my-3">
+                <ScrollableSection>
+                    {TabOptions.map((option) => (
+                        <div
+                            key={option.value}
+                            className={classNames({
+                                'tab-item': true,
+                                'tab-item-selected': this.state.activeTab === option.value,
+                            })}
+                            onClick={() => this.onTabChange(option.value)}
+                        >
+                            {option.label}
+                        </div>
+                    ))}
+                    <ReminderSidebar />
+                </ScrollableSection>
+            </Col>
+        );
+    }
+
+    renderLayout() {
+        const { Component, componentProps } = TabOptionsMap[this.state.activeTab];
+        if (this.state.activeLayout === LayoutType.DEFAULT) {
+            return (
+                <>
                     <Col md={4} className="my-3">
                         <ScrollableSection>
                             <Component {...componentProps} />
@@ -68,13 +100,41 @@ class Applicaton extends React.Component {
                     </Col>
                     <Col md={4} className="my-3">
                         <ScrollableSection>
-                            <DetailsSection />
+                            <DetailsSection item={this.state.activeItem} />
                         </ScrollableSection>
                     </Col>
-                    <Col md={2} className="my-3">
-                        <BackupSidebar />
-                        <LogTopicSidebar />
-                    </Col>
+                </>
+            );
+        } if (this.state.activeLayout === LayoutType.FOCUS) {
+            return (
+                <Col md={8} className="my-3">
+                    <ScrollableSection>
+                        <DetailsSection item={this.state.activeItem} />
+                    </ScrollableSection>
+                </Col>
+            );
+        }
+        return <div>{`Unknown layout: ${this.state.activeLayout}`}</div>;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    renderRightSidebar() {
+        return (
+            <Col md={2} className="my-3">
+                <BackupSection />
+                <LayoutSection />
+                <LogTopicSidebar />
+            </Col>
+        );
+    }
+
+    render() {
+        return (
+            <Container fluid>
+                <Row>
+                    {this.renderLeftSidebar()}
+                    {this.renderLayout()}
+                    {this.renderRightSidebar()}
                 </Row>
                 <ModalStack />
             </Container>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Coordinator, DataLoader, LeftRight } from '../Common';
 
-class BackupSidebar extends React.Component {
+class BackupSection extends React.Component {
     static onClick() {
         window.api.send('backup-save')
             .then(({ isUnchanged }) => Coordinator.invoke('modal-error', isUnchanged ? 'Backup unchanged!' : 'Backup complete!'));
@@ -27,11 +27,11 @@ class BackupSidebar extends React.Component {
         const { latestBackup } = this.state;
         return (
             <LeftRight className="tab-item">
-                <a href="#" onClick={() => BackupSidebar.onClick()}>Backup</a>
+                <a href="#" onClick={() => BackupSection.onClick()}>Backup</a>
                 {latestBackup ? `${latestBackup.timetamp}` : 'No backup found!' }
             </LeftRight>
         );
     }
 }
 
-export default BackupSidebar;
+export default BackupSection;

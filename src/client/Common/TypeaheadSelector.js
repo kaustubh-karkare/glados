@@ -1,6 +1,6 @@
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
-import { GiCancel } from 'react-icons/gi';
+import { MdClose } from 'react-icons/md';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -43,7 +43,7 @@ class TypeaheadSelector extends React.Component {
                 title="Cancel"
                 variant="secondary"
             >
-                <GiCancel />
+                <MdClose style={{ fill: 'white !important' }} />
             </Button>
         );
     }

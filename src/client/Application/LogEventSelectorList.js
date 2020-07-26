@@ -6,7 +6,7 @@ import {
 } from '../../common/DateUtils';
 import { Coordinator, Selector, TypeaheadSelector } from '../Common';
 import Enum from '../../common/Enum';
-import LogEventList from './LogEventList';
+import { LogEventList } from '../LogEvent';
 
 const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
     {
@@ -18,6 +18,15 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
         },
     },
     {
+        label: 'Last 7 days',
+        value: 'last_7_days',
+        getDates: () => {
+            const today = getTodayLabel();
+            const before = getDateLabel(getTodayValue() - getDurationValue('6 days'));
+            return getDateRange(before, today);
+        },
+    },
+    {
         label: 'Last 2 days',
         value: 'last_2_days',
         getDates: () => {
@@ -25,15 +34,6 @@ const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
             const todayLabel = getDateLabel(todayValue);
             const yesterdayLabel = getDateLabel(todayValue - getDurationValue('1 day'));
             return [yesterdayLabel, todayLabel];
-        },
-    },
-    {
-        label: 'Last 7 days',
-        value: 'last_7_days',
-        getDates: () => {
-            const today = getTodayLabel();
-            const before = getDateLabel(getTodayValue() - getDurationValue('6 days'));
-            return getDateRange(before, today);
         },
     },
     {
@@ -51,6 +51,14 @@ class LogEventSelectorList extends React.Component {
             logTopic: null,
         };
         this.afterUpdate = this.afterUpdate.bind(this);
+        Coordinator.register(
+            'event-created',
+            (logEvent) => this.setState((state) => {
+                if (!logEvent.isMajor && state.isMajor) state.isMajor = false;
+                // TODO: Reset topic filter if event does not contain it.
+                return state;
+            }, this.afterUpdate),
+        );
         Coordinator.register(
             'topic-select',
             (logTopic) => this.setState({ logTopic }, this.afterUpdate),
@@ -109,6 +117,7 @@ class LogEventSelectorList extends React.Component {
                     value={this.state.logTopic}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.setState({ logTopic }, this.afterUpdate)}
+                    placeholder="Topic Search ..."
                 />
             </InputGroup>
         );
