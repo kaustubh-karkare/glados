@@ -9,8 +9,9 @@ import { Coordinator, ModalStack, ScrollableSection } from '../Common';
 import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import LayoutSection from './LayoutSection';
-import LogEventSelectorList from './LogEventSelectorList';
+import LogEventSearch from './LogEventSearch';
 import DetailsSection from './DetailsSection';
+import ConsistencySection from './ConsistencySection';
 import Enum from '../../common/Enum';
 
 
@@ -18,7 +19,7 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
     {
         label: 'Manage Events',
         value: 'log_events',
-        Component: LogEventSelectorList,
+        Component: LogEventSearch,
     },
     {
         label: 'Manage Topics',
@@ -121,8 +122,9 @@ class Applicaton extends React.Component {
     renderRightSidebar() {
         return (
             <Col md={2} className="my-3">
-                <BackupSection />
                 <LayoutSection />
+                <BackupSection />
+                <ConsistencySection />
                 <LogTopicSidebar />
             </Col>
         );

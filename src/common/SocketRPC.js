@@ -54,14 +54,15 @@ class SocketRPC {
                 if (!error) {
                     resolve(response);
                 } else {
-                    // eslint-disable-next-line no-console
-                    console.error(error);
                     reject(error);
                 }
             });
             this.socket.emit(GENERAL_REQUEST, { counter, name, request });
         });
-        return promise.catch((error) => this.errorCallback(error));
+        return promise.catch((error) => {
+            this.errorCallback(error);
+            throw error; // this can be ignored
+        });
     }
 
     registerActions(actions) {

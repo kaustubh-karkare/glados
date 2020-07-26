@@ -44,8 +44,22 @@ ActionsRegistry['value-typeahead'] = async function (input) {
 
 ActionsRegistry.consistency = async function () {
     const results = [];
-    // Update logEvent using latest topic-names & structure-title-template.
     const logTopics = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
+
+    // Update logStructures using latest topic-names
+    const logStructures = await this.invoke.call(this, 'log-structure-list');
+    await awaitSequence(logStructures, async (logStructure) => {
+        try {
+            logStructure.titleTemplate = LogTopic.updateContent(
+                logStructure.titleTemplate, logTopics,
+            );
+            await this.invoke.call(this, 'log-structure-upsert', logStructure);
+        } catch (error) {
+            results.push([logStructure, error.toString()]);
+        }
+    });
+
+    // Update logEvents using latest topic-names & structure-title-template.
     const logEvents = await this.invoke.call(this, 'log-event-list');
     await awaitSequence(logEvents, async (logEvent) => {
         try {
@@ -60,5 +74,6 @@ ActionsRegistry.consistency = async function () {
             results.push([logEvent, error.toString()]);
         }
     });
+
     return results;
 };

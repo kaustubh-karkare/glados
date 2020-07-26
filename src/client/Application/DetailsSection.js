@@ -71,6 +71,12 @@ class DetailsSection extends React.Component {
             const logTopic = this.state.item;
             return (
                 <InputGroup>
+                    <TypeaheadSelector
+                        dataType="log-topic"
+                        value={logTopic}
+                        disabled={this.props.disabled}
+                        onChange={(newItem) => this.onChange(newItem)}
+                    />
                     <Button
                         onClick={() => Coordinator.invoke('topic-select', logTopic)}
                         size="sm"
@@ -87,12 +93,6 @@ class DetailsSection extends React.Component {
                     >
                         {logTopic.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
                     </Button>
-                    <TypeaheadSelector
-                        dataType="log-topic"
-                        value={logTopic}
-                        disabled={this.props.disabled}
-                        onChange={(newItem) => this.onChange(newItem)}
-                    />
                 </InputGroup>
             );
         }
