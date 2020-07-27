@@ -21,7 +21,7 @@ class LogStructureKeyEditor extends React.Component {
         return (
             <Selector
                 value={this.props.logStructureKey.type}
-                options={LogStructure.KeyOptions}
+                options={LogStructure.Key.Options}
                 disabled={this.props.disabled}
                 onChange={(type) => this.update('type', type)}
                 style={{ borderRight: '2px solid transparent' }}
@@ -75,7 +75,7 @@ class LogStructureKeyEditor extends React.Component {
                 </InputGroup.Text>
                 {this.renderTypeSelector()}
                 {this.renderNameInput()}
-                {this.props.logStructureKey.type === LogStructure.KeyType.LOG_TOPIC
+                {this.props.logStructureKey.type === LogStructure.Key.LOG_TOPIC
                     ? this.renderParentTopic() : null}
                 {this.renderOptionalSelector()}
                 {children.pop()}

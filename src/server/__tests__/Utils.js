@@ -118,7 +118,7 @@ export default class Utils {
                 if (inputLogEvent.logValues) {
                     inputLogEvent.logValues.forEach((value, index) => {
                         const logKey = inputLogEvent.logStructure.logKeys[index];
-                        if (logKey.type === LogStructure.KeyType.LOG_TOPIC) {
+                        if (logKey.type === LogStructure.Key.LOG_TOPIC) {
                             logKey.value = logTopicsMap[value];
                         } else {
                             logKey.value = value;

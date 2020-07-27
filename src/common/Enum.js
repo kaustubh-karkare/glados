@@ -1,14 +1,14 @@
+import assert from 'assert';
 
-function Enum(options) {
-    const EnumValueMap = {};
-    const EnumOptionMap = {};
-    options.forEach((option) => {
+function Enum(Options) {
+    const result = { Options };
+    Options.forEach((option) => {
+        assert(option.value === option.value.toLowerCase());
         const key = option.value.toUpperCase();
-        EnumValueMap[key] = option.value;
-        EnumOptionMap[option.value] = option;
+        result[key] = option.value;
+        result[option.value] = option;
     });
-
-    return [options, EnumValueMap, EnumOptionMap];
+    return result;
 }
 
 export default Enum;

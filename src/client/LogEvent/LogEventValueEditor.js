@@ -23,7 +23,7 @@ class LogEventValueEditor extends React.Component {
     }
 
     renderInput(logKey) {
-        if (logKey.type === LogStructure.KeyType.LOG_TOPIC) {
+        if (logKey.type === LogStructure.Key.LOG_TOPIC) {
             return (
                 <TypeaheadSelector
                     dataType="log-topic"

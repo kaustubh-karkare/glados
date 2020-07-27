@@ -12,7 +12,7 @@ import {
     getTodayValue,
 } from '../common/DateUtils';
 
-const [KeyOptions, KeyType, KeyOptionsMap] = Enum([
+const LogStructureKey = Enum([
     {
         value: 'string',
         label: 'String',
@@ -65,7 +65,7 @@ DaysOfTheWeek.forEach((day, index) => {
     });
 });
 
-const [FrequencyOptions, FrequencyType, FrequencyOptionsMap] = Enum(FrequencyRawOptions);
+const LogStructureFrequency = Enum(FrequencyRawOptions);
 
 
 class LogStructure extends Base {
@@ -107,7 +107,7 @@ class LogStructure extends Base {
         // input = after loading
         if (logStructure.isPeriodic) {
             return getTodayValue() > getDateValue(logStructure.lastUpdate)
-                ? FrequencyOptionsMap[logStructure.frequency].check()
+                ? LogStructureFrequency[logStructure.frequency].check()
                 : false;
         }
         return false;
@@ -125,7 +125,7 @@ class LogStructure extends Base {
             const prefix = `.logKey[${index}]`;
             results.push(Base.validateNonEmptyString(`${prefix}.name`, logKey.name));
             results.push(Base.validateNonEmptyString(`${prefix}.type`, logKey.type));
-            if (logKey.type === KeyType.LOG_TOPIC) {
+            if (logKey.type === LogStructureKey.LOG_TOPIC) {
                 results.push([
                     `${prefix}.parentLogTopic`,
                     logKey.parentLogTopic,
@@ -277,7 +277,7 @@ class LogStructure extends Base {
             __type__: 'log-structure-key',
             id: index,
             name: '',
-            type: KeyType.STRING,
+            type: LogStructureKey.STRING,
             isOptional: false,
             parentLogTopic: null,
         };
@@ -306,12 +306,7 @@ class LogStructure extends Base {
     }
 }
 
-LogStructure.KeyOptions = KeyOptions;
-LogStructure.KeyType = KeyType;
-LogStructure.KeyOptionsMap = KeyOptionsMap;
-
-LogStructure.FrequencyOptions = FrequencyOptions;
-LogStructure.FrequencyType = FrequencyType;
-LogStructure.FrequencyOptionsMap = FrequencyOptionsMap;
+LogStructure.Key = LogStructureKey;
+LogStructure.Frequency = LogStructureFrequency;
 
 export default LogStructure;

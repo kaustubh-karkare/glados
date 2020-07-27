@@ -5,7 +5,7 @@ import Selector from './Selector';
 import TypeaheadSelector from './TypeaheadSelector';
 import Enum from '../../common/Enum';
 
-const [Options, Type] = Enum([
+const Management = Enum([
     {
         value: 'none',
         label: 'None',
@@ -50,31 +50,31 @@ class ManagementSelector extends React.Component {
         const isExistingValue = !!props.value;
         this.state = {
             isExistingValue,
-            type: isExistingValue ? Type.EDIT : Type.NONE,
+            type: isExistingValue ? Management.EDIT : Management.NONE,
         };
     }
 
     onChange(type) {
         this.setState({ type });
-        if (type === Type.NONE) {
+        if (type === Management.NONE) {
             this.props.onChange(null);
-        } else if (type === Type.ADD) {
+        } else if (type === Management.ADD) {
             const value = this.props.create();
             this.props.onChange({ ...value, isIndirectlyManaged: true });
-        } else if (type === Type.ASSOCIATE) {
+        } else if (type === Management.ASSOCIATE) {
             this.props.onChange(null);
-        } else if (type === Type.EDIT) {
+        } else if (type === Management.EDIT) {
             // do nothing
-        } else if (type === Type.DISASSOCIATE) {
+        } else if (type === Management.DISASSOCIATE) {
             const { value } = this.props;
             this.props.onChange({ ...value, isIndirectlyManaged: false });
-        } else if (type === Type.DELETE) {
+        } else if (type === Management.DELETE) {
             this.props.onChange(null);
         }
     }
 
     renderTypeaheadOrEditor() {
-        if (this.state.type === Type.ASSOCIATE) {
+        if (this.state.type === Management.ASSOCIATE) {
             return (
                 <InputGroup className="my-1">
                     <InputGroup.Text>
@@ -94,7 +94,7 @@ class ManagementSelector extends React.Component {
                     />
                 </InputGroup>
             );
-        } if (this.state.type === Type.ADD || this.state.type === Type.EDIT) {
+        } if (this.state.type === Management.ADD || this.state.type === Management.EDIT) {
             const {
                 EditorComponent, valueKey, value, onChange, disabled,
             } = this.props;
@@ -114,7 +114,9 @@ class ManagementSelector extends React.Component {
                     </InputGroup.Text>
                     <Selector
                         value={this.state.type}
-                        options={isExistingValue ? Options.slice(3) : Options.slice(0, 3)}
+                        options={isExistingValue
+                            ? Management.Options.slice(3)
+                            : Management.Options.slice(0, 3)}
                         disabled={this.props.disabled}
                         onChange={(type) => this.onChange(type)}
                     />

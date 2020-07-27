@@ -19,7 +19,7 @@ import IndexSection from './IndexSection';
 import LayoutSection from './LayoutSection';
 
 
-const [TabOptions, TabType, TabOptionsMap] = Enum([
+const Tab = Enum([
     {
         label: 'Manage Events',
         value: 'log_events',
@@ -37,7 +37,7 @@ const [TabOptions, TabType, TabOptionsMap] = Enum([
     },
 ]);
 
-const [LayoutOptions, LayoutType] = Enum([
+const Layout = Enum([
     {
         label: 'Default',
         value: 'default',
@@ -53,14 +53,14 @@ class Applicaton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeTab: TabType.LOG_EVENTS,
-            activeLayout: LayoutType.DEFAULT,
+            activeTab: Tab.LOG_EVENTS,
+            activeLayout: Layout.DEFAULT,
             activeItem: null,
             disabled: false,
         };
         this.deregisterCallbacks = [
             Coordinator.register('details', this.onDetailsChange.bind(this)),
-            Coordinator.register('layout-list', () => [LayoutOptions, this.state.activeLayout]),
+            Coordinator.register('layout-options', () => Layout.Options),
             Coordinator.register('layout', (activeLayout) => this.setState({ activeLayout })),
         ];
     }
@@ -69,8 +69,8 @@ class Applicaton extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    onTabChange(tabType) {
-        this.setState({ activeTab: tabType, activeLayout: LayoutType.DEFAULT });
+    onTabChange(tab) {
+        this.setState({ activeTab: tab, activeLayout: Layout.DEFAULT });
     }
 
     onDetailsChange(item) {
@@ -81,13 +81,13 @@ class Applicaton extends React.Component {
         return (
             <Col md={2} className="my-3">
                 <ScrollableSection>
-                    {TabOptions.map((option) => (
+                    {Tab.Options.map((option) => (
                         <SidebarSection
                             key={option.value}
                             onClick={() => this.onTabChange(option.value)}
                             selected={
                                 this.state.activeTab === option.value
-                                && this.state.activeLayout === LayoutType.DEFAULT
+                                && this.state.activeLayout === Layout.DEFAULT
                             }
                         >
                             {option.label}
@@ -100,8 +100,8 @@ class Applicaton extends React.Component {
     }
 
     renderLayout() {
-        const { Component } = TabOptionsMap[this.state.activeTab];
-        if (this.state.activeLayout === LayoutType.DEFAULT) {
+        const { Component } = Tab[this.state.activeTab];
+        if (this.state.activeLayout === Layout.DEFAULT) {
             return (
                 <>
                     <Col md={4} className="my-3">
@@ -117,7 +117,7 @@ class Applicaton extends React.Component {
                     </Col>
                 </>
             );
-        } if (this.state.activeLayout === LayoutType.FOCUS) {
+        } if (this.state.activeLayout === Layout.FOCUS) {
             return (
                 <Col md={8} className="my-3">
                     <DetailsSection
@@ -134,7 +134,7 @@ class Applicaton extends React.Component {
     renderRightSidebar() {
         return (
             <Col md={2} className="my-3">
-                <LayoutSection layoutType={this.state.activeLayout} />
+                <LayoutSection layout={this.state.activeLayout} />
                 <BackupSection />
                 <ConsistencySection />
                 <FavoriteTopicsSection />

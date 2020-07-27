@@ -3,10 +3,10 @@ import React from 'react';
 import { Coordinator, LeftRight, SidebarSection } from '../Common';
 
 class LayoutSection extends React.Component {
-    static onChange(event, layoutType) {
+    static onChange(event, layout) {
         event.preventDefault();
         event.stopPropagation();
-        Coordinator.invoke('layout', layoutType);
+        Coordinator.invoke('layout', layout);
     }
 
     constructor(props) {
@@ -15,14 +15,13 @@ class LayoutSection extends React.Component {
     }
 
     componentDidMount() {
-        const [layoutOptions] = Coordinator.invoke('layout-list');
-        this.setState({ layoutOptions });
+        this.setState({ layoutOptions: Coordinator.invoke('layout-options') });
     }
 
     renderOptions() {
         return this.state.layoutOptions.map((option, index) => {
             let { label } = option;
-            if (this.props.layoutType !== option.value) {
+            if (this.props.layout !== option.value) {
                 label = (
                     <a href="#" onClick={(event) => LayoutSection.onChange(event, option.value)}>
                         {option.label}
@@ -53,7 +52,7 @@ class LayoutSection extends React.Component {
 }
 
 LayoutSection.propTypes = {
-    layoutType: PropTypes.string.isRequired,
+    layout: PropTypes.string.isRequired,
 };
 
 export default LayoutSection;

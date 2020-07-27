@@ -10,7 +10,7 @@ import {
 import Enum from '../../common/Enum';
 import LogEventList from './LogEventList';
 
-const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
+const DateRange = Enum([
     {
         label: 'Incomplete',
         value: 'incomplete',
@@ -75,7 +75,7 @@ class LogEventSearch extends React.Component {
     }
 
     componentDidMount() {
-        this.setState({ dateRange: DateRangeOptionType.UNSPECIFIED }, this.afterUpdate);
+        this.setState({ dateRange: DateRange.UNSPECIFIED }, this.afterUpdate);
     }
 
     componentWillUnmount() {
@@ -90,7 +90,7 @@ class LogEventSearch extends React.Component {
         if (this.state.logTopic) {
             selector.topic_id = this.state.logTopic.id;
         }
-        if (this.state.dateRange === DateRangeOptionType.INCOMPLETE) {
+        if (this.state.dateRange === DateRange.INCOMPLETE) {
             selector.is_complete = false;
         } else {
             selector.is_complete = true;
@@ -99,7 +99,7 @@ class LogEventSearch extends React.Component {
     }
 
     afterUpdate() {
-        const option = DateRangeOptionsMap[this.state.dateRange];
+        const option = DateRange[this.state.dateRange];
         const dates = option.getDates();
         if (dates === null) {
             const selector = this.getSelector();
@@ -118,7 +118,7 @@ class LogEventSearch extends React.Component {
         return (
             <InputGroup>
                 <Selector
-                    options={DateRangeOptions}
+                    options={DateRange.Options}
                     value={this.state.dateRange}
                     disabled={this.props.disabled}
                     onChange={(dateRange) => this.setState({ dateRange }, this.afterUpdate)}

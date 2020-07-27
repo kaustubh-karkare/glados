@@ -28,7 +28,7 @@ class LogStructureEditor extends React.Component {
                 updatedLogStructure.isPeriodic = true;
                 updatedLogStructure.reminderText = updatedLogStructure._reminderText || '';
                 updatedLogStructure.frequency = (
-                    updatedLogStructure._frequency || LogStructure.FrequencyType.EVERYDAY
+                    updatedLogStructure._frequency || LogStructure.Frequency.EVERYDAY
                 );
                 updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
                 maybeSubstitute(updatedLogStructure, 'lastUpdate');
@@ -151,7 +151,7 @@ class LogStructureEditor extends React.Component {
                     </InputGroup.Text>
                     <Selector
                         value={this.props.logStructure.frequency}
-                        options={LogStructure.FrequencyOptions}
+                        options={LogStructure.Frequency.Options}
                         disabled={this.props.disabled}
                         onChange={(frequency) => this.updateLogStructure('frequency', frequency)}
                     />
