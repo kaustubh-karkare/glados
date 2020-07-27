@@ -1,6 +1,7 @@
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import PropTypes from 'prop-types';
+import DataLoader from './DataLoader';
 
 class AsyncSelector extends React.Component {
     constructor(props) {
@@ -9,23 +10,36 @@ class AsyncSelector extends React.Component {
     }
 
     componentDidMount() {
-        this.reload();
+        this.dataLoader = new DataLoader({
+            getInput: () => ({
+                name: `${this.props.dataType}-list`,
+                args: {
+                    selector: this.props.selector,
+                },
+            }),
+            callback: (options) => this.setState({
+                options: [...this.props.prefixOptions, ...options, ...this.props.suffixOptions],
+            }),
+        });
+    }
+
+    componentDidUpdate(prevProps) {
+        this.dataLoader.reload();
+    }
+
+    componentWillUnmount() {
+        this.dataLoader.stop();
     }
 
     onChange(id) {
         if (this.state.options) {
-            const selectedOption = this.state.options.find((option) => option.id === id);
+            const selectedOption = this.state.options.find(
+                (option) => option.id.toString() === id,
+            );
             if (selectedOption) {
                 this.props.onChange(selectedOption);
             }
         }
-    }
-
-    reload() {
-        window.api.send(`${this.props.dataType}-list`, { ordering: true })
-            .then((options) => this.setState({
-                options: [...this.props.prefixOptions, ...options],
-            }));
     }
 
     render() {
@@ -35,7 +49,7 @@ class AsyncSelector extends React.Component {
                 as="select"
                 value={this.props.value.id}
                 disabled={this.props.disabled}
-                onChange={(event) => this.onChange(parseInt(event.target.value, 10))}
+                onChange={(event) => this.onChange(event.target.value)}
             >
                 {options.map((item) => {
                     const optionProps = { key: item.id, value: item.id };
@@ -53,13 +67,19 @@ AsyncSelector.propTypes = {
     value: PropTypes.object,
     // eslint-disable-next-line react/forbid-prop-types
     prefixOptions: PropTypes.array,
+    // eslint-disable-next-line react/forbid-prop-types
+    suffixOptions: PropTypes.array,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
+
+    // eslint-disable-next-line react/forbid-prop-types
+    selector: PropTypes.any,
 };
 
 AsyncSelector.defaultProps = {
     labelKey: 'name',
     prefixOptions: [],
+    suffixOptions: [],
 };
 
 export default AsyncSelector;

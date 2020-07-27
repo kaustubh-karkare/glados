@@ -18,7 +18,7 @@ ActionsRegistry['log-event-dates'] = async function (input) {
         ['date'],
         this.transaction,
     );
-    const dates = new Set(results.filter((result) => result.date).map((result) => result.date));
+    const dates = new Set(results.map((result) => result.date));
     return Array.from(dates).sort();
 };
 

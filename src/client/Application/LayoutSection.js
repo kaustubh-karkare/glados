@@ -1,30 +1,30 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Coordinator, LeftRight, SidebarSection } from '../Common';
 
-class LayoutSidebar extends React.Component {
+class LayoutSection extends React.Component {
+    static onChange(event, layoutType) {
+        event.preventDefault();
+        event.stopPropagation();
+        Coordinator.invoke('layout', layoutType);
+    }
+
     constructor(props) {
         super(props);
         this.state = {};
     }
 
     componentDidMount() {
-        const [layoutOptions, layoutType] = Coordinator.invoke('layout-list');
-        this.setState({ layoutOptions, layoutType });
-    }
-
-    onClick(event, layoutType) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.setState({ layoutType });
-        Coordinator.invoke('layout', layoutType);
+        const [layoutOptions] = Coordinator.invoke('layout-list');
+        this.setState({ layoutOptions });
     }
 
     renderOptions() {
         return this.state.layoutOptions.map((option, index) => {
             let { label } = option;
-            if (this.state.layoutType !== option.value) {
+            if (this.props.layoutType !== option.value) {
                 label = (
-                    <a href="#" onClick={(event) => this.onClick(event, option.value)}>
+                    <a href="#" onClick={(event) => LayoutSection.onChange(event, option.value)}>
                         {option.label}
                     </a>
                 );
@@ -52,4 +52,8 @@ class LayoutSidebar extends React.Component {
     }
 }
 
-export default LayoutSidebar;
+LayoutSection.propTypes = {
+    layoutType: PropTypes.string.isRequired,
+};
+
+export default LayoutSection;

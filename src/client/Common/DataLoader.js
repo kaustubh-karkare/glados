@@ -1,35 +1,46 @@
 
 class DataLoader {
-    constructor({ name, args, callback }) {
-        this.name = name;
-        this.args = args;
+    constructor({
+        getInput, name, args, callback,
+    }) {
+        this.getInput = getInput || (() => ({ name, args }));
+        this.input = null;
+        this.cancelSubscription = null;
         this.callback = callback;
         this.reload();
-        this.setupSubscription();
     }
 
     reload() {
-        window.api.send(this.name, this.args)
-            .then((data) => this.callback(data));
+        const input = this.getInput();
+        if (JSON.stringify(input) === JSON.stringify(this.input)) {
+            return;
+        }
+        this.input = input;
+        window.api.send(this.input.name, this.input.args)
+            .then((data) => {
+                this.callback(data);
+                this.setupSubscription();
+            });
     }
 
     setupSubscription() {
-        const { promise, cancel } = window.api.subscribe(this.name);
-        this.cancelSubscription = cancel;
+        const { promise, cancel } = window.api.subscribe(this.input.name);
+        if (this.cancelSubscription) {
+            this.cancelSubscription = cancel;
+        }
         promise.then((data) => {
-            const original = (this.args && this.args.selector) || {};
+            const original = (this.args && this.input.args.selector) || {};
             const modified = (data && data.selector) || {};
-            // TODO(broadcast): Fix this! The check does not work for selector = logReminder
-            // eslint-disable-next-line no-constant-condition
-            if (true || Object.keys(original).every((key) => original[key] === modified[key])) {
+            if (Object.keys(original).every((key) => original[key] === modified[key])) {
                 this.reload();
             }
-            return this.setupSubscription();
         });
     }
 
     stop() {
-        this.cancelSubscription();
+        if (this.cancelSubscription) {
+            this.cancelSubscription();
+        }
     }
 }
 

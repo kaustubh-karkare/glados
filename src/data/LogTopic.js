@@ -31,6 +31,7 @@ class LogTopic extends Base {
                 this.transaction,
             );
             outputParentLogTopic = {
+                __type__: 'log-topic',
                 id: parentLogTopic.id,
                 name: parentLogTopic.name,
             };
@@ -75,7 +76,7 @@ class LogTopic extends Base {
             await LogTopic.updateLogTopics.call(this, outputLogTopic);
         }
 
-        this.broadcast('log-topic-list');
+        this.broadcast('log-topic-list', { selector: { parent_topic_id: fields.parent_topic_id } });
         return logTopic.id;
     }
 

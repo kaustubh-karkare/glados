@@ -110,14 +110,20 @@ class Applicaton extends React.Component {
                         </IndexSection>
                     </Col>
                     <Col md={4} className="my-3">
-                        <DetailsSection item={this.state.activeItem} />
+                        <DetailsSection
+                            item={this.state.activeItem}
+                            disabled={this.state.disabled}
+                        />
                     </Col>
                 </>
             );
         } if (this.state.activeLayout === LayoutType.FOCUS) {
             return (
                 <Col md={8} className="my-3">
-                    <DetailsSection item={this.state.activeItem} />
+                    <DetailsSection
+                        item={this.state.activeItem}
+                        disabled={this.state.disabled}
+                    />
                 </Col>
             );
         }
@@ -128,7 +134,7 @@ class Applicaton extends React.Component {
     renderRightSidebar() {
         return (
             <Col md={2} className="my-3">
-                <LayoutSection />
+                <LayoutSection layoutType={this.state.activeLayout} />
                 <BackupSection />
                 <ConsistencySection />
                 <FavoriteTopicsSection />

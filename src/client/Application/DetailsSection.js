@@ -1,14 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { RiLoaderLine } from 'react-icons/ri';
-import {
-    MdCheckCircle, MdFavorite, MdFavoriteBorder, MdSearch,
-} from 'react-icons/md';
 import {
     Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
+import { LogTopicDetailsHeader } from '../LogTopic';
 
 import './DetailsSection.css';
 
@@ -40,13 +36,8 @@ class DetailsSection extends React.Component {
     }
 
     onChange(item) {
-        Coordinator.invoke('details', item);
-        this.setState({ item }, this.afterUpdate);
-    }
-
-    onUpdate(name, value) {
         this.setState((state) => {
-            state.item[name] = value;
+            state.item = item;
             state.isDirty = true;
             return state;
         }, this.saveDebounced);
@@ -56,7 +47,7 @@ class DetailsSection extends React.Component {
         const { item } = this.state;
         this.setState({ isDirty: true });
         window.api.send(`${item.__type__}-upsert`, item)
-            .then((newItem) => this.setState({ isDirty: false, item: newItem }));
+            .then(() => this.setState({ isDirty: false }));
     }
 
     renderHeader() {
@@ -73,31 +64,13 @@ class DetailsSection extends React.Component {
             );
         }
         if (item && item.__type__ === 'log-topic') {
-            const logTopic = this.state.item;
             return (
-                <InputGroup>
-                    <Button
-                        onClick={() => Coordinator.invoke('topic-select', logTopic)}
-                        title="Search"
-                    >
-                        <MdSearch />
-                    </Button>
-                    <Button
-                        onClick={() => this.onUpdate('onSidebar', !logTopic.onSidebar)}
-                        title="Favorite?"
-                    >
-                        {logTopic.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
-                    </Button>
-                    <TypeaheadSelector
-                        dataType="log-topic"
-                        value={logTopic}
-                        disabled={this.props.disabled}
-                        onChange={(newItem) => this.onChange(newItem)}
-                    />
-                    <Button title="Status">
-                        {this.state.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
-                    </Button>
-                </InputGroup>
+                <LogTopicDetailsHeader
+                    logTopic={this.state.item}
+                    isDirty={this.state.isDirty}
+                    disabled={this.props.disabled}
+                    onChange={(logTopic) => this.onChange(logTopic)}
+                />
             );
         }
         return (
@@ -106,7 +79,7 @@ class DetailsSection extends React.Component {
                     dataType="log-topic"
                     value={null}
                     disabled={this.props.disabled}
-                    onChange={(newItem) => this.onChange(newItem)}
+                    onChange={(newItem) => Coordinator.invoke('details', newItem)}
                     placeholder="Topic Details ..."
                 />
             </InputGroup>
@@ -122,7 +95,7 @@ class DetailsSection extends React.Component {
                 <TextEditor
                     unstyled
                     value={this.state.item.details}
-                    onChange={(details) => this.onUpdate('details', details)}
+                    onChange={(details) => this.onChange({ ...this.state.item, details })}
                     serverSideTypes={['log-topic']}
                 />
             </div>
@@ -146,11 +119,7 @@ class DetailsSection extends React.Component {
 DetailsSection.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     item: PropTypes.any,
-    disabled: PropTypes.bool,
-};
-
-DetailsSection.defaultProps = {
-    disabled: false,
+    disabled: PropTypes.bool.isRequired,
 };
 
 export default DetailsSection;

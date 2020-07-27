@@ -11,3 +11,7 @@
     padding: 0 4px;
     width: 100%;
 }
+
+.react-datepicker-popper {
+    z-index: 2; /* TextEditor .DraftEditor-editorContainer has a z-index of 1 */
+}

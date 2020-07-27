@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ScrollableSection, TypeaheadSelector } from '../Common';
+import { Coordinator, ScrollableSection, TypeaheadSelector } from '../Common';
 import LogTopicList from './LogTopicList';
 
 class LogTopicSearch extends React.Component {
@@ -10,6 +10,16 @@ class LogTopicSearch extends React.Component {
         this.state = {
             logTopic: null,
         };
+        this.deregisterCallbacks = [
+            Coordinator.register(
+                'topic-select',
+                (logTopic) => this.setState({ logTopic }),
+            ),
+        ];
+    }
+
+    componentWillUnmount() {
+        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
     renderFilters() {

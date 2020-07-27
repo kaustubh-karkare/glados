@@ -13,7 +13,7 @@ function DatePicker(props) {
             selected={new Date(getDateValue(props.value))}
             disabled={props.disabled}
             onChange={
-                (newDate) => props.onChange(getDateLabel(newDate.valueOf()))
+                (newDate) => props.onChange(newDate ? getDateLabel(newDate.valueOf()) : null)
             }
         />
     );

@@ -28,9 +28,9 @@
     background: var(--input-disabled-background);
 }
 
-/* TextEditor Mention Suggestions + RBT Suggestions */
+/* TextEditor Mention Suggestions + Dropdown Options (used by RBT Suggestions) */
 
-.rbt-menu.dropdown-menu,
+.dropdown-menu,
 .text-editor .mention-suggestions > div {
     background-color: var(--component-color);
     border: 1px solid var(--component-highlight-color);
@@ -42,7 +42,7 @@
     z-index: 2;
 }
 
-.rbt-menu > .dropdown-item,
+.dropdown-item,
 .text-editor .mention-suggestions > div > div {
     padding: 1px 16px;
 }

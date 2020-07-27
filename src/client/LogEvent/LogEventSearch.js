@@ -12,6 +12,11 @@ import LogEventList from './LogEventList';
 
 const [DateRangeOptions, DateRangeOptionType, DateRangeOptionsMap] = Enum([
     {
+        label: 'Incomplete',
+        value: 'incomplete',
+        getDates: () => null,
+    },
+    {
         label: 'Unspecified',
         value: 'unspecified',
         getDates: () => null,
@@ -85,22 +90,27 @@ class LogEventSearch extends React.Component {
         if (this.state.logTopic) {
             selector.topic_id = this.state.logTopic.id;
         }
-        selector.is_complete = true;
+        if (this.state.dateRange === DateRangeOptionType.INCOMPLETE) {
+            selector.is_complete = false;
+        } else {
+            selector.is_complete = true;
+        }
         return selector;
     }
 
     afterUpdate() {
         const option = DateRangeOptionsMap[this.state.dateRange];
-        if (option.value === DateRangeOptionType.UNSPECIFIED) {
+        const dates = option.getDates();
+        if (dates === null) {
             const selector = this.getSelector();
-            if (selector.topic_id) {
+            if (selector.topic_id || !selector.is_complete) {
                 window.api.send('log-event-dates', { selector })
-                    .then((dates) => this.setState({ dates }));
+                    .then((result) => this.setState({ dates: result }));
             } else {
                 this.setState({ dates: [getTodayLabel()] });
             }
         } else {
-            this.setState({ dates: option.getDates() });
+            this.setState({ dates });
         }
     }
 
@@ -141,8 +151,8 @@ class LogEventSearch extends React.Component {
         }
         return this.state.dates.map((date) => (
             <LogEventList
-                key={date}
-                name={`${date} : ${getDayOfTheWeek(date)}`}
+                key={date || 'null'}
+                name={date ? `${date} : ${getDayOfTheWeek(date)}` : 'Unspecified'}
                 selector={{ date, ...selector }}
                 showAdder={date === today}
                 {...moreProps}

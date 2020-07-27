@@ -1,6 +1,7 @@
 import React from 'react';
 import assert from '../../common/assert';
 import Coordinator from './Coordinator';
+import EditorModal from './EditorModal';
 import ErrorModal from './ErrorModal';
 
 class ModalStack extends React.Component {
@@ -11,6 +12,10 @@ class ModalStack extends React.Component {
         };
         this.deregisterCallbacks = [
             Coordinator.register('modal', this.push.bind(this)),
+            Coordinator.register(
+                'modal-editor',
+                (componentProps) => this.push(EditorModal, componentProps),
+            ),
             Coordinator.register('modal-error', (error) => this.push(ErrorModal, { error })),
         ];
     }

@@ -22,6 +22,7 @@ body {
 a,
 a:hover {
     color: var(--link-color);
+    cursor: pointer;
 }
 
 a.topic,
