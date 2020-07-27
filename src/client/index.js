@@ -5,8 +5,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
 import SocketRPC from '../common/SocketRPC';
-import { Application } from './Application';
 import { Coordinator } from './Common';
+import { Application } from './Application';
 
 function initCookies() {
     document.cookies = document.cookie.split('; ').reduce((result, item) => {
@@ -20,7 +20,7 @@ function initCookies() {
 window.main = function main() {
     initCookies();
     window.api = SocketRPC.client(
-        io(`localhost:${document.cookies.port}`),
+        io(`${document.cookies.host}:${document.cookies.port}`),
         (error) => Coordinator.invoke('modal-error', error),
     );
 

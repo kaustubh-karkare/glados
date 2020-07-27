@@ -48,8 +48,8 @@ async function init() {
     const io = SocketIO(server);
     io.on('connection', (socket) => SocketRPC.server(socket, this.actions));
     app.get('/', (req, res) => {
+        res.cookie('host', this.config.server.host);
         res.cookie('port', this.config.server.port);
-        res.cookie('data', this.config.backup.load_on_startup ? 'test' : 'prod');
         res.sendFile('index.html', { root: 'dist' });
     });
     app.use(express.static('dist'));

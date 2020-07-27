@@ -1,4 +1,3 @@
-import '../../common/polyfill';
 import { maybeSubstitute } from '../../common/DateUtils';
 import Database from '../Database';
 import Actions from '../Actions';

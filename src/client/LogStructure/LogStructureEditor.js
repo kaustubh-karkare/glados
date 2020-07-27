@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
-import deepcopy from '../../common/deepcopy';
 import { maybeSubstitute } from '../../common/DateUtils';
 import {
     DatePicker, SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
@@ -13,7 +12,7 @@ import { LogStructure } from '../../data';
 
 class LogStructureEditor extends React.Component {
     updateLogStructure(methodOrName, maybeValue) {
-        const updatedLogStructure = deepcopy(this.props.logStructure);
+        const updatedLogStructure = { ...this.props.logStructure };
         if (typeof methodOrName === 'function') {
             methodOrName(updatedLogStructure);
         } else {
@@ -58,7 +57,10 @@ class LogStructureEditor extends React.Component {
                             dataType="log-structure-group"
                             value={this.props.logStructure.logStructureGroup}
                             disabled={this.props.disabled}
-                            onChange={(logStructureGroup) => this.updateLogStructure('logStructureGroup', logStructureGroup)}
+                            onChange={(logStructureGroup) => this.updateLogStructure(
+                                'logStructureGroup',
+                                logStructureGroup,
+                            )}
                         />
                     </InputGroup>
                     <InputGroup.Text>
@@ -69,8 +71,11 @@ class LogStructureEditor extends React.Component {
                         dataType="log-topic"
                         value={logTopic.name}
                         disabled={this.props.disabled}
-                        onChange={(newName) => this.updateLogStructure((updatedLogStructure) => {
-                            updatedLogStructure.logTopic.name = newName;
+                        onChange={(name) => this.updateLogStructure((updatedLogStructure) => {
+                            updatedLogStructure.logTopic = {
+                                ...updatedLogStructure.logTopic,
+                                name,
+                            };
                         })}
                     />
                 </InputGroup>
@@ -98,7 +103,10 @@ class LogStructureEditor extends React.Component {
                         this.updateLogStructure((updatedLogStructure) => {
                             const index = updatedLogStructure.logKeys.length;
                             // eslint-disable-next-line no-param-reassign
-                            updatedLogStructure.logKeys.push(LogStructure.createNewKey({ index }));
+                            updatedLogStructure.logKeys = [
+                                ...updatedLogStructure.logKeys,
+                                LogStructure.createNewKey({ index }),
+                            ];
                         });
                     }}
                     style={{ height: 'inherit' }}
@@ -207,9 +215,9 @@ class LogStructureEditor extends React.Component {
                         items={this.props.logStructure.logKeys}
                         disabled={this.props.disabled}
                         onChange={(logKeys) => {
-                            this.updateLogStructure((structure) => {
+                            this.updateLogStructure((updatedLogStructure) => {
                                 // eslint-disable-next-line no-param-reassign
-                                structure.logKeys = logKeys;
+                                updatedLogStructure.logKeys = logKeys;
                             });
                         }}
                         type={LogStructureKeyEditor}
