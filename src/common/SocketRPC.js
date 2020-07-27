@@ -1,4 +1,4 @@
-import assert from './assert';
+import assert from 'assert';
 
 const SERVER_SIDE = 'server_side';
 const CLIENT_SIDE = 'client_side';

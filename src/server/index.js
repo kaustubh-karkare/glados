@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
 import '../common/polyfill';
-import assert from '../common/assert';
 import Database from './Database';
 import Actions from './Actions';
 import SocketRPC from '../common/SocketRPC';
 
+const assert = require('assert');
 const express = require('express');
 const fs = require('fs');
 const http = require('http');

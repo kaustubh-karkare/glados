@@ -1,4 +1,4 @@
-import assert from '../common/assert';
+import assert from 'assert';
 import defineModels from '../data/Models';
 import { isRealItem } from '../data';
 

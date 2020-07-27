@@ -1,4 +1,4 @@
-import assert from './assert';
+import assert from 'assert';
 
 const MS_IN_DAY = 86400 * 1000;
 const TODAY_OFFSET = 3 * 3600 * 1000;

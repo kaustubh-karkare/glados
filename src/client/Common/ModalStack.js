@@ -1,5 +1,5 @@
 import React from 'react';
-import assert from '../../common/assert';
+import assert from 'assert';
 import Coordinator from './Coordinator';
 import EditorModal from './EditorModal';
 import ErrorModal from './ErrorModal';

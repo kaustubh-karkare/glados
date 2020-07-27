@@ -1,8 +1,8 @@
 import React from 'react';
+import assert from 'assert';
 import {
     Coordinator, EditorModal, SidebarSection, TextEditor,
 } from '../Common';
-import assert from '../../common/assert';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
 import { LogEventEditor } from '../LogEvent';

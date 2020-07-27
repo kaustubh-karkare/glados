@@ -1,4 +1,4 @@
-import assert from '../common/assert';
+import assert from 'assert';
 import Base from './Base';
 import LogStructure from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';

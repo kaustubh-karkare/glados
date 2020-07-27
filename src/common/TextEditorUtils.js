@@ -4,7 +4,7 @@ import {
 } from 'draft-js';
 import { draftToMarkdown, markdownToDraft } from 'markdown-draft-js';
 
-import assert from './assert';
+import assert from 'assert';
 
 const StorageType = {
     MARKDOWN: 'markdown:',
