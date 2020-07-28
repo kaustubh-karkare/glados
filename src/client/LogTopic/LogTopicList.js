@@ -38,6 +38,9 @@ function LogTopicList(props) {
 
 LogTopicViewer.Expanded = (props) => {
     const { logTopic } = props;
+    if (logTopic.hasStructure) {
+        return null;
+    }
     return (
         <LogTopicList
             name="Sub Topics"

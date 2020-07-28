@@ -8,7 +8,7 @@ import './Dropdown.css';
 class CustomDropdown extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { options: [] };
+        this.state = { isShown: false, options: [] };
         this.dataLoader = null;
     }
 
@@ -37,21 +37,37 @@ class CustomDropdown extends React.Component {
         });
     }
 
+    renderItems() {
+        if (!this.state.options) return null;
+        if (this.state.options.length === 0) {
+            return (
+                <Dropdown.Item disabled>
+                    No Results
+                </Dropdown.Item>
+            );
+        }
+        return this.state.options.map((option) => (
+            <Dropdown.Item
+                key={option.id}
+                onMouseDown={() => this.props.onChange(option)}
+            >
+                {option[this.props.labelKey]}
+            </Dropdown.Item>
+        ));
+    }
+
     render() {
         return (
-            <Dropdown as="span">
+            <Dropdown
+                as="span"
+                onToggle={(isShown) => this.setState({ isShown })}
+                show={this.state.isShown}
+            >
                 <Dropdown.Toggle as="span">
                     {this.props.children}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                    {this.state.options.map((option) => (
-                        <Dropdown.Item
-                            key={option.id}
-                            onMouseDown={() => this.props.onChange(option)}
-                        >
-                            {option[this.props.labelKey]}
-                        </Dropdown.Item>
-                    ))}
+                    {this.renderItems()}
                 </Dropdown.Menu>
             </Dropdown>
         );

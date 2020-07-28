@@ -6,17 +6,12 @@ import DataLoader from './DataLoader';
 class AsyncSelector extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = { options: null };
     }
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            getInput: () => ({
-                name: `${this.props.dataType}-list`,
-                args: {
-                    where: this.props.where,
-                },
-            }),
+            getInput: () => this.props.options,
             callback: (options) => this.setState({
                 options: [...this.props.prefixOptions, ...options, ...this.props.suffixOptions],
             }),
@@ -61,19 +56,17 @@ class AsyncSelector extends React.Component {
 }
 
 AsyncSelector.propTypes = {
-    dataType: PropTypes.string.isRequired,
     labelKey: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.object,
     // eslint-disable-next-line react/forbid-prop-types
     prefixOptions: PropTypes.array,
     // eslint-disable-next-line react/forbid-prop-types
+    options: PropTypes.object,
+    // eslint-disable-next-line react/forbid-prop-types
     suffixOptions: PropTypes.array,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
-
-    // eslint-disable-next-line react/forbid-prop-types
-    where: PropTypes.any,
 };
 
 AsyncSelector.defaultProps = {

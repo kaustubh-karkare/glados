@@ -1,7 +1,11 @@
 .input-line {
     flex: 1 1 auto;
     overflow: hidden;
-    width: 1px;
+    width: 0px;
+}
+
+.input-line.overflow {
+    overflow: visible;
 }
 
 .input-line.styled {

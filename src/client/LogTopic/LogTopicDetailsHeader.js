@@ -7,12 +7,6 @@ import {
 import PropTypes from '../prop-types';
 import { Coordinator, Dropdown, InputLine } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
-import { LogTopic } from '../../data';
-
-const ADD_CHILD_OPTION = {
-    id: -1,
-    name: 'Add Child ...',
-};
 
 class LogTopicDetailsHeader extends React.Component {
     // eslint-disable-next-line class-methods-use-this
@@ -49,14 +43,7 @@ class LogTopicDetailsHeader extends React.Component {
                         ordering: true,
                     },
                 }}
-                suffixOptions={[ADD_CHILD_OPTION]}
-                onChange={(childLogTopic) => {
-                    if (childLogTopic.id === ADD_CHILD_OPTION.id) {
-                        this.onEdit(LogTopic.createVirtual({ parentLogTopic: logTopic }));
-                    } else {
-                        Coordinator.invoke('details', childLogTopic);
-                    }
-                }}
+                onChange={(childLogTopic) => Coordinator.invoke('details', childLogTopic)}
             >
                 <a href="#" className="topic">...</a>
             </Dropdown>
@@ -82,19 +69,24 @@ class LogTopicDetailsHeader extends React.Component {
                 >
                     {logTopic.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
                 </Button>
-                <InputLine styled className="px-2">
+                <InputLine overflow styled className="px-2">
                     {logTopic.parentLogTopic
                         ? (
                             <>
                                 {this.renderTopicName(logTopic.parentLogTopic)}
-                                {' '}
                                 {' / '}
                             </>
                         )
                         : null}
                     {logTopic.name}
-                    {' / '}
-                    {this.renderChildTopics(logTopic)}
+                    {!logTopic.hasStructure
+                        ? (
+                            <>
+                                {' / '}
+                                {this.renderChildTopics(logTopic)}
+                            </>
+                        )
+                        : null}
                 </InputLine>
                 <Button title="Edit" onClick={() => this.onEdit(logTopic)}>
                     <MdEdit />

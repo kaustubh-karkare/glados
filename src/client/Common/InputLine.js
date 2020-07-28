@@ -6,10 +6,11 @@ import './InputLine.css';
 
 function InputLine(props) {
     const {
-        className, styled, children, ...moreProps
+        className, overflow, styled, children, ...moreProps
     } = props;
     moreProps.className = classNames({
         'input-line': true,
+        overflow,
         styled,
     }, className);
     return (
@@ -21,6 +22,7 @@ function InputLine(props) {
 
 InputLine.propTypes = {
     className: PropTypes.string,
+    overflow: PropTypes.bool,
     styled: PropTypes.bool,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
