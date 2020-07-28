@@ -1,8 +1,8 @@
 import React from 'react';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from '../prop-types';
-import { BulletList, TextInput } from '../Common';
+import { BulletList } from '../Common';
 import LogStructureList from './LogStructureList';
+import LogStructureGroupEditor from './LogStructureGroupEditor';
 
 
 function LogStructureGroupViewer(props) {
@@ -29,32 +29,6 @@ LogStructureGroupViewer.Expanded = (props) => {
 
 LogStructureGroupViewer.Expanded.propTypes = {
     logStructureGroup: PropTypes.Custom.LogStructureGroup.isRequired,
-};
-
-function LogStructureGroupEditor(props) {
-    const { logStructureGroup } = props;
-    return (
-        <>
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Name
-                </InputGroup.Text>
-                <TextInput
-                    allowUpdate
-                    dataType="log-topic"
-                    value={logStructureGroup.name}
-                    disabled={props.disabled}
-                    onChange={(name) => props.onChange({ ...logStructureGroup, name })}
-                />
-            </InputGroup>
-        </>
-    );
-}
-
-LogStructureGroupEditor.propTypes = {
-    logStructureGroup: PropTypes.Custom.LogStructureGroup.isRequired,
-    disabled: PropTypes.bool.isRequired,
-    onChange: PropTypes.func.isRequired,
 };
 
 function LogStructureGroupList() {

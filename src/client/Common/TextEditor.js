@@ -103,14 +103,7 @@ class TextEditor extends React.Component {
         });
         this.state.plugins.push(this.mentionPlugin);
 
-        this.textEditorRef = React.createRef();
-    }
-
-    componentDidMount() {
-        if (this.props.focusOnLoad && this.textEditorRef.current) {
-            // https://github.com/draft-js-plugins/draft-js-plugins/issues/800
-            window.setTimeout(this.textEditorRef.current.focus, 0);
-        }
+        this.ref = React.createRef();
     }
 
     onSearchChange({ value: query }) {
@@ -144,6 +137,10 @@ class TextEditor extends React.Component {
                 () => this.props.onChange(newValue),
             );
         }
+    }
+
+    focus() {
+        this.ref.current.focus();
     }
 
     keyBindingFn(event) {
@@ -204,7 +201,7 @@ class TextEditor extends React.Component {
                     plugins={this.state.plugins}
                     onChange={(editorState) => this.onChange(editorState)}
                     placeholder={this.props.placeholder}
-                    ref={this.textEditorRef}
+                    ref={this.ref}
                 />
                 {this.props.disabled ? null : this.renderSuggestions()}
             </div>
@@ -220,7 +217,6 @@ TextEditor.propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func,
 
-    focusOnLoad: PropTypes.bool,
     isSingleLine: PropTypes.bool,
     onSpecialKeys: PropTypes.func,
 

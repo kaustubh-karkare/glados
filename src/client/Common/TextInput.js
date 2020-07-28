@@ -2,14 +2,26 @@ import Form from 'react-bootstrap/Form';
 import React from 'react';
 import PropTypes from '../prop-types';
 
-function TextInput(props) {
-    return (
-        <Form.Control
-            value={props.value}
-            disabled={props.disabled}
-            onChange={(event) => props.onChange(event.target.value)}
-        />
-    );
+class TextInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.ref = React.createRef();
+    }
+
+    focus() {
+        this.ref.current.focus();
+    }
+
+    render() {
+        return (
+            <Form.Control
+                value={this.props.value}
+                disabled={this.props.disabled}
+                onChange={(event) => this.props.onChange(event.target.value)}
+                ref={this.ref}
+            />
+        );
+    }
 }
 
 TextInput.propTypes = {

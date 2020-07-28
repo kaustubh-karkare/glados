@@ -6,6 +6,7 @@ class TypeaheadInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = { isLoading: false, options: [] };
+        this.ref = React.createRef();
     }
 
     onSearch(query) {
@@ -15,32 +16,35 @@ class TypeaheadInput extends React.Component {
         });
     }
 
+    focus() {
+        this.ref.current.focus();
+    }
+
     render() {
         return (
-            <>
-                <AsyncTypeahead
-                    id={this.props.id}
-                    minLength={0}
-                    disabled={this.props.disabled}
-                    onFocus={() => this.onSearch(this.props.value)}
-                    onSearch={(query) => this.onSearch(query)}
-                    filterBy={this.props.filterBy}
-                    placeholder={this.props.placeholder}
-                    selected={[this.props.value]}
-                    onInputChange={(newValue) => {
-                        this.onSearch(newValue);
-                        this.props.onChange(newValue);
-                    }}
-                    onChange={(newSelected) => {
-                        if (newSelected.length) {
-                            this.props.onChange(newSelected[0]);
-                        }
-                    }}
-                    renderMenuItemChildren={(option) => <div>{option}</div>}
-                    isLoading={this.state.isLoading}
-                    options={this.state.options}
-                />
-            </>
+            <AsyncTypeahead
+                id={this.props.id}
+                minLength={0}
+                disabled={this.props.disabled}
+                onFocus={() => this.onSearch(this.props.value)}
+                onSearch={(query) => this.onSearch(query)}
+                filterBy={this.props.filterBy}
+                placeholder={this.props.placeholder}
+                selected={[this.props.value]}
+                onInputChange={(newValue) => {
+                    this.onSearch(newValue);
+                    this.props.onChange(newValue);
+                }}
+                onChange={(newSelected) => {
+                    if (newSelected.length) {
+                        this.props.onChange(newSelected[0]);
+                    }
+                }}
+                renderMenuItemChildren={(option) => <div>{option}</div>}
+                isLoading={this.state.isLoading}
+                options={this.state.options}
+                ref={this.ref}
+            />
         );
     }
 }

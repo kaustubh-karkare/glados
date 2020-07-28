@@ -11,6 +11,15 @@ import LogStructureKeyEditor from './LogStructureKeyEditor';
 import { LogStructure } from '../../data';
 
 class LogStructureEditor extends React.Component {
+    constructor(props) {
+        super(props);
+        this.nameRef = React.createRef();
+    }
+
+    componentDidMount() {
+        this.nameRef.current.focus();
+    }
+
     updateLogStructure(methodOrName, maybeValue) {
         const updatedLogStructure = { ...this.props.logStructure };
         if (typeof methodOrName === 'function') {
@@ -77,6 +86,7 @@ class LogStructureEditor extends React.Component {
                                 name,
                             };
                         })}
+                        ref={this.nameRef}
                     />
                 </InputGroup>
             </>

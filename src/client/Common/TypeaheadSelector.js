@@ -11,6 +11,7 @@ class TypeaheadSelector extends React.Component {
     constructor(props) {
         super(props);
         this.state = { isLoading: false, text: '', options: [] };
+        this.ref = React.createRef();
     }
 
     onInputChange(text) {
@@ -30,6 +31,10 @@ class TypeaheadSelector extends React.Component {
     onChange(option) {
         window.api.send(`${option.__type__}-load`, option)
             .then((result) => this.props.onChange(result));
+    }
+
+    focus() {
+        this.ref.current.focus();
     }
 
     renderDeleteButton() {
@@ -71,6 +76,7 @@ class TypeaheadSelector extends React.Component {
                             <div>{option[this.props.labelKey]}</div>
                         )
                     }
+                    ref={this.ref}
                 />
                 {this.renderDeleteButton()}
             </>

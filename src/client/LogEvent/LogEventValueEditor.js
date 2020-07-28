@@ -5,6 +5,11 @@ import { LogStructure, getPartialItem } from '../../data';
 import PropTypes from '../prop-types';
 
 class LogEventValueEditor extends React.Component {
+    constructor(props) {
+        super(props);
+        this.ref = React.createRef();
+    }
+
     onSearch(query) {
         return window.api.send('value-typeahead', {
             structure_id: this.props.logStructure.id,
@@ -22,6 +27,10 @@ class LogEventValueEditor extends React.Component {
         this.props.onChange(logKey);
     }
 
+    focus() {
+        this.ref.current.focus();
+    }
+
     renderInput(logKey) {
         if (logKey.type === LogStructure.Key.LOG_TOPIC) {
             return (
@@ -31,6 +40,7 @@ class LogEventValueEditor extends React.Component {
                     disabled={this.props.disabled}
                     onChange={(value) => this.update(value)}
                     where={{ parent_topic_id: logKey.parentLogTopic.id }}
+                    ref={this.ref}
                 />
             );
         }
@@ -41,6 +51,7 @@ class LogEventValueEditor extends React.Component {
                 disabled={this.props.disabled}
                 onChange={(value) => this.update(value)}
                 onSearch={(query) => this.onSearch(query)}
+                ref={this.ref}
             />
         );
     }

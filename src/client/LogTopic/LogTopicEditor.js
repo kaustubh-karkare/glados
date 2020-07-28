@@ -6,6 +6,15 @@ import {
 } from '../Common';
 
 class LogTopicEditor extends React.Component {
+    constructor(props) {
+        super(props);
+        this.nameRef = React.createRef();
+    }
+
+    componentDidMount() {
+        this.nameRef.current.focus();
+    }
+
     updateLogTopic(name, value) {
         const updatedLogTopic = { ...this.props.logTopic };
         updatedLogTopic[name] = value;
@@ -37,6 +46,7 @@ class LogTopicEditor extends React.Component {
                         value={logTopic.name}
                         disabled={this.props.disabled}
                         onChange={(name) => this.updateLogTopic('name', name)}
+                        ref={this.nameRef}
                     />
                 </InputGroup>
             </>

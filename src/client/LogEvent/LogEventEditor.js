@@ -9,6 +9,26 @@ import LogEventValueEditor from './LogEventValueEditor';
 
 
 class LogEventEditor extends React.Component {
+    constructor(props) {
+        super(props);
+        this.titleRef = React.createRef();
+        this.detailsRef = React.createRef();
+        this.valueRef = React.createRef();
+    }
+
+    componentDidMount() {
+        const { logEvent } = this.props;
+        if (logEvent.logStructure) {
+            if (logEvent.logStructure.logKeys.length) {
+                this.valueRef.current.focus();
+            } else {
+                this.detailsRef.current.focus();
+            }
+        } else {
+            this.titleRef.current.focus();
+        }
+    }
+
     async onSelectSuggestion(option) {
         if (option.__type__ === 'log-topic') {
             const logTopic = await window.api.send('log-topic-load', option);
@@ -69,13 +89,13 @@ class LogEventEditor extends React.Component {
                 </InputGroup.Text>
                 <TextEditor
                     isSingleLine
-                    focusOnLoad
                     value={this.props.logEvent.title}
                     serverSideTypes={['log-topic']}
                     disabled={this.props.disabled || !!this.props.logEvent.logStructure}
                     onChange={(title) => this.updateLogEvent('title', title)}
                     onSpecialKeys={this.props.onSpecialKeys}
                     onSelectSuggestion={(option) => this.onSelectSuggestion(option)}
+                    ref={this.titleRef}
                 />
             </InputGroup>
         );
@@ -92,6 +112,7 @@ class LogEventEditor extends React.Component {
                     serverSideTypes={['log-topic']}
                     disabled={this.props.disabled}
                     onChange={(details) => this.updateLogEvent('details', details)}
+                    ref={this.detailsRef}
                 />
             </InputGroup>
         );
@@ -160,6 +181,7 @@ class LogEventEditor extends React.Component {
                 onChange={(updatedLogKey) => this.updateLogEvent((updatedLogEvent) => {
                     updatedLogEvent.logStructure.logKeys[index] = updatedLogKey;
                 })}
+                ref={index === 0 ? this.valueRef : null}
             />
         ));
     }

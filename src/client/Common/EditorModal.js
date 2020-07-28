@@ -109,7 +109,7 @@ class EditorModal extends React.Component {
                         onSpecialKeys={(event) => {
                             if (!event.shiftKey) return;
                             if (event.keyCode === KeyCodes.ENTER) {
-                                this.props.onSave();
+                                this.onSave();
                             } else if (event.keyCode === KeyCodes.ESCAPE) {
                                 this.onClose();
                             }

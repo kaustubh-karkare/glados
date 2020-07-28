@@ -109,18 +109,20 @@ class BulletListItem extends React.Component {
 
     render() {
         return (
-            <Highlightable
-                isHighlighted={this.state.isHighlighted}
-                onChange={(isHighlighted) => this.setState({ isHighlighted })}
-                onKeyDown={(event) => this.onKeyDown(event)}
-            >
-                <InputGroup>
-                    {this.renderPrefix()}
-                    {this.props.children[0]}
-                    {this.renderSuffix()}
-                </InputGroup>
+            <>
+                <Highlightable
+                    isHighlighted={this.state.isHighlighted}
+                    onChange={(isHighlighted) => this.setState({ isHighlighted })}
+                    onKeyDown={(event) => this.onKeyDown(event)}
+                >
+                    <InputGroup>
+                        {this.renderPrefix()}
+                        {this.props.children[0]}
+                        {this.renderSuffix()}
+                    </InputGroup>
+                </Highlightable>
                 {this.renderExpanded()}
-            </Highlightable>
+            </>
         );
     }
 }
