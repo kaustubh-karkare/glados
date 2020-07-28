@@ -74,7 +74,7 @@ class Applicaton extends React.Component {
     }
 
     onDetailsChange(item) {
-        if (item.__type__ === 'log-topic' || item.__type__ === 'log-event') {
+        if (!item || item.__type__ === 'log-topic' || item.__type__ === 'log-event') {
             this.setState({ activeItem: item });
         } else if (item.__type__ === 'log-structure') {
             this.setState({ activeItem: item.logTopic });

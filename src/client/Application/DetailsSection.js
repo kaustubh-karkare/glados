@@ -5,7 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdCheckCircle, MdClose } from 'react-icons/md';
 import { RiLoaderLine } from 'react-icons/ri';
 import {
-    Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
+    Coordinator, InputLine, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
 import { LogTopicDetailsHeader } from '../LogTopic';
 
@@ -71,14 +71,14 @@ class DetailsSection extends React.Component {
             const logEvent = this.state.item;
             return (
                 <InputGroup>
-                    <div className="custom-text">
+                    <InputLine className="px-2">
                         <TextEditor
                             isSingleLine
                             unstyled
                             disabled
                             value={logEvent.title}
                         />
-                    </div>
+                    </InputLine>
                     {this.renderHeaderButtons()}
                 </InputGroup>
             );

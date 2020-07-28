@@ -10,7 +10,7 @@
     fill: var(--text-disabled-color);
 }
 
-.icon:hover > svg,
+.icon:not(.icon-never-highlight):hover > svg,
 .icon.icon-highlighted > svg {
     fill: var(--text-color);
 }

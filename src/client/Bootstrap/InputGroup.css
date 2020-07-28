@@ -80,9 +80,3 @@
     width: 1px;
     height: auto;
 }
-
-.input-group > .custom-text {
-    background: var(--input-background);
-    flex: 1 1 auto;
-    padding: 0 8px;
-}

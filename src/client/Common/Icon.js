@@ -6,11 +6,12 @@ import './Icon.css';
 
 function Icon(props) {
     const {
-        alwaysHighlighted, className, children, ...moreProps
+        alwaysHighlighted, neverHighlighted, className, children, ...moreProps
     } = props;
     moreProps.className = classNames({
         icon: true,
         'icon-highlighted': alwaysHighlighted,
+        'icon-never-highlight': neverHighlighted,
     }, className);
     return (
         <div {...moreProps}>
@@ -22,6 +23,7 @@ function Icon(props) {
 Icon.propTypes = {
     className: PropTypes.string,
     alwaysHighlighted: PropTypes.bool,
+    neverHighlighted: PropTypes.bool,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
 };

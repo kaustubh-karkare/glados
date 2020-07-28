@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    Coordinator, Highlightable, Icon, EditorModal, SidebarSection, TextEditor,
+    Coordinator, Highlightable, Icon, InputLine, EditorModal, SidebarSection, TextEditor,
 } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -134,9 +134,9 @@ class ReminderCheckList extends React.Component {
                         }}
                         style={{ marginRight: 'none' }}
                     />
-                    <div style={{ flex: '1 1 auto', overflow: 'hidden', width: '190px' }}>
+                    <InputLine styled={false}>
                         {title}
-                    </div>
+                    </InputLine>
                     {this.renderItemSuffix(item)}
                 </InputGroup>
             </Highlightable>

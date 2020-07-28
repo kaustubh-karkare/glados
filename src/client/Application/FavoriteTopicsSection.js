@@ -1,10 +1,14 @@
+import { GoPrimitiveDot } from 'react-icons/go';
+import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { Coordinator, DataLoader, SidebarSection } from '../Common';
+import {
+    Coordinator, DataLoader, Highlightable, Icon, InputLine, SidebarSection,
+} from '../Common';
 
 class FavoriteTopicsSection extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { logTopics: null };
+        this.state = { logTopics: null, isHighlighted: {} };
     }
 
     componentDidMount() {
@@ -25,6 +29,13 @@ class FavoriteTopicsSection extends React.Component {
         this.dataLoader.stop();
     }
 
+    updateHighlight(logTopic, isHighlighted) {
+        this.setState((state) => {
+            state.isHighlighted[logTopic.id] = isHighlighted;
+            return state;
+        });
+    }
+
     render() {
         if (this.state.logTopics === null) {
             return 'Loading ...';
@@ -32,15 +43,27 @@ class FavoriteTopicsSection extends React.Component {
         return (
             <SidebarSection title="Favorite Topics">
                 {this.state.logTopics.map((logTopic) => (
-                    <li key={logTopic.id}>
-                        <a
-                            className="topic"
-                            href="#"
-                            onClick={() => Coordinator.invoke('details', logTopic)}
-                        >
-                            {logTopic.name}
-                        </a>
-                    </li>
+                    <Highlightable
+                        key={logTopic.id}
+                        isHighlighted={this.state.isHighlighted[logTopic.id] || false}
+                        onChange={(isHighlighted) => this.updateHighlight(logTopic, isHighlighted)}
+                    >
+                        <InputGroup>
+                            <Icon neverHighlighted className="mr-1">
+                                <GoPrimitiveDot />
+                            </Icon>
+                            <InputLine styled={false}>
+                                <a
+                                    className="topic"
+                                    href="#"
+                                    onClick={() => Coordinator.invoke('details', logTopic)}
+                                    tabIndex={-1}
+                                >
+                                    {logTopic.name}
+                                </a>
+                            </InputLine>
+                        </InputGroup>
+                    </Highlightable>
                 ))}
             </SidebarSection>
         );

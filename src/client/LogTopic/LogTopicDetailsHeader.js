@@ -5,7 +5,7 @@ import {
     MdFavorite, MdFavoriteBorder, MdEdit, MdSearch,
 } from 'react-icons/md';
 import PropTypes from '../prop-types';
-import { Coordinator, Dropdown } from '../Common';
+import { Coordinator, Dropdown, InputLine } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 import { LogTopic } from '../../data';
 
@@ -82,7 +82,7 @@ class LogTopicDetailsHeader extends React.Component {
                 >
                     {logTopic.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
                 </Button>
-                <div className="custom-text">
+                <InputLine className="px-2">
                     {logTopic.parentLogTopic
                         ? (
                             <>
@@ -95,7 +95,7 @@ class LogTopicDetailsHeader extends React.Component {
                     {logTopic.name}
                     {' / '}
                     {this.renderChildTopics(logTopic)}
-                </div>
+                </InputLine>
                 <Button title="Edit" onClick={() => this.onEdit(logTopic)}>
                     <MdEdit />
                 </Button>

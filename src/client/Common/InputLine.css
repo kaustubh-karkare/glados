@@ -1,0 +1,9 @@
+.input-line {
+    flex: 1 1 auto;
+    overflow: hidden;
+    width: 1px;
+}
+
+.input-line.styled {
+    background: var(--input-background);
+}

@@ -8,6 +8,7 @@ export { default as EditorModal } from './EditorModal';
 export { default as ErrorModal } from './ErrorModal';
 export { default as Highlightable } from './Highlightable';
 export { default as Icon } from './Icon';
+export { default as InputLine } from './InputLine';
 export { default as LeftRight } from './LeftRight';
 export { default as ManagementSelector } from './ManagementSelector';
 export { default as ModalStack } from './ModalStack';
