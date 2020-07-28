@@ -24,6 +24,7 @@ function MentionComponent(props) {
             title={item.name}
             href="#"
             onClick={() => Coordinator.invoke('details', item)}
+            tabIndex={-1}
         >
             {props.children}
         </a>

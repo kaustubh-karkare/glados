@@ -1,9 +1,8 @@
-import { RiLoaderLine } from 'react-icons/ri';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {
-    MdCheckCircle, MdClose, MdFavorite, MdFavoriteBorder, MdEdit, MdSearch,
+    MdFavorite, MdFavoriteBorder, MdEdit, MdSearch,
 } from 'react-icons/md';
 import PropTypes from '../prop-types';
 import { Coordinator, Dropdown } from '../Common';
@@ -100,12 +99,7 @@ class LogTopicDetailsHeader extends React.Component {
                 <Button title="Edit" onClick={() => this.onEdit(logTopic)}>
                     <MdEdit />
                 </Button>
-                <Button title="Status">
-                    {this.props.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
-                </Button>
-                <Button title="Close" onClick={() => Coordinator.invoke('details', null)}>
-                    <MdClose />
-                </Button>
+                {this.props.children}
             </InputGroup>
         );
     }
@@ -113,9 +107,10 @@ class LogTopicDetailsHeader extends React.Component {
 
 LogTopicDetailsHeader.propTypes = {
     logTopic: PropTypes.Custom.LogTopic.isRequired,
-    isDirty: PropTypes.bool.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    children: PropTypes.any,
 };
 
 export default LogTopicDetailsHeader;

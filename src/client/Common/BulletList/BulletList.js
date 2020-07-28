@@ -79,7 +79,7 @@ class BulletList extends React.Component {
     onAddButtonClick(event) {
         const DataType = getDataTypeMapping()[this.props.dataType];
         const newItem = DataType.createVirtual(this.props.creator || this.props.where);
-        this.onEdit(newItem, event);
+        this.onEditButtonClick(newItem, event);
     }
 
     onMove(index, delta, event) {
@@ -109,11 +109,15 @@ class BulletList extends React.Component {
         });
     }
 
-    onEdit(item, event) {
+    onEditButtonClick(item, event) {
         if (event) {
             // Don't let enter propagate to EditorModal.
             event.preventDefault();
             event.stopPropagation();
+        }
+        if (event.shiftKey) {
+            Coordinator.invoke('details', item);
+            return;
         }
         Coordinator.invoke('modal', EditorModal, {
             dataType: this.props.dataType,
@@ -123,7 +127,7 @@ class BulletList extends React.Component {
         });
     }
 
-    deleteItem(item, event) {
+    onDeleteButtonClick(item, event) {
         if (event && !event.shiftKey) {
             this.setState({ deleteItem: item });
             return;
@@ -163,7 +167,7 @@ class BulletList extends React.Component {
                     <ViewerComponent {...viewerComponentProps} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={() => this.deleteItem(this.state.deleteItem)}>
+                    <Button onClick={() => this.onDeleteButtonClick(this.state.deleteItem)}>
                         Delete
                     </Button>
                 </Modal.Footer>
@@ -185,8 +189,8 @@ class BulletList extends React.Component {
                     allowReordering={this.props.allowReordering}
                     isExpanded={this.state.isExpanded[item.id]}
                     onToggleButtonClick={() => this.onToggle(item)}
-                    onEditButtonClick={(event) => this.onEdit(item, event)}
-                    onDeleteButtonClick={(event) => this.deleteItem(item, event)}
+                    onEditButtonClick={(event) => this.onEditButtonClick(item, event)}
+                    onDeleteButtonClick={(event) => this.onDeleteButtonClick(item, event)}
                     onMoveUp={(event) => this.onMove(index, -1, event)}
                     onMoveDown={(event) => this.onMove(index, 1, event)}
                 >

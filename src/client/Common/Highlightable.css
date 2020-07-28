@@ -1,4 +1,8 @@
 
-.highlight {
+.highlightable:focus {
+    outline: none;
+}
+
+.highlightable.highlighted {
     background: var(--component-highlight-color);
 }

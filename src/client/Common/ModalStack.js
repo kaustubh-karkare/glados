@@ -9,6 +9,7 @@ class ModalStack extends React.Component {
         super(props);
         this.state = {
             components: [],
+            sourceElement: null,
         };
     }
 
@@ -30,6 +31,9 @@ class ModalStack extends React.Component {
     push(ComponentClass, componentProps) {
         const index = this.state.components.length;
         this.setState((state) => {
+            if (index === 0) {
+                state.sourceElement = document.activeElement;
+            }
             state.components.push({ ComponentClass, componentProps });
             return state;
         });
@@ -40,6 +44,10 @@ class ModalStack extends React.Component {
         this.setState((state) => {
             state.components.pop();
             assert(index === state.components.length);
+            if (index === 0) {
+                state.sourceElement.focus();
+                state.sourceElement = null;
+            }
             return state;
         }, callback);
     }

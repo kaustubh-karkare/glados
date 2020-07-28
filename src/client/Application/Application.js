@@ -74,7 +74,16 @@ class Applicaton extends React.Component {
     }
 
     onDetailsChange(item) {
-        this.setState({ activeItem: item });
+        if (item.__type__ === 'log-topic' || item.__type__ === 'log-event') {
+            this.setState({ activeItem: item });
+        } else if (item.__type__ === 'log-structure') {
+            this.setState({ activeItem: item.logTopic });
+        } else {
+            Coordinator.invoke(
+                'modal-error',
+                `${JSON.stringify(item, null, 4)}\n\nThis item does support details!`,
+            );
+        }
     }
 
     renderLeftSidebar() {

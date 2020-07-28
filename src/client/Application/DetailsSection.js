@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
+import { MdCheckCircle, MdClose } from 'react-icons/md';
+import { RiLoaderLine } from 'react-icons/ri';
 import {
     Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
@@ -31,7 +34,7 @@ class DetailsSection extends React.Component {
         }
         if (left && (!right || left.__type__ !== right.__type__ || left.id !== right.id)) {
             window.api.send(`${left.__type__}-load`, left)
-                .then((item) => this.setState({ item }, this.afterUpdate));
+                .then((item) => this.setState({ item }));
         }
     }
 
@@ -49,27 +52,47 @@ class DetailsSection extends React.Component {
             .then((newItem) => this.setState({ isDirty: item.details !== newItem.details }));
     }
 
+    renderHeaderButtons() {
+        return (
+            <>
+                <Button title="Status">
+                    {this.state.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
+                </Button>
+                <Button title="Close" onClick={() => Coordinator.invoke('details', null)}>
+                    <MdClose />
+                </Button>
+            </>
+        );
+    }
+
     renderHeader() {
         const { item } = this.state;
         if (item && item.__type__ === 'log-event') {
             const logEvent = this.state.item;
             return (
-                <TextEditor
-                    isSingleLine
-                    unstyled
-                    disabled
-                    value={logEvent.title}
-                />
+                <InputGroup>
+                    <div className="custom-text">
+                        <TextEditor
+                            isSingleLine
+                            unstyled
+                            disabled
+                            value={logEvent.title}
+                        />
+                    </div>
+                    {this.renderHeaderButtons()}
+                </InputGroup>
             );
         }
+
         if (item && item.__type__ === 'log-topic') {
             return (
                 <LogTopicDetailsHeader
                     logTopic={this.state.item}
-                    isDirty={this.state.isDirty}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.onChange(logTopic)}
-                />
+                >
+                    {this.renderHeaderButtons()}
+                </LogTopicDetailsHeader>
             );
         }
         return (

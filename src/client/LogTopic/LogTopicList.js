@@ -11,6 +11,7 @@ function LogTopicViewer(props) {
             key={logTopic.id}
             href="#"
             onClick={() => Coordinator.invoke('details', logTopic)}
+            tabIndex={-1}
         >
             {logTopic.name}
         </a>

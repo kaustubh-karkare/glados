@@ -1,8 +1,8 @@
-.details-section .text-editor {
+.details-section .scrollable-section .text-editor {
     background-color: var(--component-color);
     padding: 4px;
 }
 
-.details-section .public-DraftEditor-content {
+.details-section .scrollable-section .public-DraftEditor-content {
     min-height: 200px;
 }

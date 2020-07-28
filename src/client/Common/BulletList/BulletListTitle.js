@@ -3,6 +3,7 @@ import { TiMinus, TiPlus } from 'react-icons/ti';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Highlightable from '../Highlightable';
 import BulletListIcon from './BulletListIcon';
 import { KeyCodes } from '../Utils';
 
@@ -10,7 +11,7 @@ import { KeyCodes } from '../Utils';
 class BulletListTitle extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasFocus: false };
+        this.state = { isHighlighted: false };
     }
 
     onKeyDown(event) {
@@ -58,20 +59,17 @@ class BulletListTitle extends React.Component {
 
     render() {
         return (
-            <InputGroup
-                tabIndex={0}
-                className={this.state.hasFocus ? 'focus' : null}
-                onMouseEnter={() => this.setState({ hasFocus: true })}
-                onMouseOver={() => this.setState({ hasFocus: true })}
-                onMouseLeave={() => this.setState({ hasFocus: false })}
-                onFocus={() => this.setState({ hasFocus: true })}
-                onBlur={() => this.setState({ hasFocus: false })}
+            <Highlightable
+                isHighlighted={this.state.isHighlighted}
+                onChange={(isHighlighted) => this.setState({ isHighlighted })}
                 onKeyDown={(event) => this.onKeyDown(event)}
             >
-                <div>{this.props.name}</div>
-                {this.state.hasFocus ? this.renderListToggleButton() : null}
-                {this.state.hasFocus ? this.renderAddButton() : null}
-            </InputGroup>
+                <InputGroup>
+                    <div>{this.props.name}</div>
+                    {this.state.isHighlighted ? this.renderListToggleButton() : null}
+                    {this.state.isHighlighted ? this.renderAddButton() : null}
+                </InputGroup>
+            </Highlightable>
         );
     }
 }

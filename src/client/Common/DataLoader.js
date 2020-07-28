@@ -14,6 +14,10 @@ class DataLoader {
             return;
         }
         this.input = input;
+        if (this.input === null) {
+            this.callback(null);
+            return;
+        }
         window.api.send(this.input.name, this.input.args)
             .then((data) => {
                 this.setupSubscription();
