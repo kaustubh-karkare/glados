@@ -35,22 +35,6 @@
     width: 100px;
 }
 
-.input-group > .icon {
-    cursor: pointer;
-    height: 20px;
-    width: 13px;
-}
-
-.input-group > .icon > svg {
-    fill: var(--text-disabled-color);
-}
-
-.input-group > .icon:focus > svg,
-.input-group > .icon.focus > svg,
-.input-group > .icon.icon-white > svg {
-    fill: var(--text-color);
-}
-
 .input-group > .btn {
     background: var(--input-background);
     width: 20px;

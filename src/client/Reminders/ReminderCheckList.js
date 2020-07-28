@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    Coordinator, Highlightable, EditorModal, SidebarSection, TextEditor,
+    Coordinator, Highlightable, Icon, EditorModal, SidebarSection, TextEditor,
 } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -88,15 +88,15 @@ class ReminderCheckList extends React.Component {
             return null;
         }
         return (
-            <div
-                className="icon ml-1"
+            <Icon
+                className="ml-1"
                 title="Edit"
                 onClick={(event) => {
                     this.onEditButtonClick(item);
                 }}
             >
                 <MdEdit />
-            </div>
+            </Icon>
         );
     }
 

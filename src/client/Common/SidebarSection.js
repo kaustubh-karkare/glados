@@ -1,7 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { TiMinus, TiPlus } from 'react-icons/ti';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import Icon from './Icon';
 import LeftRight from './LeftRight';
 
 import './SidebarSection.css';
@@ -27,7 +28,7 @@ class SidebarSection extends React.Component {
                 onClick={() => this.setState({ isCollapsed: !isCollapsed })}
             >
                 {this.props.title}
-                {isCollapsed ? <TiPlus /> : <TiMinus />}
+                <Icon>{isCollapsed ? <TiPlus /> : <TiMinus />}</Icon>
             </LeftRight>
         );
     }

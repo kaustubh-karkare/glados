@@ -1,0 +1,16 @@
+.icon {
+    cursor: pointer;
+    height: 20px;
+    position: relative;
+    top: -1px;
+    width: 13px;
+}
+
+.icon > svg {
+    fill: var(--text-disabled-color);
+}
+
+.icon:hover > svg,
+.icon.icon-highlighted > svg {
+    fill: var(--text-color);
+}

@@ -10,12 +10,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { KeyCodes } from '../Utils';
 import Highlightable from '../Highlightable';
+import Icon from '../Icon';
 
 
 const SortableDragHandle = SortableHandle(() => (
-    <div className="icon sortableDragHandle">
+    <Icon className="sortableDragHandle">
         <MdFormatLineSpacing />
-    </div>
+    </Icon>
 ));
 
 
@@ -46,23 +47,27 @@ class BulletListItem extends React.Component {
                     {
                         this.props.allowReordering
                             ? <SortableDragHandle />
-                            : <div className="icon" />
+                            : <Icon />
                     }
-                    <div
-                        className="icon icon-white mr-1"
+                    <Icon
+                        alwaysHighlighted
+                        className="mr-1"
                         onClick={this.props.onToggleButtonClick}
                     >
                         {this.props.isExpanded ? <TiMinus /> : <TiPlus />}
-                    </div>
+                    </Icon>
                 </>
             );
         }
         return (
             <>
-                <div className="icon" />
-                <div className="icon icon-white mr-1">
+                <Icon />
+                <Icon
+                    alwaysHighlighted
+                    className="mr-1"
+                >
                     {this.props.isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
-                </div>
+                </Icon>
             </>
         );
     }
@@ -73,20 +78,19 @@ class BulletListItem extends React.Component {
         }
         return (
             <>
-                <div
-                    className="icon mx-1"
+                <Icon
+                    className="mx-1"
                     title="Edit"
                     onClick={this.props.onEditButtonClick}
                 >
                     <MdEdit />
-                </div>
-                <div
-                    className="icon"
+                </Icon>
+                <Icon
                     title="Delete"
                     onClick={this.props.onDeleteButtonClick}
                 >
                     <FaRegTrashAlt />
-                </div>
+                </Icon>
             </>
         );
     }
