@@ -18,7 +18,7 @@ class LogStructureSearch extends React.Component {
             this.setState({ logStructure: null });
             return;
         }
-        window.api.send('log-structure-list', { selector: { topic_id: logTopic.id } })
+        window.api.send('log-structure-list', { where: { topic_id: logTopic.id } })
             .then(([logStructure]) => this.setState({ logStructure }));
     }
 
@@ -30,7 +30,7 @@ class LogStructureSearch extends React.Component {
                     value={this.state.logStructure && this.state.logStructure.logTopic}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.onSelect(logTopic)}
-                    selector={{ has_structure: true }}
+                    where={{ has_structure: true }}
                     placeholder="Structure Search ..."
                 />
             </InputGroup>
@@ -39,12 +39,12 @@ class LogStructureSearch extends React.Component {
 
     renderLogStructures() {
         if (this.state.logStructure) {
-            const selector = { id: this.state.logStructure.id };
+            const where = { id: this.state.logStructure.id };
             return (
                 <LogStructureList
                     allowCreation={false}
                     allowReordering={false}
-                    selector={selector}
+                    where={where}
                 />
             );
         }

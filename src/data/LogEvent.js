@@ -51,16 +51,16 @@ class LogEvent extends Base {
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
-    static async updateSelector(input) {
-        if (input && input.selector && input.selector.topic_id) {
+    static async updateWhere(input) {
+        if (input && input.where && input.where.topic_id) {
             const edges = await this.database.getEdges(
                 'LogEventToLogTopic',
                 'topic_id',
-                input.selector.topic_id,
+                input.where.topic_id,
                 this.transaction,
             );
-            delete input.selector.topic_id;
-            input.selector.id = {
+            delete input.where.topic_id;
+            input.where.id = {
                 [this.database.Op.in]: edges.map((edge) => edge.event_id),
             };
         }
@@ -68,7 +68,7 @@ class LogEvent extends Base {
     }
 
     static async list(input) {
-        input = await LogEvent.updateSelector.call(this, input);
+        input = await LogEvent.updateWhere.call(this, input);
         return Base.list.call(this, input);
     }
 
@@ -131,20 +131,7 @@ class LogEvent extends Base {
             this.transaction,
         );
 
-        if (logEvent && logEvent.date && logEvent.date !== inputLogEvent.date) {
-            this.broadcast('log-event-list', {
-                selector: { date: logEvent.date },
-            });
-        }
-        if (inputLogEvent.date && (logEvent ? inputLogEvent.date !== logEvent.date : true)) {
-            this.broadcast('log-event-list', {
-                selector: { date: inputLogEvent.date },
-            });
-        }
-
-        // TODO(broadcast): Make this more specific!
-        this.broadcast('log-event-list'); // Update all lists!
-        this.broadcast('reminder-sidebar');
+        Base.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
 
         if (inputLogEvent.date === null) {
             assert(!inputLogEvent.isComplete);
@@ -204,7 +191,14 @@ class LogEvent extends Base {
             this.transaction,
         );
 
+        this.broadcast('reminder-sidebar');
         return logEvent.id;
+    }
+
+    static async delete(id) {
+        const logEvent = await this.database.deleteByPk('LogEvent', id, this.transaction);
+        Base.broadcast.call(this, 'log-event-list', logEvent, ['date']);
+        return { id: logEvent.id };
     }
 }
 

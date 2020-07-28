@@ -54,11 +54,21 @@ class LogTopic extends Base {
             this.transaction,
         );
 
+        const parentTopicId = inputLogTopic.parentLogTopic
+            ? inputLogTopic.parentLogTopic.id
+            : null;
+        Base.broadcast.call(
+            this,
+            'log-topic-list',
+            logTopic,
+            { parent_topic_id: parentTopicId },
+        );
+
         const originalName = logTopic ? logTopic.name : null;
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const fields = {
             id: inputLogTopic.id,
-            parent_topic_id: inputLogTopic.parentLogTopic ? inputLogTopic.parentLogTopic.id : null,
+            parent_topic_id: parentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
             details: inputLogTopic.details,
@@ -76,7 +86,6 @@ class LogTopic extends Base {
             await LogTopic.updateLogTopics.call(this, outputLogTopic);
         }
 
-        this.broadcast('log-topic-list', { selector: { parent_topic_id: fields.parent_topic_id } });
         return logTopic.id;
     }
 
@@ -108,37 +117,67 @@ class LogTopic extends Base {
     static async updateLogStructures(updatedLogTopic) {
         const outputLogStructures = await this.invoke.call(this, 'log-structure-list');
         await Promise.all(
-            outputLogStructures.map((outputLogStructure) => {
-                outputLogStructure.titleTemplate = LogTopic.updateContent(
-                    outputLogStructure.titleTemplate, [updatedLogTopic],
-                );
-                return this.invoke.call(this, 'log-structure-upsert', outputLogStructure);
-            }),
+            outputLogStructures
+                .filter((outputLogStructure) => {
+                    const logTopics = TextEditorUtils.extractLogTopics(
+                        TextEditorUtils.deserialize(
+                            outputLogStructure.titleTemplate,
+                            TextEditorUtils.StorageType.DRAFTJS,
+                        ),
+                    );
+                    return logTopics[updatedLogTopic.id];
+                })
+                .map((outputLogStructure) => {
+                    outputLogStructure.titleTemplate = LogTopic.updateContent(
+                        outputLogStructure.titleTemplate, [updatedLogTopic],
+                    );
+                    return this.invoke.call(this, 'log-structure-upsert', outputLogStructure);
+                }),
         );
     }
 
     static async updateLogTopics(updatedLogTopic) {
         const outputLogTopics = await this.invoke.call(this, 'log-topic-list');
         await Promise.all(
-            outputLogTopics.map((outputLogTopic) => {
-                outputLogTopic.details = LogTopic.updateContent(
-                    outputLogTopic.details, [updatedLogTopic],
-                );
-                return this.invoke.call(this, 'log-topic-upsert', outputLogTopic);
-            }),
+            outputLogTopics
+                .filter((outputLogTopic) => {
+                    const logTopics = TextEditorUtils.extractLogTopics(
+                        TextEditorUtils.deserialize(
+                            outputLogTopic.details,
+                            TextEditorUtils.StorageType.DRAFTJS,
+                        ),
+                    );
+                    return logTopics[updatedLogTopic.id];
+                })
+                .map((outputLogTopic) => {
+                    outputLogTopic.details = LogTopic.updateContent(
+                        outputLogTopic.details, [updatedLogTopic],
+                    );
+                    return this.invoke.call(this, 'log-topic-upsert', outputLogTopic);
+                }),
         );
     }
 
-    static updateContent(value, logTopics) {
+    static updateContent(value, oldLogTopics, newLogTopics = null) {
         let content = TextEditorUtils.deserialize(
             value,
             TextEditorUtils.StorageType.DRAFTJS,
         );
-        content = TextEditorUtils.updateDraftContent(content, logTopics, logTopics);
+        content = TextEditorUtils.updateDraftContent(
+            content,
+            oldLogTopics,
+            newLogTopics || oldLogTopics,
+        );
         return TextEditorUtils.serialize(
             content,
             TextEditorUtils.StorageType.DRAFTJS,
         );
+    }
+
+    static async delete(id) {
+        const logTopic = await this.database.deleteByPk('LogTopic', id, this.transaction);
+        Base.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
+        return { id: logTopic.id };
     }
 }
 

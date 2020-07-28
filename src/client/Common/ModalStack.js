@@ -10,6 +10,9 @@ class ModalStack extends React.Component {
         this.state = {
             components: [],
         };
+    }
+
+    componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.register('modal', this.push.bind(this)),
             Coordinator.register(
@@ -33,12 +36,12 @@ class ModalStack extends React.Component {
         return this.pop.bind(this, index);
     }
 
-    pop(index) {
+    pop(index, callback) {
         this.setState((state) => {
             state.components.pop();
             assert(index === state.components.length);
             return state;
-        });
+        }, callback);
     }
 
     renderItem({ ComponentClass, componentProps }, index) {
@@ -46,7 +49,11 @@ class ModalStack extends React.Component {
             <ComponentClass
                 key={index}
                 {...componentProps}
-                onClose={() => this.pop(index)}
+                onClose={(...args) => this.pop(index, () => {
+                    if (componentProps.onClose) {
+                        componentProps.onClose(...args);
+                    }
+                })}
             />
         );
     }

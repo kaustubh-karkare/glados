@@ -30,7 +30,7 @@ class LogEventValueEditor extends React.Component {
                     value={logKey.value}
                     disabled={this.props.disabled}
                     onChange={(value) => this.update(value)}
-                    selector={{ parent_topic_id: logKey.parentLogTopic.id }}
+                    where={{ parent_topic_id: logKey.parentLogTopic.id }}
                 />
             );
         }

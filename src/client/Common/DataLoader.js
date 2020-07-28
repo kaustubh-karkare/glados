@@ -1,25 +1,23 @@
 
 class DataLoader {
-    constructor({
-        getInput, name, args, callback,
-    }) {
-        this.getInput = getInput || (() => ({ name, args }));
+    constructor({ getInput, callback }) {
+        this.getInput = getInput;
         this.input = null;
         this.cancelSubscription = null;
         this.callback = callback;
         this.reload();
     }
 
-    reload() {
+    reload({ force } = {}) {
         const input = this.getInput();
-        if (JSON.stringify(input) === JSON.stringify(this.input)) {
+        if (!force && JSON.stringify(input) === JSON.stringify(this.input)) {
             return;
         }
         this.input = input;
         window.api.send(this.input.name, this.input.args)
             .then((data) => {
-                this.callback(data);
                 this.setupSubscription();
+                this.callback(data);
             });
     }
 
@@ -28,7 +26,11 @@ class DataLoader {
         if (name.endsWith('-load')) {
             return left.id === right.id;
         } if (name.endsWith('-list')) {
-            return Object.keys(left).every((key) => left[key] === right[key]);
+            left = left.where || {};
+            right = right.where || {};
+            return Object.keys(left).every(
+                (key) => typeof right[key] === 'undefined' || left[key] === right[key],
+            );
         }
         return true;
     }
@@ -42,7 +44,9 @@ class DataLoader {
             const original = this.input.args || {};
             const modified = data || {};
             if (this.compare(this.input.name, original, modified)) {
-                this.reload();
+                this.reload({ force: true });
+            } else {
+                this.setupSubscription();
             }
         });
     }

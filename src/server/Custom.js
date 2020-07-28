@@ -11,10 +11,10 @@ ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
 };
 
 ActionsRegistry['log-event-dates'] = async function (input) {
-    input = await LogEvent.updateSelector.call(this, input);
+    input = await LogEvent.updateWhere.call(this, input);
     const results = await this.database.count(
         'LogEvent',
-        input.selector,
+        input.where,
         ['date'],
         this.transaction,
     );
@@ -24,7 +24,7 @@ ActionsRegistry['log-event-dates'] = async function (input) {
 
 ActionsRegistry['value-typeahead'] = async function (input) {
     const outputLogEvents = await this.invoke.call(
-        this, 'log-event-list', { selector: { structure_id: input.structure_id } },
+        this, 'log-event-list', { where: { structure_id: input.structure_id } },
     );
     const resultToFrequencyMap = {};
     outputLogEvents.forEach((outputLogEvent) => {

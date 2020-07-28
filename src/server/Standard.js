@@ -35,6 +35,8 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
             throw new Error(errors.join('\n'));
         }
         const id = await DataType.save.call(context, input);
+        this.broadcast(`${name}-load`, { id });
+        this.broadcast(`${name}-list`, { where: { id } });
         return DataType.load.call(context, id);
     };
     ActionsRegistry[`${name}-delete`] = async function (id) {

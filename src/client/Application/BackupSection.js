@@ -16,7 +16,9 @@ class BackupSection extends React.Component {
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            name: 'backup-latest',
+            getInput: () => ({
+                name: 'backup-latest',
+            }),
             callback: (latestBackup) => this.setState({ latestBackup }),
         });
     }

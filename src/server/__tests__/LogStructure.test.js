@@ -5,6 +5,26 @@ import TextEditorUtils from '../../common/TextEditorUtils';
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
+test('test_structure_deletion', async () => {
+    await Utils.loadData({
+        logStructureGroups: [
+            { name: 'Misc' },
+        ],
+        logStructures: [
+            {
+                groupName: 'Misc',
+                name: 'Testingwa',
+                titleTemplate: '$0',
+            },
+        ],
+    });
+    const actions = Utils.getActions();
+    await expect(() => actions.invoke('log-topic-delete', 1)).rejects.toThrow();
+    await actions.invoke('log-structure-delete', 1);
+    const logTopics = await actions.invoke('log-topic-list');
+    expect(logTopics.length).toEqual(0);
+});
+
 test('test_structure_title_template', async () => {
     await Utils.loadData({
         logStructureGroups: [

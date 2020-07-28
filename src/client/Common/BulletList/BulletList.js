@@ -53,32 +53,23 @@ class BulletList extends React.Component {
     }
 
     componentDidMount() {
-        this.componentDidUpdate();
-    }
-
-    componentDidUpdate(prevProps) {
-        if (!prevProps || (
-            prevProps.dataType !== this.props.dataType
-            || prevProps.selector !== this.props.selector
-            || prevProps.allowReordering !== this.props.allowReordering
-        )) {
-            // eslint-disable-next-line react/no-did-update-set-state
-            this.setState({ items: null });
-            if (this.dataLoader) {
-                this.dataLoader.stop();
-            }
-            this.dataLoader = new DataLoader({
+        this.dataLoader = new DataLoader({
+            getInput: () => ({
                 name: `${this.props.dataType}-list`,
                 args: {
-                    selector: this.props.selector,
+                    where: this.props.where,
                     ordering: this.props.allowReordering,
                 },
-                callback: (items) => this.setState((state) => ({
-                    items,
-                    isExpanded: state.isExpanded || {},
-                })),
-            });
-        }
+            }),
+            callback: (items) => this.setState((state) => ({
+                items,
+                isExpanded: state.isExpanded || {},
+            })),
+        });
+    }
+
+    componentDidUpdate() {
+        this.dataLoader.reload();
     }
 
     componentWillUnmount() {
@@ -87,9 +78,7 @@ class BulletList extends React.Component {
 
     onAddButtonClick(event) {
         const DataType = getDataTypeMapping()[this.props.dataType];
-        const newItem = DataType.createVirtual(
-            this.props.creator ? this.props.creator : this.props.selector,
-        );
+        const newItem = DataType.createVirtual(this.props.creator || this.props.where);
         this.onEdit(newItem, event);
     }
 
@@ -106,7 +95,7 @@ class BulletList extends React.Component {
         const orderedItems = arrayMove(this.state.items, oldIndex, newIndex);
         const input = {
             dataType: this.props.dataType,
-            selector: this.props.selector,
+            where: this.props.where,
             ordering: orderedItems.map((item) => item.id),
         };
         window.api.send(`${this.props.dataType}-reorder`, input)
@@ -129,8 +118,6 @@ class BulletList extends React.Component {
         Coordinator.invoke('modal', EditorModal, {
             dataType: this.props.dataType,
             EditorComponent: this.props.EditorComponent,
-            editorProps: { selector: this.props.selector },
-            // eslint-disable-next-line react/forbid-foreign-prop-types
             valueKey: this.props.valueKey,
             value: item,
         });
@@ -221,7 +208,7 @@ class BulletList extends React.Component {
         }
         return (
             <AdderWrapper>
-                <AdderComponent selector={this.props.selector} />
+                <AdderComponent where={this.props.where} />
             </AdderWrapper>
         );
     }
@@ -268,7 +255,7 @@ BulletList.propTypes = {
     dataType: PropTypes.string.isRequired,
     valueKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object,
+    where: PropTypes.object,
     // eslint-disable-next-line react/forbid-prop-types
     creator: PropTypes.object,
     allowCreation: PropTypes.bool,

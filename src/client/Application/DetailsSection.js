@@ -45,9 +45,8 @@ class DetailsSection extends React.Component {
 
     saveNotDebounced() {
         const { item } = this.state;
-        this.setState({ isDirty: true });
         window.api.send(`${item.__type__}-upsert`, item)
-            .then(() => this.setState({ isDirty: false }));
+            .then((newItem) => this.setState({ isDirty: item.details !== newItem.details }));
     }
 
     renderHeader() {

@@ -10,7 +10,7 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
         ordering: true,
     });
     const periodicLogStructures = await this.invoke.call(this, 'log-structure-list', {
-        selector: {
+        where: {
             frequency: { [this.database.Op.ne]: null },
         },
         ordering: true,
@@ -25,7 +25,7 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
     });
 
     const logEvents = await this.invoke.call(this, 'log-event-list', {
-        selector: {
+        where: {
             is_complete: false,
         },
     });

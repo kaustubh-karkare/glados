@@ -14,7 +14,7 @@ class AsyncSelector extends React.Component {
             getInput: () => ({
                 name: `${this.props.dataType}-list`,
                 args: {
-                    selector: this.props.selector,
+                    where: this.props.where,
                 },
             }),
             callback: (options) => this.setState({
@@ -73,7 +73,7 @@ AsyncSelector.propTypes = {
     onChange: PropTypes.func.isRequired,
 
     // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.any,
+    where: PropTypes.any,
 };
 
 AsyncSelector.defaultProps = {

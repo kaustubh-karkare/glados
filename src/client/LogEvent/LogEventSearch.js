@@ -58,6 +58,9 @@ class LogEventSearch extends React.Component {
             logTopic: null,
         };
         this.afterUpdate = this.afterUpdate.bind(this);
+    }
+
+    componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.register(
                 'event-created',
@@ -72,9 +75,6 @@ class LogEventSearch extends React.Component {
                 (logTopic) => this.setState({ logTopic }, this.afterUpdate),
             ),
         ];
-    }
-
-    componentDidMount() {
         this.setState({ dateRange: DateRange.UNSPECIFIED }, this.afterUpdate);
     }
 
@@ -82,29 +82,29 @@ class LogEventSearch extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    getSelector() {
-        const selector = {};
+    getWhere() {
+        const where = {};
         if (this.state.isMajor) {
-            selector.is_major = true;
+            where.is_major = true;
         }
         if (this.state.logTopic) {
-            selector.topic_id = this.state.logTopic.id;
+            where.topic_id = this.state.logTopic.id;
         }
         if (this.state.dateRange === DateRange.INCOMPLETE) {
-            selector.is_complete = false;
+            where.is_complete = false;
         } else {
-            selector.is_complete = true;
+            where.is_complete = true;
         }
-        return selector;
+        return where;
     }
 
     afterUpdate() {
         const option = DateRange[this.state.dateRange];
         const dates = option.getDates();
         if (dates === null) {
-            const selector = this.getSelector();
-            if (selector.topic_id || !selector.is_complete) {
-                window.api.send('log-event-dates', { selector })
+            const where = this.getWhere();
+            if (where.topic_id || !where.is_complete) {
+                window.api.send('log-event-dates', { where })
                     .then((result) => this.setState({ dates: result }));
             } else {
                 this.setState({ dates: [getTodayLabel()] });
@@ -143,7 +143,7 @@ class LogEventSearch extends React.Component {
 
     renderLogEvents() {
         const today = getTodayLabel();
-        const selector = this.getSelector();
+        const where = this.getWhere();
         const moreProps = {};
         if (!this.state.isMajor) {
             moreProps.allowReordering = true;
@@ -153,7 +153,7 @@ class LogEventSearch extends React.Component {
             <LogEventList
                 key={date || 'null'}
                 name={date ? `${date} : ${getDayOfTheWeek(date)}` : 'Unspecified'}
-                selector={{ date, ...selector }}
+                where={{ date, ...where }}
                 showAdder={date === today}
                 {...moreProps}
             />

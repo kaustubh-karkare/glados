@@ -36,6 +36,12 @@ class LogStructureGroup extends Base {
         this.broadcast('log-structure-group-list');
         return logStructureGroup.id;
     }
+
+    static async delete(id) {
+        const logStructureGroup = await this.database.deleteByPk('LogStructureGroup', id, this.transaction);
+        this.broadcast('log-structure-group-list');
+        return { id: logStructureGroup.id };
+    }
 }
 
 export default LogStructureGroup;

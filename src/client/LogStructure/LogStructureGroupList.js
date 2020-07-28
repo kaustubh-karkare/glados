@@ -20,7 +20,7 @@ LogStructureGroupViewer.Expanded = (props) => {
     const { logStructureGroup } = props;
     return (
         <LogStructureList
-            selector={{ group_id: logStructureGroup.id }}
+            where={{ group_id: logStructureGroup.id }}
             creator={{ logStructureGroup }}
             allowReordering
         />

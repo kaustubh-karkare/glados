@@ -126,8 +126,7 @@ class TextEditor extends React.Component {
 
     onAddMention(option) {
         if (this.props.onSelectSuggestion) {
-            window.api.send(`${option.__type__}-load`, option)
-                .then((result) => this.props.onSelectSuggestion(result));
+            this.props.onSelectSuggestion(option);
         }
     }
 

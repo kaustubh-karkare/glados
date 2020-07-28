@@ -8,7 +8,7 @@ class Coordinator {
     }
 
     static invoke(name, ...args) {
-        return callbacks[name](...args);
+        return callbacks[name].call(this, ...args);
     }
 }
 

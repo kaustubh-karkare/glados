@@ -10,12 +10,12 @@ class LogEventAdder extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            logEvent: LogEvent.createVirtual(this.props.selector),
+            logEvent: LogEvent.createVirtual(this.props.where),
         };
     }
 
     onEditLogEvent(logEvent) {
-        this.setState({ logEvent: LogEvent.createVirtual(this.props.selector) });
+        this.setState({ logEvent: LogEvent.createVirtual(this.props.where) });
         Coordinator.invoke('modal', EditorModal, {
             dataType: 'log-event',
             EditorComponent: LogEventEditor,
@@ -29,30 +29,32 @@ class LogEventAdder extends React.Component {
             window.api.send('log-event-upsert', logEvent)
                 .then((newLogEvent) => {
                     Coordinator.invoke('event-created', newLogEvent);
-                    this.setState({ logEvent: LogEvent.createVirtual(this.props.selector) });
+                    this.setState({ logEvent: LogEvent.createVirtual(this.props.where) });
                 });
         } else {
             this.onEditLogEvent(logEvent);
         }
     }
 
-    onSelectSuggestion(option) {
+    async onSelectSuggestion(option) {
         if (option.__type__ === 'log-topic') {
-            const logTopic = option;
-            if (logTopic.hasStructure) {
-                window.api.send('log-structure-list', { selector: { topic_id: logTopic.id } })
-                    .then(([logStructure]) => {
-                        const updatedLogEvent = LogEvent.createVirtual({
-                            ...this.props.selector,
-                            logStructure,
-                        });
-                        LogEvent.trigger(updatedLogEvent);
-                        if (logStructure.needsEdit) {
-                            this.onEditLogEvent(updatedLogEvent);
-                        } else {
-                            this.onSaveLogEvent(updatedLogEvent);
-                        }
-                    });
+            const logTopic = await window.api.send('log-topic-load', option);
+            if (!logTopic.hasStructure) {
+                return;
+            }
+            const [logStructure] = await window.api.send(
+                'log-structure-list',
+                { where: { topic_id: logTopic.id } },
+            );
+            const updatedLogEvent = LogEvent.createVirtual({
+                ...this.props.where,
+                logStructure,
+            });
+            LogEvent.trigger(updatedLogEvent);
+            if (logStructure.needsEdit) {
+                this.onEditLogEvent(updatedLogEvent);
+            } else {
+                this.onSaveLogEvent(updatedLogEvent);
             }
         }
     }
@@ -88,11 +90,11 @@ class LogEventAdder extends React.Component {
 
 LogEventAdder.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object,
+    where: PropTypes.object,
 };
 
 LogEventAdder.defaultProps = {
-    selector: {},
+    where: {},
 };
 
 export default LogEventAdder;

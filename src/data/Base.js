@@ -2,13 +2,17 @@
 
 import ValidationBase from './ValidationBase';
 
+function getDataType(name) {
+    return name.split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-');
+}
+
 class Base extends ValidationBase {
     static createVirtual() {
         throw new Exception('not implemented');
     }
 
-    static async list({ selector, ordering } = { selector: {} }) {
-        let items = await this.database.findAll(this.DataType.name, selector, this.transaction);
+    static async list({ where, ordering } = { where: {} }) {
+        let items = await this.database.findAll(this.DataType.name, where, this.transaction);
         if (ordering) {
             items = items.sort((left, right) => {
                 if (left.ordering_index !== null && right.ordering_index !== null) {
@@ -27,14 +31,13 @@ class Base extends ValidationBase {
     }
 
     // eslint-disable-next-line no-unused-vars
-    static async typeahead({ query, selector }) {
+    static async typeahead({ query, where }) {
         const options = await this.database.findAll(
             this.DataType.name,
-            { ...selector, name: { [this.database.Op.like]: `${query}%` } },
+            { ...where, name: { [this.database.Op.like]: `${query}%` } },
             this.transaction,
         );
-        const dataType = this.DataType.name
-            .split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-');
+        const dataType = getDataType(this.DataType.name);
         return options.map((option) => ({
             __type__: dataType,
             id: option.id,
@@ -62,7 +65,7 @@ class Base extends ValidationBase {
                 this.transaction,
             ),
         ));
-        this.broadcast(`${input.dataType}-list`, { selector: input.selector });
+        this.broadcast(`${input.dataType}-list`, { where: input.where });
         return items.map((item) => item.id);
     }
 
@@ -91,23 +94,40 @@ class Base extends ValidationBase {
         }
     }
 
-    static async getOrderingIndex(item, selector = {}) {
+    static async getOrderingIndex(item, where = {}) {
         if (item) {
             return item.ordering_index;
         }
         return this.database.count(
             this.DataType.name,
-            selector,
+            where,
             null,
             this.transaction,
         );
     }
 
+    static async broadcast(queryName, prevItem, fields) {
+        if (!this.DataType) {
+            return;
+        }
+        if (Array.isArray(fields)) {
+            fields.forEach((fieldName) => {
+                const prevValue = prevItem ? prevItem[fieldName] : null;
+                this.broadcast(queryName, { where: { [fieldName]: prevValue } });
+            });
+        } else {
+            Object.entries(fields).forEach(([fieldName, nextValue]) => {
+                if (prevItem) {
+                    const prevValue = prevItem[fieldName];
+                    this.broadcast(queryName, { where: { [fieldName]: prevValue } });
+                }
+                this.broadcast(queryName, { where: { [fieldName]: nextValue } });
+            });
+        }
+    }
+
     static async delete(id) {
-        const item = await this.database.deleteByPk(
-            this.DataType.name, id, this.transaction,
-        );
-        return { id: item.id };
+        throw new Exception('not implemented');
     }
 }
 

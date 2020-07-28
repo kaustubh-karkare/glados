@@ -9,10 +9,12 @@ class FavoriteTopicsSection extends React.Component {
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            name: 'log-topic-list',
-            args: {
-                selector: { on_sidebar: true },
-            },
+            getInput: () => ({
+                name: 'log-topic-list',
+                args: {
+                    where: { on_sidebar: true },
+                },
+            }),
             callback: (logTopics) => this.setState({
                 logTopics: logTopics.sort((left, right) => left.name.localeCompare(right.name)),
             }),

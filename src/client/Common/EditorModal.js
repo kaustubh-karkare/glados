@@ -39,7 +39,7 @@ class EditorModal extends React.Component {
     }
 
     onClose() {
-        this.props.onClose(this.state.item);
+        this.props.onClose(this.state.value);
     }
 
     validateItemNotDebounced() {
@@ -70,7 +70,7 @@ class EditorModal extends React.Component {
             .finally(() => this.setState({ isSaving: false }))
             .then((value) => {
                 this.setState({ status: 'Saved!', value });
-                this.props.onClose();
+                this.onClose();
             });
     }
 

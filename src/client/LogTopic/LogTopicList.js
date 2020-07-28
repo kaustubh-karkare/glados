@@ -40,7 +40,7 @@ LogTopicViewer.Expanded = (props) => {
     return (
         <LogTopicList
             name="Sub Topics"
-            selector={{ parent_topic_id: logTopic.id }}
+            where={{ parent_topic_id: logTopic.id }}
             creator={{ parentLogTopic: logTopic }}
         />
     );

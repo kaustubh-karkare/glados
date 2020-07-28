@@ -9,9 +9,9 @@ import LogEventValueEditor from './LogEventValueEditor';
 
 
 class LogEventEditor extends React.Component {
-    onSelectSuggestion(option) {
+    async onSelectSuggestion(option) {
         if (option.__type__ === 'log-topic') {
-            const logTopic = option;
+            const logTopic = await window.api.send('log-topic-load', option);
             if (logTopic.hasStructure) {
                 this.updateLogStructure(logTopic);
             }
@@ -31,7 +31,7 @@ class LogEventEditor extends React.Component {
 
     updateLogStructure(logTopic) {
         if (logTopic) {
-            window.api.send('log-structure-list', { selector: { topic_id: logTopic.id } })
+            window.api.send('log-structure-list', { where: { topic_id: logTopic.id } })
                 .then(([logStructure]) => this.updateLogEvent('logStructure', logStructure));
         } else {
             this.updateLogEvent('logStructure', null);
@@ -136,7 +136,7 @@ class LogEventEditor extends React.Component {
                 </InputGroup.Text>
                 <TypeaheadSelector
                     dataType="log-topic"
-                    selector={{ has_structure: true }}
+                    where={{ has_structure: true }}
                     value={logStructure ? logStructure.logTopic : null}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.updateLogStructure(logTopic)}

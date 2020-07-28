@@ -195,6 +195,13 @@ class LogStructure extends Base {
             this.transaction,
         );
 
+        Base.broadcast.call(
+            this,
+            'log-structure-list',
+            logStructure,
+            { group_id: inputLogStructure.logStructureGroup.id },
+        );
+
         const prevLogTopicId = logStructure && logStructure.topic_id;
         const nextLogTopicId = await Base.manageEntityBefore.call(
             this, inputLogStructure.logTopic, LogTopic,
@@ -252,7 +259,6 @@ class LogStructure extends Base {
             await LogStructure.updateLogEvents.call(this, logStructure.id);
         }
 
-        this.broadcast('log-structure-list');
         this.broadcast('reminder-sidebar');
         return logStructure.id;
     }
@@ -261,13 +267,20 @@ class LogStructure extends Base {
         const outputLogEvents = await this.invoke.call(
             this,
             'log-event-list',
-            { selector: { structure_id: logStructureId } },
+            { where: { structure_id: logStructureId } },
         );
         await Promise.all(
             outputLogEvents.map(
                 (outputLogEvent) => this.invoke.call(this, 'log-event-upsert', outputLogEvent),
             ),
         );
+    }
+
+    static async delete(id) {
+        const logStructure = await this.database.deleteByPk('LogStructure', id, this.transaction);
+        await Base.manageEntityAfter.call(this, logStructure.topic_id, null, LogTopic);
+        Base.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
+        return { id: logStructure.id };
     }
 
     // Log Structure Keys

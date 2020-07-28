@@ -3,12 +3,12 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {
-    MdCheckCircle, MdClose, MdFavorite, MdFavoriteBorder, MdSearch,
+    MdCheckCircle, MdClose, MdFavorite, MdFavoriteBorder, MdEdit, MdSearch,
 } from 'react-icons/md';
 import PropTypes from '../prop-types';
 import { Coordinator, Dropdown } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
-import { LogTopic, isRealItem } from '../../data';
+import { LogTopic } from '../../data';
 
 const ADD_CHILD_OPTION = {
     id: -1,
@@ -16,6 +16,16 @@ const ADD_CHILD_OPTION = {
 };
 
 class LogTopicDetailsHeader extends React.Component {
+    // eslint-disable-next-line class-methods-use-this
+    onEdit(logTopic) {
+        Coordinator.invoke('modal-editor', {
+            dataType: 'log-topic',
+            EditorComponent: LogTopicEditor,
+            valueKey: 'logTopic',
+            value: logTopic,
+        });
+    }
+
     // eslint-disable-next-line class-methods-use-this
     renderTopicName(logTopic) {
         return (
@@ -36,24 +46,14 @@ class LogTopicDetailsHeader extends React.Component {
                 options={{
                     name: 'log-topic-list',
                     args: {
-                        selector: { parent_topic_id: logTopic.id },
+                        where: { parent_topic_id: logTopic.id },
                         ordering: true,
                     },
                 }}
                 suffixOptions={[ADD_CHILD_OPTION]}
                 onChange={(childLogTopic) => {
                     if (childLogTopic.id === ADD_CHILD_OPTION.id) {
-                        Coordinator.invoke('modal-editor', {
-                            dataType: 'log-topic',
-                            EditorComponent: LogTopicEditor,
-                            valueKey: 'logTopic',
-                            value: LogTopic.createVirtual({ parentLogTopic: logTopic }),
-                            onClose: (newLogTopic) => {
-                                if (isRealItem(newLogTopic)) {
-                                    Coordinator.invoke('details', newLogTopic);
-                                }
-                            },
-                        });
+                        this.onEdit(LogTopic.createVirtual({ parentLogTopic: logTopic }));
                     } else {
                         Coordinator.invoke('details', childLogTopic);
                     }
@@ -97,6 +97,9 @@ class LogTopicDetailsHeader extends React.Component {
                     {' / '}
                     {this.renderChildTopics(logTopic)}
                 </div>
+                <Button title="Edit" onClick={() => this.onEdit(logTopic)}>
+                    <MdEdit />
+                </Button>
                 <Button title="Status">
                     {this.props.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
                 </Button>

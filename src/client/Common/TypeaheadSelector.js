@@ -20,7 +20,7 @@ class TypeaheadSelector extends React.Component {
 
     onSearch(query) {
         this.setState({ isLoading: true }, () => {
-            window.api.send(`${this.props.dataType}-typeahead`, { query, selector: this.props.selector })
+            window.api.send(`${this.props.dataType}-typeahead`, { query, where: this.props.where })
                 .then((options) => {
                     this.setState({ isLoading: false, options });
                 });
@@ -88,7 +88,7 @@ TypeaheadSelector.propTypes = {
 
     placeholder: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
-    selector: PropTypes.object,
+    where: PropTypes.object,
 };
 
 TypeaheadSelector.defaultProps = {
