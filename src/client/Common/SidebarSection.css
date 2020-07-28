@@ -1,7 +1,6 @@
 .sidebar-section {
     border: 1px solid var(--background-color);
     border-radius: 4px;
-    cursor: pointer;
     padding: 3px 8px 5px;
     margin: 4px 0;
     overflow: hidden;
@@ -11,16 +10,20 @@
     border-color: var(--component-highlight-color);
 }
 
-.sidebar-section.sidebar-section-selected {
+.sidebar-section.selected {
     background: var(--component-color);
     border-color: var(--component-highlight-color);
 }
 
-.sidebar-section > .sidebar-section-header {
+.sidebar-section > .header {
     color: var(--text-disabled-color);
 }
 
-.sidebar-section > .sidebar-section-separator {
+.sidebar-section > .cursor {
+    cursor: pointer;
+}
+
+.sidebar-section > .separator {
     border-bottom: 1px solid var(--component-highlight-color);
     margin-bottom: 4px;
     padding-bottom: 4px;

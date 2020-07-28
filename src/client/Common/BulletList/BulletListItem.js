@@ -9,6 +9,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { KeyCodes } from '../Utils';
+import Highlightable from '../Highlightable';
 
 
 const SortableDragHandle = SortableHandle(() => (
@@ -21,7 +22,7 @@ const SortableDragHandle = SortableHandle(() => (
 class BulletListItem extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasFocus: false };
+        this.state = { isHighlighted: false };
     }
 
     onKeyDown(event) {
@@ -39,7 +40,7 @@ class BulletListItem extends React.Component {
     }
 
     renderPrefix() {
-        if (this.state.hasFocus) {
+        if (this.state.isHighlighted) {
             return (
                 <>
                     {
@@ -67,7 +68,7 @@ class BulletListItem extends React.Component {
     }
 
     renderSuffix() {
-        if (!this.state.hasFocus) {
+        if (!this.state.isHighlighted) {
             return null;
         }
         return (
@@ -104,23 +105,18 @@ class BulletListItem extends React.Component {
 
     render() {
         return (
-            <div>
-                <InputGroup
-                    className={this.state.hasFocus ? 'focus' : null}
-                    tabIndex={0}
-                    onMouseEnter={() => this.setState({ hasFocus: true })}
-                    onMouseOver={() => this.setState({ hasFocus: true })}
-                    onMouseLeave={() => this.setState({ hasFocus: false })}
-                    onFocus={() => this.setState({ hasFocus: true })}
-                    onBlur={() => this.setState({ hasFocus: false })}
-                    onKeyDown={(event) => this.onKeyDown(event)}
-                >
+            <Highlightable
+                isHighlighted={this.state.isHighlighted}
+                onChange={(isHighlighted) => this.setState({ isHighlighted })}
+                onKeyDown={(event) => this.onKeyDown(event)}
+            >
+                <InputGroup>
                     {this.renderPrefix()}
                     {this.props.children[0]}
                     {this.renderSuffix()}
                 </InputGroup>
                 {this.renderExpanded()}
-            </div>
+            </Highlightable>
         );
     }
 }

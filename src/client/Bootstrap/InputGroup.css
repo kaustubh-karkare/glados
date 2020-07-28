@@ -2,10 +2,6 @@
     outline: none;
 }
 
-.input-group.focus {
-    background-color: var(--component-highlight-color);
-}
-
 .input-group > * {
     border-style: solid;
     border-color: transparent;

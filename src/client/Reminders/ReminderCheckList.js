@@ -1,12 +1,14 @@
-import React from 'react';
+import { MdEdit } from 'react-icons/md';
 import assert from 'assert';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import React from 'react';
 import {
-    Coordinator, EditorModal, SidebarSection, TextEditor,
+    Coordinator, Highlightable, EditorModal, SidebarSection, TextEditor,
 } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
 import { LogEventEditor } from '../LogEvent';
-import CheckListItem from './CheckListItem';
 import PropTypes from '../prop-types';
 
 class ReminderCheckList extends React.Component {
@@ -17,6 +19,11 @@ class ReminderCheckList extends React.Component {
         }
         assert(item.__type__ === 'log-event');
         return { ...item, date: getTodayLabel(), isComplete: true };
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = { isItemHighlighted: {} };
     }
 
     onEditButtonClick(item) {
@@ -69,6 +76,30 @@ class ReminderCheckList extends React.Component {
         });
     }
 
+    updateHighlight(item, isHighlighted) {
+        this.setState((state) => {
+            state.isItemHighlighted[item.id] = isHighlighted;
+            return state;
+        });
+    }
+
+    renderItemSuffix(item) {
+        if (!this.state.isItemHighlighted[item.id]) {
+            return null;
+        }
+        return (
+            <div
+                className="icon ml-1"
+                title="Edit"
+                onClick={(event) => {
+                    this.onEditButtonClick(item);
+                }}
+            >
+                <MdEdit />
+            </div>
+        );
+    }
+
     renderItem(item) {
         let title;
         if (item.__type__ === 'log-structure') {
@@ -83,21 +114,32 @@ class ReminderCheckList extends React.Component {
             );
         }
         return (
-            <CheckListItem
+            <Highlightable
                 key={item.id}
-                onCheckboxClick={(event) => {
-                    if (event.shiftKey) {
-                        this.onDismissReminder(item);
-                    } else {
-                        this.onCompleteReminder(item);
-                    }
-                }}
-                onEditButtonClick={(event) => {
-                    this.onEditButtonClick(item);
-                }}
+                isHighlighted={this.state.isItemHighlighted[item.id] || false}
+                onChange={(isHighlighted) => this.updateHighlight(item, isHighlighted)}
             >
-                {title}
-            </CheckListItem>
+                <InputGroup>
+                    <Form.Check
+                        type="checkbox"
+                        inline
+                        checked={false}
+                        readOnly
+                        onClick={(event) => {
+                            if (event.shiftKey) {
+                                this.onDismissReminder(item);
+                            } else {
+                                this.onCompleteReminder(item);
+                            }
+                        }}
+                        style={{ marginRight: 'none' }}
+                    />
+                    <div style={{ flex: '1 1 auto', overflow: 'hidden', width: '190px' }}>
+                        {title}
+                    </div>
+                    {this.renderItemSuffix(item)}
+                </InputGroup>
+            </Highlightable>
         );
     }
 

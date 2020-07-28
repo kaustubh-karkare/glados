@@ -12,40 +12,51 @@ class SidebarSection extends React.Component {
         this.state = { isCollapsed: false };
     }
 
-    renderButton() {
-        if (this.state.isCollapsed) {
-            return <TiPlus onClick={() => this.setState({ isCollapsed: false })} />;
-        }
-        return <TiMinus onClick={() => this.setState({ isCollapsed: true })} />;
-    }
-
     renderHeader() {
+        if (!this.props.title) {
+            return null;
+        }
+        const { isCollapsed } = this.state;
         return (
-            <LeftRight className={classNames({
-                'sidebar-section-header': true,
-                'sidebar-section-separator': !this.state.isCollapsed,
-            })}
+            <LeftRight
+                className={classNames({
+                    header: true,
+                    cursor: true,
+                    separator: !isCollapsed,
+                })}
+                onClick={() => this.setState({ isCollapsed: !isCollapsed })}
             >
                 {this.props.title}
-                {this.renderButton()}
+                {isCollapsed ? <TiPlus /> : <TiMinus />}
             </LeftRight>
+        );
+    }
+
+    renderChildren() {
+        if (this.state.isCollapsed) {
+            return null;
+        }
+        return (
+            <div className={classNames({ cursor: !this.props.title })}>
+                {this.props.children}
+            </div>
         );
     }
 
     render() {
         const {
-            selected, title, children, ...moreProps
+            selected, title: _title, children: _children, ...moreProps
         } = this.props;
         return (
             <div
                 {...moreProps}
                 className={classNames({
                     'sidebar-section': true,
-                    'sidebar-section-selected': selected,
+                    selected,
                 })}
             >
-                {title ? this.renderHeader() : null}
-                {this.state.isCollapsed ? null : children}
+                {this.renderHeader()}
+                {this.renderChildren()}
             </div>
         );
     }
