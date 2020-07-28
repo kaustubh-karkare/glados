@@ -51,4 +51,5 @@ LogTopicViewer.Expanded.propTypes = {
     logTopic: PropTypes.Custom.LogTopic.isRequired,
 };
 
+export { LogTopicViewer };
 export default LogTopicList;

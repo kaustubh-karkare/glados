@@ -82,7 +82,7 @@ class LogTopicDetailsHeader extends React.Component {
                 >
                     {logTopic.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
                 </Button>
-                <InputLine className="px-2">
+                <InputLine styled className="px-2">
                     {logTopic.parentLogTopic
                         ? (
                             <>

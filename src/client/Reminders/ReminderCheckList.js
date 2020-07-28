@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    Coordinator, Highlightable, Icon, InputLine, EditorModal, SidebarSection, TextEditor,
+    Coordinator, Highlightable, Icon, InputLine, SidebarSection, TextEditor,
 } from '../Common';
 import { getTodayLabel } from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -67,7 +67,7 @@ class ReminderCheckList extends React.Component {
     }
 
     displayLogEventEditorModal(item, logEvent) {
-        this.closeModal = Coordinator.invoke('modal', EditorModal, {
+        this.closeModal = Coordinator.invoke('modal-editor', {
             dataType: 'log-event',
             EditorComponent: LogEventEditor,
             valueKey: 'logEvent',
@@ -133,6 +133,7 @@ class ReminderCheckList extends React.Component {
                             }
                         }}
                         style={{ marginRight: 'none' }}
+                        tabIndex={-1}
                     />
                     <InputLine styled={false}>
                         {title}

@@ -1,5 +1,4 @@
 import { MdAddCircleOutline } from 'react-icons/md';
-import { TiMinus, TiPlus } from 'react-icons/ti';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -17,30 +16,7 @@ class BulletListTitle extends React.Component {
     onKeyDown(event) {
         if (event.keyCode === KeyCodes.ENTER) {
             this.props.onAddButtonClick(event);
-        } else if (event.keyCode === KeyCodes.SPACE) {
-            this.props.onToggleButtonClick(event);
         }
-    }
-
-    renderListToggleButton() {
-        if (this.props.areAllExpanded) {
-            return (
-                <BulletListIcon
-                    title="Collapse All"
-                    onClick={this.props.onToggleButtonClick}
-                >
-                    <TiMinus />
-                </BulletListIcon>
-            );
-        }
-        return (
-            <BulletListIcon
-                title="Expand All"
-                onClick={this.props.onToggleButtonClick}
-            >
-                <TiPlus />
-            </BulletListIcon>
-        );
     }
 
     renderAddButton() {
@@ -66,7 +42,6 @@ class BulletListTitle extends React.Component {
             >
                 <InputGroup>
                     <div>{this.props.name}</div>
-                    {this.state.isHighlighted ? this.renderListToggleButton() : null}
                     {this.state.isHighlighted ? this.renderAddButton() : null}
                 </InputGroup>
             </Highlightable>
@@ -76,8 +51,6 @@ class BulletListTitle extends React.Component {
 
 BulletListTitle.propTypes = {
     name: PropTypes.string.isRequired,
-    areAllExpanded: PropTypes.bool.isRequired,
-    onToggleButtonClick: PropTypes.func.isRequired,
     onAddButtonClick: PropTypes.func,
 };
 

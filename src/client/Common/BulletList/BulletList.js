@@ -1,20 +1,17 @@
 import { GoPrimitiveDot } from 'react-icons/go';
-import { SortableContainer } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
-import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
 import BulletListItem from './BulletListItem';
 import BulletListTitle from './BulletListTitle';
-import Coordinator from '../Coordinator';
 import DataLoader from '../DataLoader';
-import EditorModal from '../EditorModal';
 import { getDataTypeMapping } from '../../../data';
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
+const SortableBulletListItem = SortableElement(BulletListItem);
 
 
 function AdderWrapper(props) {
@@ -31,25 +28,10 @@ function AdderWrapper(props) {
     );
 }
 
-function suppressUnlessShiftKey(event) {
-    if (!event.shiftKey) {
-        event.preventDefault();
-    }
-}
-
-
 class BulletList extends React.Component {
-    static getDerivedStateFromProps(props, state) {
-        if (state.items) {
-            state.areAllExpanded = state.items
-                .every((item) => state.isExpanded[item.id]);
-        }
-        return state;
-    }
-
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = { items: null };
     }
 
     componentDidMount() {
@@ -61,10 +43,7 @@ class BulletList extends React.Component {
                     ordering: this.props.allowReordering,
                 },
             }),
-            callback: (items) => this.setState((state) => ({
-                items,
-                isExpanded: state.isExpanded || {},
-            })),
+            callback: (items) => this.setState({ items }),
         });
     }
 
@@ -78,8 +57,10 @@ class BulletList extends React.Component {
 
     onAddButtonClick(event) {
         const DataType = getDataTypeMapping()[this.props.dataType];
-        const newItem = DataType.createVirtual(this.props.creator || this.props.where);
-        this.onEditButtonClick(newItem, event);
+        const value = DataType.createVirtual(this.props.creator || this.props.where);
+        const context = { ...this };
+        context.props = { ...context.props, value };
+        BulletListItem.prototype.onEdit.call(context, event);
     }
 
     onMove(index, delta, event) {
@@ -102,107 +83,23 @@ class BulletList extends React.Component {
             .then(() => this.setState({ items: orderedItems }));
     }
 
-    onToggle(item) {
-        this.setState((state) => {
-            state.isExpanded[item.id] = !state.isExpanded[item.id];
-            return state;
-        });
-    }
-
-    onEditButtonClick(item, event) {
-        if (event) {
-            // Don't let enter propagate to EditorModal.
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        if (event.shiftKey) {
-            Coordinator.invoke('details', item);
-            return;
-        }
-        Coordinator.invoke('modal', EditorModal, {
-            dataType: this.props.dataType,
-            EditorComponent: this.props.EditorComponent,
-            valueKey: this.props.valueKey,
-            value: item,
-        });
-    }
-
-    onDeleteButtonClick(item, event) {
-        if (event && !event.shiftKey) {
-            this.setState({ deleteItem: item });
-            return;
-        }
-        window.api.send(`${this.props.dataType}-delete`, item.id)
-            .then(() => {
-                this.setState((state) => {
-                    const index = state.items
-                        .findIndex((existingItem) => existingItem.id === item.id);
-                    state.items.splice(index, 1);
-                    delete state.isExpanded[item.id];
-                    state.deleteItem = null;
-                    return state;
-                });
-            });
-    }
-
-    renderDeleteConfirmationModal() {
-        if (!this.state.deleteItem) {
-            return null;
-        }
-        const { ViewerComponent } = this.props;
-        const viewerComponentProps = {
-            [this.props.valueKey]: this.state.deleteItem,
-            ...this.props.viewerComponentProps,
-        };
-        return (
-            <Modal
-                show
-                onHide={() => this.setState({ deleteItem: null })}
-                onEscapeKeyDown={suppressUnlessShiftKey}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm deletion?</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <ViewerComponent {...viewerComponentProps} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={() => this.onDeleteButtonClick(this.state.deleteItem)}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        );
-    }
-
     renderItems() {
-        const { ViewerComponent } = this.props;
-        return this.state.items.map((item, index) => {
-            const viewerComponentProps = {
-                [this.props.valueKey]: item,
-                ...this.props.viewerComponentProps,
-            };
-            return (
-                <BulletListItem
-                    index={index}
-                    key={item.id}
-                    allowReordering={this.props.allowReordering}
-                    isExpanded={this.state.isExpanded[item.id]}
-                    onToggleButtonClick={() => this.onToggle(item)}
-                    onEditButtonClick={(event) => this.onEditButtonClick(item, event)}
-                    onDeleteButtonClick={(event) => this.onDeleteButtonClick(item, event)}
-                    onMoveUp={(event) => this.onMove(index, -1, event)}
-                    onMoveDown={(event) => this.onMove(index, 1, event)}
-                >
-                    <ViewerComponent {...viewerComponentProps} />
-                    {
-                        ViewerComponent.Expanded
-                            ? <ViewerComponent.Expanded {...viewerComponentProps} />
-                            : null
-                    }
-                </BulletListItem>
-            );
-        });
+        return this.state.items.map((item, index) => (
+            <SortableBulletListItem
+                index={index}
+                key={item.id}
+                dataType={this.props.dataType}
+                valueKey={this.props.valueKey}
+                ViewerComponent={this.props.ViewerComponent}
+                viewerComponentProps={this.props.viewerComponentProps}
+                EditorComponent={this.props.EditorComponent}
+                allowReordering={this.props.allowReordering}
+                onMoveUp={(event) => this.onMove(index, -1, event)}
+                onMoveDown={(event) => this.onMove(index, 1, event)}
+                value={item}
+                dragHandleSpace
+            />
+        ));
     }
 
     renderAdder() {
@@ -223,20 +120,8 @@ class BulletList extends React.Component {
         }
         return (
             <div>
-                {this.renderDeleteConfirmationModal()}
                 <BulletListTitle
                     name={this.props.name}
-                    areAllExpanded={this.state.areAllExpanded}
-                    onToggleButtonClick={() => this.setState((state) => {
-                        if (state.areAllExpanded) {
-                            return { isExpanded: {} };
-                        }
-                        return {
-                            isExpanded: Object.fromEntries(
-                                state.items.map((item) => [item.id, true]),
-                            ),
-                        };
-                    })}
                     onAddButtonClick={this.props.allowCreation
                         ? (event) => this.onAddButtonClick(event)
                         : null}
@@ -265,10 +150,10 @@ BulletList.propTypes = {
     allowCreation: PropTypes.bool,
     allowReordering: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
-    EditorComponent: PropTypes.func.isRequired,
-    AdderComponent: PropTypes.func,
     // eslint-disable-next-line react/forbid-prop-types
     viewerComponentProps: PropTypes.object,
+    EditorComponent: PropTypes.func.isRequired,
+    AdderComponent: PropTypes.func,
 };
 
 BulletList.defaultProps = {

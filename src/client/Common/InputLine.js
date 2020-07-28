@@ -26,8 +26,4 @@ InputLine.propTypes = {
     children: PropTypes.any,
 };
 
-InputLine.defaultProps = {
-    styled: true,
-};
-
 export default InputLine;

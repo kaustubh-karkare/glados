@@ -71,7 +71,7 @@ class DetailsSection extends React.Component {
             const logEvent = this.state.item;
             return (
                 <InputGroup>
-                    <InputLine className="px-2">
+                    <InputLine styled className="px-2">
                         <TextEditor
                             isSingleLine
                             unstyled
