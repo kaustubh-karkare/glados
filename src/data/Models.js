@@ -6,6 +6,20 @@ export default function (sequelize) {
         underscored: true,
     };
 
+    // Used by sequelize-cli migrations.
+    const SequelizeMeta = sequelize.define(
+        'SequelizeMeta',
+        {
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+                unique: true,
+                primaryKey: true,
+            },
+        },
+        { timestamps: false },
+    );
+
     const LogTopic = sequelize.define(
         'log_topics',
         {
@@ -291,6 +305,7 @@ export default function (sequelize) {
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
+        ['SequelizeMeta', SequelizeMeta],
         ['LogTopic', LogTopic],
         ['LogTopicToLogTopic', LogTopicToLogTopic],
         ['LogStructureGroup', LogStructureGroup],

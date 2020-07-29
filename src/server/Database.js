@@ -11,23 +11,11 @@ class Database {
     }
 
     constructor(config) {
-        const options = {
-            logging: false,
-        };
-        if (config.type === 'mysql') {
-            options.dialect = 'mysql';
-            options.host = 'localhost';
-        } else if (config.type === 'sqlite') {
-            options.dialect = 'sqlite';
-            options.storage = config.location;
-        } else {
-            assert(false, 'unknown database type');
-        }
         this.sequelize = new Sequelize(
             config.name,
             config.username,
             config.password,
-            options,
+            { ...config, logging: false },
         );
         const nameAndModels = defineModels(this.sequelize);
         this._modelSequence = nameAndModels.map(([_name, model]) => model);

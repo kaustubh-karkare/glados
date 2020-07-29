@@ -1,13 +1,13 @@
 {
     "database": {
-        "type": "sqlite",
-        "location": "data/test.sqlite",
+        "dialect": "sqlite",
+        "storage": "database/test.sqlite",
         "username": "kaustubh",
         "password": "password",
         "name": "productivity"
     },
     "backup": {
-        "location": "data",
+        "location": "database",
         "save_interval_ms": null
     },
     "server": {

@@ -15,9 +15,8 @@ function getBool(item, key, defaultValue) {
 export default class Utils {
     static async beforeEach() {
         const config = {
-            type: 'sqlite',
+            dialect: 'sqlite',
             storage: ':memory:',
-            host: 'localhost',
             username: 'productivity_test',
             password: 'productivity_test',
             name: 'productivity_test',

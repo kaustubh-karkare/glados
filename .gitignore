@@ -1,6 +1,6 @@
 .DS_Store
 config.json
-data
+database
 dist
 node_modules
 notes.txt
