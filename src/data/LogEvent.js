@@ -89,8 +89,15 @@ class LogEvent extends Base {
                     if (logKey.isOptional && !logKey.value) return null;
                     const name = `.logKeys[${index}].value`;
                     if (!logKey.value) return [name, false, 'must be non-empty.'];
-                    const method = LogStructure.Key[logKey.type].validator;
-                    const isValid = await method(logKey.value, logKey, this);
+                    const KeyOption = LogStructure.Key[logKey.type];
+                    let isValid = await KeyOption.validator(logKey.value, logKey, this);
+                    if (!isValid && KeyOption.maybeFix) {
+                        const fixedValue = KeyOption.maybeFix(logKey.value, logKey);
+                        if (fixedValue) {
+                            logKey.value = fixedValue;
+                            isValid = true;
+                        }
+                    }
                     return [name, isValid, 'fails validation for specified type.'];
                 }),
             );

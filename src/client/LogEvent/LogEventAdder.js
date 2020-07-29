@@ -2,9 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { LogEvent, isRealItem } from '../../data';
 import LogEventEditor from './LogEventEditor';
-import {
-    Coordinator, EditorModal, KeyCodes, TextEditor,
-} from '../Common';
+import { Coordinator, KeyCodes, TextEditor } from '../Common';
 
 class LogEventAdder extends React.Component {
     constructor(props) {
@@ -16,7 +14,7 @@ class LogEventAdder extends React.Component {
 
     onEditLogEvent(logEvent) {
         this.setState({ logEvent: LogEvent.createVirtual(this.props.where) });
-        Coordinator.invoke('modal', EditorModal, {
+        Coordinator.invoke('modal-editor', {
             dataType: 'log-event',
             EditorComponent: LogEventEditor,
             valueKey: 'logEvent',

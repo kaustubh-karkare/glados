@@ -29,6 +29,11 @@ const LogStructureKey = Enum([
         validator: async (value) => !!value.match(/^\d+(?:\.\d+)?$/),
     },
     {
+        value: 'time',
+        label: 'Time',
+        validator: async (value) => !!value.match(/^\d{2}:\d{2}$/),
+    },
+    {
         value: 'log_topic',
         label: 'Topic',
         validator: async (value, logKey, that) => {
@@ -207,13 +212,16 @@ class LogStructure extends Base {
             this, inputLogStructure.logTopic, LogTopic,
         );
 
-        let originalTitleTemplate = null;
+        let originalKeys;
+        let originalTitleTemplate;
         if (logStructure) {
+            originalKeys = logStructure.keys;
             originalTitleTemplate = TextEditorUtils.deserialize(
-                logStructure.titleTemplate,
+                logStructure.title_template,
                 TextEditorUtils.StorageType.DRAFTJS,
             );
         }
+
         let updatedTitleTemplate = TextEditorUtils.deserialize(
             inputLogStructure.titleTemplate,
             TextEditorUtils.StorageType.DRAFTJS,
@@ -252,11 +260,13 @@ class LogStructure extends Base {
             this, prevLogTopicId, inputLogStructure.logTopic, LogTopic,
         );
 
-        if (
-            originalTitleTemplate
-            && !TextEditorUtils.equals(originalTitleTemplate, updatedTitleTemplate)
-        ) {
-            await LogStructure.updateLogEvents.call(this, logStructure.id);
+        if (originalKeys || originalTitleTemplate) {
+            if (
+                originalKeys !== logStructure.keys
+                || !TextEditorUtils.equals(originalTitleTemplate, updatedTitleTemplate)
+            ) {
+                await LogStructure.updateLogEvents.call(this, logStructure.id);
+            }
         }
 
         this.broadcast('reminder-sidebar');
