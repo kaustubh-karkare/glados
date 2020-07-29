@@ -1,6 +1,7 @@
 import {
-    addDays, compareAsc, getDay, isMonday, isSaturday, subDays,
+    addDays, compareAsc, getDay, isFriday, isMonday, isSaturday, isSunday, subDays,
 } from 'date-fns';
+import assert from 'assert';
 import { getVirtualID } from './Utils';
 import Base from './Base';
 import DateUtils from '../common/DateUtils';
@@ -47,6 +48,9 @@ const FrequencyRawOptions = [
         getPreviousMatch(date) {
             return subDays(date, 1);
         },
+        getNextMatch(date) {
+            return addDays(date, 1);
+        },
     },
     {
         value: 'weekdays',
@@ -54,18 +58,34 @@ const FrequencyRawOptions = [
         getPreviousMatch(date) {
             if (isMonday(date)) {
                 return subDays(date, 3);
+            } if (isSunday(date)) {
+                return subDays(date, 2);
             }
             return subDays(date, 1);
+        },
+        getNextMatch(date) {
+            if (isFriday(date)) {
+                return addDays(date, 3);
+            } if (isSaturday(date)) {
+                return addDays(date, 2);
+            }
+            return addDays(date, 1);
         },
     },
     {
         value: 'weekends',
         label: 'Weekends',
         getPreviousMatch(date) {
-            if (isSaturday(date)) {
-                return subDays(date, 6);
+            if (isSunday(date)) {
+                return subDays(date, 1);
             }
-            return subDays(date, 1);
+            return subDays(date, getDay(date));
+        },
+        getNextMatch(date) {
+            if (isSaturday(date)) {
+                return addDays(date, 1);
+            }
+            return addDays(date, 6 - getDay(date));
         },
     },
     // TODO: Add more as needed.
@@ -77,7 +97,11 @@ DateUtils.DaysOfTheWeek.forEach((day, index) => {
         label: day,
         getPreviousMatch(date) {
             const diff = (getDay(date) - index + 7) % 7;
-            return subDays(date, diff);
+            return subDays(date, diff || 7);
+        },
+        getNextMatch(date) {
+            const diff = (index - getDay(date) + 7) % 7;
+            return addDays(date, diff || 7);
         },
     });
 });
@@ -120,21 +144,35 @@ class LogStructure extends Base {
         }
     }
 
-    static async periodicCheck(logStructure) {
+    static async reminderCheck(logStructure) {
         // input = after loading
-        if (logStructure.isPeriodic) {
-            const today = DateUtils.getTodayDate();
-            const lastUpdate = DateUtils.getDate(logStructure.lastUpdate);
-            if (compareAsc(today, lastUpdate) <= 0) {
+        assert(logStructure.isPeriodic);
+        const today = DateUtils.getTodayDate();
+        const lastUpdate = DateUtils.getDate(logStructure.lastUpdate);
+        if (compareAsc(today, lastUpdate) <= 0) {
+            return false;
+        }
+        const option = LogStructureFrequency[logStructure.frequency];
+        const tomorrow = addDays(today, 1);
+        const previousMatch = option.getPreviousMatch(tomorrow);
+        // return compareAsc(today, previousMatch) === 0;
+
+        const latestLogEvent = await this.invoke.call(this, 'latest-log-event', { logStructure });
+        if (latestLogEvent) {
+            const latestLogEventDate = DateUtils.getDate(latestLogEvent.date);
+            if (compareAsc(previousMatch, latestLogEventDate) <= 0) {
                 return false;
             }
-            const option = LogStructureFrequency[logStructure.frequency];
-            const tomorrow = addDays(today, 1);
-            const previousMatch = option.getPreviousMatch(tomorrow);
-            const isTodayAMatch = compareAsc(previousMatch, today) === 0;
-            return isTodayAMatch;
         }
-        return false;
+        return true;
+    }
+
+    static getLastUpdate(logStructure) {
+        assert(logStructure.isPeriodic);
+        const today = DateUtils.getTodayDate();
+        const option = LogStructureFrequency[logStructure.frequency];
+        const nextMatch = option.getNextMatch(today);
+        return DateUtils.getLabel(subDays(nextMatch, 1));
     }
 
     static async validateInternal(inputLogStructure) {

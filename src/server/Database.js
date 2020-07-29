@@ -67,10 +67,10 @@ class Database {
         return Model.findAll({ where, transaction });
     }
 
-    async findOne(name, where, transaction) {
+    async findOne(name, where, order, transaction) {
         assert(transaction);
         const Model = this._models[name];
-        return Model.findOne({ where, transaction });
+        return Model.findOne({ where, order, transaction });
     }
 
     async findByPk(name, id, transaction) {

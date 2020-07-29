@@ -39,7 +39,6 @@ class ReminderCheckList extends React.Component {
         let logStructure;
         if (item.__type__ === 'log-structure') {
             logStructure = item;
-            logStructure.lastUpdate = DateUtils.getTodayLabel();
             if (logStructure.needsEdit && !wasLogEventProvided) {
                 this.displayLogEventEditorModal(item, logEvent);
                 return;
@@ -61,9 +60,7 @@ class ReminderCheckList extends React.Component {
             Coordinator.invoke('modal-error', 'Can only dismiss periodic reminders!');
             return;
         }
-        const logStructure = item;
-        logStructure.lastUpdate = DateUtils.getTodayLabel();
-        window.api.send('reminder-dismiss', { logStructure });
+        window.api.send('reminder-dismiss', { logStructure: item });
     }
 
     displayLogEventEditorModal(item, logEvent) {

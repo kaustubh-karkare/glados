@@ -3,14 +3,24 @@
 import { LogStructure, filterAsync } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 
+ActionsRegistry['latest-log-event'] = async function (input) {
+    return this.database.findOne(
+        'LogEvent',
+        {
+            structure_id: input.logStructure.id,
+            date: { [this.database.Op.ne]: null },
+        },
+        [['date', 'DESC']],
+        this.transaction,
+    );
+};
+
 ActionsRegistry['reminder-sidebar'] = async function (input) {
     const logStructureGroups = await this.invoke.call(this, 'log-structure-group-list', {
         ordering: true,
     });
     const periodicLogStructures = await this.invoke.call(this, 'log-structure-list', {
-        where: {
-            frequency: { [this.database.Op.ne]: null },
-        },
+        where: { is_periodic: true },
         ordering: true,
     });
     let reminderGroups = await Promise.all(
@@ -19,12 +29,12 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
                 periodicLogStructures.filter(
                     (logStructure) => logStructure.logStructureGroup.id === logStructureGroup.id,
                 ),
-                async (logStructure) => LogStructure.periodicCheck(logStructure),
+                async (logStructure) => LogStructure.reminderCheck.call(this, logStructure),
             );
-            if (logStructures.length) {
-                return { ...logStructureGroup, items: logStructures };
+            if (!logStructures.length) {
+                return null;
             }
-            return null;
+            return { ...logStructureGroup, items: logStructures };
         }),
     );
     reminderGroups = reminderGroups.filter((reminderGroup) => reminderGroup);
@@ -44,6 +54,7 @@ ActionsRegistry['reminder-complete'] = async function (input) {
     const result = {};
     result.logEvent = await this.invoke.call(this, 'log-event-upsert', inputLogEvent);
     if (inputLogStructure) {
+        inputLogStructure.lastUpdate = LogStructure.getLastUpdate.call(this, inputLogStructure);
         result.logStructure = await this.invoke.call(this, 'log-structure-upsert', inputLogStructure);
     }
     this.broadcast('reminder-sidebar');
@@ -52,6 +63,7 @@ ActionsRegistry['reminder-complete'] = async function (input) {
 
 ActionsRegistry['reminder-dismiss'] = async function (input) {
     const { logStructure: inputLogStructure } = input;
+    inputLogStructure.lastUpdate = LogStructure.getLastUpdate.call(this, inputLogStructure);
     const outputLogStructure = await this.invoke.call(this, 'log-structure-upsert', inputLogStructure);
     this.broadcast('reminder-sidebar');
     return { logStructure: outputLogStructure };

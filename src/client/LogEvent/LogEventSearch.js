@@ -148,7 +148,7 @@ class LogEventSearch extends React.Component {
         return this.state.dates.map((date) => {
             let name = 'Unspecified';
             if (date) {
-                name = date + ' ' + DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(date))];
+                name = `${date} ${DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(date))]}`;
             }
             return (
                 <LogEventList

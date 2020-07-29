@@ -34,15 +34,15 @@ export default class {
                 const context = {
                     broadcast: (...args) => broadcasts.push(args),
                     invoke(innerName, innerInput) {
+                        if (!(name in ActionsRegistry)) {
+                            throw new Error(`unknown action: ${name}`);
+                        }
                         return ActionsRegistry[innerName].call(context, innerInput);
                     },
                     transaction,
                     ...this.context,
                 };
-                if (!(name in ActionsRegistry)) {
-                    throw new Error(`unknown action: ${name}`);
-                }
-                const output = await ActionsRegistry[name].call(context, input);
+                const output = await context.invoke.call(context, name, input);
                 return output;
             });
             // Now that the transactions has been committed ...

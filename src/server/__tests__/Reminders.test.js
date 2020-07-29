@@ -49,8 +49,14 @@ test('test_reminder_sidebar', async () => {
     });
 
     const actions = Utils.getActions();
-    const results = await actions.invoke('reminder-sidebar');
+    let results = await actions.invoke('reminder-sidebar');
     expect(results.length).toEqual(2);
     expect(results[0].items.length).toEqual(1);
     expect(results[1].items.length).toEqual(2);
+
+    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
+    await actions.invoke('reminder-dismiss', { logStructure });
+
+    results = await actions.invoke('reminder-sidebar');
+    expect(results.length).toEqual(1);
 });
