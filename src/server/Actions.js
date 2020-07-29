@@ -39,6 +39,9 @@ export default class {
                     transaction,
                     ...this.context,
                 };
+                if (!(name in ActionsRegistry)) {
+                    throw new Error(`unknown action: ${name}`);
+                }
                 const output = await ActionsRegistry[name].call(context, input);
                 return output;
             });

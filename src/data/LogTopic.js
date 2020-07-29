@@ -79,6 +79,25 @@ class LogTopic extends Base {
             'LogTopic', logTopic, fields, this.transaction,
         );
 
+        const targetLogTopics = TextEditorUtils.extractLogTopics(
+            TextEditorUtils.deserialize(
+                logTopic.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
+        );
+        await this.database.setEdges(
+            'LogTopicToLogTopic',
+            'source_topic_id',
+            logTopic.id,
+            'target_topic_id',
+            Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
+                // eslint-disable-next-line no-param-reassign
+                result[targetLogTopic.id] = {};
+                return result;
+            }, {}),
+            this.transaction,
+        );
+
         if (originalName && originalName !== logTopic.name) {
             const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
             await LogTopic.updateLogEvents.call(this, outputLogTopic);
@@ -137,7 +156,17 @@ class LogTopic extends Base {
     }
 
     static async updateLogTopics(updatedLogTopic) {
-        const outputLogTopics = await this.invoke.call(this, 'log-topic-list');
+        const logTopicEdges = await this.database.getEdges(
+            'LogTopicToLogTopic',
+            'target_topic_id',
+            updatedLogTopic.id,
+            this.transaction,
+        );
+        const outputLogTopics = await Promise.all(
+            logTopicEdges.map(
+                (edge) => this.invoke.call(this, 'log-topic-load', { id: edge.source_topic_id }),
+            ),
+        );
         await Promise.all(
             outputLogTopics
                 .filter((outputLogTopic) => {

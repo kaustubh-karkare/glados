@@ -1,6 +1,5 @@
-import Utils from './Utils';
-
 import TextEditorUtils from '../../common/TextEditorUtils';
+import Utils from './Utils';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);

@@ -43,14 +43,28 @@ ActionsRegistry['value-typeahead'] = async function (input) {
 
 ActionsRegistry.consistency = async function () {
     const results = [];
-    const logTopics = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
+    // These items only contain the __type__, id & name.
+    const logTopicItems = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
+
+    // Update logTopics using latest topic-names
+    const logTopics = await this.invoke.call(this, 'log-topic-list');
+    await awaitSequence(logTopics, async (logTopic) => {
+        try {
+            logTopic.details = LogTopic.updateContent(
+                logTopic.details, logTopicItems,
+            );
+            await this.invoke.call(this, 'log-topic-upsert', logTopic);
+        } catch (error) {
+            results.push([logTopic, error.toString()]);
+        }
+    });
 
     // Update logStructures using latest topic-names
     const logStructures = await this.invoke.call(this, 'log-structure-list');
     await awaitSequence(logStructures, async (logStructure) => {
         try {
             logStructure.titleTemplate = LogTopic.updateContent(
-                logStructure.titleTemplate, logTopics,
+                logStructure.titleTemplate, logTopicItems,
             );
             await this.invoke.call(this, 'log-structure-upsert', logStructure);
         } catch (error) {
@@ -63,10 +77,10 @@ ActionsRegistry.consistency = async function () {
     await awaitSequence(logEvents, async (logEvent) => {
         try {
             logEvent.title = LogTopic.updateContent(
-                logEvent.title, logTopics,
+                logEvent.title, logTopicItems,
             );
             logEvent.details = LogTopic.updateContent(
-                logEvent.details, logTopics,
+                logEvent.details, logTopicItems,
             );
             await this.invoke.call(this, 'log-event-upsert', logEvent);
         } catch (error) {

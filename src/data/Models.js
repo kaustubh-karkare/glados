@@ -54,6 +54,45 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    const LogTopicToLogTopic = sequelize.define(
+        'log_topics_to_log_topics',
+        {
+            source_topic_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogTopic,
+                    key: 'id',
+                },
+            },
+            target_topic_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogTopic,
+                    key: 'id',
+                },
+            },
+        },
+        options,
+    );
+
+    LogTopic.belongsToMany(LogTopic, {
+        as: 'Source',
+        through: LogTopicToLogTopic,
+        foreignKey: 'source_topic_id',
+        // Deleteing a source topic is allowed!
+        // The links will be broken, and the Tags could be cleaned up.
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+    });
+
+    LogTopic.belongsToMany(LogTopic, {
+        as: 'Target',
+        through: LogTopicToLogTopic,
+        foreignKey: 'target_topic_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     const LogStructureGroup = sequelize.define(
         'log_structure_groups',
         {
@@ -253,6 +292,7 @@ export default function (sequelize) {
     // while respecting foreign key constraints.
     return [
         ['LogTopic', LogTopic],
+        ['LogTopicToLogTopic', LogTopicToLogTopic],
         ['LogStructureGroup', LogStructureGroup],
         ['LogStructure', LogStructure],
         ['LogEvent', LogEvent],

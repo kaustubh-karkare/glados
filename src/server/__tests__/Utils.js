@@ -43,7 +43,10 @@ export default class Utils {
                 inputLogTopic.parentLogTopic = logTopicsMap[inputLogTopic.parentTopicName];
                 delete inputLogTopic.parentTopicName;
             }
-            inputLogTopic.details = inputLogTopic.details || '';
+            inputLogTopic.details = TextEditorUtils.convertPlainTextToDraftContent(
+                inputLogTopic.details || '',
+                { '#': logTopics },
+            );
             inputLogTopic.onSidebar = false;
             inputLogTopic.hasStructure = false;
             const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
