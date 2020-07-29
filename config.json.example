@@ -1,10 +1,7 @@
 {
     "database": {
         "dialect": "sqlite",
-        "storage": "database/test.sqlite",
-        "username": "kaustubh",
-        "password": "password",
-        "name": "productivity"
+        "storage": "database/test.sqlite"
     },
     "backup": {
         "location": "database",

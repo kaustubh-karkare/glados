@@ -11,12 +11,7 @@ class Database {
     }
 
     constructor(config) {
-        this.sequelize = new Sequelize(
-            config.name,
-            config.username,
-            config.password,
-            { ...config, logging: false },
-        );
+        this.sequelize = new Sequelize({ ...config, logging: false });
         const nameAndModels = defineModels(this.sequelize);
         this._modelSequence = nameAndModels.map(([_name, model]) => model);
         this._models = nameAndModels.reduce((result, [name, model]) => {

@@ -42,6 +42,22 @@ export function awaitSequence(items, method) {
     });
 }
 
+export function filterAsync(items, method) {
+    return new Promise((resolve, reject) => {
+        Promise.all(items.map((item) => method(item)))
+            .then((decisions) => {
+                const results = [];
+                decisions.forEach((decision, index) => {
+                    if (decision) {
+                        results.push(items[index]);
+                    }
+                });
+                resolve(results);
+            })
+            .catch(reject);
+    });
+}
+
 export function getCallbackAndPromise() {
     let resolve; let
         reject;

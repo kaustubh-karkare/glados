@@ -1,9 +1,8 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {
-    getTodayLabel, getTodayValue, getDateLabel, getDayOfTheWeek, getDurationValue, getDateRange,
-} from '../../common/DateUtils';
+import { eachDayOfInterval, getDay, subDays } from 'date-fns';
+import DateUtils from '../../common/DateUtils';
 import {
     Coordinator, ScrollableSection, Selector, TypeaheadSelector,
 } from '../Common';
@@ -24,28 +23,24 @@ const DateRange = Enum([
     {
         label: 'Today',
         value: 'today',
-        getDates: () => {
-            const today = getTodayLabel();
-            return [today];
-        },
+        getDates: () => [DateUtils.getTodayDate()],
     },
     {
         label: 'Last 2 days',
         value: 'last_2_days',
         getDates: () => {
-            const todayValue = getTodayValue();
-            const todayLabel = getDateLabel(todayValue);
-            const yesterdayLabel = getDateLabel(todayValue - getDurationValue('1 day'));
-            return [yesterdayLabel, todayLabel];
+            const today = DateUtils.getTodayDate();
+            const yesterday = subDays(today, 1);
+            return [yesterday, today];
         },
     },
     {
         label: 'Last 7 days',
         value: 'last_7_days',
         getDates: () => {
-            const today = getTodayLabel();
-            const before = getDateLabel(getTodayValue() - getDurationValue('6 days'));
-            return getDateRange(before, today);
+            const today = DateUtils.getTodayDate();
+            const before = subDays(today, 6);
+            return eachDayOfInterval({ start: before, end: today });
         },
     },
 ]);
@@ -100,16 +95,17 @@ class LogEventSearch extends React.Component {
 
     afterUpdate() {
         const option = DateRange[this.state.dateRange];
-        const dates = option.getDates();
+        let dates = option.getDates();
         if (dates === null) {
             const where = this.getWhere();
             if (where.topic_id || !where.is_complete) {
                 window.api.send('log-event-dates', { where })
                     .then((result) => this.setState({ dates: result }));
             } else {
-                this.setState({ dates: [getTodayLabel()] });
+                this.setState({ dates: [DateUtils.getTodayLabel()] });
             }
         } else {
+            dates = dates.map((date) => DateUtils.getLabel(date));
             this.setState({ dates });
         }
     }
@@ -142,22 +138,28 @@ class LogEventSearch extends React.Component {
     }
 
     renderLogEvents() {
-        const today = getTodayLabel();
+        const today = DateUtils.getTodayLabel();
         const where = this.getWhere();
         const moreProps = {};
         if (!this.state.isMajor) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps = { displayIsMajor: true };
         }
-        return this.state.dates.map((date) => (
-            <LogEventList
-                key={date || 'null'}
-                name={date ? `${date} : ${getDayOfTheWeek(date)}` : 'Unspecified'}
-                where={{ date, ...where }}
-                showAdder={date === today}
-                {...moreProps}
-            />
-        ));
+        return this.state.dates.map((date) => {
+            let name = 'Unspecified';
+            if (date) {
+                name = date + ' ' + DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(date))];
+            }
+            return (
+                <LogEventList
+                    key={date || 'null'}
+                    name={name}
+                    where={{ date, ...where }}
+                    showAdder={date === today}
+                    {...moreProps}
+                />
+            );
+        });
     }
 
     render() {

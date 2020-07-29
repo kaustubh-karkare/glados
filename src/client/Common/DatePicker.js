@@ -1,7 +1,7 @@
 import DatePickerOriginal from 'react-datepicker';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getDateLabel, getDateValue } from '../../common/DateUtils';
+import DateUtils from '../../common/DateUtils';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './DatePicker.css';
@@ -10,10 +10,10 @@ function DatePicker(props) {
     return (
         <DatePickerOriginal
             dateFormat="yyyy-MM-dd"
-            selected={new Date(getDateValue(props.value))}
+            selected={DateUtils.getDate(props.value)}
             disabled={props.disabled}
             onChange={
-                (newDate) => props.onChange(newDate ? getDateLabel(newDate.valueOf()) : null)
+                (newDate) => props.onChange(newDate ? DateUtils.getLabel(newDate.valueOf()) : null)
             }
         />
     );

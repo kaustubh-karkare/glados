@@ -35,7 +35,7 @@ test('test_reminder_sidebar', async () => {
         ],
         logEvents: [
             {
-                date: '{+2 days}',
+                date: '{tomorrow}',
                 title: 'Read article!',
                 isComplete: false,
             },

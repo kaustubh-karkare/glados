@@ -1,4 +1,4 @@
-import { maybeSubstitute } from '../../common/DateUtils';
+import DateUtils from '../../common/DateUtils';
 import Database from '../Database';
 import Actions from '../Actions';
 import {
@@ -17,9 +17,6 @@ export default class Utils {
         const config = {
             dialect: 'sqlite',
             storage: ':memory:',
-            username: 'productivity_test',
-            password: 'productivity_test',
-            name: 'productivity_test',
         };
         const database = await Database.init(config);
         actions = new Actions({ database });
@@ -94,7 +91,7 @@ export default class Utils {
             inputLogStructure.reminderText = inputLogStructure.reminderText || null;
             inputLogStructure.frequency = inputLogStructure.frequency || null;
             inputLogStructure.lastUpdate = inputLogStructure.lastUpdate || null;
-            maybeSubstitute(inputLogStructure, 'lastUpdate');
+            DateUtils.maybeSubstitute(inputLogStructure, 'lastUpdate');
 
             inputLogStructure.isMajor = false;
             const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
@@ -104,7 +101,7 @@ export default class Utils {
 
         await awaitSequence(data.logEvents, async (inputLogEvent) => {
             inputLogEvent.id = getVirtualID();
-            maybeSubstitute(inputLogEvent, 'date');
+            DateUtils.maybeSubstitute(inputLogEvent, 'date');
             inputLogEvent.title = TextEditorUtils.convertPlainTextToDraftContent(
                 inputLogEvent.title || '',
                 { '#': logTopics },

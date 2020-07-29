@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
-import { maybeSubstitute } from '../../common/DateUtils';
+import DateUtils from '../../common/DateUtils';
 import {
     DatePicker, SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
 } from '../Common';
@@ -40,7 +40,7 @@ class LogStructureEditor extends React.Component {
                     updatedLogStructure._frequency || LogStructure.Frequency.EVERYDAY
                 );
                 updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
-                maybeSubstitute(updatedLogStructure, 'lastUpdate');
+                DateUtils.maybeSubstitute(updatedLogStructure, 'lastUpdate');
             } else {
                 updatedLogStructure.isPeriodic = false;
                 updatedLogStructure._reminderText = updatedLogStructure.reminderText;

@@ -1,11 +1,9 @@
 /* eslint-disable func-names */
 
-import { LogStructure } from '../data';
+import { LogStructure, filterAsync } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 
 ActionsRegistry['reminder-sidebar'] = async function (input) {
-    const reminderGroups = [];
-
     const logStructureGroups = await this.invoke.call(this, 'log-structure-group-list', {
         ordering: true,
     });
@@ -15,14 +13,21 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
         },
         ordering: true,
     });
-    logStructureGroups.forEach((logStructureGroup) => {
-        const logStructures = periodicLogStructures
-            .filter((logStructure) => logStructure.logStructureGroup.id === logStructureGroup.id)
-            .filter((logStructure) => LogStructure.periodicCheck(logStructure));
-        if (logStructures.length) {
-            reminderGroups.push({ ...logStructureGroup, items: logStructures });
-        }
-    });
+    let reminderGroups = await Promise.all(
+        logStructureGroups.map(async (logStructureGroup) => {
+            const logStructures = await filterAsync(
+                periodicLogStructures.filter(
+                    (logStructure) => logStructure.logStructureGroup.id === logStructureGroup.id,
+                ),
+                async (logStructure) => LogStructure.periodicCheck(logStructure),
+            );
+            if (logStructures.length) {
+                return { ...logStructureGroup, items: logStructures };
+            }
+            return null;
+        }),
+    );
+    reminderGroups = reminderGroups.filter((reminderGroup) => reminderGroup);
 
     const logEvents = await this.invoke.call(this, 'log-event-list', {
         where: {

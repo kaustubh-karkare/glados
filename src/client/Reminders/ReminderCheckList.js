@@ -6,7 +6,7 @@ import React from 'react';
 import {
     Coordinator, Highlightable, Icon, InputLine, SidebarSection, TextEditor,
 } from '../Common';
-import { getTodayLabel } from '../../common/DateUtils';
+import DateUtils from '../../common/DateUtils';
 import { LogEvent } from '../../data';
 import { LogEventEditor } from '../LogEvent';
 import PropTypes from '../prop-types';
@@ -15,10 +15,10 @@ class ReminderCheckList extends React.Component {
     static getLogEventFromItem(item) {
         if (item.__type__ === 'log-structure') {
             const logStructure = item;
-            return LogEvent.createVirtual({ date: getTodayLabel(), logStructure });
+            return LogEvent.createVirtual({ date: DateUtils.getTodayLabel(), logStructure });
         }
         assert(item.__type__ === 'log-event');
-        return { ...item, date: getTodayLabel(), isComplete: true };
+        return { ...item, date: DateUtils.getTodayLabel(), isComplete: true };
     }
 
     constructor(props) {
@@ -39,7 +39,7 @@ class ReminderCheckList extends React.Component {
         let logStructure;
         if (item.__type__ === 'log-structure') {
             logStructure = item;
-            logStructure.lastUpdate = getTodayLabel();
+            logStructure.lastUpdate = DateUtils.getTodayLabel();
             if (logStructure.needsEdit && !wasLogEventProvided) {
                 this.displayLogEventEditorModal(item, logEvent);
                 return;
@@ -62,7 +62,7 @@ class ReminderCheckList extends React.Component {
             return;
         }
         const logStructure = item;
-        logStructure.lastUpdate = getTodayLabel();
+        logStructure.lastUpdate = DateUtils.getTodayLabel();
         window.api.send('reminder-dismiss', { logStructure });
     }
 

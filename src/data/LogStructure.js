@@ -1,16 +1,13 @@
-import Base from './Base';
-import { getVirtualID } from './Utils';
-import Enum from '../common/Enum';
-import TextEditorUtils from '../common/TextEditorUtils';
-import LogTopic from './LogTopic';
-import LogStructureGroup from './LogStructureGroup';
-
 import {
-    DaysOfTheWeek,
-    getDateValue,
-    getTodayDay,
-    getTodayValue,
-} from '../common/DateUtils';
+    addDays, compareAsc, getDay, isMonday, isSaturday, subDays,
+} from 'date-fns';
+import { getVirtualID } from './Utils';
+import Base from './Base';
+import DateUtils from '../common/DateUtils';
+import Enum from '../common/Enum';
+import LogStructureGroup from './LogStructureGroup';
+import LogTopic from './LogTopic';
+import TextEditorUtils from '../common/TextEditorUtils';
 
 const LogStructureKey = Enum([
     {
@@ -47,26 +44,41 @@ const FrequencyRawOptions = [
     {
         value: 'everyday',
         label: 'Everyday',
-        check: () => true,
+        getPreviousMatch(date) {
+            return subDays(date, 1);
+        },
     },
     {
         value: 'weekdays',
         label: 'Weekdays',
-        check: () => [1, 2, 3, 4, 5].includes(getTodayDay()),
+        getPreviousMatch(date) {
+            if (isMonday(date)) {
+                return subDays(date, 3);
+            }
+            return subDays(date, 1);
+        },
     },
     {
         value: 'weekends',
         label: 'Weekends',
-        check: () => [0, 6].includes(getTodayDay()),
+        getPreviousMatch(date) {
+            if (isSaturday(date)) {
+                return subDays(date, 6);
+            }
+            return subDays(date, 1);
+        },
     },
     // TODO: Add more as needed.
 ];
 
-DaysOfTheWeek.forEach((day, index) => {
+DateUtils.DaysOfTheWeek.forEach((day, index) => {
     FrequencyRawOptions.push({
         value: day.toLowerCase(),
         label: day,
-        check: () => (getTodayDay() === index),
+        getPreviousMatch(date) {
+            const diff = (getDay(date) - index + 7) % 7;
+            return subDays(date, diff);
+        },
     });
 });
 
@@ -108,12 +120,19 @@ class LogStructure extends Base {
         }
     }
 
-    static periodicCheck(logStructure) {
+    static async periodicCheck(logStructure) {
         // input = after loading
         if (logStructure.isPeriodic) {
-            return getTodayValue() > getDateValue(logStructure.lastUpdate)
-                ? LogStructureFrequency[logStructure.frequency].check()
-                : false;
+            const today = DateUtils.getTodayDate();
+            const lastUpdate = DateUtils.getDate(logStructure.lastUpdate);
+            if (compareAsc(today, lastUpdate) <= 0) {
+                return false;
+            }
+            const option = LogStructureFrequency[logStructure.frequency];
+            const tomorrow = addDays(today, 1);
+            const previousMatch = option.getPreviousMatch(tomorrow);
+            const isTodayAMatch = compareAsc(previousMatch, today) === 0;
+            return isTodayAMatch;
         }
         return false;
     }
