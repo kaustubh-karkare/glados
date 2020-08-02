@@ -4,7 +4,7 @@ const path = require('path');
 
 test('verify_no_random_colors', async () => {
     const rootPath = 'src/client';
-    const excludeNames = ['bootstrap.min.css', 'index.css'];
+    const excludeNames = ['index.css'];
     let excludeCount = 0;
     walkSync(rootPath, ['**/*.css']).forEach((fileName) => {
         const filePath = path.join(rootPath, fileName);

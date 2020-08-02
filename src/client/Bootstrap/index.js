@@ -1,3 +1,3 @@
-import './bootstrap.min.css'; // This is actually the Bootswatch Darkly Theme.
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './InputGroup.css';
 import './Modal.css';

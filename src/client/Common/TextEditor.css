@@ -44,6 +44,7 @@
 
 .dropdown-item,
 .text-editor .mention-suggestions > div > div {
+    color: var(--text-color);
     padding: 1px 16px;
 }
 
@@ -53,6 +54,7 @@
     overflow: inherit;
 }
 
+.dropdown-item.active,
 .text-editor .mention-suggestions > div > div[aria-selected="true"] {
     background-color: var(--suggestion-highlight-color);
 }
