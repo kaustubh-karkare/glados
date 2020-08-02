@@ -11,7 +11,6 @@ ActionsRegistry['latest-log-event'] = async function (input) {
             date: { [this.database.Op.ne]: null },
         },
         [['date', 'DESC']],
-        this.transaction,
     );
 };
 

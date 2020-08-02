@@ -57,7 +57,6 @@ class LogEvent extends Base {
                 'LogEventToLogTopic',
                 'topic_id',
                 input.where.topic_id,
-                this.transaction,
             );
             delete input.where.topic_id;
             input.where.id = {
@@ -107,7 +106,7 @@ class LogEvent extends Base {
     }
 
     static async load(id) {
-        const logEvent = await this.database.findByPk('LogEvent', id, this.transaction);
+        const logEvent = await this.database.findByPk('LogEvent', id);
         let outputLogStructure = null;
         if (logEvent.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logEvent.structure_id);
@@ -132,11 +131,7 @@ class LogEvent extends Base {
     }
 
     static async save(inputLogEvent) {
-        let logEvent = await this.database.findItem(
-            'LogEvent',
-            inputLogEvent,
-            this.transaction,
-        );
+        let logEvent = await this.database.findItem('LogEvent', inputLogEvent);
 
         Base.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
 
@@ -160,9 +155,7 @@ class LogEvent extends Base {
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,
         };
-        logEvent = await this.database.createOrUpdateItem(
-            'LogEvent', logEvent, fields, this.transaction,
-        );
+        logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
 
         const logTopics = {
             ...TextEditorUtils.extractLogTopics(
@@ -195,7 +188,6 @@ class LogEvent extends Base {
                 result[logTopic.id] = {};
                 return result;
             }, {}),
-            this.transaction,
         );
 
         this.broadcast('reminder-sidebar');
@@ -203,7 +195,7 @@ class LogEvent extends Base {
     }
 
     static async delete(id) {
-        const logEvent = await this.database.deleteByPk('LogEvent', id, this.transaction);
+        const logEvent = await this.database.deleteByPk('LogEvent', id);
         Base.broadcast.call(this, 'log-event-list', logEvent, ['date']);
         return { id: logEvent.id };
     }

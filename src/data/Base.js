@@ -12,7 +12,7 @@ class Base extends ValidationBase {
     }
 
     static async list({ where, ordering } = { where: {} }) {
-        let items = await this.database.findAll(this.DataType.name, where, this.transaction);
+        let items = await this.database.findAll(this.DataType.name, where);
         if (ordering) {
             items = items.sort((left, right) => {
                 if (left.ordering_index !== null && right.ordering_index !== null) {
@@ -35,7 +35,6 @@ class Base extends ValidationBase {
         const options = await this.database.findAll(
             this.DataType.name,
             { ...where, name: { [this.database.Op.like]: `${query}%` } },
-            this.transaction,
         );
         const dataType = getDataType(this.DataType.name);
         return options.map((option) => ({
@@ -62,7 +61,6 @@ class Base extends ValidationBase {
             (id, index) => this.database.update(
                 this.DataType.name,
                 { id, ordering_index: index },
-                this.transaction,
             ),
         ));
         this.broadcast(`${input.dataType}-list`, { where: input.where });
@@ -98,12 +96,7 @@ class Base extends ValidationBase {
         if (item) {
             return item.ordering_index;
         }
-        return this.database.count(
-            this.DataType.name,
-            where,
-            null,
-            this.transaction,
-        );
+        return this.database.count(this.DataType.name, where, null);
     }
 
     static async broadcast(queryName, prevItem, fields) {

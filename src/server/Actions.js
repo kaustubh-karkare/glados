@@ -31,6 +31,7 @@ export default class {
             const broadcasts = [];
             const { sequelize } = this.context.database;
             const response = await sequelize.transaction(async (transaction) => {
+                const { database, ...moreContext } = this.context;
                 const context = {
                     broadcast: (...args) => broadcasts.push(args),
                     invoke(innerName, innerInput) {
@@ -39,9 +40,12 @@ export default class {
                         }
                         return ActionsRegistry[innerName].call(context, innerInput);
                     },
-                    transaction,
-                    ...this.context,
+                    // The Object.create method creates a new object with the given prototype.
+                    // This allows us to concurrently set the transaction field below.
+                    database: Object.create(database),
+                    ...moreContext,
                 };
+                context.database.transaction = transaction;
                 const output = await context.invoke.call(context, name, input);
                 return output;
             });

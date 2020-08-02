@@ -224,7 +224,7 @@ class LogStructure extends Base {
     }
 
     static async load(id) {
-        const logStructure = await this.database.findByPk('LogStructure', id, this.transaction);
+        const logStructure = await this.database.findByPk('LogStructure', id);
         const outputLogStructure = await LogTopic.load.call(this, logStructure.topic_id);
         const outputLogStructureGroup = await LogStructureGroup.load.call(
             this, logStructure.group_id,
@@ -251,11 +251,7 @@ class LogStructure extends Base {
     }
 
     static async save(inputLogStructure) {
-        let logStructure = await this.database.findItem(
-            'LogStructure',
-            inputLogStructure,
-            this.transaction,
-        );
+        let logStructure = await this.database.findItem('LogStructure', inputLogStructure);
 
         Base.broadcast.call(
             this,
@@ -310,7 +306,7 @@ class LogStructure extends Base {
             is_major: inputLogStructure.isMajor,
         };
         logStructure = await this.database.createOrUpdateItem(
-            'LogStructure', logStructure, fields, this.transaction,
+            'LogStructure', logStructure, fields,
         );
 
         await Base.manageEntityAfter.call(
@@ -344,7 +340,7 @@ class LogStructure extends Base {
     }
 
     static async delete(id) {
-        const logStructure = await this.database.deleteByPk('LogStructure', id, this.transaction);
+        const logStructure = await this.database.deleteByPk('LogStructure', id);
         await Base.manageEntityAfter.call(this, logStructure.topic_id, null, LogTopic);
         Base.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
         return { id: logStructure.id };

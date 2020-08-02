@@ -11,7 +11,7 @@ class LogStructureGroup extends Base {
     }
 
     static async load(id) {
-        const logStructureGroup = await this.database.findByPk('LogStructureGroup', id, this.transaction);
+        const logStructureGroup = await this.database.findByPk('LogStructureGroup', id);
         return {
             __type__: 'log-structure-group',
             id: logStructureGroup.id,
@@ -23,7 +23,6 @@ class LogStructureGroup extends Base {
         let logStructureGroup = await this.database.findItem(
             'LogStructureGroup',
             inputLogStructureGroup,
-            this.transaction,
         );
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructureGroup);
         const fields = {
@@ -31,14 +30,14 @@ class LogStructureGroup extends Base {
             name: inputLogStructureGroup.name,
         };
         logStructureGroup = await this.database.createOrUpdateItem(
-            'LogStructureGroup', logStructureGroup, fields, this.transaction,
+            'LogStructureGroup', logStructureGroup, fields,
         );
         this.broadcast('log-structure-group-list');
         return logStructureGroup.id;
     }
 
     static async delete(id) {
-        const logStructureGroup = await this.database.deleteByPk('LogStructureGroup', id, this.transaction);
+        const logStructureGroup = await this.database.deleteByPk('LogStructureGroup', id);
         this.broadcast('log-structure-group-list');
         return { id: logStructureGroup.id };
     }

@@ -22,13 +22,12 @@ class LogTopic extends Base {
     }
 
     static async load(id) {
-        const logTopic = await this.database.findByPk('LogTopic', id, this.transaction);
+        const logTopic = await this.database.findByPk('LogTopic', id);
         let outputParentLogTopic = null;
         if (logTopic.parent_topic_id) {
             const parentLogTopic = await this.database.findByPk(
                 'LogTopic',
                 logTopic.parent_topic_id,
-                this.transaction,
             );
             outputParentLogTopic = {
                 __type__: 'log-topic',
@@ -48,11 +47,7 @@ class LogTopic extends Base {
     }
 
     static async save(inputLogTopic) {
-        let logTopic = await this.database.findItem(
-            'LogTopic',
-            inputLogTopic,
-            this.transaction,
-        );
+        let logTopic = await this.database.findItem('LogTopic', inputLogTopic);
 
         const parentTopicId = inputLogTopic.parentLogTopic
             ? inputLogTopic.parentLogTopic.id
@@ -75,9 +70,7 @@ class LogTopic extends Base {
             on_sidebar: inputLogTopic.onSidebar,
             has_structure: inputLogTopic.hasStructure,
         };
-        logTopic = await this.database.createOrUpdateItem(
-            'LogTopic', logTopic, fields, this.transaction,
-        );
+        logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 
         const targetLogTopics = TextEditorUtils.extractLogTopics(
             TextEditorUtils.deserialize(
@@ -95,7 +88,6 @@ class LogTopic extends Base {
                 result[targetLogTopic.id] = {};
                 return result;
             }, {}),
-            this.transaction,
         );
 
         if (originalName && originalName !== logTopic.name) {
@@ -113,7 +105,6 @@ class LogTopic extends Base {
             'LogEventToLogTopic',
             'topic_id',
             updatedLogTopic.id,
-            this.transaction,
         );
         const outputLogEvents = await Promise.all(
             logEventEdges.map(
@@ -160,7 +151,6 @@ class LogTopic extends Base {
             'LogTopicToLogTopic',
             'target_topic_id',
             updatedLogTopic.id,
-            this.transaction,
         );
         const outputLogTopics = await Promise.all(
             logTopicEdges.map(
@@ -204,7 +194,7 @@ class LogTopic extends Base {
     }
 
     static async delete(id) {
-        const logTopic = await this.database.deleteByPk('LogTopic', id, this.transaction);
+        const logTopic = await this.database.deleteByPk('LogTopic', id);
         Base.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
         return { id: logTopic.id };
     }

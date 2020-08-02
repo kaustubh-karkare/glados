@@ -45,7 +45,7 @@ ActionsRegistry['backup-save'] = async function () {
     const { date, time } = getDateAndTime();
     const result = {};
     await awaitSequence(this.database.getModelSequence(), async (model) => {
-        const items = await model.findAll({ transaction: this.transaction });
+        const items = await model.findAll({ transaction: this.database.transaction });
         result[model.name] = items.map((item) => item.dataValues);
     });
 
@@ -151,7 +151,7 @@ ActionsRegistry['backup-load'] = async function () {
     // This is where we can transform the input data to fix compatibility!
     await awaitSequence(this.database.getModelSequence(), async (model) => {
         const items = data[model.name];
-        await model.bulkCreate(items, { transaction: this.transaction });
+        await model.bulkCreate(items, { transaction: this.database.transaction });
     });
     return latestBackup;
 };
