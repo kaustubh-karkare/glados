@@ -11,7 +11,7 @@ class LogEvent extends Base {
     } = {}) {
         if (logStructure) {
             logStructure.logKeys.forEach((logKey) => {
-                logKey.value = '';
+                logKey.value = LogStructure.Key[logKey.type].default || '';
             });
         }
         const logEvent = {

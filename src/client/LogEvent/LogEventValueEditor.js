@@ -1,6 +1,6 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import { TypeaheadInput, TypeaheadSelector } from '../Common';
+import { Selector, TypeaheadInput, TypeaheadSelector } from '../Common';
 import { LogStructure, getPartialItem } from '../../data';
 import PropTypes from '../prop-types';
 
@@ -40,6 +40,15 @@ class LogEventValueEditor extends React.Component {
                     disabled={this.props.disabled}
                     onChange={(value) => this.update(value)}
                     where={{ parent_topic_id: logKey.parentLogTopic.id }}
+                    ref={this.ref}
+                />
+            );
+        } if (logKey.type === LogStructure.Key.YES_OR_NO) {
+            return (
+                <Selector.Binary
+                    value={logKey.value === 'yes'}
+                    disabled={this.props.disabled}
+                    onChange={(value) => this.update(value ? 'yes' : 'no')}
                     ref={this.ref}
                 />
             );

@@ -32,6 +32,12 @@ const LogStructureKey = Enum([
         validator: async (value) => !!value.match(/^\d{2}:\d{2}$/),
     },
     {
+        value: 'yes_or_no',
+        label: 'Yes / No',
+        validator: async (value) => !!value.match(/^(?:yes|no)$/),
+        default: 'no',
+    },
+    {
         value: 'log_topic',
         label: 'Topic',
         validator: async (value, logKey, that) => {

@@ -1,21 +1,35 @@
+/* eslint-disable max-classes-per-file */
+
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function Selector(props) {
-    const { onChange, options, ...moreProps } = props;
-    return (
-        <Form.Control
-            {...moreProps}
-            as="select"
-            onChange={(event) => onChange(event.target.value)}
-        >
-            {options.map((item) => {
-                const optionProps = { key: item.value, value: item.value };
-                return <option {...optionProps}>{item.label}</option>;
-            })}
-        </Form.Control>
-    );
+class Selector extends React.Component {
+    constructor(props) {
+        super(props);
+        this.ref = React.createRef();
+    }
+
+    focus() {
+        this.ref.current.focus();
+    }
+
+    render() {
+        const { onChange, options, ...moreProps } = this.props;
+        return (
+            <Form.Control
+                {...moreProps}
+                as="select"
+                onChange={(event) => onChange(event.target.value)}
+                ref={this.ref}
+            >
+                {options.map((item) => {
+                    const optionProps = { key: item.value, value: item.value };
+                    return <option {...optionProps}>{item.label}</option>;
+                })}
+            </Form.Control>
+        );
+    }
 }
 
 Selector.propTypes = {
@@ -30,22 +44,34 @@ Selector.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-function BinarySelector(props) {
-    const {
-        noLabel, yesLabel, value, onChange, ...moreProps
-    } = props;
-    const options = [
-        { label: noLabel, value: 'no' },
-        { label: yesLabel, value: 'yes' },
-    ];
-    return (
-        <Selector
-            {...moreProps}
-            value={options[value ? 1 : 0].value}
-            options={options}
-            onChange={(newValue) => onChange(newValue === options[1].value)}
-        />
-    );
+class BinarySelector extends React.Component {
+    constructor(props) {
+        super(props);
+        this.ref = React.createRef();
+    }
+
+    focus() {
+        this.ref.current.focus();
+    }
+
+    render() {
+        const {
+            noLabel, yesLabel, value, onChange, ...moreProps
+        } = this.props;
+        const options = [
+            { label: noLabel, value: 'no' },
+            { label: yesLabel, value: 'yes' },
+        ];
+        return (
+            <Selector
+                {...moreProps}
+                value={options[value ? 1 : 0].value}
+                options={options}
+                onChange={(newValue) => onChange(newValue === options[1].value)}
+                ref={this.ref}
+            />
+        );
+    }
 }
 
 BinarySelector.propTypes = {
