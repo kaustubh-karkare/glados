@@ -1,7 +1,7 @@
 import React from 'react';
 import { DataLoader, SidebarSection } from '../Common';
-import { LogTopicViewer, LogTopicEditor } from '../LogTopic';
-import BulletListItem from '../Common/BulletList/BulletListItem';
+import { LogTopicList } from '../LogTopic';
+
 
 class FavoriteTopicsSection extends React.Component {
     constructor(props) {
@@ -34,14 +34,7 @@ class FavoriteTopicsSection extends React.Component {
         return (
             <SidebarSection title="Favorite Topics">
                 {this.state.logTopics.map((logTopic) => (
-                    <BulletListItem
-                        key={logTopic.id}
-                        dataType="log-topic"
-                        value={logTopic}
-                        valueKey="logTopic"
-                        ViewerComponent={LogTopicViewer}
-                        EditorComponent={LogTopicEditor}
-                    />
+                    <LogTopicList.Single key={logTopic.id} logTopic={logTopic} />
                 ))}
             </SidebarSection>
         );

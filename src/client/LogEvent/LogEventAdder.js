@@ -26,7 +26,6 @@ class LogEventAdder extends React.Component {
         if (logEvent.name) {
             window.api.send('log-event-upsert', logEvent)
                 .then((newLogEvent) => {
-                    Coordinator.invoke('event-created', newLogEvent);
                     this.setState({ logEvent: LogEvent.createVirtual(this.props.where) });
                 });
         } else {

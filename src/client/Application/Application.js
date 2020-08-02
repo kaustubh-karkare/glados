@@ -43,8 +43,8 @@ const Layout = Enum([
         value: 'default',
     },
     {
-        label: 'Focus',
-        value: 'focus',
+        label: 'Topic',
+        value: 'topic',
     },
 ]);
 
@@ -86,60 +86,21 @@ class Applicaton extends React.Component {
         }
     }
 
-    renderLeftSidebar() {
-        return (
-            <Col md={2} className="my-3">
-                <ScrollableSection>
-                    {Tab.Options.map((option) => (
-                        <SidebarSection
-                            key={option.value}
-                            onClick={() => this.onTabChange(option.value)}
-                            selected={
-                                this.state.activeTab === option.value
-                                && this.state.activeLayout === Layout.DEFAULT
-                            }
-                        >
-                            {option.label}
-                        </SidebarSection>
-                    ))}
-                    <ReminderSidebar />
-                </ScrollableSection>
-            </Col>
-        );
+    renderTabSection() {
+        return Tab.Options.map((option) => (
+            <SidebarSection
+                key={option.value}
+                onClick={() => this.onTabChange(option.value)}
+                selected={
+                    this.state.activeTab === option.value
+                    && this.state.activeLayout === Layout.DEFAULT
+                }
+            >
+                {option.label}
+            </SidebarSection>
+        ));
     }
 
-    renderLayout() {
-        const { Component } = Tab[this.state.activeTab];
-        if (this.state.activeLayout === Layout.DEFAULT) {
-            return (
-                <>
-                    <Col md={4} className="my-3">
-                        <IndexSection>
-                            <Component disabled={this.state.disabled} />
-                        </IndexSection>
-                    </Col>
-                    <Col md={4} className="my-3">
-                        <DetailsSection
-                            item={this.state.activeItem}
-                            disabled={this.state.disabled}
-                        />
-                    </Col>
-                </>
-            );
-        } if (this.state.activeLayout === Layout.FOCUS) {
-            return (
-                <Col md={8} className="my-3">
-                    <DetailsSection
-                        item={this.state.activeItem}
-                        disabled={this.state.disabled}
-                    />
-                </Col>
-            );
-        }
-        return <div>{`Unknown layout: ${this.state.activeLayout}`}</div>;
-    }
-
-    // eslint-disable-next-line class-methods-use-this
     renderRightSidebar() {
         return (
             <Col md={2} className="my-3">
@@ -152,14 +113,66 @@ class Applicaton extends React.Component {
         );
     }
 
+    renderDefaultLayout() {
+        const { Component } = Tab[this.state.activeTab];
+        return (
+            <Row>
+                <Col md={2} className="my-3">
+                    <ScrollableSection>
+                        {this.renderTabSection()}
+                        <ReminderSidebar />
+                    </ScrollableSection>
+                </Col>
+                <Col md={4} className="my-3">
+                    <IndexSection>
+                        <Component disabled={this.state.disabled} />
+                    </IndexSection>
+                </Col>
+                <Col md={4} className="my-3">
+                    <DetailsSection
+                        item={this.state.activeItem}
+                        disabled={this.state.disabled}
+                    />
+                </Col>
+                {this.renderRightSidebar()}
+            </Row>
+        );
+    }
+
+    renderTopicLayout() {
+        return (
+            <Row>
+                <Col md={2} className="my-3">
+                    <ScrollableSection>
+                        <SidebarSection title="All Topics">
+                            <LogTopicSearch unstyled />
+                        </SidebarSection>
+                    </ScrollableSection>
+                </Col>
+                <Col md={8} className="my-3">
+                    <DetailsSection
+                        item={this.state.activeItem}
+                        disabled={this.state.disabled}
+                    />
+                </Col>
+                {this.renderRightSidebar()}
+            </Row>
+        );
+    }
+
+    renderLayout() {
+        if (this.state.activeLayout === Layout.DEFAULT) {
+            return this.renderDefaultLayout();
+        } if (this.state.activeLayout === Layout.TOPIC) {
+            return this.renderTopicLayout();
+        }
+        return <div>{`Unknown layout: ${this.state.activeLayout}`}</div>;
+    }
+
     render() {
         return (
             <Container fluid>
-                <Row>
-                    {this.renderLeftSidebar()}
-                    {this.renderLayout()}
-                    {this.renderRightSidebar()}
-                </Row>
+                {this.renderLayout()}
                 <ModalStack />
             </Container>
         );

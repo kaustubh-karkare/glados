@@ -101,6 +101,7 @@ class TextEditor extends React.Component {
 
         this.mentionPlugin = createMentionPlugin({
             mentionComponent: MentionComponent,
+            supportWhitespace: true,
         });
         this.state.plugins.push(this.mentionPlugin);
 

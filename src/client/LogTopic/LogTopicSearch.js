@@ -53,21 +53,31 @@ class LogTopicSearch extends React.Component {
         return <LogTopicList where={where} {...moreProps} />;
     }
 
+    renderWrapper() {
+        if (this.props.unstyled) {
+            return this.renderLogTopics();
+        }
+        return (
+            <ScrollableSection padding={20 + 4}>
+                {this.renderLogTopics()}
+            </ScrollableSection>
+        );
+    }
+
     render() {
         return (
             <>
                 <div className="mb-1">
                     {this.renderFilters()}
                 </div>
-                <ScrollableSection padding={20 + 4}>
-                    {this.renderLogTopics()}
-                </ScrollableSection>
+                {this.renderWrapper()}
             </>
         );
     }
 }
 
 LogTopicSearch.propTypes = {
+    unstyled: PropTypes.bool,
     disabled: PropTypes.bool.isRequired,
 };
 

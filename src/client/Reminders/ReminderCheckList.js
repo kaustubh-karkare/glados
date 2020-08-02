@@ -45,12 +45,12 @@ class ReminderCheckList extends React.Component {
             }
         }
         window.api.send('reminder-complete', { logStructure, logEvent })
-            .then(() => {
+            .then((result) => {
                 if (this.closeModal) {
                     this.closeModal();
                     delete this.closeModal;
                 }
-                Coordinator.invoke('event-created', logEvent);
+                Coordinator.invoke('log-event-created', result.logEvent);
             });
     }
 

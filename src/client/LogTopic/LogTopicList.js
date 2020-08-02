@@ -54,5 +54,19 @@ LogTopicViewer.Expanded.propTypes = {
     logTopic: PropTypes.Custom.LogTopic.isRequired,
 };
 
-export { LogTopicViewer };
+LogTopicList.Single = (props) => (
+    <BulletList.Item
+        key={props.logTopic.id}
+        dataType="log-topic"
+        value={props.logTopic}
+        valueKey="logTopic"
+        ViewerComponent={LogTopicViewer}
+        EditorComponent={LogTopicEditor}
+    />
+);
+
+LogTopicList.Single.propTypes = {
+    logTopic: PropTypes.Custom.LogTopic.isRequired,
+};
+
 export default LogTopicList;

@@ -160,4 +160,6 @@ BulletList.defaultProps = {
     allowCreation: true,
 };
 
+BulletList.Item = BulletListItem;
+
 export default BulletList;

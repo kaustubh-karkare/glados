@@ -5,6 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
 import SocketRPC from '../common/SocketRPC';
+import { isVirtualItem } from '../data';
 import { Coordinator } from './Common';
 import { Application } from './Application';
 
@@ -21,7 +22,14 @@ window.main = function main() {
     initCookies();
     window.api = SocketRPC.client(
         io(`${document.cookies.host}:${document.cookies.port}`),
-        (error) => Coordinator.invoke('modal-error', error),
+        (name, input, output) => {
+            const suffix = '-upsert';
+            if (name.endsWith(suffix) && isVirtualItem(input)) {
+                const dataType = name.substring(0, name.length - suffix.length);
+                Coordinator.broadcast(`${dataType}-created`, output);
+            }
+        },
+        (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 
     ReactDOM.render(

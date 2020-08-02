@@ -28,7 +28,9 @@ ActionsRegistry['value-typeahead'] = async function (input) {
     );
     const resultToFrequencyMap = {};
     outputLogEvents.forEach((outputLogEvent) => {
-        const { value } = outputLogEvent.logStructure.logKeys[input.index];
+        const logKey = outputLogEvent.logStructure.logKeys[input.index];
+        // If logKey.type = time, then sort by closeness.
+        const { value } = logKey;
         if (value.startsWith(input.query)) {
             if (!(value in resultToFrequencyMap)) {
                 resultToFrequencyMap[value] = 0;

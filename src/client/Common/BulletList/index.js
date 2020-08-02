@@ -1,3 +1,1 @@
-import BulletList from './BulletList';
-
-export default BulletList;
+export { default } from './BulletList';

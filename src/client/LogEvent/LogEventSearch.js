@@ -57,8 +57,8 @@ class LogEventSearch extends React.Component {
 
     componentDidMount() {
         this.deregisterCallbacks = [
-            Coordinator.register(
-                'event-created',
+            Coordinator.subscribe(
+                'log-event-created',
                 (logEvent) => this.setState((state) => {
                     if (!logEvent.isMajor && state.isMajor) state.isMajor = false;
                     // TODO: Reset topic filter if event does not contain it.
