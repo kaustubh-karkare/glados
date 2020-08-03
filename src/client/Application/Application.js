@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
 import {
-    Coordinator, ModalStack, ScrollableSection, SidebarSection,
+    Coordinator, ModalStack, ScrollableSection, SidebarSection, URLManager,
 } from '../Common';
 import { LogEventSearch } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
@@ -22,20 +22,22 @@ import LayoutSection from './LayoutSection';
 const Tab = Enum([
     {
         label: 'Manage Events',
-        value: 'log_events',
+        value: 'log-event',
         Component: LogEventSearch,
     },
     {
         label: 'Manage Topics',
-        value: 'log_topics',
+        value: 'log-topic',
         Component: LogTopicSearch,
     },
     {
         label: 'Manage Structures',
-        value: 'log_structures',
+        value: 'log-structure',
         Component: LogStructureSearch,
     },
 ]);
+
+window.Tab = Tab;
 
 const Layout = Enum([
     {
@@ -48,20 +50,28 @@ const Layout = Enum([
     },
 ]);
 
+/**
+ * [...Array(128).keys()]
+ *     .map(code => String.fromCharCode(code))
+ *     .filter(char => !char.match(/\w/) && char === encodeURIComponent(char))
+ * ["!", "'", "(", ")", "*", "-", ".", "~"]
+ * Picked the one most easily readable in the URL.
+ */
+const SEPARATOR = '~';
 
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeTab: Tab.LOG_EVENTS,
-            activeLayout: Layout.DEFAULT,
-            activeItem: null,
+            ...this.getStateFromURL(),
             disabled: false,
         };
         this.deregisterCallbacks = [
+            URLManager.init(() => this.setState(this.getStateFromURL())),
+            Coordinator.register('link-href', this.getLinkHref.bind(this)),
             Coordinator.register('details', this.onDetailsChange.bind(this)),
             Coordinator.register('layout-options', () => Layout.Options),
-            Coordinator.register('layout', (activeLayout) => this.setState({ activeLayout })),
+            Coordinator.register('layout', this.onLayoutChange.bind(this)),
         ];
     }
 
@@ -69,21 +79,59 @@ class Applicaton extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    onTabChange(tab) {
-        this.setState({ activeTab: tab, activeLayout: Layout.DEFAULT });
+    onTabChange(activeTab) {
+        this.setURLFromState({ activeTab, activeLayout: Layout.DEFAULT });
+    }
+
+    onLayoutChange(activeLayout) {
+        this.setURLFromState({ activeLayout });
     }
 
     onDetailsChange(item) {
         if (!item || item.__type__ === 'log-topic' || item.__type__ === 'log-event') {
-            this.setState({ activeItem: item });
+            this.setURLFromState({ activeDetails: item });
         } else if (item.__type__ === 'log-structure') {
-            this.setState({ activeItem: item.logTopic });
+            this.setURLFromState({ activeDetails: item.logTopic });
         } else {
             Coordinator.invoke(
                 'modal-error',
                 `${JSON.stringify(item, null, 4)}\n\nThis item does support details!`,
             );
         }
+    }
+
+    // Synchronization of URL Parameters with Component State.
+
+    getLinkHref({ activeTab, activeLayout, activeDetails }) {
+        let item = activeDetails;
+        if (typeof activeDetails === 'undefined') {
+            item = this.state.activeDetails
+        }
+        return URLManager.getLink({
+            tab: activeTab || this.state.activeTab,
+            layout: activeLayout || this.state.activeLayout,
+            details: item ? `${item.__type__}${SEPARATOR}${item.id}` : null,
+        });
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getStateFromURL() {
+        const params = URLManager.get();
+        let activeDetails = null;
+        if (params.details) {
+            const [__type__, id] = params.details.split(SEPARATOR);
+            activeDetails = { __type__, id: parseInt(id, 10) };
+        }
+        return {
+            activeTab: params.tab || Tab.LOG_EVENT,
+            activeLayout: params.layout || Layout.DEFAULT,
+            activeDetails,
+        };
+    }
+
+    setURLFromState(params) {
+        const linkHref = this.getLinkHref(params);
+        URLManager.update(linkHref);
     }
 
     renderTabSection() {
@@ -130,7 +178,7 @@ class Applicaton extends React.Component {
                 </Col>
                 <Col md={4} className="my-3">
                     <DetailsSection
-                        item={this.state.activeItem}
+                        item={this.state.activeDetails}
                         disabled={this.state.disabled}
                     />
                 </Col>
@@ -151,7 +199,7 @@ class Applicaton extends React.Component {
                 </Col>
                 <Col md={8} className="my-3">
                     <DetailsSection
-                        item={this.state.activeItem}
+                        item={this.state.activeDetails}
                         disabled={this.state.disabled}
                     />
                 </Col>

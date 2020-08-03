@@ -30,3 +30,7 @@ a.topic,
 a.topic:hover {
     color: var(--topic-color);
 }
+
+pre {
+    color: var(--text-color);
+}

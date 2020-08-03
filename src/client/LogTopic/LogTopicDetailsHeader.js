@@ -5,7 +5,9 @@ import {
     MdFavorite, MdFavoriteBorder, MdEdit, MdSearch,
 } from 'react-icons/md';
 import PropTypes from '../prop-types';
-import { Coordinator, Dropdown, InputLine } from '../Common';
+import {
+    Coordinator, Dropdown, InputLine, Link,
+} from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 
 class LogTopicDetailsHeader extends React.Component {
@@ -21,15 +23,7 @@ class LogTopicDetailsHeader extends React.Component {
 
     // eslint-disable-next-line class-methods-use-this
     renderTopicName(logTopic) {
-        return (
-            <a
-                href="#"
-                className="topic"
-                onClick={() => Coordinator.invoke('details', logTopic)}
-            >
-                {logTopic.name}
-            </a>
-        );
+        return <Link logTopic={logTopic}>{logTopic.name}</Link>;
     }
 
     renderChildTopics(logTopic) {

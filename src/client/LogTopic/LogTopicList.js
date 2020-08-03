@@ -1,21 +1,11 @@
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList, Coordinator } from '../Common';
+import { BulletList, Link } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 
 function LogTopicViewer(props) {
     const { logTopic } = props;
-    return (
-        <a
-            className="topic"
-            key={logTopic.id}
-            href="#"
-            onClick={() => Coordinator.invoke('details', logTopic)}
-            tabIndex={-1}
-        >
-            {logTopic.name}
-        </a>
-    );
+    return <Link logTopic={logTopic}>{logTopic.name}</Link>;
 }
 
 LogTopicViewer.propTypes = {

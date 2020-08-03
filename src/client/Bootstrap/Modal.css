@@ -5,4 +5,5 @@
 .modal-content {
     background-color: var(--background-color);
     border-color: var(--component-highlight-color);
+    color: var(--text-color);
 }

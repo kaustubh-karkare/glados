@@ -11,24 +11,13 @@ import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-
 import TextEditorUtils from '../../common/TextEditorUtils';
 import { KeyCodes } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
-import Coordinator from './Coordinator';
+import Link from './Link';
 
 import 'draft-js/dist/Draft.css';
 import './TextEditor.css';
 
 function MentionComponent(props) {
-    const item = props.mention;
-    return (
-        <a
-            className="topic"
-            title={item.name}
-            href="#"
-            onClick={() => Coordinator.invoke('details', item)}
-            tabIndex={-1}
-        >
-            {props.children}
-        </a>
-    );
+    return <Link logTopic={props.mention}>{props.children}</Link>;
 }
 
 MentionComponent.propTypes = {
