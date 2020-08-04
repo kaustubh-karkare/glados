@@ -51,8 +51,12 @@ class LogEvent extends Base {
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
-    static async updateWhere(input) {
-        if (input && input.where && input.where.topic_id) {
+    static async updateWhere(input = {}) {
+        if (input.where && input.where.dates) {
+            input.where.date = { [this.database.Op.in]: input.where.dates };
+            delete input.where.dates;
+        }
+        if (input.where && input.where.topic_id) {
             const edges = await this.database.getEdges(
                 'LogEventToLogTopic',
                 'topic_id',

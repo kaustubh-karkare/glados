@@ -63,6 +63,7 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-bootstrap-typeahead": "^5.0.0-rc.1",
+    "react-date-range": "^1.0.3",
     "react-datepicker": "^3.0.0",
     "react-dom": "^16.13.1",
     "react-icons": "^3.10.0",

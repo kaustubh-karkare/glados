@@ -3,6 +3,7 @@ export { default as BulletList } from './BulletList';
 export { default as Coordinator } from './Coordinator';
 export { default as DataLoader } from './DataLoader';
 export { default as DatePicker } from './DatePicker';
+export { default as DateRangePicker } from './DateRangePicker';
 export { default as Dropdown } from './Dropdown';
 export { default as EditorModal } from './EditorModal';
 export { default as ErrorModal } from './ErrorModal';

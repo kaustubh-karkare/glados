@@ -105,7 +105,7 @@ class Applicaton extends React.Component {
     getLinkHref({ activeTab, activeLayout, activeDetails }) {
         let item = activeDetails;
         if (typeof activeDetails === 'undefined') {
-            item = this.state.activeDetails
+            item = this.state.activeDetails;
         }
         return URLManager.getLink({
             tab: activeTab || this.state.activeTab,

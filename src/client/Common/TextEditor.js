@@ -131,7 +131,10 @@ class TextEditor extends React.Component {
     }
 
     focus() {
-        this.ref.current.focus();
+        // Why the delay?
+        // This broke something inside the DraftJS Editor
+        // that caused mentions to not be rendered properly.
+        window.setTimeout(this.ref.current.focus, 0);
     }
 
     keyBindingFn(event) {

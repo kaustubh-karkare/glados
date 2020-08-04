@@ -1,49 +1,12 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { eachDayOfInterval, getDay, subDays } from 'date-fns';
+import { eachDayOfInterval, getDay } from 'date-fns';
 import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, ScrollableSection, Selector, TypeaheadSelector,
+    Coordinator, DateRangePicker, ScrollableSection, Selector, TypeaheadSelector,
 } from '../Common';
-import Enum from '../../common/Enum';
 import LogEventList from './LogEventList';
-
-const DateRange = Enum([
-    {
-        label: 'Incomplete',
-        value: 'incomplete',
-        getDates: () => null,
-    },
-    {
-        label: 'Unspecified',
-        value: 'unspecified',
-        getDates: () => null,
-    },
-    {
-        label: 'Today',
-        value: 'today',
-        getDates: () => [DateUtils.getTodayDate()],
-    },
-    {
-        label: 'Last 2 days',
-        value: 'last_2_days',
-        getDates: () => {
-            const today = DateUtils.getTodayDate();
-            const yesterday = subDays(today, 1);
-            return [yesterday, today];
-        },
-    },
-    {
-        label: 'Last 7 days',
-        value: 'last_7_days',
-        getDates: () => {
-            const today = DateUtils.getTodayDate();
-            const before = subDays(today, 6);
-            return eachDayOfInterval({ start: before, end: today });
-        },
-    },
-]);
 
 class LogEventSearch extends React.Component {
     constructor(props) {
@@ -70,7 +33,7 @@ class LogEventSearch extends React.Component {
                 (logTopic) => this.setState({ logTopic }, this.afterUpdate),
             ),
         ];
-        this.setState({ dateRange: DateRange.UNSPECIFIED }, this.afterUpdate);
+        this.setState({ dateRange: null }, this.afterUpdate);
     }
 
     componentWillUnmount() {
@@ -85,38 +48,33 @@ class LogEventSearch extends React.Component {
         if (this.state.logTopic) {
             where.topic_id = this.state.logTopic.id;
         }
-        if (this.state.dateRange === DateRange.INCOMPLETE) {
-            where.is_complete = false;
-        } else {
-            where.is_complete = true;
-        }
         return where;
     }
 
     afterUpdate() {
-        const option = DateRange[this.state.dateRange];
-        let dates = option.getDates();
-        if (dates === null) {
-            const where = this.getWhere();
-            if (where.topic_id || !where.is_complete) {
-                window.api.send('log-event-dates', { where })
-                    .then((result) => this.setState({ dates: result }));
-            } else {
-                this.setState({ dates: [DateUtils.getTodayLabel()] });
-            }
+        const { dateRange } = this.state;
+        let dates;
+        if (dateRange) {
+            dates = eachDayOfInterval({
+                start: DateUtils.getDate(dateRange.startDate),
+                end: DateUtils.getDate(dateRange.endDate),
+            }).map((date) => DateUtils.getLabel(date));
+        }
+        const where = this.getWhere();
+        if (where.topic_id) {
+            where.dates = dates;
+            window.api.send('log-event-dates', { where })
+                .then((result) => this.setState({ dates: result }));
         } else {
-            dates = dates.map((date) => DateUtils.getLabel(date));
-            this.setState({ dates });
+            this.setState({ dates: dates || [DateUtils.getTodayLabel()] });
         }
     }
 
     renderFilters() {
         return (
             <InputGroup>
-                <Selector
-                    options={DateRange.Options}
-                    value={this.state.dateRange}
-                    disabled={this.props.disabled}
+                <DateRangePicker
+                    dateRange={this.state.dateRange}
                     onChange={(dateRange) => this.setState({ dateRange }, this.afterUpdate)}
                 />
                 <Selector.Binary
