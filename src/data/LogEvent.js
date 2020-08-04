@@ -129,6 +129,7 @@ class LogEvent extends Base {
             title: logEvent.title,
             details: logEvent.details,
             isMajor: logEvent.is_major,
+            onSidebar: logEvent.on_sidebar,
             isComplete: logEvent.is_complete,
             logStructure: outputLogStructure,
         };
@@ -155,6 +156,7 @@ class LogEvent extends Base {
             title: inputLogEvent.title,
             details: inputLogEvent.details,
             is_major: inputLogEvent.isMajor,
+            on_sidebar: inputLogEvent.onSidebar,
             is_complete: inputLogEvent.isComplete,
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,

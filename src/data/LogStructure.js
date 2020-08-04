@@ -130,6 +130,7 @@ class LogStructure extends Base {
             frequency: null,
             lastUpdate: null,
             isMajor: true,
+            onSidebar: false,
         };
     }
 

@@ -2,14 +2,30 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { MdCheckCircle, MdClose } from 'react-icons/md';
+import {
+    MdCheckCircle, MdClose, MdEdit, MdFavorite, MdFavoriteBorder, MdSearch,
+} from 'react-icons/md';
 import { RiLoaderLine } from 'react-icons/ri';
 import {
-    Coordinator, InputLine, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
+    Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
-import { LogTopicDetailsHeader } from '../LogTopic';
+import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
+import { LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
 
 import './DetailsSection.css';
+
+const HEADER_MAPPING = {
+    'log-event': {
+        HeaderComponent: LogEventDetailsHeader,
+        EditorComponent: LogEventEditor,
+        valueKey: 'logEvent',
+    },
+    'log-topic': {
+        HeaderComponent: LogTopicDetailsHeader,
+        EditorComponent: LogTopicEditor,
+        valueKey: 'logTopic',
+    },
+};
 
 class DetailsSection extends React.Component {
     constructor(props) {
@@ -46,53 +62,76 @@ class DetailsSection extends React.Component {
         }, this.saveDebounced);
     }
 
+    onEditButtonClick() {
+        const { item } = this.state;
+        const { EditorComponent, valueKey } = HEADER_MAPPING[item.__type__];
+        Coordinator.invoke('modal-editor', {
+            dataType: item.__type__,
+            EditorComponent,
+            valueKey,
+            value: item,
+        });
+    }
+
     saveNotDebounced() {
         const { item } = this.state;
         window.api.send(`${item.__type__}-upsert`, item)
             .then((newItem) => this.setState({ isDirty: item.details !== newItem.details }));
     }
 
-    renderHeaderButtons() {
-        return (
-            <>
-                <Button title="Status">
-                    {this.state.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
-                </Button>
-                <Button title="Close" onClick={() => Coordinator.invoke('details', null)}>
-                    <MdClose />
-                </Button>
-            </>
-        );
+    renderPrefixButtons(item) {
+        const buttons = [];
+        const { HeaderComponent } = HEADER_MAPPING[item.__type__];
+        if (HeaderComponent.onSearchButtonClick) {
+            buttons.push(
+                <Button
+                    key="search"
+                    onClick={() => HeaderComponent.onSearchButtonClick(item)}
+                    title="Search"
+                >
+                    <MdSearch />
+                </Button>,
+            );
+        }
+        if (typeof item.onSidebar === 'boolean') {
+            buttons.push(
+                <Button
+                    key="favorite"
+                    onClick={() => this.onChange({ ...item, onSidebar: !item.onSidebar })}
+                    title="Favorite?"
+                >
+                    {item.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
+                </Button>,
+            );
+        }
+        return buttons;
+    }
+
+    renderSuffixButtons(item) {
+        return [
+            <Button key="edit" title="Edit" onClick={() => this.onEditButtonClick()}>
+                <MdEdit />
+            </Button>,
+            <Button key="status" title="Status">
+                {this.state.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
+            </Button>,
+            <Button key="close" title="Close" onClick={() => Coordinator.invoke('details', null)}>
+                <MdClose />
+            </Button>,
+        ];
     }
 
     renderHeader() {
         const { item } = this.state;
-        if (item && item.__type__ === 'log-event') {
-            const logEvent = this.state.item;
+        if (item && item.__type__ in HEADER_MAPPING) {
+            const { HeaderComponent, valueKey } = HEADER_MAPPING[item.__type__];
+            const headerComponentProps = { [valueKey]: item };
             return (
                 <InputGroup>
-                    <InputLine styled className="px-2">
-                        <TextEditor
-                            isSingleLine
-                            unstyled
-                            disabled
-                            value={logEvent.title}
-                        />
-                    </InputLine>
-                    {this.renderHeaderButtons()}
+                    {this.renderPrefixButtons(item)}
+                    <HeaderComponent {...headerComponentProps} />
+                    {this.renderSuffixButtons(item)}
                 </InputGroup>
-            );
-        }
-
-        if (item && item.__type__ === 'log-topic') {
-            return (
-                <LogTopicDetailsHeader
-                    logTopic={this.state.item}
-                    disabled={this.props.disabled}
-                    onChange={(logTopic) => this.onChange(logTopic)}
-                >
-                    {this.renderHeaderButtons()}
-                </LogTopicDetailsHeader>
             );
         }
         return (

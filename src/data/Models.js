@@ -205,9 +205,8 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    // Should this be called call LogEvent or LogEvent?
-    // LogEvent indicates "events" and not all items in the list are actual events.
-    // They might be random thoughts, or reminders, etc.
+    // Estimated scale? 50 events per day * 365 days * 10 years = 182,500 events
+    // Size of 1 event? 250 bytes, so total size over 10 years ~= 50mb
     const LogEvent = sequelize.define(
         'log_events',
         {
@@ -247,6 +246,10 @@ export default function (sequelize) {
                 allowNull: false,
             },
             is_major: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
+            on_sidebar: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },

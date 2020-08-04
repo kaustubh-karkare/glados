@@ -111,6 +111,7 @@ export default class Utils {
                 { '#': logTopics },
             );
             inputLogEvent.isMajor = false;
+            inputLogEvent.onSidebar = false;
             inputLogEvent.isComplete = getBool(inputLogEvent, 'isComplete', true);
             if (inputLogEvent.structureName) {
                 inputLogEvent.logStructure = logStructureMap[inputLogEvent.structureName];

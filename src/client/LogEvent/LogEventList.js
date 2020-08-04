@@ -6,7 +6,7 @@ import LogEventAdder from './LogEventAdder';
 import LogEventEditor from './LogEventEditor';
 
 
-function ViewerComponent(props) {
+function LogEventViewer(props) {
     return (
         <>
             <TextEditor
@@ -19,12 +19,12 @@ function ViewerComponent(props) {
     );
 }
 
-ViewerComponent.propTypes = {
+LogEventViewer.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,
     displayIsMajor: PropTypes.bool,
 };
 
-ViewerComponent.Expanded = (props) => {
+LogEventViewer.Expanded = (props) => {
     const { logEvent } = props;
     if (!logEvent.details) {
         return null;
@@ -38,7 +38,7 @@ ViewerComponent.Expanded = (props) => {
     );
 };
 
-ViewerComponent.Expanded.propTypes = {
+LogEventViewer.Expanded.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,
 };
 
@@ -50,7 +50,7 @@ function LogEventList(props) {
             dataType="log-event"
             valueKey="logEvent"
             allowSubscription
-            ViewerComponent={ViewerComponent}
+            ViewerComponent={LogEventViewer}
             EditorComponent={LogEventEditor}
             AdderComponent={showAdder ? LogEventAdder : null}
         />
@@ -60,6 +60,20 @@ function LogEventList(props) {
 LogEventList.propTypes = {
     name: PropTypes.string.isRequired,
     showAdder: PropTypes.bool.isRequired,
+};
+
+LogEventList.Single = (props) => (
+    <BulletList.Item
+        dataType="log-event"
+        value={props.logEvent}
+        valueKey="logEvent"
+        ViewerComponent={LogEventViewer}
+        EditorComponent={LogEventEditor}
+    />
+);
+
+LogEventList.Single.propTypes = {
+    logEvent: PropTypes.Custom.LogEvent.isRequired,
 };
 
 export default LogEventList;

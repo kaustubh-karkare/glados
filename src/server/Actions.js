@@ -60,7 +60,7 @@ export default class {
             // eslint-disable-next-line no-constant-condition
             if (false) {
                 // eslint-disable-next-line no-console
-                console.error(error);
+                console.error(name, input, error);
             }
             throw error;
         }

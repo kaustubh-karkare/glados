@@ -46,7 +46,6 @@ LogTopicViewer.Expanded.propTypes = {
 
 LogTopicList.Single = (props) => (
     <BulletList.Item
-        key={props.logTopic.id}
         dataType="log-topic"
         value={props.logTopic}
         valueKey="logTopic"

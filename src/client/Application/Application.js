@@ -5,18 +5,18 @@ import Row from 'react-bootstrap/Row';
 import {
     Coordinator, ModalStack, ScrollableSection, SidebarSection, URLManager,
 } from '../Common';
-import { LogEventSearch } from '../LogEvent';
+import { LogEventSearch, LogEventList } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
-import { LogTopicSearch } from '../LogTopic';
+import { LogTopicSearch, LogTopicList } from '../LogTopic';
 import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import ConsistencySection from './ConsistencySection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import Enum from '../../common/Enum';
-import FavoriteTopicsSection from './FavoriteTopicsSection';
 import IndexSection from './IndexSection';
 import LayoutSection from './LayoutSection';
+import SidebarItemsSection from './SidebarItemsSection';
 
 
 const Tab = Enum([
@@ -155,7 +155,18 @@ class Applicaton extends React.Component {
                 <LayoutSection layout={this.state.activeLayout} />
                 <BackupSection />
                 <ConsistencySection />
-                <FavoriteTopicsSection />
+                <SidebarItemsSection
+                    title="Favorite Events"
+                    dataType="log-event"
+                    ViewerComponent={LogEventList.Single}
+                    valueKey="logEvent"
+                />
+                <SidebarItemsSection
+                    title="Favorite Topics"
+                    dataType="log-topic"
+                    ViewerComponent={LogTopicList.Single}
+                    valueKey="logTopic"
+                />
                 <CreditsSection />
             </Col>
         );

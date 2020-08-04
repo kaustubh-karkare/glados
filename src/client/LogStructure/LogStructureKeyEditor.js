@@ -39,14 +39,15 @@ class LogStructureKeyEditor extends React.Component {
         );
     }
 
-    renderParentTopic() {
+    renderParentLogTopic() {
         return (
             <TypeaheadSelector
                 dataType="log-topic"
-                value={this.props.logStructureKey.parentTopic}
+                value={this.props.logStructureKey.parentLogTopic}
                 disabled={this.props.disabled}
-                onChange={(parentTopic) => this.update('parentTopic', parentTopic)}
+                onChange={(parentLogTopic) => this.update('parentLogTopic', parentLogTopic)}
                 placeholder="Parent Topic"
+                where={{ has_structure: false }}
             />
         );
     }
@@ -76,7 +77,7 @@ class LogStructureKeyEditor extends React.Component {
                 {this.renderTypeSelector()}
                 {this.renderNameInput()}
                 {this.props.logStructureKey.type === LogStructure.Key.LOG_TOPIC
-                    ? this.renderParentTopic() : null}
+                    ? this.renderParentLogTopic() : null}
                 {this.renderOptionalSelector()}
                 {children.pop()}
             </InputGroup>
