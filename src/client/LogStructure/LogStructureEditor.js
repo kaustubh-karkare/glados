@@ -168,7 +168,7 @@ class LogStructureEditor extends React.Component {
                         Last Update
                     </InputGroup.Text>
                     <DatePicker
-                        value={this.props.logStructure.lastUpdate}
+                        date={this.props.logStructure.lastUpdate}
                         disabled={this.props.disabled}
                         onChange={(lastUpdate) => this.updateLogStructure('lastUpdate', lastUpdate)}
                     />

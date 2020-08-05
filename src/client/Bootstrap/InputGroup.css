@@ -36,7 +36,7 @@
 }
 
 .input-group > .btn {
-    background: var(--input-background);
+    background: var(--input-background-color);
     width: 20px;
     padding: 0px;
 }
@@ -47,14 +47,14 @@
 }
 
 .input-group > input.form-control {
-    background-color: var(--input-background);
+    background-color: var(--input-background-color);
     color: var(--input-text-color);
     height: 20px;
     padding: 0 4px;
 }
 
 .input-group > select.form-control {
-    background-color: var(--input-background);
+    background-color: var(--input-background-color);
     color: var(--input-text-color);
     padding: 0;
 }
@@ -65,7 +65,7 @@
 }
 
 .input-group > .rbt input:first-child {
-    background-color: var(--input-background);
+    background-color: var(--input-background-color);
     border: none;
     border-radius: 0;
     border-width: 0 1px;

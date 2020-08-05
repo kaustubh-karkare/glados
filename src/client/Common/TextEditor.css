@@ -12,12 +12,12 @@
 }
 
 .text-editor.styled {
-    background: var(--input-background);
+    background: var(--input-background-color);
     color: var(--input-text-color);
 }
 
 .text-editor.styled .public-DraftEditor-content {
-    background: var(--input-background);
+    background: var(--input-background-color);
     border-radius: 0 0.2rem 0.2rem 0;
     color: var(--input-text);
     min-height: 20px;
@@ -25,7 +25,7 @@
 }
 
 .text-editor.styled.disabled .public-DraftEditor-content {
-    background: var(--input-disabled-background);
+    background: var(--input-disabled-background-color);
 }
 
 /* TextEditor Mention Suggestions + Dropdown Options (used by RBT Suggestions) */

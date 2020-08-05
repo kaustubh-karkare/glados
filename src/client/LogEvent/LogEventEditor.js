@@ -52,7 +52,7 @@ class LogEventEditor extends React.Component {
         if (this.props.logEvent.date) {
             element = (
                 <DatePicker
-                    value={this.props.logEvent.date}
+                    date={this.props.logEvent.date}
                     disabled={this.props.disabled}
                     onChange={(date) => this.updateLogEvent('date', date)}
                 />

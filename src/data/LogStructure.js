@@ -122,6 +122,7 @@ class LogStructure extends Base {
             id: getVirtualID(),
             logStructureGroup,
             name: name || '',
+            details: '',
             logKeys: [],
             titleTemplate: '',
             needsEdit: false,

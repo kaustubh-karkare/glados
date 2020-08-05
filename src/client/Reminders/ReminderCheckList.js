@@ -18,7 +18,12 @@ class ReminderCheckList extends React.Component {
             return LogEvent.createVirtual({ date: DateUtils.getTodayLabel(), logStructure });
         }
         assert(item.__type__ === 'log-event');
-        return { ...item, date: DateUtils.getTodayLabel(), isComplete: true };
+        return {
+            ...item,
+            date: DateUtils.getTodayLabel(),
+            orderingIndex: null,
+            isComplete: true,
+        };
     }
 
     constructor(props) {
@@ -50,7 +55,7 @@ class ReminderCheckList extends React.Component {
                     this.closeModal();
                     delete this.closeModal;
                 }
-                Coordinator.invoke('log-event-created', result.logEvent);
+                Coordinator.broadcast('log-event-created', result.logEvent);
             });
     }
 

@@ -9,5 +9,5 @@
 }
 
 .input-line.styled {
-    background: var(--input-background);
+    background-color: var(--input-background-color);
 }

@@ -1,27 +1,38 @@
-import DatePickerOriginal from 'react-datepicker';
-import React from 'react';
+import { Calendar } from 'react-date-range';
 import PropTypes from 'prop-types';
+import React from 'react';
+import PopoverElement from './PopoverElement';
 import DateUtils from '../../common/DateUtils';
 
-import 'react-datepicker/dist/react-datepicker.css';
-import './DatePicker.css';
+// https://adphorus.github.io/react-date-range/
 
-function DatePicker(props) {
-    return (
-        <DatePickerOriginal
-            dateFormat="yyyy-MM-dd"
-            selected={DateUtils.getDate(props.value)}
-            disabled={props.disabled}
-            onChange={
-                (newDate) => props.onChange(newDate ? DateUtils.getLabel(newDate.valueOf()) : null)
-            }
-        />
-    );
+class DatePicker extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            lastDate: this.props.date || DateUtils.getTodayLabel(),
+        };
+    }
+
+    render() {
+        return (
+            <PopoverElement onReset={() => this.props.onChange(null)}>
+                {this.props.date || 'Date: Unspecified'}
+                <Calendar
+                    date={DateUtils.getDate(this.props.date || this.state.lastDate)}
+                    onChange={(rawDate) => {
+                        const date = DateUtils.getLabel(rawDate);
+                        this.setState({ lastDate: date });
+                        this.props.onChange(date);
+                    }}
+                />
+            </PopoverElement>
+        );
+    }
 }
 
 DatePicker.propTypes = {
-    value: PropTypes.string.isRequired,
-    disabled: PropTypes.bool.isRequired,
+    date: PropTypes.string,
     onChange: PropTypes.func.isRequired,
 };
 
