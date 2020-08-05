@@ -15,7 +15,7 @@ class LogTopicSearch extends React.Component {
     componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.register(
-                'topic-select',
+                'log-topic-select',
                 (logTopic) => this.setState({ logTopic }),
             ),
         ];
@@ -33,7 +33,6 @@ class LogTopicSearch extends React.Component {
                     value={this.state.logTopic}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.setState({ logTopic })}
-                    where={{ has_structure: false }}
                     placeholder="Topic Search ..."
                 />
             </InputGroup>
@@ -41,7 +40,7 @@ class LogTopicSearch extends React.Component {
     }
 
     renderLogTopics() {
-        const where = { has_structure: false };
+        const where = {};
         const moreProps = {};
         if (this.state.logTopic) {
             where.id = this.state.logTopic.id;

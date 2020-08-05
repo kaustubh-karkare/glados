@@ -3,7 +3,7 @@ import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
-    static createVirtual({ parentLogTopic, name, hasStructure }) {
+    static createVirtual({ parentLogTopic, name }) {
         return {
             __type__: 'log-topic',
             id: getVirtualID(),
@@ -11,7 +11,6 @@ class LogTopic extends Base {
             name: name || '',
             details: '',
             onSidebar: false,
-            hasStructure: typeof hasStructure !== 'undefined' ? hasStructure : false,
         };
     }
 
@@ -42,7 +41,6 @@ class LogTopic extends Base {
             name: logTopic.name,
             details: logTopic.details,
             onSidebar: logTopic.on_sidebar,
-            hasStructure: logTopic.has_structure,
         };
     }
 
@@ -68,15 +66,15 @@ class LogTopic extends Base {
             name: inputLogTopic.name,
             details: inputLogTopic.details,
             on_sidebar: inputLogTopic.onSidebar,
-            has_structure: inputLogTopic.hasStructure,
         };
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 
-        const targetLogTopics = TextEditorUtils.extractLogTopics(
+        const targetLogTopics = TextEditorUtils.extractMentions(
             TextEditorUtils.deserialize(
                 logTopic.details,
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
+            'log-topic',
         );
         await this.database.setEdges(
             'LogTopicToLogTopic',
@@ -129,13 +127,14 @@ class LogTopic extends Base {
         await Promise.all(
             outputLogStructures
                 .filter((outputLogStructure) => {
-                    const logTopics = TextEditorUtils.extractLogTopics(
+                    const mentionedLogTopics = TextEditorUtils.extractMentions(
                         TextEditorUtils.deserialize(
                             outputLogStructure.titleTemplate,
                             TextEditorUtils.StorageType.DRAFTJS,
                         ),
+                        'log-topic',
                     );
-                    return logTopics[updatedLogTopic.id];
+                    return mentionedLogTopics[updatedLogTopic.id];
                 })
                 .map((outputLogStructure) => {
                     outputLogStructure.titleTemplate = LogTopic.updateContent(
@@ -158,22 +157,12 @@ class LogTopic extends Base {
             ),
         );
         await Promise.all(
-            outputLogTopics
-                .filter((outputLogTopic) => {
-                    const logTopics = TextEditorUtils.extractLogTopics(
-                        TextEditorUtils.deserialize(
-                            outputLogTopic.details,
-                            TextEditorUtils.StorageType.DRAFTJS,
-                        ),
-                    );
-                    return logTopics[updatedLogTopic.id];
-                })
-                .map((outputLogTopic) => {
-                    outputLogTopic.details = LogTopic.updateContent(
-                        outputLogTopic.details, [updatedLogTopic],
-                    );
-                    return this.invoke.call(this, 'log-topic-upsert', outputLogTopic);
-                }),
+            outputLogTopics.map((outputLogTopic) => {
+                outputLogTopic.details = LogTopic.updateContent(
+                    outputLogTopic.details, [updatedLogTopic],
+                );
+                return this.invoke.call(this, 'log-topic-upsert', outputLogTopic);
+            }),
         );
     }
 

@@ -13,6 +13,7 @@ class LogEventSearch extends React.Component {
         super(props);
         this.state = {
             isMajor: true,
+            logStructure: null,
             logTopic: null,
         };
         this.afterUpdate = this.afterUpdate.bind(this);
@@ -29,7 +30,11 @@ class LogEventSearch extends React.Component {
                 }, this.afterUpdate),
             ),
             Coordinator.register(
-                'topic-select',
+                'log-structure-select',
+                (logStructure) => this.setState({ logStructure }, this.afterUpdate),
+            ),
+            Coordinator.register(
+                'log-topic-select',
                 (logTopic) => this.setState({ logTopic }, this.afterUpdate),
             ),
         ];
@@ -41,9 +46,12 @@ class LogEventSearch extends React.Component {
     }
 
     getWhere() {
-        const where = {};
+        const where = { is_complete: true };
         if (this.state.isMajor) {
             where.is_major = true;
+        }
+        if (this.state.logStructure) {
+            where.structure_id = this.state.logStructure.id;
         }
         if (this.state.logTopic) {
             where.topic_id = this.state.logTopic.id;
@@ -86,9 +94,12 @@ class LogEventSearch extends React.Component {
                 />
                 <TypeaheadSelector
                     dataType="log-topic"
-                    value={this.state.logTopic}
+                    value={this.state.logTopic || this.state.logStructure}
                     disabled={this.props.disabled}
-                    onChange={(logTopic) => this.setState({ logTopic }, this.afterUpdate)}
+                    onChange={(logTopic) => this.setState(
+                        { logTopic, logStructure: null },
+                        this.afterUpdate,
+                    )}
                     placeholder="Topic Search ..."
                 />
             </InputGroup>

@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ScrollableSection, TypeaheadSelector } from '../Common';
+import { Coordinator, ScrollableSection, TypeaheadSelector } from '../Common';
 import LogStructureList from './LogStructureList';
 import LogStructureGroupList from './LogStructureGroupList';
 
@@ -13,24 +13,27 @@ class LogStructureSearch extends React.Component {
         };
     }
 
-    onSelect(logTopic) {
-        if (!logTopic) {
-            this.setState({ logStructure: null });
-            return;
-        }
-        window.api.send('log-structure-list', { where: { topic_id: logTopic.id } })
-            .then(([logStructure]) => this.setState({ logStructure }));
+    componentDidMount() {
+        this.deregisterCallbacks = [
+            Coordinator.register(
+                'log-structure-select',
+                (logStructure) => this.setState({ logStructure }),
+            ),
+        ];
+    }
+
+    componentWillUnmount() {
+        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
     renderFilters() {
         return (
             <InputGroup>
                 <TypeaheadSelector
-                    dataType="log-topic"
-                    value={this.state.logStructure && this.state.logStructure.logTopic}
+                    dataType="log-structure"
+                    value={this.state.logStructure}
                     disabled={this.props.disabled}
-                    onChange={(logTopic) => this.onSelect(logTopic)}
-                    where={{ has_structure: true }}
+                    onChange={(logStructure) => this.setState({ logStructure })}
                     placeholder="Structure Search ..."
                 />
             </InputGroup>

@@ -48,10 +48,6 @@ export default function (sequelize) {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
-            has_structure: {
-                type: Sequelize.BOOLEAN,
-                allowNull: false,
-            },
         },
         {
             ...options,
@@ -135,16 +131,20 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            topic_id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-            },
             group_id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
             ordering_index: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            details: {
+                type: Sequelize.TEXT,
                 allowNull: false,
             },
             // Should this structure have key-value-pairs?
@@ -183,23 +183,11 @@ export default function (sequelize) {
                 allowNull: false,
             },
         },
-        {
-            ...options,
-            indexes: [
-                { unique: true, fields: ['topic_id'] },
-            ],
-        },
+        options,
     );
 
     LogStructure.belongsTo(LogStructureGroup, {
         foreignKey: 'group_id',
-        allowNull: false,
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
-    LogStructure.belongsTo(LogTopic, {
-        foreignKey: 'topic_id',
         allowNull: false,
         onDelete: 'restrict',
         onUpdate: 'restrict',

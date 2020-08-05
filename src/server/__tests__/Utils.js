@@ -2,7 +2,7 @@ import DateUtils from '../../common/DateUtils';
 import Database from '../Database';
 import Actions from '../Actions';
 import {
-    LogStructure, LogTopic, awaitSequence, getVirtualID,
+    LogStructure, awaitSequence, getVirtualID,
 } from '../../data';
 import TextEditorUtils from '../../common/TextEditorUtils';
 
@@ -62,13 +62,11 @@ export default class Utils {
 
         const logStructureMap = {};
         await awaitSequence(data.logStructures, async (inputLogStructure) => {
+            inputLogStructure.__type__ = 'log-structure';
             inputLogStructure.id = getVirtualID();
             inputLogStructure.logStructureGroup = logStructureGroupMap[inputLogStructure.groupName];
             delete inputLogStructure.groupName;
-            inputLogStructure.logTopic = LogTopic.createVirtual({
-                name: inputLogStructure.name,
-                hasStructure: true,
-            });
+            inputLogStructure.details = '';
             if (inputLogStructure.logKeys) {
                 inputLogStructure.logKeys.forEach((logKey, index) => {
                     logKey.__type__ = 'log-structure-key';
@@ -83,7 +81,7 @@ export default class Utils {
             }
             inputLogStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
                 inputLogStructure.titleTemplate || '$0',
-                { $: [inputLogStructure.logTopic, ...inputLogStructure.logKeys] },
+                { $: [inputLogStructure, ...inputLogStructure.logKeys] },
             );
             inputLogStructure.needsEdit = inputLogStructure.needsEdit || false;
 
@@ -95,8 +93,7 @@ export default class Utils {
 
             inputLogStructure.isMajor = false;
             const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
-            logStructureMap[outputLogStructure.logTopic.name] = outputLogStructure;
-            logTopics.push(outputLogStructure.logTopic);
+            logStructureMap[outputLogStructure.name] = outputLogStructure;
         });
 
         await awaitSequence(data.logEvents, async (inputLogEvent) => {

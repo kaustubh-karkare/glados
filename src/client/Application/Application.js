@@ -88,16 +88,7 @@ class Applicaton extends React.Component {
     }
 
     onDetailsChange(item) {
-        if (!item || item.__type__ === 'log-topic' || item.__type__ === 'log-event') {
-            this.setURLFromState({ activeDetails: item });
-        } else if (item.__type__ === 'log-structure') {
-            this.setURLFromState({ activeDetails: item.logTopic });
-        } else {
-            Coordinator.invoke(
-                'modal-error',
-                `${JSON.stringify(item, null, 4)}\n\nThis item does support details!`,
-            );
-        }
+        this.setURLFromState({ activeDetails: item });
     }
 
     // Synchronization of URL Parameters with Component State.

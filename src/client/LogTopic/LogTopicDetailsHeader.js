@@ -6,7 +6,7 @@ import {
 
 class LogTopicDetailsHeader extends React.Component {
     static onSearchButtonClick(logTopic) {
-        Coordinator.invoke('topic-select', logTopic);
+        Coordinator.invoke('log-topic-select', logTopic);
     }
 
     renderParentTopic() {

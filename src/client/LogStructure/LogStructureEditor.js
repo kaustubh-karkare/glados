@@ -8,7 +8,7 @@ import {
     DatePicker, SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
 } from '../Common';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
-import { LogStructure } from '../../data';
+import { LogStructure, getPartialItem } from '../../data';
 
 class LogStructureEditor extends React.Component {
     constructor(props) {
@@ -53,43 +53,40 @@ class LogStructureEditor extends React.Component {
         });
     }
 
-    renderName() {
-        const { logTopic } = this.props.logStructure;
+    renderGroup() {
         return (
-            <>
-                <InputGroup className="my-1">
-                    <InputGroup className="my-1">
-                        <InputGroup.Text>
-                            Group
-                        </InputGroup.Text>
-                        <TypeaheadSelector
-                            dataType="log-structure-group"
-                            value={this.props.logStructure.logStructureGroup}
-                            disabled={this.props.disabled}
-                            onChange={(logStructureGroup) => this.updateLogStructure(
-                                'logStructureGroup',
-                                logStructureGroup,
-                            )}
-                        />
-                    </InputGroup>
-                    <InputGroup.Text>
-                        Name
-                    </InputGroup.Text>
-                    <TextInput
-                        allowUpdate
-                        dataType="log-topic"
-                        value={logTopic.name}
-                        disabled={this.props.disabled}
-                        onChange={(name) => this.updateLogStructure((updatedLogStructure) => {
-                            updatedLogStructure.logTopic = {
-                                ...updatedLogStructure.logTopic,
-                                name,
-                            };
-                        })}
-                        ref={this.nameRef}
-                    />
-                </InputGroup>
-            </>
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Group
+                </InputGroup.Text>
+                <TypeaheadSelector
+                    dataType="log-structure-group"
+                    value={this.props.logStructure.logStructureGroup}
+                    disabled={this.props.disabled}
+                    onChange={(logStructureGroup) => this.updateLogStructure(
+                        'logStructureGroup',
+                        logStructureGroup,
+                    )}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderName() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Name
+                </InputGroup.Text>
+                <TextInput
+                    allowUpdate
+                    dataType="log-structure"
+                    value={this.props.logStructure.name}
+                    disabled={this.props.disabled}
+                    onChange={(name) => this.updateLogStructure('name', name)}
+                    ref={this.nameRef}
+                />
+            </InputGroup>
         );
     }
 
@@ -103,7 +100,7 @@ class LogStructureEditor extends React.Component {
                 <TextEditor
                     isSingleLine
                     value={logStructure.titleTemplate}
-                    clientSideOptions={[logStructure.logTopic, ...logStructure.logKeys]}
+                    clientSideOptions={[getPartialItem(logStructure), ...logStructure.logKeys]}
                     disabled={this.props.disabled}
                     onChange={(titleTemplate) => this.updateLogStructure('titleTemplate', titleTemplate)}
                 />
@@ -217,6 +214,7 @@ class LogStructureEditor extends React.Component {
         return (
             <>
                 <div className="my-3">
+                    {this.renderGroup()}
                     {this.renderName()}
                 </div>
                 <div className="my-3">

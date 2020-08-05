@@ -119,39 +119,25 @@ ActionsRegistry['backup-load'] = async function () {
     const filedata = await promise;
     const data = JSON.parse(filedata);
 
-    /*
-    if (false) {
-        // Associate existing topic with structure.
-        let structure_id = Math.max(...data.log_structures.map((item) => item.id));
-        const log_topic = data.log_topics.find((log_topic) => log_topic.name === 'Housekeeping');
-        log_topic.parent_topic_id = null;
-        log_topic.has_structure = true;
-        const log_structure = {
-            id: ++structure_id,
-            group_id: 1,
-            topic_id: log_topic.id,
-            keys: '[]',
-            title_template: '',
-            is_periodic: false,
-            is_major: false,
-        };
-        data.log_structures.push(log_structure);
-        const event_ids = data.log_events_to_log_topics
-            .filter((edge) => edge.topic_id === log_topic.id)
-            .map((edge) => edge.event_id);
-        data.log_events
-            .filter((log_event) => event_ids.includes(log_event.id))
-            .forEach((log_event) => {
-                log_event.structure_id = log_structure.id;
-                log_event.structure_values = '[]';
-            });
-    }
-    */
-
     // This is where we can transform the input data to fix compatibility!
     await awaitSequence(this.database.getModelSequence(), async (model) => {
         const items = data[model.name];
-        await model.bulkCreate(items, { transaction: this.database.transaction });
+        if (model.name !== 'log_topics') {
+            await awaitSequence(items, async (item) => {
+                try {
+                    await model.create(item, { transaction: this.database.transaction });
+                } catch (error) {
+                    // eslint-disable-next-line no-constant-condition
+                    if (false) {
+                        // eslint-disable-next-line no-console
+                        console.error(model.name, item);
+                    }
+                    throw error;
+                }
+            });
+        } else {
+            await model.bulkCreate(items, { transaction: this.database.transaction });
+        }
     });
     return latestBackup;
 };

@@ -30,11 +30,9 @@ class LogEventEditor extends React.Component {
     }
 
     async onSelectSuggestion(option) {
-        if (option.__type__ === 'log-topic') {
-            const logTopic = await window.api.send('log-topic-load', option);
-            if (logTopic.hasStructure) {
-                this.updateLogStructure(logTopic);
-            }
+        if (option.__type__ === 'log-structure') {
+            const logStructure = await window.api.send('log-structure-load', option);
+            this.updateLogEvent('logStructure', logStructure);
         }
     }
 
@@ -47,15 +45,6 @@ class LogEventEditor extends React.Component {
         }
         LogEvent.trigger(updatedLogEvent);
         this.props.onChange(updatedLogEvent);
-    }
-
-    updateLogStructure(logTopic) {
-        if (logTopic) {
-            window.api.send('log-structure-list', { where: { topic_id: logTopic.id } })
-                .then(([logStructure]) => this.updateLogEvent('logStructure', logStructure));
-        } else {
-            this.updateLogEvent('logStructure', null);
-        }
     }
 
     renderDateRow() {
@@ -90,7 +79,7 @@ class LogEventEditor extends React.Component {
                 <TextEditor
                     isSingleLine
                     value={this.props.logEvent.title}
-                    serverSideTypes={['log-topic']}
+                    serverSideTypes={['log-structure', 'log-topic']}
                     disabled={this.props.disabled || !!this.props.logEvent.logStructure}
                     onChange={(title) => this.updateLogEvent('title', title)}
                     onSpecialKeys={this.props.onSpecialKeys}
@@ -149,18 +138,16 @@ class LogEventEditor extends React.Component {
     }
 
     renderStructureSelector() {
-        const { logStructure } = this.props.logEvent;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Structure
                 </InputGroup.Text>
                 <TypeaheadSelector
-                    dataType="log-topic"
-                    where={{ has_structure: true }}
-                    value={logStructure ? logStructure.logTopic : null}
+                    dataType="log-structure"
+                    value={this.props.logEvent.logStructure}
                     disabled={this.props.disabled}
-                    onChange={(logTopic) => this.updateLogStructure(logTopic)}
+                    onChange={(logStructure) => this.updateLogEvent('logStructure', logStructure)}
                     allowDelete
                 />
             </InputGroup>

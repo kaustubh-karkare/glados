@@ -253,20 +253,20 @@ class TextEditorUtils {
             .join('');
     }
 
-    static extractLogTopics(content) {
+    static extractMentions(content, type) {
         // There's no way to extract the list of entity-keys from the contentState API.
         // And so I'm just accessing the raw data here.
         content = convertToRaw(content);
-        const logTopics = {};
+        const result = {};
         Object.values(content.entityMap)
             .filter((entity) => entity.type === DRAFTJS_MENTION_ENTITY_TYPE)
             .forEach((entity) => {
-                const logTopic = entity.data[DRAFTJS_MENTION_PLUGIN_NAME];
-                if (logTopic.__type__ === 'log-topic') {
-                    logTopics[logTopic.id] = logTopic;
+                const item = entity.data[DRAFTJS_MENTION_PLUGIN_NAME];
+                if (item.__type__ === type) {
+                    result[item.id] = item;
                 }
             });
-        return logTopics;
+        return result;
     }
 
     static updateDraftContent(contentState, oldItems, newItems) {
@@ -339,6 +339,49 @@ class TextEditorUtils {
             }
         });
 
+        return contentState;
+    }
+
+    static addPrefixToDraftContent(contentState, items) {
+        const blocks = contentState.getBlocksAsArray();
+        assert(blocks.length === 1);
+        let selectionState = SelectionState.createEmpty(blocks[0].getKey());
+        selectionState = selectionState.merge({
+            anchorOffset: 0,
+            focusOffset: 0,
+            hasFocus: true,
+        });
+        items.forEach((item) => {
+            let delta;
+            if (typeof item === 'string') {
+                contentState = Modifier.insertText(
+                    contentState,
+                    selectionState,
+                    item,
+                    null,
+                    null,
+                );
+                delta += item.length;
+            } else {
+                contentState = contentState.createEntity(
+                    DRAFTJS_MENTION_ENTITY_TYPE,
+                    'SEGMENTED',
+                    { [DRAFTJS_MENTION_PLUGIN_NAME]: item },
+                );
+                contentState = Modifier.insertText(
+                    contentState,
+                    selectionState,
+                    item.name,
+                    null,
+                    contentState.getLastCreatedEntityKey(),
+                );
+                delta += item.name.length;
+            }
+            selectionState = selectionState.merge({
+                anchorOffset: selectionState.anchorOffset + delta,
+                focusOffset: selectionState.focusOffset + delta,
+            });
+        });
         return contentState;
     }
 

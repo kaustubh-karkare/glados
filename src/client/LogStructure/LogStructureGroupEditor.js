@@ -22,8 +22,6 @@ class LogStructureGroupEditor extends React.Component {
                         Name
                     </InputGroup.Text>
                     <TextInput
-                        allowUpdate
-                        dataType="log-topic"
                         value={logStructureGroup.name}
                         disabled={this.props.disabled}
                         onChange={(name) => this.props.onChange({ ...logStructureGroup, name })}

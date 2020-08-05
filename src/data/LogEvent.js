@@ -23,6 +23,7 @@ class LogEvent extends Base {
             title: title || '',
             details: '',
             isMajor: typeof isMajor !== 'undefined' ? isMajor : true,
+            onSidebar: false,
             isComplete: true,
             logStructure: logStructure || null,
         };
@@ -39,7 +40,7 @@ class LogEvent extends Base {
             content = TextEditorUtils.updateDraftContent(
                 content,
                 logEvent.logStructure.logKeys,
-                logEvent.logStructure.logKeys.map((logKey) => logKey.value || logKey.name),
+                logEvent.logStructure.logKeys.map((logKey) => logKey.value || logKey),
             );
             content = TextEditorUtils.evaluateDraftContentExpressions(content);
             logEvent.title = TextEditorUtils.serialize(
@@ -164,17 +165,19 @@ class LogEvent extends Base {
         logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
 
         const logTopics = {
-            ...TextEditorUtils.extractLogTopics(
+            ...TextEditorUtils.extractMentions(
                 TextEditorUtils.deserialize(
                     logEvent.title,
                     TextEditorUtils.StorageType.DRAFTJS,
                 ),
+                'log-topic',
             ),
-            ...TextEditorUtils.extractLogTopics(
+            ...TextEditorUtils.extractMentions(
                 TextEditorUtils.deserialize(
                     logEvent.details,
                     TextEditorUtils.StorageType.DRAFTJS,
                 ),
+                'log-topic',
             ),
         };
         if (logValues) {

@@ -100,7 +100,7 @@ class ReminderCheckList extends React.Component {
     renderItem(item) {
         let title;
         if (item.__type__ === 'log-structure') {
-            title = item.reminderText || item.logTopic.name;
+            title = item.reminderText || item.name;
         } else {
             title = (
                 <TextEditor

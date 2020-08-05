@@ -70,7 +70,7 @@ test('test_structure_title_template', async () => {
     const { logStructure } = logEvents[0];
     logStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
         '$0: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
-        { $: [logStructure.logTopic, ...logStructure.logKeys] },
+        { $: [logStructure, ...logStructure.logKeys] },
     );
     await actions.invoke('log-structure-upsert', logStructure);
 

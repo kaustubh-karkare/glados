@@ -47,7 +47,6 @@ class LogStructureKeyEditor extends React.Component {
                 disabled={this.props.disabled}
                 onChange={(parentLogTopic) => this.update('parentLogTopic', parentLogTopic)}
                 placeholder="Parent Topic"
-                where={{ has_structure: false }}
             />
         );
     }

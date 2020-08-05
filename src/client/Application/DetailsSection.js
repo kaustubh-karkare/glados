@@ -10,6 +10,7 @@ import {
     Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
+import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
 
 import './DetailsSection.css';
@@ -19,6 +20,11 @@ const HEADER_MAPPING = {
         HeaderComponent: LogEventDetailsHeader,
         EditorComponent: LogEventEditor,
         valueKey: 'logEvent',
+    },
+    'log-structure': {
+        HeaderComponent: LogStructureDetailsHeader,
+        EditorComponent: LogStructureEditor,
+        valueKey: 'logStructure',
     },
     'log-topic': {
         HeaderComponent: LogTopicDetailsHeader,
@@ -49,8 +55,16 @@ class DetailsSection extends React.Component {
             this.setState({ item: null });
         }
         if (left && (!right || left.__type__ !== right.__type__ || left.id !== right.id)) {
-            window.api.send(`${left.__type__}-load`, left)
-                .then((item) => this.setState({ item }));
+            if (left.__type__ in HEADER_MAPPING) {
+                window.api.send(`${left.__type__}-load`, left)
+                    .then((item) => this.setState({ item }));
+            } else {
+                Coordinator.invoke('details', right);
+                Coordinator.invoke(
+                    'modal-error',
+                    `${JSON.stringify(left, null, 4)}\n\nThis item does support details!`,
+                );
+            }
         }
     }
 

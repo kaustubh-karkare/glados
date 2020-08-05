@@ -2,13 +2,13 @@ import {
     addDays, compareAsc, getDay, isFriday, isMonday, isSaturday, isSunday, subDays,
 } from 'date-fns';
 import assert from 'assert';
-import { getVirtualID } from './Utils';
+import { getVirtualID, getPartialItem } from './Utils';
 import Base from './Base';
 import DateUtils from '../common/DateUtils';
 import Enum from '../common/Enum';
 import LogStructureGroup from './LogStructureGroup';
-import LogTopic from './LogTopic';
 import TextEditorUtils from '../common/TextEditorUtils';
+
 
 const LogStructureKey = Enum([
     {
@@ -116,12 +116,12 @@ const LogStructureFrequency = Enum(FrequencyRawOptions);
 
 
 class LogStructure extends Base {
-    static createVirtual({ logStructureGroup, name, logTopic } = {}) {
+    static createVirtual({ logStructureGroup, name } = {}) {
         return {
             __type__: 'log-structure',
-            logStructureGroup,
             id: getVirtualID(),
-            logTopic: logTopic || LogTopic.createVirtual({ hasStructure: true }),
+            logStructureGroup,
+            name: name || '',
             logKeys: [],
             titleTemplate: '',
             needsEdit: false,
@@ -140,7 +140,7 @@ class LogStructure extends Base {
             TextEditorUtils.StorageType.DRAFTJS,
         );
         // TODO: If a key is deleted, remove it from the content.
-        const options = [logStructure.logTopic, ...logStructure.logKeys];
+        const options = [getPartialItem(logStructure), ...logStructure.logKeys];
         content = TextEditorUtils.updateDraftContent(content, options, options);
         logStructure.titleTemplate = TextEditorUtils.serialize(
             content,
@@ -185,11 +185,6 @@ class LogStructure extends Base {
     static async validateInternal(inputLogStructure) {
         const results = [];
 
-        const logTopicResults = await Base.validateRecursive(
-            LogTopic, '.logTopic', inputLogStructure.logTopic,
-        );
-        results.push(...logTopicResults);
-
         inputLogStructure.logKeys.forEach((logKey, index) => {
             const prefix = `.logKey[${index}]`;
             results.push(Base.validateNonEmptyString(`${prefix}.name`, logKey.name));
@@ -209,8 +204,8 @@ class LogStructure extends Base {
         );
         results.push([
             '.titleTemplate',
-            inputLogStructure.logTopic.id in TextEditorUtils.extractLogTopics(content),
-            'must mention the topic!',
+            inputLogStructure.id in TextEditorUtils.extractMentions(content, 'log-structure'),
+            'must mention the structure!',
         ]);
 
         if (inputLogStructure.isPeriodic) {
@@ -232,7 +227,6 @@ class LogStructure extends Base {
 
     static async load(id) {
         const logStructure = await this.database.findByPk('LogStructure', id);
-        const outputLogStructure = await LogTopic.load.call(this, logStructure.topic_id);
         const outputLogStructureGroup = await LogStructureGroup.load.call(
             this, logStructure.group_id,
         );
@@ -245,7 +239,8 @@ class LogStructure extends Base {
             __type__: 'log-structure',
             id: logStructure.id,
             logStructureGroup: outputLogStructureGroup,
-            logTopic: outputLogStructure,
+            name: logStructure.name,
+            details: logStructure.details,
             logKeys,
             titleTemplate: logStructure.title_template,
             needsEdit: logStructure.needs_edit,
@@ -258,7 +253,8 @@ class LogStructure extends Base {
     }
 
     static async save(inputLogStructure) {
-        let logStructure = await this.database.findItem('LogStructure', inputLogStructure);
+        const logStructure = await this.database.findItem('LogStructure', inputLogStructure);
+        const originalLogStructure = logStructure ? { ...logStructure.dataValues } : null;
 
         Base.broadcast.call(
             this,
@@ -267,40 +263,12 @@ class LogStructure extends Base {
             { group_id: inputLogStructure.logStructureGroup.id },
         );
 
-        const prevLogTopicId = logStructure && logStructure.topic_id;
-        const nextLogTopicId = await Base.manageEntityBefore.call(
-            this, inputLogStructure.logTopic, LogTopic,
-        );
-
-        let originalKeys;
-        let originalTitleTemplate;
-        if (logStructure) {
-            originalKeys = logStructure.keys;
-            originalTitleTemplate = TextEditorUtils.deserialize(
-                logStructure.title_template,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
-        }
-
-        let updatedTitleTemplate = TextEditorUtils.deserialize(
-            inputLogStructure.titleTemplate,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        updatedTitleTemplate = TextEditorUtils.updateDraftContent(
-            updatedTitleTemplate,
-            [inputLogStructure.logTopic],
-            [{ ...inputLogStructure.logTopic, id: nextLogTopicId }],
-        );
-        inputLogStructure.titleTemplate = TextEditorUtils.serialize(
-            updatedTitleTemplate,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
-            topic_id: nextLogTopicId,
             group_id: inputLogStructure.logStructureGroup.id,
             ordering_index: orderingIndex,
+            name: inputLogStructure.name,
+            details: inputLogStructure.details,
             keys: JSON.stringify(inputLogStructure.logKeys.map(
                 (logKey) => LogStructure.saveKey.call(this, logKey),
             )),
@@ -312,25 +280,50 @@ class LogStructure extends Base {
             last_update: inputLogStructure.lastUpdate,
             is_major: inputLogStructure.isMajor,
         };
-        logStructure = await this.database.createOrUpdateItem(
+        const updatedLogStructure = await this.database.createOrUpdateItem(
             'LogStructure', logStructure, fields,
         );
 
-        await Base.manageEntityAfter.call(
-            this, prevLogTopicId, inputLogStructure.logTopic, LogTopic,
+        let updatedTitleTemplate = TextEditorUtils.deserialize(
+            inputLogStructure.titleTemplate,
+            TextEditorUtils.StorageType.DRAFTJS,
         );
-
-        if (originalKeys || originalTitleTemplate) {
-            if (
-                originalKeys !== logStructure.keys
-                || !TextEditorUtils.equals(originalTitleTemplate, updatedTitleTemplate)
-            ) {
+        if (originalLogStructure) {
+            let shouldRegenerateLogEventTitles = (
+                originalLogStructure.name !== updatedLogStructure.name
+                || originalLogStructure.keys !== updatedLogStructure.keys
+            );
+            if (!shouldRegenerateLogEventTitles) {
+                const originalTitleTemplate = TextEditorUtils.deserialize(
+                    originalLogStructure.title_template,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                );
+                shouldRegenerateLogEventTitles = TextEditorUtils.equals(
+                    originalTitleTemplate,
+                    updatedTitleTemplate,
+                );
+            }
+            if (shouldRegenerateLogEventTitles) {
                 await LogStructure.updateLogEvents.call(this, logStructure.id);
             }
+        } else {
+            updatedTitleTemplate = TextEditorUtils.updateDraftContent(
+                updatedTitleTemplate,
+                [inputLogStructure],
+                [{ ...getPartialItem(inputLogStructure), id: updatedLogStructure.id }],
+            );
+            inputLogStructure.titleTemplate = TextEditorUtils.serialize(
+                updatedTitleTemplate,
+                TextEditorUtils.StorageType.DRAFTJS,
+            );
+            const transaction = this.database.getTransaction();
+            await updatedLogStructure.update({
+                title_template: inputLogStructure.titleTemplate,
+            }, { transaction });
         }
 
         this.broadcast('reminder-sidebar');
-        return logStructure.id;
+        return updatedLogStructure.id;
     }
 
     static async updateLogEvents(logStructureId) {
@@ -348,7 +341,6 @@ class LogStructure extends Base {
 
     static async delete(id) {
         const logStructure = await this.database.deleteByPk('LogStructure', id);
-        await Base.manageEntityAfter.call(this, logStructure.topic_id, null, LogTopic);
         Base.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
         return { id: logStructure.id };
     }
@@ -371,7 +363,9 @@ class LogStructure extends Base {
         logKey.isOptional = logKey.is_optional;
         delete logKey.is_optional;
         if (logKey.parent_topic_id) {
-            logKey.parentLogTopic = await LogTopic.load.call(this, logKey.parent_topic_id);
+            logKey.parentLogTopic = await this.invoke.call(this, 'log-topic-load', {
+                id: logKey.parent_topic_id,
+            });
         }
         delete logKey.parent_topic_id;
         return logKey;
