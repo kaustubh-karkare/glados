@@ -31,12 +31,17 @@ export default class Utils {
     }
 
     static async loadData(data) {
-        const logTopicsMap = {};
+        const logTopicMap = {};
         const logTopics = [null];
+        const existingLogTopics = await actions.invoke('log-topic-list');
+        existingLogTopics.forEach((outputLogTopic) => {
+            logTopicMap[outputLogTopic.name] = outputLogTopic;
+            logTopics.push(outputLogTopic);
+        });
         await awaitSequence(data.logTopics, async (inputLogTopic) => {
             inputLogTopic.id = getVirtualID();
             if (inputLogTopic.parentTopicName) {
-                inputLogTopic.parentLogTopic = logTopicsMap[inputLogTopic.parentTopicName];
+                inputLogTopic.parentLogTopic = logTopicMap[inputLogTopic.parentTopicName];
                 delete inputLogTopic.parentTopicName;
             }
             inputLogTopic.details = TextEditorUtils.convertPlainTextToDraftContent(
@@ -46,11 +51,15 @@ export default class Utils {
             inputLogTopic.onSidebar = false;
             inputLogTopic.hasStructure = false;
             const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
-            logTopicsMap[outputLogTopic.name] = outputLogTopic;
+            logTopicMap[outputLogTopic.name] = outputLogTopic;
             logTopics.push(outputLogTopic);
         });
 
         const logStructureGroupMap = {};
+        const existingLogStructureGroups = await actions.invoke('log-structure-group-list');
+        existingLogStructureGroups.forEach((outputLogStructureGroup) => {
+            logStructureGroupMap[outputLogStructureGroup.name] = outputLogStructureGroup;
+        });
         await awaitSequence(data.logStructureGroups, async (inputLogStructureGroup) => {
             inputLogStructureGroup.id = getVirtualID();
             const outputLogStructureGroup = await actions.invoke(
@@ -61,6 +70,10 @@ export default class Utils {
         });
 
         const logStructureMap = {};
+        const existingLogStructures = await actions.invoke('log-structure-list');
+        existingLogStructures.forEach((outputLogStructure) => {
+            logStructureMap[outputLogStructure.name] = outputLogStructure;
+        });
         await awaitSequence(data.logStructures, async (inputLogStructure) => {
             inputLogStructure.__type__ = 'log-structure';
             inputLogStructure.id = getVirtualID();
@@ -72,7 +85,7 @@ export default class Utils {
                     logKey.__type__ = 'log-structure-key';
                     logKey.id = index;
                     if (logKey.parentTopicName) {
-                        logKey.parentLogTopic = logTopicsMap[logKey.parentTopicName];
+                        logKey.parentLogTopic = logTopicMap[logKey.parentTopicName];
                         delete logKey.parentTopicName;
                     }
                 });
@@ -88,6 +101,10 @@ export default class Utils {
             inputLogStructure.isPeriodic = inputLogStructure.isPeriodic || false;
             inputLogStructure.reminderText = inputLogStructure.reminderText || null;
             inputLogStructure.frequency = inputLogStructure.frequency || null;
+            inputLogStructure.frequencyArgs = inputLogStructure.frequencyArgs || null;
+            inputLogStructure.warningDays = inputLogStructure.isPeriodic
+                ? (inputLogStructure.warningDays || 0)
+                : null;
             inputLogStructure.lastUpdate = inputLogStructure.lastUpdate || null;
             DateUtils.maybeSubstitute(inputLogStructure, 'lastUpdate');
 
@@ -116,7 +133,7 @@ export default class Utils {
                     inputLogEvent.logValues.forEach((value, index) => {
                         const logKey = inputLogEvent.logStructure.logKeys[index];
                         if (logKey.type === LogStructure.Key.LOG_TOPIC) {
-                            logKey.value = logTopicsMap[value];
+                            logKey.value = logTopicMap[value];
                         } else {
                             logKey.value = value;
                         }

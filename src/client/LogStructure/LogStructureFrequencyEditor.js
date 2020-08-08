@@ -19,6 +19,11 @@ const DayOptions = Array(Math.max(...DateUtils.MonthsOfTheYear.map((month) => mo
         return { label: value, value };
     });
 
+const WarningDayOptions = Array(15).fill(null).map((_, index) => {
+    const value = `${index}`;
+    return { label: value, value };
+});
+
 class LogStructureFrequencyEditor extends React.Component {
     updateIsPeriodic(newIsPeriodic) {
         this.props.updateLogStructure((updatedLogStructure) => {
@@ -28,6 +33,7 @@ class LogStructureFrequencyEditor extends React.Component {
                 updatedLogStructure.frequency = (
                     updatedLogStructure._frequency || LogStructure.Frequency.EVERYDAY
                 );
+                updatedLogStructure.warningDays = updatedLogStructure._warningDays || 0;
                 updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
                 DateUtils.maybeSubstitute(updatedLogStructure, 'lastUpdate');
             } else {
@@ -36,6 +42,8 @@ class LogStructureFrequencyEditor extends React.Component {
                 updatedLogStructure.reminderText = null;
                 updatedLogStructure._frequency = updatedLogStructure.frequency;
                 updatedLogStructure.frequency = null;
+                updatedLogStructure._warningDays = updatedLogStructure.warningDays;
+                updatedLogStructure.warningDays = null;
                 updatedLogStructure._lastUpdate = updatedLogStructure.lastUpdate;
                 updatedLogStructure.lastUpdate = null;
             }
@@ -130,6 +138,22 @@ class LogStructureFrequencyEditor extends React.Component {
         );
     }
 
+    renderWarningDays() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Warning Days
+                </InputGroup.Text>
+                <Selector
+                    options={WarningDayOptions}
+                    disabled={this.props.disabled}
+                    value={this.props.logStructure.warningDays.toString()}
+                    onChange={(warningDays) => this.props.updateLogStructure('warningDays', parseInt(warningDays, 10))}
+                />
+            </InputGroup>
+        );
+    }
+
     renderLastUpdate() {
         return (
             <InputGroup className="my-1">
@@ -155,6 +179,7 @@ class LogStructureFrequencyEditor extends React.Component {
                             {this.renderReminderText()}
                             {this.renderFrequency()}
                             {this.renderFrequencyArgs()}
+                            {this.renderWarningDays()}
                             {this.renderLastUpdate()}
                         </>
                     )

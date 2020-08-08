@@ -38,12 +38,20 @@ const timeValues = {
 // Section: Date Utilities
 
 class DateUtils {
-    static getTodayDate() {
+    static getTodayDate(context) {
+        if (context && context.todayLabel) {
+            return DateUtils.getDate(context.todayLabel);
+        } if (context && context.todayDate) {
+            return context.todayDate;
+        }
         return set(new Date(new Date().valueOf() - TODAY_OFFSET), timeValues);
     }
 
-    static getTodayLabel() {
-        return DateUtils.getLabel(DateUtils.getTodayDate());
+    static getTodayLabel(context) {
+        if (context && context.todayLabel) {
+            return context.todayLabel;
+        }
+        return DateUtils.getLabel(DateUtils.getTodayDate(context));
     }
 
     static getDate(label) {

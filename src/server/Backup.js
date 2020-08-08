@@ -119,6 +119,16 @@ ActionsRegistry['backup-load'] = async function () {
     const filedata = await promise;
     const data = JSON.parse(filedata);
 
+    /*
+    if (true) {
+        data.log_structures.forEach((log_structure) => {
+            if (log_structure.is_periodic) {
+                log_structure.warning_days = 0;
+            }
+        });
+    }
+    */
+
     // This is where we can transform the input data to fix compatibility!
     await awaitSequence(this.database.getModelSequence(), async (model) => {
         const items = data[model.name];

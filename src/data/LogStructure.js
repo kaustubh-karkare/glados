@@ -162,6 +162,8 @@ class LogStructure extends Base {
             isPeriodic: false,
             reminderText: null,
             frequency: null,
+            frequencyArgs: null,
+            warningDays: null,
             lastUpdate: null,
             isMajor: true,
             onSidebar: false,
@@ -188,32 +190,36 @@ class LogStructure extends Base {
     static async reminderCheck(logStructure) {
         // input = after loading
         assert(logStructure.isPeriodic);
-        const today = DateUtils.getTodayDate();
+        const todayDate = DateUtils.getTodayDate(this);
         const lastUpdate = DateUtils.getDate(logStructure.lastUpdate);
-        if (compareAsc(today, lastUpdate) <= 0) {
+        if (compareAsc(todayDate, lastUpdate) <= 0) {
             return false;
         }
         const option = LogStructureFrequency[logStructure.frequency];
-        const tomorrow = addDays(today, 1);
-        const previousMatch = option.getPreviousMatch(tomorrow, logStructure.frequencyArgs);
-        // return compareAsc(today, previousMatch) === 0;
+        const lookaheadDate = addDays(todayDate, 1 + logStructure.warningDays);
+        const reminderDate = option.getPreviousMatch(lookaheadDate, logStructure.frequencyArgs);
+        const warningStartDate = subDays(reminderDate, logStructure.warningDays);
+        const isWarningActive = compareAsc(warningStartDate, todayDate) <= 0;
+        if (!isWarningActive) return false;
 
+        let foundLogEventForReminder = false;
         const latestLogEvent = await this.invoke.call(this, 'latest-log-event', { logStructure });
         if (latestLogEvent) {
             const latestLogEventDate = DateUtils.getDate(latestLogEvent.date);
-            if (compareAsc(previousMatch, latestLogEventDate) <= 0) {
-                return false;
+            if (compareAsc(warningStartDate, latestLogEventDate) <= 0) {
+                foundLogEventForReminder = true;
             }
         }
-        return true;
+        return !foundLogEventForReminder;
     }
 
     static getLastUpdate(logStructure) {
         assert(logStructure.isPeriodic);
-        const today = DateUtils.getTodayDate();
+        const today = DateUtils.getTodayDate(this);
         const option = LogStructureFrequency[logStructure.frequency];
-        const nextMatch = option.getNextMatch(today, logStructure.frequencyArgs);
-        return DateUtils.getLabel(subDays(nextMatch, 1));
+        const ReminderDate = option.getNextMatch(today, logStructure.frequencyArgs);
+        const warningStartDate = subDays(ReminderDate, 1 + logStructure.warningDays);
+        return DateUtils.getLabel(warningStartDate);
     }
 
     static async validateInternal(inputLogStructure) {
@@ -282,6 +288,7 @@ class LogStructure extends Base {
             reminderText: logStructure.reminder_text,
             frequency: logStructure.frequency,
             frequencyArgs: logStructure.frequency_args,
+            warningDays: logStructure.warning_days,
             lastUpdate: logStructure.last_update,
             isMajor: logStructure.is_major,
         };
@@ -313,6 +320,7 @@ class LogStructure extends Base {
             reminder_text: inputLogStructure.reminderText,
             frequency: inputLogStructure.frequency,
             frequency_args: inputLogStructure.frequencyArgs,
+            warning_days: inputLogStructure.warningDays,
             last_update: inputLogStructure.lastUpdate,
             is_major: inputLogStructure.isMajor,
         };

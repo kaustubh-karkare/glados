@@ -3,11 +3,18 @@ import Utils from './Utils';
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
-test('test_reminder_sidebar', async () => {
+async function checkIfReminderIsShown(date, shown) {
+    const actions = Utils.getActions();
+    actions.context.todayLabel = date;
+    const results = await actions.invoke('reminder-sidebar');
+    expect(results.length).toEqual(shown ? 1 : 0);
+    delete actions.context.todayLabel;
+}
+
+test('test_reminder_without_warning', async () => {
     await Utils.loadData({
         logStructureGroups: [
             { name: 'Daily Routine' },
-            { name: 'Entertainment' },
         ],
         logStructures: [
             {
@@ -15,48 +22,71 @@ test('test_reminder_sidebar', async () => {
                 name: 'Exercise',
                 isPeriodic: true,
                 frequency: 'everyday',
-                lastUpdate: '{yesterday}',
+                warningDays: 0,
+                lastUpdate: '2020-08-07',
             },
+        ],
+    });
+    await checkIfReminderIsShown('2020-08-08', true);
+    await Utils.loadData({
+        logEvents: [
             {
-                groupName: 'Daily Routine',
-                name: 'Cooking',
+                date: '2020-08-08',
+                structureName: 'Exercise',
+            },
+        ],
+    });
+    await checkIfReminderIsShown('2020-08-08', false);
+});
+
+test('test_reminder_with_warning', async () => {
+    await Utils.loadData({
+        logStructureGroups: [
+            { name: 'Birthdays' },
+        ],
+        logStructures: [
+            {
+                groupName: 'Birthdays',
+                name: 'My Birthday',
+                titleTemplate: '$0',
                 isPeriodic: true,
-                frequency: 'everyday',
-                lastUpdate: '{today}',
-            },
-            {
-                groupName: 'Entertainment',
-                name: 'Movie',
-                logKeys: [
-                    { name: 'Movie Name', type: 'string' },
-                ],
-                titleTemplate: '$0: $1',
+                frequency: 'yearly',
+                frequencyArgs: '08-12',
+                warningDays: 7,
+                lastUpdate: '2020-01-01',
             },
         ],
         logEvents: [
             {
-                date: '{tomorrow}',
-                title: 'Read article!',
-                isComplete: false,
+                date: '2019-08-12',
+                structureName: 'My Birthday',
             },
+        ],
+    });
+    await checkIfReminderIsShown('2020-08-01', false);
+    await checkIfReminderIsShown('2020-08-05', true);
+    await checkIfReminderIsShown('2020-08-12', true);
+    await checkIfReminderIsShown('2020-08-15', true);
+    await Utils.loadData({
+        logEvents: [
+            {
+                date: '2020-08-15',
+                structureName: 'My Birthday',
+            },
+        ],
+    });
+    await checkIfReminderIsShown('2020-08-15', false);
+});
+
+test('test_reminder_for_incomplete_items', async () => {
+    await Utils.loadData({
+        logEvents: [
             {
                 date: null,
-                structureName: 'Movie',
-                logValues: ['Limitless'],
+                title: 'Read article!',
                 isComplete: false,
             },
         ],
     });
-
-    const actions = Utils.getActions();
-    let results = await actions.invoke('reminder-sidebar');
-    expect(results.length).toEqual(2);
-    expect(results[0].items.length).toEqual(1);
-    expect(results[1].items.length).toEqual(2);
-
-    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
-    await actions.invoke('reminder-dismiss', { logStructure });
-
-    results = await actions.invoke('reminder-sidebar');
-    expect(results.length).toEqual(1);
+    await checkIfReminderIsShown(null, true);
 });

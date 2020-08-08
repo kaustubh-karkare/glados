@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    DatePicker, Selector, TextEditor, TextInput, TypeaheadSelector,
+    DatePicker, Selector, TextEditor, TypeaheadSelector,
 } from '../Common';
 import { LogEvent } from '../../data';
 import PropTypes from '../prop-types';
@@ -48,24 +48,16 @@ class LogEventEditor extends React.Component {
     }
 
     renderDateRow() {
-        let element;
-        if (this.props.logEvent.date) {
-            element = (
-                <DatePicker
-                    date={this.props.logEvent.date}
-                    disabled={this.props.disabled}
-                    onChange={(date) => this.updateLogEvent('date', date)}
-                />
-            );
-        } else {
-            element = <TextInput disabled value="NA" />;
-        }
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Date
                 </InputGroup.Text>
-                {element}
+                <DatePicker
+                    date={this.props.logEvent.date}
+                    disabled={this.props.disabled}
+                    onChange={(date) => this.updateLogEvent('date', date)}
+                />
             </InputGroup>
         );
     }

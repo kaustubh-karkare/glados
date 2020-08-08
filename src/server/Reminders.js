@@ -43,8 +43,10 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
             is_complete: false,
         },
     });
+    if (logEvents.length) {
+        reminderGroups.push({ id: 'incomplete', name: 'Incomplete', items: logEvents });
+    }
 
-    reminderGroups.push({ id: 'incomplete', name: 'Incomplete', items: logEvents });
     return reminderGroups;
 };
 

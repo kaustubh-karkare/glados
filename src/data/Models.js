@@ -177,6 +177,10 @@ export default function (sequelize) {
                 type: Sequelize.STRING,
                 allowNull: true,
             },
+            warning_days: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
             last_update: {
                 type: Sequelize.STRING,
                 allowNull: true,
