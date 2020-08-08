@@ -1,0 +1,173 @@
+import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+import PropTypes from '../prop-types';
+import DateUtils from '../../common/DateUtils';
+import {
+    DatePicker, Selector, TextInput,
+} from '../Common';
+import { LogStructure } from '../../data';
+
+const MonthOptions = DateUtils.MonthsOfTheYear.map((month, index) => {
+    const value = `0${index + 1}`.substr(-2);
+    return { label: `${month.name} (${value})`, value };
+});
+
+const DayOptions = Array(Math.max(...DateUtils.MonthsOfTheYear.map((month) => month.days)))
+    .fill(null)
+    .map((_, index) => {
+        const value = `0${index + 1}`.substr(-2);
+        return { label: value, value };
+    });
+
+class LogStructureFrequencyEditor extends React.Component {
+    updateIsPeriodic(newIsPeriodic) {
+        this.props.updateLogStructure((updatedLogStructure) => {
+            if (newIsPeriodic) {
+                updatedLogStructure.isPeriodic = true;
+                updatedLogStructure.reminderText = updatedLogStructure._reminderText || '';
+                updatedLogStructure.frequency = (
+                    updatedLogStructure._frequency || LogStructure.Frequency.EVERYDAY
+                );
+                updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
+                DateUtils.maybeSubstitute(updatedLogStructure, 'lastUpdate');
+            } else {
+                updatedLogStructure.isPeriodic = false;
+                updatedLogStructure._reminderText = updatedLogStructure.reminderText;
+                updatedLogStructure.reminderText = null;
+                updatedLogStructure._frequency = updatedLogStructure.frequency;
+                updatedLogStructure.frequency = null;
+                updatedLogStructure._lastUpdate = updatedLogStructure.lastUpdate;
+                updatedLogStructure.lastUpdate = null;
+            }
+        });
+    }
+
+    updateFrequency(newFrequency) {
+        this.props.updateLogStructure((updatedLogStructure) => {
+            const oldFrequency = updatedLogStructure.frequency;
+            updatedLogStructure.frequency = newFrequency;
+            if (newFrequency === LogStructure.Frequency.YEARLY) {
+                updatedLogStructure.frequencyArgs = (
+                    updatedLogStructure._frequencyArgs || DateUtils.getTodayLabel().substr(5)
+                );
+            } else if (oldFrequency === LogStructure.Frequency.YEARLY) {
+                updatedLogStructure._frequencyArgs = updatedLogStructure.frequencyArgs;
+                updatedLogStructure.frequencyArgs = null;
+            }
+        });
+    }
+
+    renderIsPeriodic() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Periodic?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logStructure.isPeriodic}
+                    disabled={this.props.disabled}
+                    onChange={(isPeriodic) => this.updateIsPeriodic(isPeriodic)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderReminderText() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Reminder Text
+                </InputGroup.Text>
+                <TextInput
+                    value={this.props.logStructure.reminderText}
+                    disabled={this.props.disabled}
+                    onChange={(reminderText) => this.props.updateLogStructure('reminderText', reminderText)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderFrequency() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Frequency
+                </InputGroup.Text>
+                <Selector
+                    value={this.props.logStructure.frequency}
+                    options={LogStructure.Frequency.Options}
+                    disabled={this.props.disabled}
+                    onChange={(frequency) => this.updateFrequency(frequency)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderFrequencyArgs() {
+        const { frequency, frequencyArgs } = this.props.logStructure;
+        if (frequency !== LogStructure.Frequency.YEARLY) {
+            return null;
+        }
+        const [oldMonth, oldDay] = frequencyArgs.split('-');
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Yearly Date
+                </InputGroup.Text>
+                <Selector
+                    options={MonthOptions}
+                    disabled={this.props.disabled}
+                    value={oldMonth}
+                    onChange={(newMonth) => this.props.updateLogStructure('frequencyArgs', `${newMonth}-${oldDay}`)}
+                />
+                <Selector
+                    options={DayOptions}
+                    disabled={this.props.disabled}
+                    value={oldDay}
+                    onChange={(newDay) => this.props.updateLogStructure('frequencyArgs', `${oldMonth}-${newDay}`)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderLastUpdate() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Last Update
+                </InputGroup.Text>
+                <DatePicker
+                    date={this.props.logStructure.lastUpdate}
+                    disabled={this.props.disabled}
+                    onChange={(lastUpdate) => this.props.updateLogStructure('lastUpdate', lastUpdate)}
+                />
+            </InputGroup>
+        );
+    }
+
+    render() {
+        return (
+            <>
+                {this.renderIsPeriodic()}
+                {this.props.logStructure.isPeriodic
+                    ? (
+                        <>
+                            {this.renderReminderText()}
+                            {this.renderFrequency()}
+                            {this.renderFrequencyArgs()}
+                            {this.renderLastUpdate()}
+                        </>
+                    )
+                    : null}
+            </>
+        );
+    }
+}
+
+LogStructureFrequencyEditor.propTypes = {
+    logStructure: PropTypes.Custom.LogStructure.isRequired,
+    disabled: PropTypes.bool.isRequired,
+    updateLogStructure: PropTypes.func.isRequired,
+};
+
+export default LogStructureFrequencyEditor;

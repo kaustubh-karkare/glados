@@ -1,5 +1,10 @@
 import {
-    addDays, compareAsc, getDay, isFriday, isMonday, isSaturday, isSunday, subDays,
+    addDays, addYears,
+    compareAsc,
+    getDay,
+    isFriday, isMonday, isSaturday, isSunday,
+    setDate, setMonth,
+    subDays, subYears,
 } from 'date-fns';
 import assert from 'assert';
 import { getVirtualID, getPartialItem } from './Utils';
@@ -112,6 +117,34 @@ DateUtils.DaysOfTheWeek.forEach((day, index) => {
     });
 });
 
+function parseYearlyFrequencyArgs(args) {
+    let [month, dayOfTheMonth] = args.split('-');
+    month = parseInt(month, 10) - 1; // 0 = January
+    dayOfTheMonth = parseInt(dayOfTheMonth, 10);
+    return { month, dayOfTheMonth };
+}
+
+FrequencyRawOptions.push({
+    value: 'yearly',
+    label: 'Yearly',
+    getPreviousMatch(date, args) {
+        const { month, dayOfTheMonth } = parseYearlyFrequencyArgs(args);
+        let target = setDate(setMonth(date, month), dayOfTheMonth);
+        if (compareAsc(date, target) <= 0) {
+            target = subYears(target, 1);
+        }
+        return target;
+    },
+    getNextMatch(date, args) {
+        const { month, dayOfTheMonth } = parseYearlyFrequencyArgs(args);
+        let target = setDate(setMonth(date, month), dayOfTheMonth);
+        if (compareAsc(date, target) >= 0) {
+            target = addYears(target, 1);
+        }
+        return target;
+    },
+});
+
 const LogStructureFrequency = Enum(FrequencyRawOptions);
 
 
@@ -162,7 +195,7 @@ class LogStructure extends Base {
         }
         const option = LogStructureFrequency[logStructure.frequency];
         const tomorrow = addDays(today, 1);
-        const previousMatch = option.getPreviousMatch(tomorrow);
+        const previousMatch = option.getPreviousMatch(tomorrow, logStructure.frequencyArgs);
         // return compareAsc(today, previousMatch) === 0;
 
         const latestLogEvent = await this.invoke.call(this, 'latest-log-event', { logStructure });
@@ -179,7 +212,7 @@ class LogStructure extends Base {
         assert(logStructure.isPeriodic);
         const today = DateUtils.getTodayDate();
         const option = LogStructureFrequency[logStructure.frequency];
-        const nextMatch = option.getNextMatch(today);
+        const nextMatch = option.getNextMatch(today, logStructure.frequencyArgs);
         return DateUtils.getLabel(subDays(nextMatch, 1));
     }
 
@@ -248,6 +281,7 @@ class LogStructure extends Base {
             isPeriodic: logStructure.is_periodic,
             reminderText: logStructure.reminder_text,
             frequency: logStructure.frequency,
+            frequencyArgs: logStructure.frequency_args,
             lastUpdate: logStructure.last_update,
             isMajor: logStructure.is_major,
         };
@@ -278,6 +312,7 @@ class LogStructure extends Base {
             is_periodic: inputLogStructure.isPeriodic,
             reminder_text: inputLogStructure.reminderText,
             frequency: inputLogStructure.frequency,
+            frequency_args: inputLogStructure.frequencyArgs,
             last_update: inputLogStructure.lastUpdate,
             is_major: inputLogStructure.isMajor,
         };

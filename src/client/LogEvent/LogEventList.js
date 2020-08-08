@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList, TextEditor } from '../Common';
+import { BulletList, LeftRight, TextEditor } from '../Common';
 
 import LogEventAdder from './LogEventAdder';
 import LogEventEditor from './LogEventEditor';
@@ -8,14 +8,14 @@ import LogEventEditor from './LogEventEditor';
 
 function LogEventViewer(props) {
     return (
-        <>
+        <LeftRight>
             <TextEditor
                 unstyled
                 disabled
                 value={props.logEvent.title}
             />
             {props.displayIsMajor && props.logEvent.isMajor ? '(major)' : null}
-        </>
+        </LeftRight>
     );
 }
 

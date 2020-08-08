@@ -3,10 +3,10 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
-import DateUtils from '../../common/DateUtils';
 import {
-    DatePicker, SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
+    SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
 } from '../Common';
+import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
 import { LogStructure, getPartialItem } from '../../data';
 
@@ -29,28 +29,6 @@ class LogStructureEditor extends React.Component {
         }
         LogStructure.trigger(updatedLogStructure);
         this.props.onChange(updatedLogStructure);
-    }
-
-    updateIsPeriodic(newValue) {
-        this.updateLogStructure((updatedLogStructure) => {
-            if (newValue) {
-                updatedLogStructure.isPeriodic = true;
-                updatedLogStructure.reminderText = updatedLogStructure._reminderText || '';
-                updatedLogStructure.frequency = (
-                    updatedLogStructure._frequency || LogStructure.Frequency.EVERYDAY
-                );
-                updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
-                DateUtils.maybeSubstitute(updatedLogStructure, 'lastUpdate');
-            } else {
-                updatedLogStructure.isPeriodic = false;
-                updatedLogStructure._reminderText = updatedLogStructure.reminderText;
-                updatedLogStructure.reminderText = null;
-                updatedLogStructure._frequency = updatedLogStructure.frequency;
-                updatedLogStructure.frequency = null;
-                updatedLogStructure._lastUpdate = updatedLogStructure.lastUpdate;
-                updatedLogStructure.lastUpdate = null;
-            }
-        });
     }
 
     renderGroup() {
@@ -100,6 +78,7 @@ class LogStructureEditor extends React.Component {
                 <TextEditor
                     isSingleLine
                     value={logStructure.titleTemplate}
+                    serverSideTypes={['log-topic']}
                     clientSideOptions={[getPartialItem(logStructure), ...logStructure.logKeys]}
                     disabled={this.props.disabled}
                     onChange={(titleTemplate) => this.updateLogStructure('titleTemplate', titleTemplate)}
@@ -136,62 +115,6 @@ class LogStructureEditor extends React.Component {
                     onChange={(needsEdit) => this.updateLogStructure('needsEdit', needsEdit)}
                 />
             </InputGroup>
-        );
-    }
-
-    renderPeriodicDetails() {
-        return (
-            <>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Reminder Text
-                    </InputGroup.Text>
-                    <TextInput
-                        value={this.props.logStructure.reminderText}
-                        disabled={this.props.disabled}
-                        onChange={(reminderText) => this.updateLogStructure('reminderText', reminderText)}
-                    />
-                </InputGroup>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Frequency
-                    </InputGroup.Text>
-                    <Selector
-                        value={this.props.logStructure.frequency}
-                        options={LogStructure.Frequency.Options}
-                        disabled={this.props.disabled}
-                        onChange={(frequency) => this.updateLogStructure('frequency', frequency)}
-                    />
-                </InputGroup>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Last Update
-                    </InputGroup.Text>
-                    <DatePicker
-                        date={this.props.logStructure.lastUpdate}
-                        disabled={this.props.disabled}
-                        onChange={(lastUpdate) => this.updateLogStructure('lastUpdate', lastUpdate)}
-                    />
-                </InputGroup>
-            </>
-        );
-    }
-
-    renderPeriodic() {
-        return (
-            <>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Is Periodic?
-                    </InputGroup.Text>
-                    <Selector.Binary
-                        value={this.props.logStructure.isPeriodic}
-                        disabled={this.props.disabled}
-                        onChange={(isPeriodic) => this.updateIsPeriodic(isPeriodic)}
-                    />
-                </InputGroup>
-                {this.props.logStructure.isPeriodic ? this.renderPeriodicDetails() : null}
-            </>
         );
     }
 
@@ -234,7 +157,11 @@ class LogStructureEditor extends React.Component {
                     {this.renderNeedsEditSelector()}
                 </div>
                 <div className="my-3">
-                    {this.renderPeriodic()}
+                    <LogStructureFrequencyEditor
+                        logStructure={this.props.logStructure}
+                        disabled={this.props.disabled}
+                        updateLogStructure={(...args) => this.updateLogStructure(...args)}
+                    />
                 </div>
                 <div className="my-3">
                     {this.renderIsMajorSelector()}

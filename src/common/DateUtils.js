@@ -5,6 +5,20 @@ import {
 
 const TODAY_OFFSET = 3 * 3600 * 1000;
 const LABEL_FORMAT = 'yyyy-MM-dd';
+const MonthsOfTheYear = [
+    { name: 'January', days: 31 },
+    { name: 'February', days: 29 },
+    { name: 'March', days: 31 },
+    { name: 'April', days: 30 },
+    { name: 'May', days: 31 },
+    { name: 'June', days: 30 },
+    { name: 'July', days: 31 },
+    { name: 'August', days: 31 },
+    { name: 'September', days: 30 },
+    { name: 'October', days: 31 },
+    { name: 'November', days: 30 },
+    { name: 'December', days: 31 },
+];
 const DaysOfTheWeek = [
     'Sunday',
     'Monday',
@@ -55,6 +69,7 @@ class DateUtils {
     }
 }
 
+DateUtils.MonthsOfTheYear = MonthsOfTheYear;
 DateUtils.DaysOfTheWeek = DaysOfTheWeek;
 
 export default DateUtils;

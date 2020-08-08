@@ -1,17 +1,28 @@
 import React from 'react';
 import PropTypes from '../prop-types';
-import { BulletList, TextEditor } from '../Common';
+import { BulletList, LeftRight, TextEditor } from '../Common';
 import LogStructureEditor from './LogStructureEditor';
 
 
 function LogStructureViewer(props) {
     const { logStructure } = props;
+    let suffix;
+    if (logStructure.isPeriodic) {
+        if (logStructure.frequencyArgs) {
+            suffix = `(${logStructure.frequency}: ${logStructure.frequencyArgs})`;
+        } else {
+            suffix = `(${logStructure.frequency})`;
+        }
+    }
     return (
-        <TextEditor
-            unstyled
-            disabled
-            value={logStructure.titleTemplate}
-        />
+        <LeftRight>
+            <TextEditor
+                unstyled
+                disabled
+                value={logStructure.titleTemplate}
+            />
+            {suffix}
+        </LeftRight>
     );
 }
 
