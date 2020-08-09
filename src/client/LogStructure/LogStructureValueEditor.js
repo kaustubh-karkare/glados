@@ -1,25 +1,16 @@
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import { Selector, TypeaheadInput, TypeaheadSelector } from '../Common';
 import { LogStructure, getPartialItem } from '../../data';
 import PropTypes from '../prop-types';
 
-class LogEventValueEditor extends React.Component {
+class LogStructureValueEditor extends React.Component {
     constructor(props) {
         super(props);
         this.ref = React.createRef();
     }
 
-    onSearch(query) {
-        return window.api.send('value-typeahead', {
-            structure_id: this.props.logStructure.id,
-            query,
-            index: this.props.index,
-        });
-    }
-
     update(value) {
-        const logKey = { ...this.props.logStructure.logKeys[this.props.index] };
+        const logKey = { ...this.props.logKey };
         if (typeof value === 'object') {
             value = getPartialItem(value);
         }
@@ -31,7 +22,8 @@ class LogEventValueEditor extends React.Component {
         this.ref.current.focus();
     }
 
-    renderInput(logKey) {
+    render() {
+        const { logKey } = this.props;
         if (logKey.type === LogStructure.Key.LOG_TOPIC) {
             return (
                 <TypeaheadSelector
@@ -59,31 +51,18 @@ class LogEventValueEditor extends React.Component {
                 value={logKey.value || ''}
                 disabled={this.props.disabled}
                 onChange={(value) => this.update(value)}
-                onSearch={(query) => this.onSearch(query)}
+                onSearch={(query) => this.props.onSearch(query)}
                 ref={this.ref}
             />
         );
     }
-
-
-    render() {
-        const logKey = this.props.logStructure.logKeys[this.props.index];
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    {logKey.name}
-                </InputGroup.Text>
-                {this.renderInput(logKey)}
-            </InputGroup>
-        );
-    }
 }
 
-LogEventValueEditor.propTypes = {
-    logStructure: PropTypes.Custom.LogStructure.isRequired,
-    index: PropTypes.number.isRequired,
+LogStructureValueEditor.propTypes = {
+    logKey: PropTypes.Custom.LogStructureKey.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
+    onSearch: PropTypes.func.isRequired,
 };
 
-export default LogEventValueEditor;
+export default LogStructureValueEditor;

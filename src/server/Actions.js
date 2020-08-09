@@ -27,42 +27,37 @@ export default class {
     }
 
     async invoke(name, input) {
-        try {
-            const broadcasts = [];
-            const { sequelize } = this.context.database;
-            const response = await sequelize.transaction(async (transaction) => {
-                const { database, ...moreContext } = this.context;
-                const context = {
-                    broadcast: (...args) => broadcasts.push(args),
-                    invoke(innerName, innerInput) {
-                        if (!(name in ActionsRegistry)) {
-                            throw new Error(`unknown action: ${name}`);
-                        }
+        const broadcasts = [];
+        const { sequelize } = this.context.database;
+        const response = await sequelize.transaction(async (transaction) => {
+            const { database, ...moreContext } = this.context;
+            const context = {
+                broadcast: (...args) => broadcasts.push(args),
+                invoke(innerName, innerInput) {
+                    if (!(name in ActionsRegistry)) {
+                        throw new Error(`unknown action: ${name}`);
+                    }
+                    try {
                         return ActionsRegistry[innerName].call(context, innerInput);
-                    },
-                    // The Object.create method creates a new object with the given prototype.
-                    // This allows us to concurrently set the transaction field below.
-                    database: Object.create(database),
-                    ...moreContext,
-                };
-                context.database.transaction = transaction;
-                const output = await context.invoke.call(context, name, input);
-                return output;
-            });
-            // Now that the transactions has been committed ...
-            if (this.socket) {
-                broadcasts.forEach((args) => this.socket.broadcast(...args));
-            } else {
-                this.broadcasts = broadcasts;
-            }
-            return response;
-        } catch (error) {
-            // eslint-disable-next-line no-constant-condition
-            if (false) {
-                // eslint-disable-next-line no-console
-                console.error(name, input, error);
-            }
-            throw error;
+                    } catch (error) {
+                        const serializedInput = JSON.stringify(input, null, 4);
+                        throw new Error(`${name}: ${serializedInput}\n\n${error.message}`);
+                    }
+                },
+                // The Object.create method creates a new object with the given prototype.
+                // This allows us to concurrently set the transaction field below.
+                database: Object.create(database),
+                ...moreContext,
+            };
+            context.database.transaction = transaction;
+            return context.invoke.call(context, name, input);
+        });
+        // Now that the transactions has been committed ...
+        if (this.socket) {
+            broadcasts.forEach((args) => this.socket.broadcast(...args));
+        } else {
+            this.broadcasts = broadcasts;
         }
+        return response;
     }
 }

@@ -342,13 +342,13 @@ class LogStructure extends Base {
                     originalLogStructure.title_template,
                     TextEditorUtils.StorageType.DRAFTJS,
                 );
-                shouldRegenerateLogEventTitles = TextEditorUtils.equals(
+                shouldRegenerateLogEventTitles = !TextEditorUtils.equals(
                     originalTitleTemplate,
                     updatedTitleTemplate,
                 );
             }
             if (shouldRegenerateLogEventTitles) {
-                await LogStructure.updateLogEvents.call(this, logStructure.id);
+                await LogStructure.updateLogEvents.call(this, inputLogStructure);
             }
         } else {
             updatedTitleTemplate = TextEditorUtils.updateDraftContent(
@@ -370,17 +370,18 @@ class LogStructure extends Base {
         return updatedLogStructure.id;
     }
 
-    static async updateLogEvents(logStructureId) {
-        const outputLogEvents = await this.invoke.call(
+    static async updateLogEvents(inputLogStructure) {
+        const inputLogEvents = await this.invoke.call(
             this,
             'log-event-list',
-            { where: { structure_id: logStructureId } },
+            { where: { structure_id: inputLogStructure.id } },
         );
-        await Promise.all(
-            outputLogEvents.map(
-                (outputLogEvent) => this.invoke.call(this, 'log-event-upsert', outputLogEvent),
-            ),
-        );
+        await Promise.all(inputLogEvents.map(async (inputLogEvent) => {
+            // TODO: Update inputLogEvent based on inputLogStructure.
+            // eslint-disable-next-line no-unused-expressions
+            inputLogStructure;
+            return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
+        }));
     }
 
     static async delete(id) {
@@ -423,6 +424,7 @@ class LogStructure extends Base {
             logKey.parent_topic_id = logKey.parentLogTopic.id;
         }
         delete logKey.parentLogTopic;
+        delete logKey.value;
         return logKey;
     }
 }

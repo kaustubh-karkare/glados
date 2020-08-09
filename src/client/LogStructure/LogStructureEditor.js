@@ -152,7 +152,7 @@ class LogStructureEditor extends React.Component {
                             });
                         }}
                         type={LogStructureKeyEditor}
-                        valueKey="logStructureKey"
+                        valueKey="logKey"
                     />
                     {this.renderNeedsEditSelector()}
                 </div>

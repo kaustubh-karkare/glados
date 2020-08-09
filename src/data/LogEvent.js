@@ -11,7 +11,7 @@ class LogEvent extends Base {
     } = {}) {
         if (logStructure) {
             logStructure.logKeys.forEach((logKey) => {
-                logKey.value = LogStructure.Key[logKey.type].default || '';
+                logKey.value = LogStructure.Key[logKey.type].default || null;
             });
         }
         const logEvent = {
@@ -115,8 +115,9 @@ class LogEvent extends Base {
         let outputLogStructure = null;
         if (logEvent.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logEvent.structure_id);
-            JSON.parse(logEvent.structure_values).forEach((value, index) => {
-                outputLogStructure.logKeys[index].value = value;
+            const structureValues = JSON.parse(logEvent.structure_values);
+            outputLogStructure.logKeys.forEach((logKey, index) => {
+                logKey.value = structureValues[index] || null;
             });
         } else {
             assert(logEvent.structure_values === null);

@@ -5,7 +5,7 @@ import {
 } from '../Common';
 import { LogEvent } from '../../data';
 import PropTypes from '../prop-types';
-import LogEventValueEditor from './LogEventValueEditor';
+import { LogStructureValueEditor } from '../LogStructure';
 
 
 class LogEventEditor extends React.Component {
@@ -152,16 +152,24 @@ class LogEventEditor extends React.Component {
             return null;
         }
         return logEvent.logStructure.logKeys.map((logKey, index) => (
-            <LogEventValueEditor
-                key={logKey.id}
-                logStructure={logEvent.logStructure}
-                index={index}
-                disabled={this.props.disabled}
-                onChange={(updatedLogKey) => this.updateLogEvent((updatedLogEvent) => {
-                    updatedLogEvent.logStructure.logKeys[index] = updatedLogKey;
-                })}
-                ref={index === 0 ? this.valueRef : null}
-            />
+            <InputGroup className="my-1" key={logKey.id}>
+                <InputGroup.Text>
+                    {logKey.name}
+                </InputGroup.Text>
+                <LogStructureValueEditor
+                    logKey={logKey}
+                    disabled={this.props.disabled}
+                    onChange={(updatedLogKey) => this.updateLogEvent((updatedLogEvent) => {
+                        updatedLogEvent.logStructure.logKeys[index] = updatedLogKey;
+                    })}
+                    onSearch={(query) => window.api.send('value-typeahead', {
+                        structure_id: this.props.logEvent.logStructure.id,
+                        query,
+                        index,
+                    })}
+                    ref={index === 0 ? this.valueRef : null}
+                />
+            </InputGroup>
         ));
     }
 
