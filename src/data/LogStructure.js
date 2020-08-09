@@ -403,29 +403,31 @@ class LogStructure extends Base {
         };
     }
 
-    static async loadKey(logKey) {
-        logKey.__type__ = 'log-structure-key';
-        logKey.isOptional = logKey.is_optional;
-        delete logKey.is_optional;
-        if (logKey.parent_topic_id) {
-            logKey.parentLogTopic = await this.invoke.call(this, 'log-topic-load', {
-                id: logKey.parent_topic_id,
+    static async loadKey(rawLogKey) {
+        let parentLogTopic = null;
+        if (rawLogKey.parent_topic_id) {
+            parentLogTopic = await this.invoke.call(this, 'log-topic-load', {
+                id: rawLogKey.parent_topic_id,
             });
         }
-        delete logKey.parent_topic_id;
-        return logKey;
+        return {
+            __type__: 'log-structure-key',
+            id: rawLogKey.id,
+            name: rawLogKey.name,
+            type: rawLogKey.type,
+            isOptional: rawLogKey.is_optional,
+            parentLogTopic,
+        };
     }
 
-    static saveKey(logKey) {
-        delete logKey.__type__;
-        logKey.is_optional = logKey.isOptional;
-        delete logKey.isOptional;
-        if (logKey.parentLogTopic) {
-            logKey.parent_topic_id = logKey.parentLogTopic.id;
-        }
-        delete logKey.parentLogTopic;
-        delete logKey.value;
-        return logKey;
+    static saveKey(inputLogKey) {
+        return {
+            id: inputLogKey.id,
+            name: inputLogKey.name,
+            type: inputLogKey.type,
+            is_optional: inputLogKey.isOptional,
+            parent_topic_id: inputLogKey.parentLogTopic ? inputLogKey.parentLogTopic.id : null,
+        };
     }
 }
 
