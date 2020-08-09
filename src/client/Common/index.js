@@ -12,7 +12,6 @@ export { default as Icon } from './Icon';
 export { default as InputLine } from './InputLine';
 export { default as LeftRight } from './LeftRight';
 export { default as Link } from './Link';
-export { default as ManagementSelector } from './ManagementSelector';
 export { default as ModalStack } from './ModalStack';
 export { default as ScrollableSection } from './ScrollableSection';
 export { default as Selector } from './Selector';
