@@ -90,78 +90,66 @@ class LogTopic extends Base {
 
         if (originalName && originalName !== logTopic.name) {
             const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
-            await LogTopic.updateLogEvents.call(this, outputLogTopic);
-            await LogTopic.updateLogStructures.call(this, outputLogTopic);
-            await LogTopic.updateLogTopics.call(this, outputLogTopic);
+            await LogTopic.updateOtherEntities.call(
+                this,
+                'LogEventToLogTopic',
+                'topic_id',
+                outputLogTopic,
+                'event_id',
+                'log-event',
+                ['title', 'details'],
+            );
+            await LogTopic.updateOtherEntities.call(
+                this,
+                'LogStructureToLogTopic',
+                'topic_id',
+                outputLogTopic,
+                'structure_id',
+                'log-structure',
+                ['titleTemplate'],
+            );
+            await LogTopic.updateOtherEntities.call(
+                this,
+                'LogTopicToLogTopic',
+                'target_topic_id',
+                outputLogTopic,
+                'source_topic_id',
+                'log-topic',
+                ['details'],
+            );
         }
 
         return logTopic.id;
     }
 
-    static async updateLogEvents(updatedLogTopic) {
-        const logEventEdges = await this.database.getEdges(
-            'LogEventToLogTopic',
-            'topic_id',
+    static async updateOtherEntities(
+        junctionTableName,
+        junctionTargetName,
+        updatedLogTopic,
+        junctionSourceName,
+        entityType,
+        entityFieldNames,
+    ) {
+        const edges = await this.database.getEdges(
+            junctionTableName,
+            junctionTargetName,
             updatedLogTopic.id,
         );
-        const outputLogEvents = await Promise.all(
-            logEventEdges.map(
-                (edge) => this.invoke.call(this, 'log-event-load', { id: edge.event_id }),
-            ),
+        const inputItems = await Promise.all(
+            edges.map((edge) => this.invoke.call(
+                this,
+                `${entityType}-load`,
+                { id: edge[junctionSourceName] },
+            )),
         );
         await Promise.all(
-            outputLogEvents.map((outputLogEvent) => {
-                outputLogEvent.title = LogTopic.updateContent(
-                    outputLogEvent.title, [updatedLogTopic],
-                );
-                outputLogEvent.details = LogTopic.updateContent(
-                    outputLogEvent.details, [updatedLogTopic],
-                );
-                return this.invoke.call(this, 'log-event-upsert', outputLogEvent);
-            }),
-        );
-    }
-
-    static async updateLogStructures(updatedLogTopic) {
-        const outputLogStructures = await this.invoke.call(this, 'log-structure-list');
-        await Promise.all(
-            outputLogStructures
-                .filter((outputLogStructure) => {
-                    const mentionedLogTopics = TextEditorUtils.extractMentions(
-                        TextEditorUtils.deserialize(
-                            outputLogStructure.titleTemplate,
-                            TextEditorUtils.StorageType.DRAFTJS,
-                        ),
-                        'log-topic',
+            inputItems.map((inputItem) => {
+                entityFieldNames.forEach((entityFieldName) => {
+                    inputItem[entityFieldName] = LogTopic.updateContent(
+                        inputItem[entityFieldName], [updatedLogTopic],
                     );
-                    return mentionedLogTopics[updatedLogTopic.id];
-                })
-                .map((outputLogStructure) => {
-                    outputLogStructure.titleTemplate = LogTopic.updateContent(
-                        outputLogStructure.titleTemplate, [updatedLogTopic],
-                    );
-                    return this.invoke.call(this, 'log-structure-upsert', outputLogStructure);
-                }),
-        );
-    }
-
-    static async updateLogTopics(updatedLogTopic) {
-        const logTopicEdges = await this.database.getEdges(
-            'LogTopicToLogTopic',
-            'target_topic_id',
-            updatedLogTopic.id,
-        );
-        const outputLogTopics = await Promise.all(
-            logTopicEdges.map(
-                (edge) => this.invoke.call(this, 'log-topic-load', { id: edge.source_topic_id }),
-            ),
-        );
-        await Promise.all(
-            outputLogTopics.map((outputLogTopic) => {
-                outputLogTopic.details = LogTopic.updateContent(
-                    outputLogTopic.details, [updatedLogTopic],
-                );
-                return this.invoke.call(this, 'log-topic-upsert', outputLogTopic);
+                });
+                return this.invoke.call(this, `${entityType}-upsert`, inputItem);
             }),
         );
     }

@@ -57,6 +57,7 @@ class LogStructureSearch extends React.Component {
                 const where = { topic_id: logTopicOrStructure.id };
                 return (
                     <LogStructureList
+                        name="Selected Structure(s)"
                         allowCreation={false}
                         allowReordering={false}
                         where={where}

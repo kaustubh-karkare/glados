@@ -201,6 +201,43 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
+    const LogStructureToLogTopic = sequelize.define(
+        'log_structures_to_log_topics',
+        {
+            structure_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogStructure,
+                    key: 'id',
+                },
+            },
+            topic_id: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: LogTopic,
+                    key: 'id',
+                },
+            },
+        },
+        options,
+    );
+
+    LogStructure.belongsToMany(LogTopic, {
+        through: LogStructureToLogTopic,
+        foreignKey: 'structure_id',
+        // Deleteing an structure is allowed!
+        // The links will be broken, and the Tags could be cleaned up.
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+    });
+
+    LogTopic.belongsToMany(LogStructure, {
+        through: LogStructureToLogTopic,
+        foreignKey: 'topic_id',
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     // Estimated scale? 50 events per day * 365 days * 10 years = 182,500 events
     // Size of 1 event? 250 bytes, so total size over 10 years ~= 50mb
     const LogEvent = sequelize.define(
@@ -257,6 +294,13 @@ export default function (sequelize) {
         options,
     );
 
+    LogEvent.belongsTo(LogStructure, {
+        foreignKey: 'structure_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     const LogEventToLogTopic = sequelize.define(
         'log_events_to_log_topics',
         {
@@ -294,13 +338,6 @@ export default function (sequelize) {
         onUpdate: 'restrict',
     });
 
-    LogEvent.belongsTo(LogStructure, {
-        foreignKey: 'structure_id',
-        allowNull: true,
-        onDelete: 'restrict',
-        onUpdate: 'restrict',
-    });
-
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
@@ -309,6 +346,7 @@ export default function (sequelize) {
         ['LogTopicToLogTopic', LogTopicToLogTopic],
         ['LogStructureGroup', LogStructureGroup],
         ['LogStructure', LogStructure],
+        ['LogStructureToLogTopic', LogStructureToLogTopic],
         ['LogEvent', LogEvent],
         ['LogEventToLogTopic', LogEventToLogTopic],
     ];

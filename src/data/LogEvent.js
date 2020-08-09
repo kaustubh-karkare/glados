@@ -52,30 +52,6 @@ class LogEvent extends Base {
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
-    static async updateWhere(input = {}) {
-        if (input.where && input.where.dates) {
-            input.where.date = { [this.database.Op.in]: input.where.dates };
-            delete input.where.dates;
-        }
-        if (input.where && input.where.topic_id) {
-            const edges = await this.database.getEdges(
-                'LogEventToLogTopic',
-                'topic_id',
-                input.where.topic_id,
-            );
-            delete input.where.topic_id;
-            input.where.id = {
-                [this.database.Op.in]: edges.map((edge) => edge.event_id),
-            };
-        }
-        return input;
-    }
-
-    static async list(input) {
-        input = await LogEvent.updateWhere.call(this, input);
-        return Base.list.call(this, input);
-    }
-
     static async validateInternal(inputLogEvent) {
         const results = [];
         if (inputLogEvent.date !== null) {

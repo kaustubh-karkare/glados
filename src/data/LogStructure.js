@@ -332,6 +332,19 @@ class LogStructure extends Base {
             inputLogStructure.titleTemplate,
             TextEditorUtils.StorageType.DRAFTJS,
         );
+        const logTopics = TextEditorUtils.extractMentions(updatedTitleTemplate, 'log-topic');
+        await this.database.setEdges(
+            'LogStructureToLogTopic',
+            'structure_id',
+            updatedLogStructure.id,
+            'topic_id',
+            Object.values(logTopics).reduce((result, logTopic) => {
+                // eslint-disable-next-line no-param-reassign
+                result[logTopic.id] = {};
+                return result;
+            }, {}),
+        );
+
         if (originalLogStructure) {
             let shouldRegenerateLogEventTitles = (
                 originalLogStructure.name !== updatedLogStructure.name

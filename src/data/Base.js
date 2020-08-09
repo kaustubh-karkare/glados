@@ -1,5 +1,7 @@
 /* eslint-disable no-undef */
 
+import assert from 'assert';
+import { awaitSequence } from './Utils';
 import ValidationBase from './ValidationBase';
 
 function getDataType(name) {
@@ -11,7 +13,37 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
-    static async list({ where, ordering } = { where: {} }) {
+    static async updateWhere(where = {}) {
+        await awaitSequence(Object.keys(where), async (key) => {
+            if (key === 'topic_id') {
+                const junctionTableName = `${this.DataType.name}ToLogTopic`;
+                const junctionTargetName = this.DataType.name === 'LogTopic'
+                    ? 'target_topic_id'
+                    : 'topic_id';
+                const junctionSourceName = {
+                    LogTopic: 'source_topic_id',
+                    LogStructure: 'structure_id',
+                    LogEvent: 'event_id',
+                }[this.DataType.name];
+                assert(junctionSourceName);
+                const edges = await this.database.getEdges(
+                    junctionTableName,
+                    junctionTargetName,
+                    where.topic_id,
+                );
+                delete where.topic_id;
+                assert(!where.id);
+                where.id = {
+                    [this.database.Op.in]: edges.map((edge) => edge[junctionSourceName]),
+                };
+            } else if (Array.isArray(where[key])) {
+                where[key] = { [this.database.Op.in]: where[key] };
+            }
+        });
+    }
+
+    static async list({ where, ordering } = {}) {
+        await Base.updateWhere.call(this, where);
         let items = await this.database.findAll(this.DataType.name, where);
         if (ordering) {
             items = items.sort((left, right) => {

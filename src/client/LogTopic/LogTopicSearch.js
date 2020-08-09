@@ -41,16 +41,26 @@ class LogTopicSearch extends React.Component {
     }
 
     renderLogTopics() {
-        const where = {};
-        const moreProps = {};
-        if (this.state.logTopic) {
-            where.id = this.state.logTopic.id;
-            moreProps.allowCreation = false;
-            moreProps.allowReordering = false;
-        } else {
-            where.parent_topic_id = null;
+        const { logTopic } = this.state;
+        if (logTopic) {
+            return (
+                <>
+                    <LogTopicList
+                        name="Selected Topic"
+                        where={{ id: logTopic.id }}
+                        allowCreation={false}
+                        allowReordering={false}
+                    />
+                    <LogTopicList
+                        name="Referencing Topics"
+                        where={{ topic_id: logTopic.id }}
+                        allowCreation={false}
+                        allowReordering={false}
+                    />
+                </>
+            );
         }
-        return <LogTopicList where={where} {...moreProps} />;
+        return <LogTopicList where={{ parent_topic_id: null }} />;
     }
 
     renderWrapper() {
