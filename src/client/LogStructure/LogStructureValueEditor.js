@@ -27,7 +27,8 @@ class LogStructureValueEditor extends React.Component {
         if (logKey.type === LogStructure.Key.LOG_TOPIC) {
             return (
                 <TypeaheadSelector
-                    dataType="log-topic"
+                    id="log-structure-value-editor-topic"
+                    serverSideTypes={['log-topic']}
                     value={logKey.value}
                     disabled={this.props.disabled}
                     onChange={(value) => this.update(value)}

@@ -30,7 +30,8 @@ class LogTopicEditor extends React.Component {
                         Parent
                     </InputGroup.Text>
                     <TypeaheadSelector
-                        dataType="log-topic"
+                        id="log-topic-editor-parent-topic"
+                        serverSideTypes={['log-topic']}
                         value={logTopic.parentLogTopic}
                         disabled={this.props.disabled}
                         onChange={(parentLogTopic) => this.updateLogTopic('parentLogTopic', parentLogTopic)}

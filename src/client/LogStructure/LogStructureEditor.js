@@ -38,7 +38,8 @@ class LogStructureEditor extends React.Component {
                     Group
                 </InputGroup.Text>
                 <TypeaheadSelector
-                    dataType="log-structure-group"
+                    id="log-structure-editor-structure-group"
+                    serverSideTypes={['log-structure-group']}
                     value={this.props.logStructure.logStructureGroup}
                     disabled={this.props.disabled}
                     onChange={(logStructureGroup) => this.updateLogStructure(

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -13,8 +14,7 @@ class LogEventSearch extends React.Component {
         super(props);
         this.state = {
             isMajor: true,
-            logStructure: null,
-            logTopic: null,
+            logTopicOrStructure: null,
         };
         this.afterUpdate = this.afterUpdate.bind(this);
     }
@@ -31,11 +31,15 @@ class LogEventSearch extends React.Component {
             ),
             Coordinator.register(
                 'log-structure-select',
-                (logStructure) => this.setState({ logStructure }, this.afterUpdate),
+                (logStructure) => this.setState({
+                    logTopicOrStructure: logStructure,
+                }, this.afterUpdate),
             ),
             Coordinator.register(
                 'log-topic-select',
-                (logTopic) => this.setState({ logTopic }, this.afterUpdate),
+                (logTopic) => this.setState({
+                    logTopicOrStructure: logTopic,
+                }, this.afterUpdate),
             ),
         ];
         this.setState({ dateRange: null }, this.afterUpdate);
@@ -53,8 +57,15 @@ class LogEventSearch extends React.Component {
         if (this.state.logStructure) {
             where.structure_id = this.state.logStructure.id;
         }
-        if (this.state.logTopic) {
-            where.topic_id = this.state.logTopic.id;
+        const { logTopicOrStructure } = this.state;
+        if (logTopicOrStructure) {
+            if (logTopicOrStructure.__type__ === 'log-structure') {
+                where.structure_id = logTopicOrStructure.id;
+            } else if (logTopicOrStructure.__type__ === 'log-topic') {
+                where.topic_id = logTopicOrStructure.id;
+            } else {
+                assert(false, logTopicOrStructure);
+            }
         }
         return where;
     }
@@ -93,11 +104,12 @@ class LogEventSearch extends React.Component {
                     onChange={(isMajor) => this.setState({ isMajor }, this.afterUpdate)}
                 />
                 <TypeaheadSelector
-                    dataType="log-topic"
-                    value={this.state.logTopic || this.state.logStructure}
+                    id="log-event-search-topic-or-structure"
+                    serverSideTypes={['log-topic', 'log-structure']}
+                    value={this.state.logTopicOrStructure}
                     disabled={this.props.disabled}
-                    onChange={(logTopic) => this.setState(
-                        { logTopic, logStructure: null },
+                    onChange={(logTopicOrStructure) => this.setState(
+                        { logTopicOrStructure },
                         this.afterUpdate,
                     )}
                     placeholder="Topic Search ..."

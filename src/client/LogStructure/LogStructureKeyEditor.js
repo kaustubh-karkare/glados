@@ -43,7 +43,8 @@ class LogStructureKeyEditor extends React.Component {
     renderParentLogTopic() {
         return (
             <TypeaheadSelector
-                dataType="log-topic"
+                id="log-structure-key-editor-parent-topic"
+                serverSideTypes={['log-topic']}
                 value={this.props.logKey.parentLogTopic}
                 disabled={this.props.disabled}
                 onChange={(parentLogTopic) => this.update('parentLogTopic', parentLogTopic)}

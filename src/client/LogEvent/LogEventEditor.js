@@ -136,7 +136,8 @@ class LogEventEditor extends React.Component {
                     Structure
                 </InputGroup.Text>
                 <TypeaheadSelector
-                    dataType="log-structure"
+                    id="log-event-editor-structure"
+                    serverSideTypes={['log-structure']}
                     value={this.props.logEvent.logStructure}
                     disabled={this.props.disabled}
                     onChange={(logStructure) => this.updateLogEvent('logStructure', logStructure)}

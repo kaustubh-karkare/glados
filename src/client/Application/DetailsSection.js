@@ -151,7 +151,8 @@ class DetailsSection extends React.Component {
         return (
             <InputGroup>
                 <TypeaheadSelector
-                    dataType="log-topic"
+                    id="details-section-topic-or-structure"
+                    serverSideTypes={['log-topic', 'log-structure']}
                     value={null}
                     disabled={this.props.disabled}
                     onChange={(newItem) => Coordinator.invoke('details', newItem)}

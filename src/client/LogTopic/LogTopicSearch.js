@@ -29,7 +29,8 @@ class LogTopicSearch extends React.Component {
         return (
             <InputGroup>
                 <TypeaheadSelector
-                    dataType="log-topic"
+                    id="log-topic-search-topic"
+                    serverSideTypes={['log-topic']}
                     value={this.state.logTopic}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.setState({ logTopic })}

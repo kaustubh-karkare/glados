@@ -20,12 +20,12 @@ class TypeaheadSelector extends React.Component {
     }
 
     onSearch(query) {
-        this.setState({ isLoading: true }, () => {
-            window.api.send(`${this.props.dataType}-typeahead`, { query, where: this.props.where })
-                .then((options) => {
-                    this.setState({ isLoading: false, options });
-                });
-        });
+        this.setState({ isLoading: true });
+        window.api.send('typeahead', { query, dataTypes: this.props.serverSideTypes })
+            .then((serverSideOptions) => this.setState({
+                isLoading: false,
+                options: serverSideOptions,
+            }));
     }
 
     onChange(option) {
@@ -57,7 +57,7 @@ class TypeaheadSelector extends React.Component {
             <>
                 <AsyncTypeahead
                     {...this.state}
-                    id={this.props.dataType}
+                    id={this.props.id}
                     labelKey={this.props.labelKey}
                     minLength={0}
                     disabled={this.props.disabled || this.props.value}
@@ -85,7 +85,11 @@ class TypeaheadSelector extends React.Component {
 }
 
 TypeaheadSelector.propTypes = {
-    dataType: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    serverSideTypes: PropTypes.arrayOf(
+        PropTypes.string.isRequired,
+    ),
+
     labelKey: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.any,
@@ -93,8 +97,6 @@ TypeaheadSelector.propTypes = {
     onChange: PropTypes.func.isRequired,
 
     placeholder: PropTypes.string,
-    // eslint-disable-next-line react/forbid-prop-types
-    where: PropTypes.object,
 };
 
 TypeaheadSelector.defaultProps = {

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -9,7 +10,7 @@ class LogStructureSearch extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            logStructure: null,
+            logTopicOrStructure: null,
         };
     }
 
@@ -17,7 +18,15 @@ class LogStructureSearch extends React.Component {
         this.deregisterCallbacks = [
             Coordinator.register(
                 'log-structure-select',
-                (logStructure) => this.setState({ logStructure }),
+                (logStructure) => this.setState({
+                    logTopicOrStructure: logStructure,
+                }, this.afterUpdate),
+            ),
+            Coordinator.register(
+                'log-topic-select',
+                (logTopic) => this.setState({
+                    logTopicOrStructure: logTopic,
+                }, this.afterUpdate),
             ),
         ];
     }
@@ -30,10 +39,11 @@ class LogStructureSearch extends React.Component {
         return (
             <InputGroup>
                 <TypeaheadSelector
-                    dataType="log-structure"
-                    value={this.state.logStructure}
+                    id="log-structure-search-topic-or-structure"
+                    serverSideTypes={['log-topic', 'log-structure']}
+                    value={this.state.logTopicOrStructure}
                     disabled={this.props.disabled}
-                    onChange={(logStructure) => this.setState({ logStructure })}
+                    onChange={(logTopicOrStructure) => this.setState({ logTopicOrStructure })}
                     placeholder="Structure Search ..."
                 />
             </InputGroup>
@@ -41,15 +51,21 @@ class LogStructureSearch extends React.Component {
     }
 
     renderLogStructures() {
-        if (this.state.logStructure) {
-            const where = { id: this.state.logStructure.id };
-            return (
-                <LogStructureList
-                    allowCreation={false}
-                    allowReordering={false}
-                    where={where}
-                />
-            );
+        const { logTopicOrStructure } = this.state;
+        if (logTopicOrStructure) {
+            if (logTopicOrStructure.__type__ === 'log-topic') {
+                const where = { topic_id: logTopicOrStructure.id };
+                return (
+                    <LogStructureList
+                        allowCreation={false}
+                        allowReordering={false}
+                        where={where}
+                    />
+                );
+            } if (logTopicOrStructure.__type__ === 'log-structure') {
+                return <LogStructureList.Single logStructure={logTopicOrStructure} />;
+            }
+            assert(false, logTopicOrStructure);
         }
         return <LogStructureGroupList />;
     }
