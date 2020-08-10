@@ -79,7 +79,11 @@ class Applicaton extends React.Component {
                 </Col>
                 <Col md={4} className="my-3">
                     <IndexSection>
-                        <Component disabled={this.state.disabled} />
+                        <Component
+                            search={this.state.urlParams.search}
+                            disabled={this.state.disabled}
+                            onChange={(search) => Coordinator.invoke('url-update', { search })}
+                        />
                     </IndexSection>
                 </Col>
                 <Col md={4} className="my-3">
@@ -100,7 +104,12 @@ class Applicaton extends React.Component {
                 <Col md={2} className="my-3">
                     <ScrollableSection>
                         <SidebarSection title="All Topics">
-                            <LogTopicSearch unstyled disabled={this.state.disabled} />
+                            <LogTopicSearch
+                                unstyled
+                                search={this.state.urlParams.search}
+                                disabled={this.state.disabled}
+                                onChange={(search) => Coordinator.invoke('url-update', { search })}
+                            />
                         </SidebarSection>
                     </ScrollableSection>
                 </Col>
@@ -117,12 +126,13 @@ class Applicaton extends React.Component {
     }
 
     renderLayout() {
-        if (this.state.urlParams.layout === LayoutSection.Enum.DEFAULT) {
+        const layout = LayoutSection.getValue(this.state.urlParams.layout);
+        if (layout === LayoutSection.Enum.DEFAULT) {
             return this.renderDefaultLayout();
-        } if (this.state.urlParams.layout === LayoutSection.Enum.TOPIC) {
+        } if (layout === LayoutSection.Enum.TOPIC) {
             return this.renderTopicLayout();
         }
-        return <div>{`Unknown layout: ${this.state.urlParams.layout}`}</div>;
+        return <div>{`Unknown layout: ${layout}`}</div>;
     }
 
     render() {

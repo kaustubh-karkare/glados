@@ -6,7 +6,7 @@ import {
 
 class LogStructureDetailsHeader extends React.Component {
     static onSearchButtonClick(logStructure) {
-        Coordinator.invoke('log-structure-select', logStructure);
+        Coordinator.invoke('url-update', { search: [logStructure] });
     }
 
     render() {

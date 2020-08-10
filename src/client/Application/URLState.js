@@ -10,20 +10,17 @@ import { Coordinator, URLManager } from '../Common';
 const SEPARATOR = '~';
 
 function serializeItem(item) {
-    return `${item.__type__}${SEPARATOR}${item.id}`;
+    return `${item.__type__}${SEPARATOR}${item.id}${SEPARATOR}${item.name}`;
 }
 
 function deserializeItem(token) {
-    const [__type__, id] = token.split(SEPARATOR);
-    return { __type__, id: parseInt(id, 10) };
+    const [__type__, id, name] = token.split(SEPARATOR);
+    return { __type__, id: parseInt(id, 10), name };
 }
 
 class URLState {
     static getStateFromURL() {
         const params = URLManager.get();
-        if (params.search && !Array.isArray(params.search)) {
-            params.search = [params.search];
-        }
         return {
             tab: params.tab,
             layout: params.layout,

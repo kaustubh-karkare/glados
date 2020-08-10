@@ -1,5 +1,11 @@
 import PropTypes from 'prop-types';
 
+const Item = PropTypes.shape({
+    __type__: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+});
+
 const LogTopic = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
@@ -30,6 +36,7 @@ const LogEvent = PropTypes.shape({
 });
 
 PropTypes.Custom = {
+    Item,
     LogTopic,
     LogStructureGroup,
     LogStructureKey,

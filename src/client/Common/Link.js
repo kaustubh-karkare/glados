@@ -4,7 +4,12 @@ import Coordinator from './Coordinator';
 
 function Link(props) {
     const { logTopic } = props;
-    const link = Coordinator.invoke('url-link', { details: logTopic });
+    let link;
+    try {
+        link = Coordinator.invoke('url-link', { details: logTopic });
+    } catch (error) {
+        link = '#';
+    }
     return (
         <a
             className="topic"

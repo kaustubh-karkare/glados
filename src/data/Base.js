@@ -47,8 +47,6 @@ class Base extends ValidationBase {
                 delete where.topic_id;
                 assert(!where.id);
                 where.id = { [this.database.Op.in]: ids };
-            } else if (Array.isArray(where[fieldName])) {
-                where[fieldName] = { [this.database.Op.in]: where[fieldName] };
             }
         });
     }

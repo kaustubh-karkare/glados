@@ -47,6 +47,10 @@ class LayoutSection extends React.Component {
     }
 }
 
+const DEFAULT_VALUE = Layout.DEFAULT;
+
+LayoutSection.getValue = (value) => value || DEFAULT_VALUE;
+
 LayoutSection.Enum = Layout;
 
 LayoutSection.propTypes = {
@@ -55,7 +59,7 @@ LayoutSection.propTypes = {
 };
 
 LayoutSection.defaultProps = {
-    value: Layout.DEFAULT,
+    value: DEFAULT_VALUE,
 };
 
 export default LayoutSection;

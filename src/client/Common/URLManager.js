@@ -4,6 +4,8 @@ import queryString from 'query-string';
 let onChange;
 let pushState;
 
+const options = { arrayFormat: 'bracket' };
+
 class URLManager {
     static init(callback) {
         assert(!onChange, 'URLManager already initialized');
@@ -21,11 +23,11 @@ class URLManager {
     }
 
     static get() {
-        return queryString.parse(window.location.search);
+        return queryString.parse(window.location.search, options);
     }
 
     static getLink(params) {
-        return `?${queryString.stringify(params)}`;
+        return `?${queryString.stringify(params, options).replace(/%20/g, '+')}`;
     }
 
     static update(link) {

@@ -2,7 +2,7 @@ import assert from 'assert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Coordinator, ScrollableSection, TypeaheadSelector } from '../Common';
+import { ScrollableSection, TypeaheadSelector } from '../Common';
 import LogStructureList from './LogStructureList';
 import LogStructureGroupList from './LogStructureGroupList';
 
@@ -12,27 +12,6 @@ class LogStructureSearch extends React.Component {
         this.state = {
             logTopicOrStructure: null,
         };
-    }
-
-    componentDidMount() {
-        this.deregisterCallbacks = [
-            Coordinator.register(
-                'log-structure-select',
-                (logStructure) => this.setState({
-                    logTopicOrStructure: logStructure,
-                }, this.afterUpdate),
-            ),
-            Coordinator.register(
-                'log-topic-select',
-                (logTopic) => this.setState({
-                    logTopicOrStructure: logTopic,
-                }, this.afterUpdate),
-            ),
-        ];
-    }
-
-    componentWillUnmount() {
-        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
     renderFilters() {
