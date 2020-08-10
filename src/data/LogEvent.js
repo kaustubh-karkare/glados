@@ -166,9 +166,9 @@ class LogEvent extends Base {
         }
         await this.database.setEdges(
             'LogEventToLogTopic',
-            'event_id',
+            'source_event_id',
             logEvent.id,
-            'topic_id',
+            'target_topic_id',
             Object.values(logTopics).reduce((result, logTopic) => {
                 // eslint-disable-next-line no-param-reassign
                 result[logTopic.id] = {};

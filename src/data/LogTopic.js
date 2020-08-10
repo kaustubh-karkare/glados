@@ -93,25 +93,22 @@ class LogTopic extends Base {
             await LogTopic.updateOtherEntities.call(
                 this,
                 'LogEventToLogTopic',
-                'topic_id',
                 outputLogTopic,
-                'event_id',
+                'source_event_id',
                 'log-event',
                 ['title', 'details'],
             );
             await LogTopic.updateOtherEntities.call(
                 this,
                 'LogStructureToLogTopic',
-                'topic_id',
                 outputLogTopic,
-                'structure_id',
+                'source_structure_id',
                 'log-structure',
                 ['titleTemplate'],
             );
             await LogTopic.updateOtherEntities.call(
                 this,
                 'LogTopicToLogTopic',
-                'target_topic_id',
                 outputLogTopic,
                 'source_topic_id',
                 'log-topic',
@@ -124,7 +121,6 @@ class LogTopic extends Base {
 
     static async updateOtherEntities(
         junctionTableName,
-        junctionTargetName,
         updatedLogTopic,
         junctionSourceName,
         entityType,
@@ -132,7 +128,7 @@ class LogTopic extends Base {
     ) {
         const edges = await this.database.getEdges(
             junctionTableName,
-            junctionTargetName,
+            'target_topic_id',
             updatedLogTopic.id,
         );
         const inputItems = await Promise.all(

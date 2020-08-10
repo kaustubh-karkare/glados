@@ -19,18 +19,15 @@ class Base extends ValidationBase {
             // unlike the remaining fields that can be queried normally.
             if (fieldName === 'topic_id') {
                 const junctionTableName = `${this.DataType.name}ToLogTopic`;
-                const junctionTargetName = this.DataType.name === 'LogTopic'
-                    ? 'target_topic_id'
-                    : 'topic_id';
                 const junctionSourceName = {
                     LogTopic: 'source_topic_id',
-                    LogStructure: 'structure_id',
-                    LogEvent: 'event_id',
+                    LogStructure: 'source_structure_id',
+                    LogEvent: 'source_event_id',
                 }[this.DataType.name];
                 assert(junctionSourceName);
                 const edges = await this.database.getEdges(
                     junctionTableName,
-                    junctionTargetName,
+                    'target_topic_id',
                     where.topic_id,
                 );
                 let ids;

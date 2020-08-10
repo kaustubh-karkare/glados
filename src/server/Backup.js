@@ -121,10 +121,13 @@ ActionsRegistry['backup-load'] = async function () {
 
     /*
     if (true) {
-        data.log_structures.forEach((log_structure) => {
-            if (log_structure.last_update) {
-                log_structure.suppress_until_date = log_structure.last_update;
-            }
+        data.log_structures_to_log_topics.forEach((edge) => {
+            edge.source_structure_id = edge.structure_id;
+            edge.target_topic_id = edge.topic_id;
+        });
+        data.log_events_to_log_topics.forEach((edge) => {
+            edge.source_event_id = edge.event_id;
+            edge.target_topic_id = edge.topic_id;
         });
     }
     */

@@ -204,14 +204,14 @@ export default function (sequelize) {
     const LogStructureToLogTopic = sequelize.define(
         'log_structures_to_log_topics',
         {
-            structure_id: {
+            source_structure_id: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: LogStructure,
                     key: 'id',
                 },
             },
-            topic_id: {
+            target_topic_id: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: LogTopic,
@@ -224,7 +224,7 @@ export default function (sequelize) {
 
     LogStructure.belongsToMany(LogTopic, {
         through: LogStructureToLogTopic,
-        foreignKey: 'structure_id',
+        foreignKey: 'source_structure_id',
         // Deleteing an structure is allowed!
         // The links will be broken, and the Tags could be cleaned up.
         onDelete: 'cascade',
@@ -233,7 +233,7 @@ export default function (sequelize) {
 
     LogTopic.belongsToMany(LogStructure, {
         through: LogStructureToLogTopic,
-        foreignKey: 'topic_id',
+        foreignKey: 'target_topic_id',
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });
@@ -304,14 +304,14 @@ export default function (sequelize) {
     const LogEventToLogTopic = sequelize.define(
         'log_events_to_log_topics',
         {
-            event_id: {
+            source_event_id: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: LogEvent,
                     key: 'id',
                 },
             },
-            topic_id: {
+            target_topic_id: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: LogTopic,
@@ -324,7 +324,7 @@ export default function (sequelize) {
 
     LogEvent.belongsToMany(LogTopic, {
         through: LogEventToLogTopic,
-        foreignKey: 'event_id',
+        foreignKey: 'source_event_id',
         // Deleteing an event is allowed!
         // The links will be broken, and the Tags could be cleaned up.
         onDelete: 'cascade',
@@ -333,7 +333,7 @@ export default function (sequelize) {
 
     LogTopic.belongsToMany(LogEvent, {
         through: LogEventToLogTopic,
-        foreignKey: 'topic_id',
+        foreignKey: 'target_topic_id',
         onDelete: 'restrict',
         onUpdate: 'restrict',
     });

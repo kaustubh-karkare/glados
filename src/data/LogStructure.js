@@ -337,9 +337,9 @@ class LogStructure extends Base {
         const logTopics = TextEditorUtils.extractMentions(updatedTitleTemplate, 'log-topic');
         await this.database.setEdges(
             'LogStructureToLogTopic',
-            'structure_id',
+            'source_structure_id',
             updatedLogStructure.id,
-            'topic_id',
+            'target_topic_id',
             Object.values(logTopics).reduce((result, logTopic) => {
                 // eslint-disable-next-line no-param-reassign
                 result[logTopic.id] = {};
