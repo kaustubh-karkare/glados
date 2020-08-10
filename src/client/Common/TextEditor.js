@@ -111,14 +111,14 @@ class TextEditor extends React.Component {
         TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
             .select(option)
             .then((result) => {
-                if (!result) return;
+                if (typeof result === 'undefined') return;
                 const selection = TextEditorUtils.getSelectionData(this.state.editorState);
                 // Abstraction leak! Do not assume name.
                 const delta = result.name.length - option.name.length;
                 selection.anchorOffset += delta;
                 selection.focusOffset += delta;
                 let content = TextEditorUtils.fromEditorState(this.state.editorState);
-                content = TextEditorUtils.updateDraftContent(content, [option], [result]);
+                content = TextEditorUtils.updateDraftContent(content, [option], [result || '']);
                 let editorState = TextEditorUtils.toEditorState(content);
                 // TODO: Figure out why the cursor is not updated properly.
                 editorState = TextEditorUtils.setSelectionData(editorState, selection);

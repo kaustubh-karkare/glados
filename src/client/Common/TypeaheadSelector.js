@@ -35,6 +35,8 @@ class TypeaheadSelector extends React.Component {
             ).select(selected[index]);
             if (result) {
                 selected[index] = result;
+            } else if (result === null) {
+                return;
             }
         }
         if (this.props.multiple) {

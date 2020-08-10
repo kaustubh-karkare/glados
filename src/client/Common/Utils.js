@@ -1,4 +1,10 @@
 
+export function suppressUnlessShiftKey(event) {
+    if (!event.shiftKey) {
+        event.preventDefault();
+    }
+}
+
 // https://davidwalsh.name/javascript-debounce-function
 export function debounce(func, wait, immediate) {
     let timeout;

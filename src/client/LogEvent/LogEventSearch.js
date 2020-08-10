@@ -5,11 +5,16 @@ import { eachDayOfInterval, getDay } from 'date-fns';
 import PropTypes from '../prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, DateRangePicker, ScrollableSection, TypeaheadOptions, TypeaheadSelector,
+    Coordinator, ScrollableSection, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import LogEventList from './LogEventList';
 import { getVirtualID } from '../../data';
 
+const DATE_RANGE_ITEM = {
+    __type__: 'date-range',
+    id: getVirtualID(),
+    name: 'Date Range',
+};
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
     id: getVirtualID(),
@@ -34,6 +39,7 @@ class LogEventSearch extends React.Component {
             is_complete: true,
             is_major: true,
         };
+        let dates;
         let dateSearch = false;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-structure') {
@@ -48,6 +54,12 @@ class LogEventSearch extends React.Component {
                 }
                 where.topic_id.push(item.id);
                 dateSearch = true;
+            } else if (item.__type__ === DATE_RANGE_ITEM.__type__) {
+                const [startDate, endDate] = item.name.split(' to ');
+                dates = eachDayOfInterval({
+                    start: DateUtils.getDate(startDate),
+                    end: DateUtils.getDate(endDate),
+                }).map((date) => DateUtils.getLabel(date));
             } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
                 where.is_complete = false;
                 dateSearch = true;
@@ -58,19 +70,13 @@ class LogEventSearch extends React.Component {
             }
         });
         state.where = where;
-        state.dateSearch = dateSearch;
-
-        state.dates = undefined;
-        if (state.dateRange) {
-            state.dates = eachDayOfInterval({
-                start: DateUtils.getDate(state.dateRange.startDate),
-                end: DateUtils.getDate(state.dateRange.endDate),
-            }).map((date) => DateUtils.getLabel(date));
-        }
-        if (!state.dateSearch && !state.dates) {
+        if (dates || dateSearch) {
+            state.dates = dates;
+            state.dateSearch = !dates;
+        } else {
             state.dates = [DateUtils.getTodayLabel()];
+            state.dateSearch = false;
         }
-
         return state;
     }
 
@@ -108,15 +114,35 @@ class LogEventSearch extends React.Component {
     renderFilters() {
         return (
             <InputGroup>
-                <DateRangePicker
-                    dateRange={this.state.dateRange}
-                    onChange={(dateRange) => this.setState({ dateRange })}
-                />
                 <TypeaheadSelector
                     id="log-event-search-topic-or-structure"
                     options={new TypeaheadOptions({
                         serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
-                        suffixOptions: [INCOMPLETE_ITEM, ALL_EVENTS_ITEM],
+                        prefixOptions: [DATE_RANGE_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM],
+                        onSelect: (option) => {
+                            if (option.__type__ === DATE_RANGE_ITEM.__type__) {
+                                return new Promise((resolve) => {
+                                    Coordinator.invoke('modal-date-range', {
+                                        dateRange: {
+                                            startDate: DateUtils.getTodayLabel(),
+                                            endDate: DateUtils.getTodayLabel(),
+                                        },
+                                        onClose: (dateRange) => {
+                                            if (dateRange) {
+                                                resolve({
+                                                    __type__: option.__type__,
+                                                    id: 0,
+                                                    name: `${dateRange.startDate} to ${dateRange.endDate}`,
+                                                });
+                                            } else {
+                                                resolve(null);
+                                            }
+                                        },
+                                    });
+                                });
+                            }
+                            return undefined;
+                        },
                     })}
                     value={this.props.search}
                     disabled={this.props.disabled}

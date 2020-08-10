@@ -62,12 +62,14 @@ class TypeaheadOptions {
         }
         if (this.config.onSelect) {
             const result = await this.config.onSelect(option);
-            if (result) {
+            // undefined = no change
+            // null = cancel operation
+            if (typeof result === 'object') {
                 option = result;
                 adjusted = true;
             }
         }
-        return adjusted ? option : null;
+        return adjusted ? option : undefined;
     }
 }
 

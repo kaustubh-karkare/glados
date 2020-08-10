@@ -1,5 +1,10 @@
 import PropTypes from 'prop-types';
 
+const DateRange = PropTypes.shape({
+    startDate: PropTypes.string.isRequired,
+    endDate: PropTypes.string.isRequired,
+});
+
 const Item = PropTypes.shape({
     __type__: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
@@ -36,6 +41,7 @@ const LogEvent = PropTypes.shape({
 });
 
 PropTypes.Custom = {
+    DateRange,
     Item,
     LogTopic,
     LogStructureGroup,

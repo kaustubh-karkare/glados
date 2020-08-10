@@ -4,14 +4,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
 import LeftRight from './LeftRight';
-import { KeyCodes, debounce } from './Utils';
-
-
-function suppressUnlessShiftKey(event) {
-    if (!event.shiftKey) {
-        event.preventDefault();
-    }
-}
+import { KeyCodes, debounce, suppressUnlessShiftKey } from './Utils';
 
 
 class EditorModal extends React.Component {

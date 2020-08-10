@@ -11,6 +11,34 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 
 const KEY = 'selection';
 
+function DateRangeSelector(props) {
+    const { dateRange } = props;
+    return (
+        <DateRangePickerOriginal
+            direction="horizontal"
+            months={1}
+            moveRangeOnFirstSelection={false}
+            showSelectionPreview
+            ranges={[
+                {
+                    key: KEY,
+                    startDate: DateUtils.getDate(dateRange.startDate),
+                    endDate: DateUtils.getDate(dateRange.endDate),
+                },
+            ]}
+            onChange={(ranges) => props.onChange({
+                startDate: DateUtils.getLabel(ranges[KEY].startDate),
+                endDate: DateUtils.getLabel(ranges[KEY].endDate),
+            })}
+        />
+    );
+}
+
+DateRangeSelector.propTypes = {
+    dateRange: PropTypes.Custom.DateRange.isRequired,
+    onChange: PropTypes.func.isRequired,
+};
+
 class DateRangePicker extends React.Component {
     constructor(props) {
         super(props);
@@ -33,49 +61,24 @@ class DateRangePicker extends React.Component {
         return `${dateRange.startDate} to ${dateRange.endDate}`;
     }
 
-    renderPopoverContent() {
-        const dateRange = this.props.dateRange || this.state.lastDateRange;
-        return (
-            <DateRangePickerOriginal
-                direction="horizontal"
-                months={1}
-                moveRangeOnFirstSelection={false}
-                showSelectionPreview
-                ranges={[
-                    {
-                        key: KEY,
-                        startDate: DateUtils.getDate(dateRange.startDate),
-                        endDate: DateUtils.getDate(dateRange.endDate),
-                    },
-                ]}
-                onChange={(ranges) => {
-                    const newDateRange = {
-                        startDate: DateUtils.getLabel(ranges[KEY].startDate),
-                        endDate: DateUtils.getLabel(ranges[KEY].endDate),
-                    };
-                    this.setState({ lastDateRange: newDateRange });
-                    this.props.onChange(newDateRange);
-                }}
-            />
-        );
-    }
-
     render() {
         return (
             <PopoverElement onReset={() => this.props.onChange(null)}>
                 {this.renderSummary()}
-                {this.renderPopoverContent()}
+                <DateRangeSelector
+                    dateRange={this.props.dateRange || this.state.lastDateRange}
+                    onChange={(newDateRange) => {
+                        this.setState({ lastDateRange: newDateRange });
+                        this.props.onChange(newDateRange);
+                    }}
+                />
             </PopoverElement>
         );
     }
 }
 
-DateRangePicker.propTypes = {
-    dateRange: PropTypes.shape({
-        startDate: PropTypes.string.isRequired,
-        endDate: PropTypes.string.isRequired,
-    }),
-    onChange: PropTypes.func.isRequired,
-};
+DateRangePicker.propTypes = DateRangeSelector.propTypes;
+
+DateRangePicker.Selector = DateRangeSelector;
 
 export default DateRangePicker;

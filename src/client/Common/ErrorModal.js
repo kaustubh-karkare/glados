@@ -1,12 +1,7 @@
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-function suppressUnlessShiftKey(event) {
-    if (!event.shiftKey) {
-        event.preventDefault();
-    }
-}
+import { suppressUnlessShiftKey } from './Utils';
 
 function ErrorModal(props) {
     let { error } = props;
