@@ -71,6 +71,15 @@ class TypeaheadOptions {
         }
         return adjusted ? option : undefined;
     }
+
+    filter(items) {
+        const knownTypes = new Set([
+            ...this.config.serverSideOptions.map((option) => option.name),
+            ...this.config.prefixOptions.map((option) => option.__type__),
+            ...this.config.suffixOptions.map((option) => option.__type__),
+        ]);
+        return items.filter((item) => knownTypes.has(item.__type__));
+    }
 }
 
 export default TypeaheadOptions;

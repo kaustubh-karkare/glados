@@ -1,71 +1,60 @@
 import assert from 'assert';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ScrollableSection, TypeaheadSelector } from '../Common';
+import { TypeaheadOptions } from '../Common';
 import LogStructureList from './LogStructureList';
 import LogStructureGroupList from './LogStructureGroupList';
 
 class LogStructureSearch extends React.Component {
+    static getTypeaheadOptions() {
+        return new TypeaheadOptions({
+            serverSideOptions: [{ name: 'log-structure' }, { name: 'log-topic' }],
+        });
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        const where = {};
+        let defaultDisplay = true;
+        props.search.forEach((item) => {
+            if (item.__type__ === 'log-structure') {
+                if (!where.id) where.id = [];
+                where.id.push(item.id);
+                defaultDisplay = false;
+            } else if (item.__type__ === 'log-topic') {
+                if (!where.topic_id) where.topic_id = [];
+                where.topic_id.push(item.topic_id);
+                defaultDisplay = false;
+            } else {
+                assert(false, item);
+            }
+        });
+        state.where = where;
+        state.defaultDisplay = defaultDisplay;
+        return state;
+    }
+
     constructor(props) {
         super(props);
-        this.state = {
-            logTopicOrStructure: null,
-        };
-    }
-
-    renderFilters() {
-        return (
-            <InputGroup>
-                <TypeaheadSelector
-                    id="log-structure-search-topic-or-structure"
-                    serverSideTypes={['log-topic', 'log-structure']}
-                    value={this.state.logTopicOrStructure}
-                    disabled={this.props.disabled}
-                    onChange={(logTopicOrStructure) => this.setState({ logTopicOrStructure })}
-                    placeholder="Search ..."
-                />
-            </InputGroup>
-        );
-    }
-
-    renderLogStructures() {
-        const { logTopicOrStructure } = this.state;
-        if (logTopicOrStructure) {
-            if (logTopicOrStructure.__type__ === 'log-topic') {
-                const where = { topic_id: logTopicOrStructure.id };
-                return (
-                    <LogStructureList
-                        name="Selected Structure(s)"
-                        allowCreation={false}
-                        allowReordering={false}
-                        where={where}
-                    />
-                );
-            } if (logTopicOrStructure.__type__ === 'log-structure') {
-                return <LogStructureList.Single logStructure={logTopicOrStructure} />;
-            }
-            assert(false, logTopicOrStructure);
-        }
-        return <LogStructureGroupList />;
+        this.state = {};
     }
 
     render() {
+        if (this.state.defaultDisplay) {
+            return <LogStructureGroupList />;
+        }
         return (
-            <>
-                <div className="mb-1">
-                    {this.renderFilters()}
-                </div>
-                <ScrollableSection padding={20 + 4}>
-                    {this.renderLogStructures()}
-                </ScrollableSection>
-            </>
+            <LogStructureList
+                name="Selected Structure(s)"
+                allowCreation={false}
+                allowReordering={false}
+                where={this.state.where}
+            />
         );
     }
 }
 
 LogStructureSearch.propTypes = {
-    disabled: PropTypes.bool.isRequired,
+    search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 
 export default LogStructureSearch;

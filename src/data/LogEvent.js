@@ -141,26 +141,22 @@ class LogEvent extends Base {
         };
         logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
 
-        const logTopics = {
-            ...TextEditorUtils.extractMentions(
-                TextEditorUtils.deserialize(
-                    logEvent.title,
-                    TextEditorUtils.StorageType.DRAFTJS,
-                ),
-                'log-topic',
-            ),
-            ...TextEditorUtils.extractMentions(
-                TextEditorUtils.deserialize(
-                    logEvent.details,
-                    TextEditorUtils.StorageType.DRAFTJS,
-                ),
-                'log-topic',
-            ),
+        const updatedTitle = TextEditorUtils.deserialize(
+            logEvent.title,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
+        const updatedDetails = TextEditorUtils.deserialize(
+            logEvent.details,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
+        const targetLogTopics = {
+            ...TextEditorUtils.extractMentions(updatedTitle, 'log-topic'),
+            ...TextEditorUtils.extractMentions(updatedDetails, 'log-topic'),
         };
         if (logValues) {
             logValues.forEach((value) => {
                 if (typeof value === 'object' && value && value.__type__ === 'log-topic') {
-                    logTopics[value.id] = value;
+                    targetLogTopics[value.id] = value;
                 }
             });
         }
@@ -169,9 +165,9 @@ class LogEvent extends Base {
             'source_event_id',
             logEvent.id,
             'target_topic_id',
-            Object.values(logTopics).reduce((result, logTopic) => {
+            Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
                 // eslint-disable-next-line no-param-reassign
-                result[logTopic.id] = {};
+                result[targetLogTopic.id] = {};
                 return result;
             }, {}),
         );

@@ -1,94 +1,63 @@
-import InputGroup from 'react-bootstrap/InputGroup';
+import assert from 'assert';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Coordinator, ScrollableSection, TypeaheadSelector } from '../Common';
+import { TypeaheadOptions } from '../Common';
 import LogTopicList from './LogTopicList';
 
 class LogTopicSearch extends React.Component {
+    static getTypeaheadOptions() {
+        return new TypeaheadOptions({
+            serverSideOptions: [{ name: 'log-topic' }],
+        });
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        const where = {};
+        let defaultDisplay = true;
+        props.search.forEach((item) => {
+            if (item.__type__ === 'log-topic') {
+                if (!where.id) where.id = [];
+                where.id.push(item.id);
+                defaultDisplay = false;
+            } else {
+                assert(false, item);
+            }
+        });
+        state.where = where;
+        state.defaultDisplay = defaultDisplay;
+        return state;
+    }
+
     constructor(props) {
         super(props);
-        this.state = {
-            logTopic: null,
-        };
-    }
-
-    componentDidMount() {
-        this.deregisterCallbacks = [
-            Coordinator.register(
-                'log-topic-select',
-                (logTopic) => this.setState({ logTopic }),
-            ),
-        ];
-    }
-
-    componentWillUnmount() {
-        this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
-    }
-
-    renderFilters() {
-        return (
-            <InputGroup>
-                <TypeaheadSelector
-                    id="log-topic-search-topic"
-                    serverSideTypes={['log-topic']}
-                    value={this.state.logTopic}
-                    disabled={this.props.disabled}
-                    onChange={(logTopic) => this.setState({ logTopic })}
-                    placeholder="Search ..."
-                />
-            </InputGroup>
-        );
-    }
-
-    renderLogTopics() {
-        const { logTopic } = this.state;
-        if (logTopic) {
-            return (
-                <>
-                    <LogTopicList
-                        name="Selected Topic"
-                        where={{ id: logTopic.id }}
-                        allowCreation={false}
-                        allowReordering={false}
-                    />
-                    <LogTopicList
-                        name="Referencing Topics"
-                        where={{ topic_id: logTopic.id }}
-                        allowCreation={false}
-                        allowReordering={false}
-                    />
-                </>
-            );
-        }
-        return <LogTopicList where={{ parent_topic_id: null }} />;
-    }
-
-    renderWrapper() {
-        if (this.props.unstyled) {
-            return this.renderLogTopics();
-        }
-        return (
-            <ScrollableSection padding={20 + 4}>
-                {this.renderLogTopics()}
-            </ScrollableSection>
-        );
+        this.state = {};
     }
 
     render() {
+        if (this.state.defaultDisplay) {
+            return <LogTopicList where={{ parent_topic_id: null }} />;
+        }
         return (
             <>
-                <div className="mb-1">
-                    {this.renderFilters()}
-                </div>
-                {this.renderWrapper()}
+                <LogTopicList
+                    name="Selected Topic"
+                    where={this.state.where}
+                    allowCreation={false}
+                    allowReordering={false}
+                />
+                <LogTopicList
+                    name="Referencing Topics"
+                    where={{ topic_id: this.state.where.ids }}
+                    allowCreation={false}
+                    allowReordering={false}
+                />
             </>
         );
     }
 }
 
 LogTopicSearch.propTypes = {
-    unstyled: PropTypes.bool,
-    disabled: PropTypes.bool.isRequired,
+    search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 
 export default LogTopicSearch;

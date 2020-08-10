@@ -334,15 +334,22 @@ class LogStructure extends Base {
             inputLogStructure.titleTemplate,
             TextEditorUtils.StorageType.DRAFTJS,
         );
-        const logTopics = TextEditorUtils.extractMentions(updatedTitleTemplate, 'log-topic');
+        const updatedDetails = TextEditorUtils.deserialize(
+            inputLogStructure.details,
+            TextEditorUtils.StorageType.DRAFTJS,
+        );
+        const targetLogTopics = {
+            ...TextEditorUtils.extractMentions(updatedTitleTemplate, 'log-topic'),
+            ...TextEditorUtils.extractMentions(updatedDetails, 'log-topic'),
+        };
         await this.database.setEdges(
             'LogStructureToLogTopic',
             'source_structure_id',
             updatedLogStructure.id,
             'target_topic_id',
-            Object.values(logTopics).reduce((result, logTopic) => {
+            Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
                 // eslint-disable-next-line no-param-reassign
-                result[logTopic.id] = {};
+                result[targetLogTopic.id] = {};
                 return result;
             }, {}),
         );

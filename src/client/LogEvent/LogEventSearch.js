@@ -1,11 +1,10 @@
 import assert from 'assert';
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import { eachDayOfInterval, getDay } from 'date-fns';
 import PropTypes from '../prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, ScrollableSection, TypeaheadOptions, TypeaheadSelector,
+    Coordinator, TypeaheadOptions,
 } from '../Common';
 import LogEventList from './LogEventList';
 import { getVirtualID } from '../../data';
@@ -27,13 +26,43 @@ const ALL_EVENTS_ITEM = {
 };
 
 class LogEventSearch extends React.Component {
+    static getTypeaheadOptions() {
+        return new TypeaheadOptions({
+            serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
+            prefixOptions: [DATE_RANGE_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM],
+            onSelect: (option) => {
+                if (option.__type__ === DATE_RANGE_ITEM.__type__) {
+                    return new Promise((resolve) => {
+                        Coordinator.invoke('modal-date-range', {
+                            dateRange: {
+                                startDate: DateUtils.getTodayLabel(),
+                                endDate: DateUtils.getTodayLabel(),
+                            },
+                            onClose: (dateRange) => {
+                                if (dateRange) {
+                                    resolve({
+                                        __type__: option.__type__,
+                                        id: 0,
+                                        name: `${dateRange.startDate} to ${dateRange.endDate}`,
+                                    });
+                                } else {
+                                    resolve(null);
+                                }
+                            },
+                        });
+                    });
+                }
+                return undefined;
+            },
+        });
+    }
+
     static getDerivedStateFromProps(props, state) {
         const signature = JSON.stringify([props.search, state.dateRange]);
         if (state.signature === signature) {
             return state;
         }
         state.signature = signature;
-
 
         const where = {
             is_complete: true,
@@ -82,14 +111,14 @@ class LogEventSearch extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { dateRange: null };
+        this.state = {};
     }
 
     componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.subscribe('log-event-created', (logEvent) => {
                 if (!logEvent.isMajor && !this.props.search.length) {
-                    this.props.onChange(ALL_EVENTS_ITEM);
+                    Coordinator.invoke({ search: [ALL_EVENTS_ITEM] });
                 }
             }),
         ];
@@ -111,50 +140,7 @@ class LogEventSearch extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    renderFilters() {
-        return (
-            <InputGroup>
-                <TypeaheadSelector
-                    id="log-event-search-topic-or-structure"
-                    options={new TypeaheadOptions({
-                        serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
-                        prefixOptions: [DATE_RANGE_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM],
-                        onSelect: (option) => {
-                            if (option.__type__ === DATE_RANGE_ITEM.__type__) {
-                                return new Promise((resolve) => {
-                                    Coordinator.invoke('modal-date-range', {
-                                        dateRange: {
-                                            startDate: DateUtils.getTodayLabel(),
-                                            endDate: DateUtils.getTodayLabel(),
-                                        },
-                                        onClose: (dateRange) => {
-                                            if (dateRange) {
-                                                resolve({
-                                                    __type__: option.__type__,
-                                                    id: 0,
-                                                    name: `${dateRange.startDate} to ${dateRange.endDate}`,
-                                                });
-                                            } else {
-                                                resolve(null);
-                                            }
-                                        },
-                                    });
-                                });
-                            }
-                            return undefined;
-                        },
-                    })}
-                    value={this.props.search}
-                    disabled={this.props.disabled}
-                    onChange={(items) => this.props.onChange(items)}
-                    placeholder="Search ..."
-                    multiple
-                />
-            </InputGroup>
-        );
-    }
-
-    renderLogEvents() {
+    render() {
         if (this.state.dateSearch || !this.state.dates) {
             return null;
         }
@@ -181,25 +167,10 @@ class LogEventSearch extends React.Component {
             );
         });
     }
-
-    render() {
-        return (
-            <>
-                <div className="mb-1">
-                    {this.renderFilters()}
-                </div>
-                <ScrollableSection padding={20 + 4}>
-                    {this.renderLogEvents()}
-                </ScrollableSection>
-            </>
-        );
-    }
 }
 
 LogEventSearch.propTypes = {
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
-    disabled: PropTypes.bool.isRequired,
-    onChange: PropTypes.func.isRequired,
 };
 
 export default LogEventSearch;

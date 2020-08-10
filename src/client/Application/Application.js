@@ -64,7 +64,6 @@ class Applicaton extends React.Component {
     }
 
     renderDefaultLayout() {
-        const { Component } = TabSection.Enum[this.state.urlParams.tab];
         return (
             <Row>
                 <Col md={2} className="my-3">
@@ -78,13 +77,12 @@ class Applicaton extends React.Component {
                     </ScrollableSection>
                 </Col>
                 <Col md={4} className="my-3">
-                    <IndexSection>
-                        <Component
-                            search={this.state.urlParams.search}
-                            disabled={this.state.disabled}
-                            onChange={(search) => Coordinator.invoke('url-update', { search })}
-                        />
-                    </IndexSection>
+                    <IndexSection
+                        Component={TabSection.Enum[this.state.urlParams.tab].Component}
+                        search={this.state.urlParams.search}
+                        disabled={this.state.disabled}
+                        onChange={(search) => Coordinator.invoke('url-update', { search })}
+                    />
                 </Col>
                 <Col md={4} className="my-3">
                     <DetailsSection

@@ -69,13 +69,11 @@ class LogTopic extends Base {
         };
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 
-        const targetLogTopics = TextEditorUtils.extractMentions(
-            TextEditorUtils.deserialize(
-                logTopic.details,
-                TextEditorUtils.StorageType.DRAFTJS,
-            ),
-            'log-topic',
+        const updatedDetails = TextEditorUtils.deserialize(
+            logTopic.details,
+            TextEditorUtils.StorageType.DRAFTJS,
         );
+        const targetLogTopics = TextEditorUtils.extractMentions(updatedDetails, 'log-topic');
         await this.database.setEdges(
             'LogTopicToLogTopic',
             'source_topic_id',
