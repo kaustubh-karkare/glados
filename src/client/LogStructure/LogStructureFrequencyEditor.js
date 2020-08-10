@@ -34,8 +34,8 @@ class LogStructureFrequencyEditor extends React.Component {
                     updatedLogStructure._frequency || LogStructure.Frequency.EVERYDAY
                 );
                 updatedLogStructure.warningDays = updatedLogStructure._warningDays || 0;
-                updatedLogStructure.lastUpdate = updatedLogStructure._lastUpdate || '{yesterday}';
-                DateUtils.maybeSubstitute(updatedLogStructure, 'lastUpdate');
+                updatedLogStructure.suppressUntilDate = updatedLogStructure._suppressUntilDate || '{yesterday}';
+                DateUtils.maybeSubstitute(updatedLogStructure, 'suppressUntilDate');
             } else {
                 updatedLogStructure.isPeriodic = false;
                 updatedLogStructure._reminderText = updatedLogStructure.reminderText;
@@ -44,8 +44,8 @@ class LogStructureFrequencyEditor extends React.Component {
                 updatedLogStructure.frequency = null;
                 updatedLogStructure._warningDays = updatedLogStructure.warningDays;
                 updatedLogStructure.warningDays = null;
-                updatedLogStructure._lastUpdate = updatedLogStructure.lastUpdate;
-                updatedLogStructure.lastUpdate = null;
+                updatedLogStructure._suppressUntilDate = updatedLogStructure.suppressUntilDate;
+                updatedLogStructure.suppressUntilDate = null;
             }
         });
     }
@@ -154,16 +154,16 @@ class LogStructureFrequencyEditor extends React.Component {
         );
     }
 
-    renderLastUpdate() {
+    renderSuppressUntilDate() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Last Update
+                    Suppress Until
                 </InputGroup.Text>
                 <DatePicker
-                    date={this.props.logStructure.lastUpdate}
+                    date={this.props.logStructure.suppressUntilDate}
                     disabled={this.props.disabled}
-                    onChange={(lastUpdate) => this.props.updateLogStructure('lastUpdate', lastUpdate)}
+                    onChange={(suppressUntilDate) => this.props.updateLogStructure('suppressUntilDate', suppressUntilDate)}
                 />
             </InputGroup>
         );
@@ -180,7 +180,7 @@ class LogStructureFrequencyEditor extends React.Component {
                             {this.renderFrequency()}
                             {this.renderFrequencyArgs()}
                             {this.renderWarningDays()}
-                            {this.renderLastUpdate()}
+                            {this.renderSuppressUntilDate()}
                         </>
                     )
                     : null}

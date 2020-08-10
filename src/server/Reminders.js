@@ -55,8 +55,15 @@ ActionsRegistry['reminder-complete'] = async function (input) {
     const result = {};
     result.logEvent = await this.invoke.call(this, 'log-event-upsert', inputLogEvent);
     if (inputLogStructure) {
-        inputLogStructure.lastUpdate = LogStructure.getLastUpdate.call(this, inputLogStructure);
-        result.logStructure = await this.invoke.call(this, 'log-structure-upsert', inputLogStructure);
+        inputLogStructure.suppressUntilDate = LogStructure.getSuppressUntilDate.call(
+            this,
+            inputLogStructure,
+        );
+        result.logStructure = await this.invoke.call(
+            this,
+            'log-structure-upsert',
+            inputLogStructure,
+        );
     }
     this.broadcast('reminder-sidebar');
     return result;
@@ -64,8 +71,15 @@ ActionsRegistry['reminder-complete'] = async function (input) {
 
 ActionsRegistry['reminder-dismiss'] = async function (input) {
     const { logStructure: inputLogStructure } = input;
-    inputLogStructure.lastUpdate = LogStructure.getLastUpdate.call(this, inputLogStructure);
-    const outputLogStructure = await this.invoke.call(this, 'log-structure-upsert', inputLogStructure);
+    inputLogStructure.suppressUntilDate = LogStructure.getSuppressUntilDate.call(
+        this,
+        inputLogStructure,
+    );
+    const outputLogStructure = await this.invoke.call(
+        this,
+        'log-structure-upsert',
+        inputLogStructure,
+    );
     this.broadcast('reminder-sidebar');
     return { logStructure: outputLogStructure };
 };

@@ -105,8 +105,8 @@ export default class Utils {
             inputLogStructure.warningDays = inputLogStructure.isPeriodic
                 ? (inputLogStructure.warningDays || 0)
                 : null;
-            inputLogStructure.lastUpdate = inputLogStructure.lastUpdate || null;
-            DateUtils.maybeSubstitute(inputLogStructure, 'lastUpdate');
+            inputLogStructure.suppressUntilDate = inputLogStructure.suppressUntilDate || null;
+            DateUtils.maybeSubstitute(inputLogStructure, 'suppressUntilDate');
 
             inputLogStructure.isMajor = false;
             const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);

@@ -122,8 +122,8 @@ ActionsRegistry['backup-load'] = async function () {
     /*
     if (true) {
         data.log_structures.forEach((log_structure) => {
-            if (log_structure.is_periodic) {
-                log_structure.warning_days = 0;
+            if (log_structure.last_update) {
+                log_structure.suppress_until_date = log_structure.last_update;
             }
         });
     }

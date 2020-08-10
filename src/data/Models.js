@@ -181,7 +181,7 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
-            last_update: {
+            suppress_until_date: {
                 type: Sequelize.STRING,
                 allowNull: true,
             },

@@ -23,7 +23,7 @@ test('test_reminder_without_warning', async () => {
                 isPeriodic: true,
                 frequency: 'everyday',
                 warningDays: 0,
-                lastUpdate: '2020-08-07',
+                suppressUntilDate: '2020-08-07',
             },
         ],
     });
@@ -53,7 +53,7 @@ test('test_reminder_with_warning', async () => {
                 frequency: 'yearly',
                 frequencyArgs: '08-12',
                 warningDays: 7,
-                lastUpdate: '2020-01-01',
+                suppressUntilDate: '2020-01-01',
             },
         ],
         logEvents: [

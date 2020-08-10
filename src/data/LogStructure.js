@@ -164,7 +164,7 @@ class LogStructure extends Base {
             frequency: null,
             frequencyArgs: null,
             warningDays: null,
-            lastUpdate: null,
+            suppressUntilDate: null,
             isMajor: true,
             onSidebar: false,
         };
@@ -191,8 +191,8 @@ class LogStructure extends Base {
         // input = after loading
         assert(logStructure.isPeriodic);
         const todayDate = DateUtils.getTodayDate(this);
-        const lastUpdate = DateUtils.getDate(logStructure.lastUpdate);
-        if (compareAsc(todayDate, lastUpdate) <= 0) {
+        const suppressUntilDate = DateUtils.getDate(logStructure.suppressUntilDate);
+        if (compareAsc(todayDate, suppressUntilDate) <= 0) {
             return false;
         }
         const option = LogStructureFrequency[logStructure.frequency];
@@ -213,7 +213,7 @@ class LogStructure extends Base {
         return !foundLogEventForReminder;
     }
 
-    static getLastUpdate(logStructure) {
+    static getSuppressUntilDate(logStructure) {
         assert(logStructure.isPeriodic);
         const today = DateUtils.getTodayDate(this);
         const option = LogStructureFrequency[logStructure.frequency];
@@ -251,14 +251,16 @@ class LogStructure extends Base {
         if (inputLogStructure.isPeriodic) {
             results.push([
                 '.isPeriodic',
-                inputLogStructure.frequency !== null && inputLogStructure.lastUpdate !== null,
-                'requires frequency & lastUpdate is set.',
+                inputLogStructure.frequency !== null
+                && inputLogStructure.suppressUntilDate !== null,
+                'requires frequency & suppressUntilDate is set.',
             ]);
         } else {
             results.push([
                 '.isPeriodic',
-                inputLogStructure.frequency === null && inputLogStructure.lastUpdate === null,
-                'requires frequency & lastUpdate to be unset.',
+                inputLogStructure.frequency === null
+                && inputLogStructure.suppressUntilDate === null,
+                'requires frequency & suppressUntilDate to be unset.',
             ]);
         }
 
@@ -289,7 +291,7 @@ class LogStructure extends Base {
             frequency: logStructure.frequency,
             frequencyArgs: logStructure.frequency_args,
             warningDays: logStructure.warning_days,
-            lastUpdate: logStructure.last_update,
+            suppressUntilDate: logStructure.suppress_until_date,
             isMajor: logStructure.is_major,
         };
     }
@@ -321,7 +323,7 @@ class LogStructure extends Base {
             frequency: inputLogStructure.frequency,
             frequency_args: inputLogStructure.frequencyArgs,
             warning_days: inputLogStructure.warningDays,
-            last_update: inputLogStructure.lastUpdate,
+            suppress_until_date: inputLogStructure.suppressUntilDate,
             is_major: inputLogStructure.isMajor,
         };
         const updatedLogStructure = await this.database.createOrUpdateItem(
