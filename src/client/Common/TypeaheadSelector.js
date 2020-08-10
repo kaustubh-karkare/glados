@@ -95,7 +95,7 @@ class TypeaheadSelector extends React.Component {
 
 TypeaheadSelector.propTypes = {
     id: PropTypes.string.isRequired,
-    multiple: PropTypes.bool.isRequired,
+    multiple: PropTypes.bool,
     clientSideOptions: PropTypes.arrayOf(
         PropTypes.any,
     ),
@@ -115,6 +115,7 @@ TypeaheadSelector.propTypes = {
 TypeaheadSelector.defaultProps = {
     clientSideOptions: [],
     labelKey: 'name',
+    multiple: false,
 };
 
 export default TypeaheadSelector;

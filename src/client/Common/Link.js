@@ -4,17 +4,17 @@ import Coordinator from './Coordinator';
 
 function Link(props) {
     const { logTopic } = props;
-    const linkHref = Coordinator.invoke('link-href', { activeDetails: logTopic });
+    const link = Coordinator.invoke('url-link', { details: logTopic });
     return (
         <a
             className="topic"
             title={logTopic.name}
-            href={linkHref}
+            href={link}
             tabIndex={-1}
             onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                Coordinator.invoke('details', logTopic);
+                Coordinator.invoke('url-update', { details: logTopic });
             }}
         >
             {props.children}

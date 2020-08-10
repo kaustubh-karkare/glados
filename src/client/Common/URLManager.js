@@ -6,7 +6,7 @@ let pushState;
 
 class URLManager {
     static init(callback) {
-        assert(!onChange);
+        assert(!onChange, 'URLManager already initialized');
         onChange = callback;
         pushState = window.history.pushState;
         window.history.pushState = (...args) => {

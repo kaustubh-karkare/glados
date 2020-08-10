@@ -33,7 +33,7 @@ class BulletListItem extends React.Component {
             event.stopPropagation();
         }
         if (event && event.shiftKey) {
-            Coordinator.invoke('details', this.props.value);
+            Coordinator.invoke('url-update', { details: this.props.value });
             return;
         }
         Coordinator.invoke('modal-editor', {

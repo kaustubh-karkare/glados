@@ -3,147 +3,47 @@ import Container from 'react-bootstrap/Container';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
 import {
-    Coordinator, ModalStack, ScrollableSection, SidebarSection, URLManager,
+    Coordinator, ModalStack, ScrollableSection, SidebarSection,
 } from '../Common';
-import { LogEventSearch, LogEventList } from '../LogEvent';
-import { LogStructureSearch } from '../LogStructure';
-import { LogTopicSearch, LogTopicList } from '../LogTopic';
+import { LogEventList } from '../LogEvent';
+import { LogTopicList, LogTopicSearch } from '../LogTopic';
 import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import ConsistencySection from './ConsistencySection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
-import Enum from '../../common/Enum';
 import IndexSection from './IndexSection';
 import LayoutSection from './LayoutSection';
 import SidebarItemsSection from './SidebarItemsSection';
+import TabSection from './TabSection';
+import URLState from './URLState';
 
-
-const Tab = Enum([
-    {
-        label: 'Manage Events',
-        value: 'log-event',
-        Component: LogEventSearch,
-    },
-    {
-        label: 'Manage Topics',
-        value: 'log-topic',
-        Component: LogTopicSearch,
-    },
-    {
-        label: 'Manage Structures',
-        value: 'log-structure',
-        Component: LogStructureSearch,
-    },
-]);
-
-window.Tab = Tab;
-
-const Layout = Enum([
-    {
-        label: 'Default',
-        value: 'default',
-    },
-    {
-        label: 'Topic',
-        value: 'topic',
-    },
-]);
-
-/**
- * [...Array(128).keys()]
- *     .map(code => String.fromCharCode(code))
- *     .filter(char => !char.match(/\w/) && char === encodeURIComponent(char))
- * ["!", "'", "(", ")", "*", "-", ".", "~"]
- * Picked the one most easily readable in the URL.
- */
-const SEPARATOR = '~';
 
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
+        this.deregisterCallbacks = [
+            URLState.init(),
+            Coordinator.subscribe('url-change', (urlParams) => this.setState({ urlParams })),
+        ];
         this.state = {
-            ...this.getStateFromURL(),
+            urlParams: Coordinator.invoke('url-params'),
             disabled: false,
         };
-        this.deregisterCallbacks = [
-            URLManager.init(() => this.setState(this.getStateFromURL())),
-            Coordinator.register('link-href', this.getLinkHref.bind(this)),
-            Coordinator.register('details', this.onDetailsChange.bind(this)),
-            Coordinator.register('layout-options', () => Layout.Options),
-            Coordinator.register('layout', this.onLayoutChange.bind(this)),
-        ];
+        this.tabRef = React.createRef();
     }
 
     componentWillUnmount() {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    onTabChange(activeTab) {
-        this.setURLFromState({ activeTab, activeLayout: Layout.DEFAULT });
-    }
-
-    onLayoutChange(activeLayout) {
-        this.setURLFromState({ activeLayout });
-    }
-
-    onDetailsChange(item) {
-        this.setURLFromState({ activeDetails: item });
-    }
-
-    // Synchronization of URL Parameters with Component State.
-
-    getLinkHref({ activeTab, activeLayout, activeDetails }) {
-        let item = activeDetails;
-        if (typeof activeDetails === 'undefined') {
-            item = this.state.activeDetails;
-        }
-        return URLManager.getLink({
-            tab: activeTab || this.state.activeTab,
-            layout: activeLayout || this.state.activeLayout,
-            details: item ? `${item.__type__}${SEPARATOR}${item.id}` : null,
-        });
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    getStateFromURL() {
-        const params = URLManager.get();
-        let activeDetails = null;
-        if (params.details) {
-            const [__type__, id] = params.details.split(SEPARATOR);
-            activeDetails = { __type__, id: parseInt(id, 10) };
-        }
-        return {
-            activeTab: params.tab || Tab.LOG_EVENT,
-            activeLayout: params.layout || Layout.DEFAULT,
-            activeDetails,
-        };
-    }
-
-    setURLFromState(params) {
-        const linkHref = this.getLinkHref(params);
-        URLManager.update(linkHref);
-    }
-
-    renderTabSection() {
-        return Tab.Options.map((option) => (
-            <SidebarSection
-                key={option.value}
-                onClick={() => this.onTabChange(option.value)}
-                selected={
-                    this.state.activeTab === option.value
-                    && this.state.activeLayout === Layout.DEFAULT
-                }
-            >
-                {option.label}
-            </SidebarSection>
-        ));
-    }
-
     renderRightSidebar() {
         return (
             <Col md={2} className="my-3">
-                <LayoutSection layout={this.state.activeLayout} />
+                <LayoutSection
+                    value={this.state.urlParams.layout}
+                    onChange={(layout) => Coordinator.invoke('url-update', { layout })}
+                />
                 <BackupSection />
                 <ConsistencySection />
                 <SidebarItemsSection
@@ -164,12 +64,16 @@ class Applicaton extends React.Component {
     }
 
     renderDefaultLayout() {
-        const { Component } = Tab[this.state.activeTab];
+        const Component = TabSection.getComponent(this.state.urlParams.tab);
         return (
             <Row>
                 <Col md={2} className="my-3">
                     <ScrollableSection>
-                        {this.renderTabSection()}
+                        <TabSection
+                            value={this.state.urlParams.tab}
+                            onChange={(tab) => Coordinator.invoke('url-update', { tab })}
+                            ref={this.tabRef}
+                        />
                         <ReminderSidebar />
                     </ScrollableSection>
                 </Col>
@@ -180,8 +84,9 @@ class Applicaton extends React.Component {
                 </Col>
                 <Col md={4} className="my-3">
                     <DetailsSection
-                        item={this.state.activeDetails}
+                        item={this.state.urlParams.details}
                         disabled={this.state.disabled}
+                        onChange={(details) => Coordinator.invoke('url-update', { details })}
                     />
                 </Col>
                 {this.renderRightSidebar()}
@@ -195,14 +100,15 @@ class Applicaton extends React.Component {
                 <Col md={2} className="my-3">
                     <ScrollableSection>
                         <SidebarSection title="All Topics">
-                            <LogTopicSearch unstyled />
+                            <LogTopicSearch unstyled disabled={this.state.disabled} />
                         </SidebarSection>
                     </ScrollableSection>
                 </Col>
                 <Col md={8} className="my-3">
                     <DetailsSection
-                        item={this.state.activeDetails}
+                        item={this.state.urlParams.details}
                         disabled={this.state.disabled}
+                        onChange={(details) => Coordinator.invoke('url-update', { details })}
                     />
                 </Col>
                 {this.renderRightSidebar()}
@@ -211,12 +117,12 @@ class Applicaton extends React.Component {
     }
 
     renderLayout() {
-        if (this.state.activeLayout === Layout.DEFAULT) {
+        if (this.state.urlParams.layout === LayoutSection.Enum.DEFAULT) {
             return this.renderDefaultLayout();
-        } if (this.state.activeLayout === Layout.TOPIC) {
+        } if (this.state.urlParams.layout === LayoutSection.Enum.TOPIC) {
             return this.renderTopicLayout();
         }
-        return <div>{`Unknown layout: ${this.state.activeLayout}`}</div>;
+        return <div>{`Unknown layout: ${this.state.urlParams.layout}`}</div>;
     }
 
     render() {

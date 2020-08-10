@@ -59,7 +59,7 @@ class DetailsSection extends React.Component {
                 window.api.send(`${left.__type__}-load`, left)
                     .then((item) => this.setState({ item }));
             } else {
-                Coordinator.invoke('details', right);
+                this.props.onChange(null);
                 Coordinator.invoke(
                     'modal-error',
                     `${JSON.stringify(left, null, 4)}\n\nThis item does support details!`,
@@ -129,7 +129,11 @@ class DetailsSection extends React.Component {
             <Button key="status" title="Status">
                 {this.state.isDirty ? <RiLoaderLine /> : <MdCheckCircle />}
             </Button>,
-            <Button key="close" title="Close" onClick={() => Coordinator.invoke('details', null)}>
+            <Button
+                key="close"
+                title="Close"
+                onClick={() => this.props.onChange(null)}
+            >
                 <MdClose />
             </Button>,
         ];
@@ -155,7 +159,7 @@ class DetailsSection extends React.Component {
                     serverSideTypes={['log-topic', 'log-structure']}
                     value={null}
                     disabled={this.props.disabled}
-                    onChange={(newItem) => Coordinator.invoke('details', newItem)}
+                    onChange={(newItem) => this.props.onChange(newItem)}
                     placeholder="Details ..."
                 />
             </InputGroup>
@@ -196,6 +200,7 @@ DetailsSection.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     item: PropTypes.any,
     disabled: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default DetailsSection;

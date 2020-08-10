@@ -41,7 +41,10 @@ class LogTopicDetailsHeader extends React.Component {
                             ordering: true,
                         },
                     }}
-                    onChange={(childLogTopic) => Coordinator.invoke('details', childLogTopic)}
+                    onChange={(childLogTopic) => Coordinator.invoke(
+                        'url-update',
+                        { details: childLogTopic },
+                    )}
                 >
                     <a href="#" className="topic">...</a>
                 </Dropdown>
