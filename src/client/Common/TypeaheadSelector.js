@@ -2,7 +2,7 @@ import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
 import { MdClose } from 'react-icons/md';
 import React from 'react';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 import TypeaheadOptions from './TypeaheadOptions';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
@@ -109,6 +109,7 @@ TypeaheadSelector.propTypes = {
     options: PropTypes.instanceOf(TypeaheadOptions),
 
     value: PropTypes.oneOfType([
+        // eslint-disable-next-line react/no-typos
         PropTypes.Custom.Item,
         PropTypes.arrayOf(PropTypes.Custom.Item),
     ]),

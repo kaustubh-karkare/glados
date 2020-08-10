@@ -1,7 +1,7 @@
 import assert from 'assert';
 import React from 'react';
 import { eachDayOfInterval, getDay } from 'date-fns';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
     Coordinator, TypeaheadOptions,
@@ -13,6 +13,27 @@ const DATE_RANGE_ITEM = {
     __type__: 'date-range',
     id: getVirtualID(),
     name: 'Date Range',
+    getItem(option) {
+        return new Promise((resolve) => {
+            Coordinator.invoke('modal-date-range', {
+                dateRange: {
+                    startDate: DateUtils.getTodayLabel(),
+                    endDate: DateUtils.getTodayLabel(),
+                },
+                onClose: (dateRange) => {
+                    if (dateRange) {
+                        resolve({
+                            __type__: option.__type__,
+                            id: 0,
+                            name: `${dateRange.startDate} to ${dateRange.endDate}`,
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                },
+            });
+        });
+    },
 };
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
@@ -25,32 +46,16 @@ const ALL_EVENTS_ITEM = {
     name: 'All Events',
 };
 
+const SPECIAL_ITEMS = [DATE_RANGE_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM];
+
 class LogEventSearch extends React.Component {
     static getTypeaheadOptions() {
         return new TypeaheadOptions({
             serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
-            prefixOptions: [DATE_RANGE_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM],
+            prefixOptions: SPECIAL_ITEMS,
             onSelect: (option) => {
-                if (option.__type__ === DATE_RANGE_ITEM.__type__) {
-                    return new Promise((resolve) => {
-                        Coordinator.invoke('modal-date-range', {
-                            dateRange: {
-                                startDate: DateUtils.getTodayLabel(),
-                                endDate: DateUtils.getTodayLabel(),
-                            },
-                            onClose: (dateRange) => {
-                                if (dateRange) {
-                                    resolve({
-                                        __type__: option.__type__,
-                                        id: 0,
-                                        name: `${dateRange.startDate} to ${dateRange.endDate}`,
-                                    });
-                                } else {
-                                    resolve(null);
-                                }
-                            },
-                        });
-                    });
+                if (option && option.getItem) {
+                    return option.getItem(option);
                 }
                 return undefined;
             },
@@ -118,7 +123,7 @@ class LogEventSearch extends React.Component {
         this.deregisterCallbacks = [
             Coordinator.subscribe('log-event-created', (logEvent) => {
                 if (!logEvent.isMajor && !this.props.search.length) {
-                    Coordinator.invoke({ search: [ALL_EVENTS_ITEM] });
+                    Coordinator.invoke('url-update', { search: [ALL_EVENTS_ITEM] });
                 }
             }),
         ];

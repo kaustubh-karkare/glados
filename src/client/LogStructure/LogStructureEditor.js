@@ -2,7 +2,7 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 import {
     SortableList, Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';

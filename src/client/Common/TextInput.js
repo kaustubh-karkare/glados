@@ -1,6 +1,6 @@
 import Form from 'react-bootstrap/Form';
 import React from 'react';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 
 class TextInput extends React.Component {
     constructor(props) {

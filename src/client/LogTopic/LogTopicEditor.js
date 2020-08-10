@@ -1,6 +1,6 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 import {
     TextInput, TypeaheadSelector,
 } from '../Common';

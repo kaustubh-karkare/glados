@@ -7,11 +7,12 @@ import {
 } from 'react-icons/md';
 import { RiLoaderLine } from 'react-icons/ri';
 import {
-    Coordinator, ScrollableSection, TextEditor, TypeaheadSelector, debounce,
+    Coordinator, ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector, debounce,
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
+import { LogTopic, getVirtualID } from '../../data';
 
 import './DetailsSection.css';
 
@@ -33,12 +34,37 @@ const HEADER_MAPPING = {
     },
 };
 
+const NEW_TOPIC_ITEM = {
+    __type__: 'log-topic',
+    id: getVirtualID(),
+    name: 'Create New Topic ...',
+    getItem(option, item) {
+        return new Promise((resolve) => {
+            const parentLogTopic = item && item.__type__ === 'log-topic' ? item : null;
+            Coordinator.invoke('modal-editor', {
+                dataType: 'log-topic',
+                EditorComponent: LogTopicEditor,
+                valueKey: 'logTopic',
+                value: LogTopic.createVirtual({ parentLogTopic }),
+                onClose: (newLogTopic) => {
+                    if (newLogTopic) {
+                        resolve(newLogTopic);
+                    } else {
+                        resolve(null);
+                    }
+                },
+            });
+        });
+    },
+};
+
 class DetailsSection extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             item: null,
             isDirty: false,
+            isSaveDisabled: false,
         };
         this.saveDebounced = debounce(this.saveNotDebounced, 500);
     }
@@ -87,7 +113,26 @@ class DetailsSection extends React.Component {
         });
     }
 
+    getTypeaheadOptions() {
+        return new TypeaheadOptions({
+            serverSideOptions: [{ name: 'log-topic' }],
+            suffixOptions: [NEW_TOPIC_ITEM],
+            onSelect: async (option) => {
+                if (option.getItem) {
+                    this.setState({ isSaveDisabled: true });
+                    const result = await option.getItem(option, this.state.item);
+                    this.setState({ isSaveDisabled: false });
+                    return result;
+                }
+                return undefined;
+            },
+        });
+    }
+
     saveNotDebounced() {
+        if (this.state.isSaveDisabled) {
+            return;
+        }
         const { item } = this.state;
         window.api.send(`${item.__type__}-upsert`, item)
             .then((newItem) => this.setState({ isDirty: item.details !== newItem.details }));
@@ -176,7 +221,7 @@ class DetailsSection extends React.Component {
                     unstyled
                     value={this.state.item.details}
                     onChange={(details) => this.onChange({ ...this.state.item, details })}
-                    serverSideTypes={['log-topic']}
+                    options={this.getTypeaheadOptions()}
                 />
             </div>
         );

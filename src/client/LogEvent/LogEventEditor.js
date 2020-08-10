@@ -1,10 +1,10 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
     DatePicker, Selector, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogEvent } from '../../data';
-import PropTypes from '../prop-types';
 import { LogStructureValueEditor } from '../LogStructure';
 
 

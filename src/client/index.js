@@ -1,5 +1,6 @@
 import './Bootstrap';
 import './index.css';
+import './prop-types'; // Load PropTypes.Custom
 
 import React from 'react';
 import ReactDOM from 'react-dom';

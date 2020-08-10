@@ -42,12 +42,17 @@ class TypeaheadOptions {
             ...this.config.suffixOptions,
         ];
         if (this.config.serverSideOptions.length > 1) {
+            const seenOptionIds = new Set();
             // Since option.id is used as a React Array Key, adjust it.
-            options = options.map((option) => ({
-                ...option,
-                id: `${option.__type__}:${option.id}`,
-                _id: option.id,
-            }));
+            // Do this only if needed to minimize later adjustment.
+            options.forEach((option) => {
+                if (seenOptionIds.has(option.id)) {
+                    option._id = option.id;
+                    option.id = `${option.__type__}:${option.id}`;
+                } else {
+                    seenOptionIds.add(option.id);
+                }
+            });
         }
         // TODO: Maybe prefix type?
         return options;

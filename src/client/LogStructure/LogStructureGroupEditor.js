@@ -1,6 +1,6 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 import { TextInput } from '../Common';
 
 class LogStructureGroupEditor extends React.Component {

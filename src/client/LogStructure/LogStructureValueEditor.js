@@ -1,7 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Selector, TypeaheadInput, TypeaheadSelector } from '../Common';
 import { LogStructure, getPartialItem } from '../../data';
-import PropTypes from '../prop-types';
 
 class LogStructureValueEditor extends React.Component {
     constructor(props) {

@@ -102,12 +102,7 @@ class Applicaton extends React.Component {
                 <Col md={2} className="my-3">
                     <ScrollableSection>
                         <SidebarSection title="All Topics">
-                            <LogTopicSearch
-                                unstyled
-                                search={this.state.urlParams.search}
-                                disabled={this.state.disabled}
-                                onChange={(search) => Coordinator.invoke('url-update', { search })}
-                            />
+                            <LogTopicSearch search={this.state.urlParams.search} />
                         </SidebarSection>
                     </ScrollableSection>
                 </Col>

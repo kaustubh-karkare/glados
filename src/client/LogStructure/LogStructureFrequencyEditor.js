@@ -1,6 +1,6 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
-import PropTypes from '../prop-types';
+import PropTypes from 'prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
     DatePicker, Selector, TextInput,

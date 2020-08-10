@@ -3,13 +3,13 @@ import assert from 'assert';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
     Coordinator, Highlightable, Icon, InputLine, SidebarSection, TextEditor,
 } from '../Common';
 import DateUtils from '../../common/DateUtils';
 import { LogEvent } from '../../data';
 import { LogEventEditor } from '../LogEvent';
-import PropTypes from '../prop-types';
 
 class ReminderCheckList extends React.Component {
     static getLogEventFromItem(item) {
