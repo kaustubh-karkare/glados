@@ -2,7 +2,8 @@ import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import Button from 'react-bootstrap/Button';
 import { MdClose } from 'react-icons/md';
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from '../prop-types';
+import TypeaheadOptions from './TypeaheadOptions';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
 import './TypeaheadSelector.css';
@@ -21,11 +22,9 @@ class TypeaheadSelector extends React.Component {
 
     onSearch(query) {
         this.setState({ isLoading: true });
-        window.api.send('typeahead', { query, dataTypes: this.props.serverSideTypes })
-            .then((serverSideOptions) => {
-                const options = [...serverSideOptions, ...this.props.clientSideOptions];
-                this.setState({ isLoading: false, options });
-            });
+        TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
+            .search(query)
+            .then((options) => this.setState({ isLoading: false, options }));
     }
 
     onChange(selected) {
@@ -34,8 +33,6 @@ class TypeaheadSelector extends React.Component {
         } else if (selected.length) {
             this.props.onChange(selected[0]);
         }
-        // window.api.send(`${option.__type__}-load`, option)
-        //     .then((result) => this.props.onChange(result));
     }
 
     focus() {
@@ -60,14 +57,15 @@ class TypeaheadSelector extends React.Component {
         const commonProps = {
             ...this.state,
             id: this.props.id,
-            labelKey: this.props.labelKey,
+            labelKey: 'name',
             minLength: 0,
             onFocus: () => this.onSearch(this.state.text),
             onSearch: (query) => this.onSearch(query),
             placeholder: this.props.placeholder,
             onInputChange: (text) => this.onInputChange(text),
             onChange: (selected) => this.onChange(selected),
-            renderMenuItemChildren: (option) => <div>{option[this.props.labelKey]}</div>,
+            filterBy: (option, props) => true,
+            renderMenuItemChildren: (option) => <div>{option.name}</div>,
             ref: this.ref,
         };
         if (this.props.multiple) {
@@ -85,7 +83,7 @@ class TypeaheadSelector extends React.Component {
                 <AsyncTypeahead
                     {...commonProps}
                     disabled={this.props.disabled || this.props.value}
-                    selected={this.props.value ? [this.props.value[this.props.labelKey]] : []}
+                    selected={this.props.value ? [this.props.value] : []}
                 />
                 {this.renderDeleteButton()}
             </>
@@ -96,16 +94,10 @@ class TypeaheadSelector extends React.Component {
 TypeaheadSelector.propTypes = {
     id: PropTypes.string.isRequired,
     multiple: PropTypes.bool,
-    clientSideOptions: PropTypes.arrayOf(
-        PropTypes.any,
-    ),
-    serverSideTypes: PropTypes.arrayOf(
-        PropTypes.string.isRequired,
-    ),
+    serverSideTypes: PropTypes.arrayOf(PropTypes.string.isRequired),
+    options: PropTypes.instanceOf(TypeaheadOptions),
 
-    labelKey: PropTypes.string,
-    // eslint-disable-next-line react/forbid-prop-types
-    value: PropTypes.any,
+    value: PropTypes.Custom.Item,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 
@@ -113,8 +105,6 @@ TypeaheadSelector.propTypes = {
 };
 
 TypeaheadSelector.defaultProps = {
-    clientSideOptions: [],
-    labelKey: 'name',
     multiple: false,
 };
 

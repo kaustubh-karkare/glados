@@ -4,7 +4,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 import PropTypes from '../prop-types';
 import {
-    SortableList, Selector, TextEditor, TextInput, TypeaheadSelector,
+    SortableList, Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
@@ -79,8 +79,10 @@ class LogStructureEditor extends React.Component {
                 <TextEditor
                     isSingleLine
                     value={logStructure.titleTemplate}
-                    serverSideTypes={['log-topic']}
-                    clientSideOptions={[getPartialItem(logStructure), ...logStructure.logKeys]}
+                    options={new TypeaheadOptions({
+                        prefixOptions: [getPartialItem(logStructure), ...logStructure.logKeys],
+                        serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
+                    })}
                     disabled={this.props.disabled}
                     onChange={(titleTemplate) => this.updateLogStructure('titleTemplate', titleTemplate)}
                 />

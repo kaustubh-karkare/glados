@@ -3,13 +3,6 @@
 import { LogEvent, LogTopic, awaitSequence } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 
-ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
-    const options = await Promise.all(
-        dataTypes.map((dataType) => this.invoke.call(this, `${dataType}-typeahead`, { query })),
-    );
-    return options.flat();
-};
-
 ActionsRegistry['log-event-dates'] = async function (input) {
     // Warning! Having to change context here is an abstraction leak!
     await LogEvent.updateWhere.call({ ...this, DataType: LogEvent }, input.where);

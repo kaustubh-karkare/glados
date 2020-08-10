@@ -25,7 +25,7 @@ test('test_log_topic_typeahead', async () => {
     logTopics = await actions.invoke('log-topic-typeahead', { query: 'p' });
     expect(logTopics.length).toEqual(2);
     logTopics = await actions.invoke('log-topic-typeahead', { query: 'i' });
-    expect(logTopics.length).toEqual(0);
+    expect(logTopics.length).toEqual(3);
 });
 
 test('test_update_propagation', async () => {

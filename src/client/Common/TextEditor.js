@@ -6,12 +6,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
-import createMentionPlugin, { defaultSuggestionsFilter } from 'draft-js-mention-plugin';
+import createMentionPlugin from 'draft-js-mention-plugin';
 
 import TextEditorUtils from '../../common/TextEditorUtils';
 import { KeyCodes } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 import Link from './Link';
+import TypeaheadOptions from './TypeaheadOptions';
 
 import 'draft-js/dist/Draft.css';
 import './TextEditor.css';
@@ -98,14 +99,12 @@ class TextEditor extends React.Component {
     }
 
     onSearchChange({ value: query }) {
-        window.api.send('typeahead', { query, dataTypes: this.props.serverSideTypes })
-            .then((serverSideOptions) => {
-                const options = [...serverSideOptions, ...this.props.clientSideOptions];
-                this.setState(
-                    { suggestions: defaultSuggestionsFilter(query, options) },
-                    () => this.mentionPlugin.onChange(this.state.editorState),
-                );
-            });
+        TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
+            .search(query)
+            .then((suggestions) => this.setState(
+                { suggestions },
+                () => this.mentionPlugin.onChange(this.state.editorState),
+            ));
     }
 
     onAddMention(option) {
@@ -214,16 +213,8 @@ TextEditor.propTypes = {
     isSingleLine: PropTypes.bool,
     onSpecialKeys: PropTypes.func,
 
-    clientSideOptions: PropTypes.arrayOf(
-        PropTypes.shape({
-            __type__: PropTypes.string.isRequired,
-            id: PropTypes.number.isRequired,
-            name: PropTypes.string.isRequired,
-        }).isRequired,
-    ),
-    serverSideTypes: PropTypes.arrayOf(
-        PropTypes.string.isRequired,
-    ),
+    serverSideTypes: PropTypes.arrayOf(PropTypes.string.isRequired),
+    options: PropTypes.instanceOf(TypeaheadOptions),
     onSelectSuggestion: PropTypes.func,
 };
 
@@ -231,8 +222,6 @@ TextEditor.defaultProps = {
     unstyled: false,
     disabled: false,
     isSingleLine: false,
-    clientSideOptions: [],
-    serverSideTypes: [],
 };
 
 export default TextEditor;

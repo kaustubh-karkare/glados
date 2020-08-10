@@ -75,7 +75,7 @@ class Base extends ValidationBase {
     static async typeahead({ query, where }) {
         const options = await this.database.findAll(
             this.DataType.name,
-            { ...where, name: { [this.database.Op.like]: `${query}%` } },
+            { ...where, name: { [this.database.Op.like]: `%${query}%` } },
         );
         const dataType = getDataType(this.DataType.name);
         return options.map((option) => ({

@@ -20,6 +20,7 @@ export { default as SortableList } from './SortableList';
 export { default as TextInput } from './TextInput';
 export { default as TextEditor } from './TextEditor';
 export { default as TypeaheadInput } from './TypeaheadInput';
+export { default as TypeaheadOptions } from './TypeaheadOptions';
 export { default as TypeaheadSelector } from './TypeaheadSelector';
 export { default as URLManager } from './URLManager';
 export * from './Utils';

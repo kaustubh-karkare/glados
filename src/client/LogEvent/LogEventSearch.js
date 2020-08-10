@@ -5,7 +5,7 @@ import { eachDayOfInterval, getDay } from 'date-fns';
 import PropTypes from '../prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, DateRangePicker, ScrollableSection, TypeaheadSelector,
+    Coordinator, DateRangePicker, ScrollableSection, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import LogEventList from './LogEventList';
 import { getVirtualID } from '../../data';
@@ -114,8 +114,10 @@ class LogEventSearch extends React.Component {
                 />
                 <TypeaheadSelector
                     id="log-event-search-topic-or-structure"
-                    serverSideTypes={['log-topic', 'log-structure']}
-                    clientSideOptions={[INCOMPLETE_ITEM, ALL_EVENTS_ITEM]}
+                    options={new TypeaheadOptions({
+                        serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
+                        suffixOptions: [INCOMPLETE_ITEM, ALL_EVENTS_ITEM],
+                    })}
                     value={this.props.search}
                     disabled={this.props.disabled}
                     onChange={(items) => this.props.onChange(items)}
