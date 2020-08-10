@@ -71,7 +71,7 @@ class LogEventSearch extends React.Component {
 
         const where = {
             is_complete: true,
-            is_major: true,
+            log_level: [2],
         };
         let dates;
         let dateSearch = false;
@@ -98,7 +98,7 @@ class LogEventSearch extends React.Component {
                 where.is_complete = false;
                 dateSearch = true;
             } else if (item.__type__ === ALL_EVENTS_ITEM.__type__) {
-                delete where.is_major;
+                delete where.log_level;
             } else {
                 assert(false, item);
             }
@@ -122,7 +122,7 @@ class LogEventSearch extends React.Component {
     componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.subscribe('log-event-created', (logEvent) => {
-                if (!logEvent.isMajor && !this.props.search.length) {
+                if (logEvent.logLevel === 1 && !this.props.search.length) {
                     Coordinator.invoke('url-update', { search: [ALL_EVENTS_ITEM] });
                 }
             }),
@@ -152,9 +152,9 @@ class LogEventSearch extends React.Component {
         const today = DateUtils.getTodayLabel();
         const { where } = this.state;
         const moreProps = {};
-        if (!where.is_major) {
+        if (!where.log_level) {
             moreProps.allowReordering = true;
-            moreProps.viewerComponentProps = { displayIsMajor: true };
+            moreProps.viewerComponentProps = { displayLogLevel: true };
         }
         return this.state.dates.map((date) => {
             let name = 'Unspecified';

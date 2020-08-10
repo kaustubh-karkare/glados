@@ -8,6 +8,8 @@ import { LogEvent } from '../../data';
 import { LogStructureValueEditor } from '../LogStructure';
 
 
+const { LogLevel } = LogEvent;
+
 class LogEventEditor extends React.Component {
     constructor(props) {
         super(props);
@@ -99,16 +101,17 @@ class LogEventEditor extends React.Component {
         );
     }
 
-    renderIsMajorRow() {
+    renderLogLevelRow() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Is Major?
+                    Log Level
                 </InputGroup.Text>
-                <Selector.Binary
-                    value={this.props.logEvent.isMajor}
+                <Selector
+                    options={LogLevel.Options}
+                    value={LogLevel.getValue(this.props.logEvent.logLevel)}
                     disabled={this.props.disabled}
-                    onChange={(isMajor) => this.updateLogEvent('isMajor', isMajor)}
+                    onChange={(value) => this.updateLogEvent('logLevel', LogLevel.getIndex(value))}
                 />
             </InputGroup>
         );
@@ -188,7 +191,7 @@ class LogEventEditor extends React.Component {
                 </div>
                 {this.renderTitleRow()}
                 {this.renderDetailsRow()}
-                {this.renderIsMajorRow()}
+                {this.renderLogLevelRow()}
                 {this.renderIsCompleteRow()}
                 <div className="my-3">
                     {this.renderStructureSelector()}

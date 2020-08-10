@@ -10,6 +10,9 @@ import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
 import { LogStructure, getPartialItem } from '../../data';
 
+
+const { LogLevel } = LogStructure;
+
 class LogStructureEditor extends React.Component {
     constructor(props) {
         super(props);
@@ -121,16 +124,17 @@ class LogStructureEditor extends React.Component {
         );
     }
 
-    renderIsMajorSelector() {
+    renderLogLevelSelector() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Is Major?
+                    Log Level
                 </InputGroup.Text>
-                <Selector.Binary
-                    value={this.props.logStructure.isMajor}
+                <Selector
+                    options={LogLevel.Options}
+                    value={LogLevel.getValue(this.props.logStructure.logLevel)}
                     disabled={this.props.disabled}
-                    onChange={(isMajor) => this.updateLogStructure('isMajor', isMajor)}
+                    onChange={(value) => this.updateLogStructure('logLevel', LogLevel.getIndex(value))}
                 />
             </InputGroup>
         );
@@ -167,7 +171,7 @@ class LogStructureEditor extends React.Component {
                     />
                 </div>
                 <div className="my-3">
-                    {this.renderIsMajorSelector()}
+                    {this.renderLogLevelSelector()}
                 </div>
             </>
         );

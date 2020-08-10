@@ -5,9 +5,12 @@ import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
 
+const { LogLevel } = LogStructure;
+
+
 class LogEvent extends Base {
     static createVirtual({
-        date, title, isMajor, logStructure,
+        date, title, logLevel, logStructure,
     } = {}) {
         if (logStructure) {
             logStructure.logKeys.forEach((logKey) => {
@@ -22,7 +25,7 @@ class LogEvent extends Base {
             name: '',
             title: title || '',
             details: '',
-            isMajor: typeof isMajor !== 'undefined' ? isMajor : true,
+            logLevel: logLevel || LogLevel.getIndex(LogLevel.NORMAL),
             onSidebar: false,
             isComplete: true,
             logStructure: logStructure || null,
@@ -47,7 +50,7 @@ class LogEvent extends Base {
                 content,
                 TextEditorUtils.StorageType.DRAFTJS,
             );
-            logEvent.isMajor = logEvent.logStructure.isMajor;
+            logEvent.logLevel = logEvent.logStructure.logLevel;
         }
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
@@ -106,7 +109,7 @@ class LogEvent extends Base {
             name: logEvent.name,
             title: logEvent.title,
             details: logEvent.details,
-            isMajor: logEvent.is_major,
+            logLevel: logEvent.log_level,
             onSidebar: logEvent.on_sidebar,
             isComplete: logEvent.is_complete,
             logStructure: outputLogStructure,
@@ -133,7 +136,7 @@ class LogEvent extends Base {
             name: inputLogEvent.name,
             title: inputLogEvent.title,
             details: inputLogEvent.details,
-            is_major: inputLogEvent.isMajor,
+            log_level: inputLogEvent.logLevel,
             on_sidebar: inputLogEvent.onSidebar,
             is_complete: inputLogEvent.isComplete,
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
@@ -182,5 +185,7 @@ class LogEvent extends Base {
         return { id: logEvent.id };
     }
 }
+
+LogEvent.LogLevel = LogLevel;
 
 export default LogEvent;

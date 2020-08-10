@@ -14,14 +14,14 @@ function LogEventViewer(props) {
                 disabled
                 value={props.logEvent.title}
             />
-            {props.displayIsMajor && props.logEvent.isMajor ? '(major)' : null}
+            {props.displayLogLevel && props.logEvent.logLevel === 2 ? '(major)' : null}
         </LeftRight>
     );
 }
 
 LogEventViewer.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,
-    displayIsMajor: PropTypes.bool,
+    displayLogLevel: PropTypes.bool,
 };
 
 LogEventViewer.Expanded = (props) => {

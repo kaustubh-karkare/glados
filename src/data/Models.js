@@ -186,8 +186,8 @@ export default function (sequelize) {
                 allowNull: true,
             },
             // Additional fields to be copied to events.
-            is_major: {
-                type: Sequelize.BOOLEAN,
+            log_level: {
+                type: Sequelize.INTEGER,
                 allowNull: false,
             },
         },
@@ -278,8 +278,8 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            is_major: {
-                type: Sequelize.BOOLEAN,
+            log_level: {
+                type: Sequelize.INTEGER,
                 allowNull: false,
             },
             on_sidebar: {

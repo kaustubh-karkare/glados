@@ -108,7 +108,7 @@ export default class Utils {
             inputLogStructure.suppressUntilDate = inputLogStructure.suppressUntilDate || null;
             DateUtils.maybeSubstitute(inputLogStructure, 'suppressUntilDate');
 
-            inputLogStructure.isMajor = false;
+            inputLogStructure.logLevel = 0;
             const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
             logStructureMap[outputLogStructure.name] = outputLogStructure;
         });
@@ -124,7 +124,7 @@ export default class Utils {
                 inputLogEvent.details || '',
                 { '#': logTopics },
             );
-            inputLogEvent.isMajor = false;
+            inputLogEvent.logLevel = 0;
             inputLogEvent.onSidebar = false;
             inputLogEvent.isComplete = getBool(inputLogEvent, 'isComplete', true);
             if (inputLogEvent.structureName) {

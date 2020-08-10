@@ -148,6 +148,28 @@ FrequencyRawOptions.push({
 const LogStructureFrequency = Enum(FrequencyRawOptions);
 
 
+const LogLevel = Enum([
+    {
+        value: 'minor',
+        label: 'Minor (1)',
+        index: 1,
+    },
+    {
+        value: 'normal',
+        label: 'Normal (2)',
+        index: 2,
+    },
+    {
+        value: 'major',
+        label: 'Major (3)',
+        index: 3,
+    },
+]);
+
+LogLevel.getIndex = (value) => LogLevel[value].index;
+LogLevel.getValue = (index) => LogLevel.Options[index - 1].value;
+
+
 class LogStructure extends Base {
     static createVirtual({ logStructureGroup, name } = {}) {
         return {
@@ -165,7 +187,7 @@ class LogStructure extends Base {
             frequencyArgs: null,
             warningDays: null,
             suppressUntilDate: null,
-            isMajor: true,
+            logLevel: LogLevel.getIndex(LogLevel.NORMAL),
             onSidebar: false,
         };
     }
@@ -292,7 +314,7 @@ class LogStructure extends Base {
             frequencyArgs: logStructure.frequency_args,
             warningDays: logStructure.warning_days,
             suppressUntilDate: logStructure.suppress_until_date,
-            isMajor: logStructure.is_major,
+            logLevel: logStructure.log_level,
         };
     }
 
@@ -324,7 +346,7 @@ class LogStructure extends Base {
             frequency_args: inputLogStructure.frequencyArgs,
             warning_days: inputLogStructure.warningDays,
             suppress_until_date: inputLogStructure.suppressUntilDate,
-            is_major: inputLogStructure.isMajor,
+            log_level: inputLogStructure.logLevel,
         };
         const updatedLogStructure = await this.database.createOrUpdateItem(
             'LogStructure', logStructure, fields,
@@ -455,5 +477,6 @@ class LogStructure extends Base {
 
 LogStructure.Key = LogStructureKey;
 LogStructure.Frequency = LogStructureFrequency;
+LogStructure.LogLevel = LogLevel;
 
 export default LogStructure;
