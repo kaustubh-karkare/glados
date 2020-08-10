@@ -34,7 +34,7 @@ class LogTopicSearch extends React.Component {
                     value={this.state.logTopic}
                     disabled={this.props.disabled}
                     onChange={(logTopic) => this.setState({ logTopic })}
-                    placeholder="Topic Search ..."
+                    placeholder="Search ..."
                 />
             </InputGroup>
         );

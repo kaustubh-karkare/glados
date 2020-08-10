@@ -14,8 +14,10 @@ class Base extends ValidationBase {
     }
 
     static async updateWhere(where = {}) {
-        await awaitSequence(Object.keys(where), async (key) => {
-            if (key === 'topic_id') {
+        await awaitSequence(Object.keys(where), async (fieldName) => {
+            // Special case! The topic_id filter is handled via junction tables,
+            // unlike the remaining fields that can be queried normally.
+            if (fieldName === 'topic_id') {
                 const junctionTableName = `${this.DataType.name}ToLogTopic`;
                 const junctionTargetName = this.DataType.name === 'LogTopic'
                     ? 'target_topic_id'
@@ -31,13 +33,25 @@ class Base extends ValidationBase {
                     junctionTargetName,
                     where.topic_id,
                 );
+                let ids;
+                if (Array.isArray(where.topic_id)) {
+                    // assuming AND operation, not OR
+                    const counters = {};
+                    edges.forEach((edge) => {
+                        const id = edge[junctionSourceName];
+                        counters[id] = (counters[id] || 0) + 1;
+                    });
+                    ids = Object.entries(counters)
+                        .filter((pair) => pair[1] === where.topic_id.length)
+                        .map((pair) => parseInt(pair[0], 10));
+                } else {
+                    ids = edges.map((edge) => edge[junctionSourceName]);
+                }
                 delete where.topic_id;
                 assert(!where.id);
-                where.id = {
-                    [this.database.Op.in]: edges.map((edge) => edge[junctionSourceName]),
-                };
-            } else if (Array.isArray(where[key])) {
-                where[key] = { [this.database.Op.in]: where[key] };
+                where.id = { [this.database.Op.in]: ids };
+            } else if (Array.isArray(where[fieldName])) {
+                where[fieldName] = { [this.database.Op.in]: where[fieldName] };
             }
         });
     }
@@ -103,25 +117,6 @@ class Base extends ValidationBase {
     static async save(inputItem) {
         // returns ID of the newly created item
         throw new Exception('not implemented');
-    }
-
-    static async manageEntityBefore(inputSubItem, DataType) {
-        if (inputSubItem) {
-            // Condition? add, edit
-
-            // Warning! Having to change context here is an abstraction leak!
-            return DataType.save.call({ ...this, DataType }, inputSubItem);
-        }
-        return null;
-    }
-
-    static async manageEntityAfter(prevItemId, inputSubItem, DataType) {
-        if (prevItemId && !inputSubItem) {
-            // Condition? delete
-
-            // Warning! Having to change context here is an abstraction leak!
-            await DataType.delete.call({ ...this, DataType }, prevItemId);
-        }
     }
 
     static async getOrderingIndex(item, where = {}) {

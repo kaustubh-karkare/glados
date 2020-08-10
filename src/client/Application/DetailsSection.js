@@ -156,7 +156,7 @@ class DetailsSection extends React.Component {
                     value={null}
                     disabled={this.props.disabled}
                     onChange={(newItem) => Coordinator.invoke('details', newItem)}
-                    placeholder="Topic Details ..."
+                    placeholder="Details ..."
                 />
             </InputGroup>
         );

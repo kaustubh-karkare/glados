@@ -12,7 +12,7 @@ ActionsRegistry.typeahead = async function ({ query, dataTypes }) {
 
 ActionsRegistry['log-event-dates'] = async function (input) {
     // Warning! Having to change context here is an abstraction leak!
-    input = await LogEvent.updateWhere.call({ ...this, DataType: LogEvent }, input);
+    await LogEvent.updateWhere.call({ ...this, DataType: LogEvent }, input.where);
     const results = await this.database.count(
         'LogEvent',
         input.where,

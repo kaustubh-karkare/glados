@@ -1,0 +1,26 @@
+.rbt input:first-child {
+    background-color: var(--input-background-color);
+    color: var(--input-text-color);
+    font-size: var(--font-size);
+}
+
+.rbt .rbt-input-multi {
+    background-color: var(--input-background-color);
+    border: none;
+    border-radius: 0;
+    padding: 1px 2px;
+}
+
+.rbt .rbt-input-multi .rbt-token {
+    background-color: var(--input-background-token-color);
+    color: var(--input-text-color);
+    font-size: var(--font-size);
+    margin: 3px 1px 0;
+    padding-bottom: 1px;
+    padding-top: 1px;
+}
+
+.rbt .rbt-input-multi input:first-child {
+    margin-bottom: 2px;
+    margin-left: 2px;
+}

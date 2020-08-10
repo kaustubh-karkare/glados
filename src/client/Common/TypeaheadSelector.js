@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
-
+import './TypeaheadSelector.css';
 
 class TypeaheadSelector extends React.Component {
     constructor(props) {
@@ -22,15 +22,20 @@ class TypeaheadSelector extends React.Component {
     onSearch(query) {
         this.setState({ isLoading: true });
         window.api.send('typeahead', { query, dataTypes: this.props.serverSideTypes })
-            .then((serverSideOptions) => this.setState({
-                isLoading: false,
-                options: serverSideOptions,
-            }));
+            .then((serverSideOptions) => {
+                const options = [...serverSideOptions, ...this.props.clientSideOptions];
+                this.setState({ isLoading: false, options });
+            });
     }
 
-    onChange(option) {
-        window.api.send(`${option.__type__}-load`, option)
-            .then((result) => this.props.onChange(result));
+    onChange(selected) {
+        if (this.props.multiple) {
+            this.props.onChange(selected);
+        } else if (selected.length) {
+            this.props.onChange(selected[0]);
+        }
+        // window.api.send(`${option.__type__}-load`, option)
+        //     .then((result) => this.props.onChange(result));
     }
 
     focus() {
@@ -52,31 +57,35 @@ class TypeaheadSelector extends React.Component {
     }
 
     render() {
-        const selected = this.props.value ? [this.props.value[this.props.labelKey]] : [];
+        const commonProps = {
+            ...this.state,
+            id: this.props.id,
+            labelKey: this.props.labelKey,
+            minLength: 0,
+            onFocus: () => this.onSearch(this.state.text),
+            onSearch: (query) => this.onSearch(query),
+            placeholder: this.props.placeholder,
+            onInputChange: (text) => this.onInputChange(text),
+            onChange: (selected) => this.onChange(selected),
+            renderMenuItemChildren: (option) => <div>{option[this.props.labelKey]}</div>,
+            ref: this.ref,
+        };
+        if (this.props.multiple) {
+            return (
+                <AsyncTypeahead
+                    {...commonProps}
+                    multiple
+                    disabled={this.props.disabled}
+                    selected={this.props.value}
+                />
+            );
+        }
         return (
             <>
                 <AsyncTypeahead
-                    {...this.state}
-                    id={this.props.id}
-                    labelKey={this.props.labelKey}
-                    minLength={0}
+                    {...commonProps}
                     disabled={this.props.disabled || this.props.value}
-                    onFocus={() => this.onSearch(this.state.text)}
-                    onSearch={(query) => this.onSearch(query)}
-                    placeholder={this.props.placeholder}
-                    selected={selected}
-                    onInputChange={(text) => this.onInputChange(text)}
-                    onChange={(newSelected) => {
-                        if (newSelected.length) {
-                            this.onChange(newSelected[0]);
-                        }
-                    }}
-                    renderMenuItemChildren={
-                        (option) => (
-                            <div>{option[this.props.labelKey]}</div>
-                        )
-                    }
-                    ref={this.ref}
+                    selected={this.props.value ? [this.props.value[this.props.labelKey]] : []}
                 />
                 {this.renderDeleteButton()}
             </>
@@ -86,6 +95,10 @@ class TypeaheadSelector extends React.Component {
 
 TypeaheadSelector.propTypes = {
     id: PropTypes.string.isRequired,
+    multiple: PropTypes.bool.isRequired,
+    clientSideOptions: PropTypes.arrayOf(
+        PropTypes.any,
+    ),
     serverSideTypes: PropTypes.arrayOf(
         PropTypes.string.isRequired,
     ),

@@ -44,7 +44,7 @@ class LogStructureSearch extends React.Component {
                     value={this.state.logTopicOrStructure}
                     disabled={this.props.disabled}
                     onChange={(logTopicOrStructure) => this.setState({ logTopicOrStructure })}
-                    placeholder="Structure Search ..."
+                    placeholder="Search ..."
                 />
             </InputGroup>
         );
