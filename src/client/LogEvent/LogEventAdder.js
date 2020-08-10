@@ -2,7 +2,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { LogEvent, isRealItem } from '../../data';
 import LogEventEditor from './LogEventEditor';
-import { Coordinator, KeyCodes, TextEditor } from '../Common';
+import {
+    Coordinator, KeyCodes, TextEditor, TypeaheadOptions,
+} from '../Common';
 
 class LogEventAdder extends React.Component {
     constructor(props) {
@@ -33,7 +35,7 @@ class LogEventAdder extends React.Component {
         }
     }
 
-    async onSelectSuggestion(option) {
+    async onSelect(option) {
         if (option.__type__ === 'log-structure') {
             const logStructure = await window.api.send('log-structure-load', option);
             const updatedLogEvent = LogEvent.createVirtual({
@@ -58,7 +60,10 @@ class LogEventAdder extends React.Component {
                 unstyled
                 placeholder="Add Event ..."
                 value={logEvent.title}
-                serverSideTypes={['log-structure', 'log-topic']}
+                options={new TypeaheadOptions({
+                    serverSideOptions: [{ name: 'log-structure' }, { name: 'log-topic' }],
+                    onSelect: (option) => this.onSelect(option),
+                })}
                 disabled={isRealItem(logEvent.logStructure)}
                 onChange={(value) => {
                     const updatedLogEvent = { ...logEvent };
@@ -71,7 +76,6 @@ class LogEventAdder extends React.Component {
                         this.onSaveLogEvent(logEvent);
                     }
                 }}
-                onSelectSuggestion={(option) => this.onSelectSuggestion(option)}
                 {...this.props}
             />
         );

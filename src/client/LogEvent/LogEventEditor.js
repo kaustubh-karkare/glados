@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import {
-    DatePicker, Selector, TextEditor, TypeaheadSelector,
+    DatePicker, Selector, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogEvent } from '../../data';
 import PropTypes from '../prop-types';
@@ -26,13 +26,6 @@ class LogEventEditor extends React.Component {
             }
         } else {
             this.titleRef.current.focus();
-        }
-    }
-
-    async onSelectSuggestion(option) {
-        if (option.__type__ === 'log-structure') {
-            const logStructure = await window.api.send('log-structure-load', option);
-            this.updateLogEvent('logStructure', logStructure);
         }
     }
 
@@ -71,11 +64,18 @@ class LogEventEditor extends React.Component {
                 <TextEditor
                     isSingleLine
                     value={this.props.logEvent.title}
-                    serverSideTypes={['log-structure', 'log-topic']}
+                    options={new TypeaheadOptions({
+                        serverSideOptions: [{ name: 'log-structure' }, { name: 'log-topic' }],
+                        onSelect: async (option) => {
+                            if (option.__type__ === 'log-structure') {
+                                const logStructure = await window.api.send('log-structure-load', option);
+                                this.updateLogEvent('logStructure', logStructure);
+                            }
+                        },
+                    })}
                     disabled={this.props.disabled || !!this.props.logEvent.logStructure}
                     onChange={(title) => this.updateLogEvent('title', title)}
                     onSpecialKeys={this.props.onSpecialKeys}
-                    onSelectSuggestion={(option) => this.onSelectSuggestion(option)}
                     ref={this.titleRef}
                 />
             </InputGroup>
@@ -137,10 +137,16 @@ class LogEventEditor extends React.Component {
                 </InputGroup.Text>
                 <TypeaheadSelector
                     id="log-event-editor-structure"
-                    serverSideTypes={['log-structure']}
+                    options={new TypeaheadOptions({
+                        serverSideOptions: [{ name: 'log-structure' }],
+                        onSelect: (option) => window.api.send('log-structure-load', option),
+                    })}
                     value={this.props.logEvent.logStructure}
                     disabled={this.props.disabled}
-                    onChange={(logStructure) => this.updateLogEvent('logStructure', logStructure)}
+                    onChange={(logStructure) => this.updateLogEvent((updatedLogEvent) => {
+                        updatedLogEvent.logStructure = logStructure;
+                        if (!logStructure) updatedLogEvent.title = '';
+                    })}
                     allowDelete
                 />
             </InputGroup>

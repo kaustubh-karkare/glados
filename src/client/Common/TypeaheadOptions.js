@@ -12,6 +12,7 @@ class TypeaheadOptions {
     }
 
     constructor(config) {
+        assert(Array.isArray(config.serverSideOptions));
         if (!config.prefixOptions) {
             config.prefixOptions = [];
         }
@@ -40,8 +41,33 @@ class TypeaheadOptions {
             ...options,
             ...this.config.suffixOptions,
         ];
+        if (this.config.serverSideOptions.length > 1) {
+            // Since option.id is used as a React Array Key, adjust it.
+            options = options.map((option) => ({
+                ...option,
+                id: `${option.__type__}:${option.id}`,
+                _id: option.id,
+            }));
+        }
         // TODO: Maybe prefix type?
         return options;
+    }
+
+    async select(option) {
+        let adjusted = false;
+        if (option._id) {
+            option.id = option._id;
+            delete option._id;
+            adjusted = true;
+        }
+        if (this.config.onSelect) {
+            const result = await this.config.onSelect(option);
+            if (result) {
+                option = result;
+                adjusted = true;
+            }
+        }
+        return adjusted ? option : null;
     }
 }
 

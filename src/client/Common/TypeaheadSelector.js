@@ -27,11 +27,20 @@ class TypeaheadSelector extends React.Component {
             .then((options) => this.setState({ isLoading: false, options }));
     }
 
-    onChange(selected) {
+    async onChange(selected) {
+        if (selected.length) {
+            const index = selected.length - 1;
+            const result = await TypeaheadOptions.get(
+                this.props.options || this.props.serverSideTypes,
+            ).select(selected[index]);
+            if (result) {
+                selected[index] = result;
+            }
+        }
         if (this.props.multiple) {
             this.props.onChange(selected);
-        } else if (selected.length) {
-            this.props.onChange(selected[0]);
+        } else {
+            this.props.onChange(selected[0] || null);
         }
     }
 
@@ -97,7 +106,10 @@ TypeaheadSelector.propTypes = {
     serverSideTypes: PropTypes.arrayOf(PropTypes.string.isRequired),
     options: PropTypes.instanceOf(TypeaheadOptions),
 
-    value: PropTypes.Custom.Item,
+    value: PropTypes.oneOfType([
+        PropTypes.Custom.Item,
+        PropTypes.arrayOf(PropTypes.Custom.Item),
+    ]),
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 

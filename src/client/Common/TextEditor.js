@@ -108,9 +108,22 @@ class TextEditor extends React.Component {
     }
 
     onAddMention(option) {
-        if (this.props.onSelectSuggestion) {
-            this.props.onSelectSuggestion(option);
-        }
+        TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
+            .select(option)
+            .then((result) => {
+                if (!result) return;
+                const selection = TextEditorUtils.getSelectionData(this.state.editorState);
+                // Abstraction leak! Do not assume name.
+                const delta = result.name.length - option.name.length;
+                selection.anchorOffset += delta;
+                selection.focusOffset += delta;
+                let content = TextEditorUtils.fromEditorState(this.state.editorState);
+                content = TextEditorUtils.updateDraftContent(content, [option], [result]);
+                let editorState = TextEditorUtils.toEditorState(content);
+                // TODO: Figure out why the cursor is not updated properly.
+                editorState = TextEditorUtils.setSelectionData(editorState, selection);
+                this.onChange(editorState);
+            });
     }
 
     onChange(editorState) {
@@ -215,7 +228,6 @@ TextEditor.propTypes = {
 
     serverSideTypes: PropTypes.arrayOf(PropTypes.string.isRequired),
     options: PropTypes.instanceOf(TypeaheadOptions),
-    onSelectSuggestion: PropTypes.func,
 };
 
 TextEditor.defaultProps = {
