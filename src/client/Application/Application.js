@@ -26,10 +26,10 @@ class Applicaton extends React.Component {
             URLState.init(),
             Coordinator.subscribe('url-change', (urlParams) => this.setState({ urlParams })),
         ];
-        this.state = {
-            urlParams: Coordinator.invoke('url-params'),
-            disabled: false,
-        };
+        const urlParams = Coordinator.invoke('url-params');
+        urlParams.tab = urlParams.tab || TabSection.Enum.LOG_EVENT;
+        urlParams.layout = urlParams.layout || LayoutSection.Enum.DEFAULT;
+        this.state = { urlParams, disabled: false };
         this.tabRef = React.createRef();
     }
 
@@ -64,7 +64,7 @@ class Applicaton extends React.Component {
     }
 
     renderDefaultLayout() {
-        const Component = TabSection.getComponent(this.state.urlParams.tab);
+        const { Component } = TabSection.Enum[this.state.urlParams.tab];
         return (
             <Row>
                 <Col md={2} className="my-3">
@@ -126,7 +126,7 @@ class Applicaton extends React.Component {
     }
 
     renderLayout() {
-        const layout = LayoutSection.getValue(this.state.urlParams.layout);
+        const { layout } = this.state.urlParams;
         if (layout === LayoutSection.Enum.DEFAULT) {
             return this.renderDefaultLayout();
         } if (layout === LayoutSection.Enum.TOPIC) {

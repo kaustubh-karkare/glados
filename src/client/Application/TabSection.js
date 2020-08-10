@@ -38,17 +38,11 @@ class TabSection extends React.Component {
     }
 }
 
-const DEFAULT_VALUE = Tab.LOG_EVENT;
-
-TabSection.getComponent = (value) => Tab[value || DEFAULT_VALUE].Component;
+TabSection.Enum = Tab;
 
 TabSection.propTypes = {
-    value: PropTypes.string,
+    value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
-};
-
-TabSection.defaultProps = {
-    value: DEFAULT_VALUE,
 };
 
 export default TabSection;
