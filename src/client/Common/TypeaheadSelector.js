@@ -113,6 +113,7 @@ TypeaheadSelector.propTypes = {
 };
 
 TypeaheadSelector.defaultProps = {
+    clientSideOptions: [],
     labelKey: 'name',
 };
 

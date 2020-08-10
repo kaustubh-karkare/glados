@@ -29,9 +29,17 @@ function AdderWrapper(props) {
 }
 
 class BulletList extends React.Component {
+    static getDerivedStateFromProps(props, state) {
+        if (state.items) {
+            state.areAllExpanded = state.items
+                .every((item) => state.isExpanded[item.id]);
+        }
+        return state;
+    }
+
     constructor(props) {
         super(props);
-        this.state = { items: null };
+        this.state = { items: null, isExpanded: {} };
     }
 
     componentDidMount() {
@@ -96,6 +104,11 @@ class BulletList extends React.Component {
                 allowReordering={this.props.allowReordering}
                 onMoveUp={(event) => this.onMove(index, -1, event)}
                 onMoveDown={(event) => this.onMove(index, 1, event)}
+                isExpanded={this.state.isExpanded[item.id] || false}
+                setIsExpanded={(isExpanded) => this.setState((state) => {
+                    state.isExpanded[item.id] = isExpanded;
+                    return state;
+                })}
                 value={item}
                 dragHandleSpace
             />
@@ -122,6 +135,17 @@ class BulletList extends React.Component {
             <div>
                 <BulletListTitle
                     name={this.props.name}
+                    areAllExpanded={this.state.areAllExpanded}
+                    onToggleButtonClick={() => this.setState((state) => {
+                        if (state.areAllExpanded) {
+                            return { isExpanded: {} };
+                        }
+                        return {
+                            isExpanded: Object.fromEntries(
+                                state.items.map((item) => [item.id, true]),
+                            ),
+                        };
+                    })}
                     onAddButtonClick={this.props.allowCreation
                         ? (event) => this.onAddButtonClick(event)
                         : null}

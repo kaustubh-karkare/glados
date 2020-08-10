@@ -26,13 +26,6 @@ class BulletListItem extends React.Component {
         this.state = { isHighlighted: false, isExpanded: false };
     }
 
-    onToggle(event) {
-        this.setState((state) => {
-            state.isExpanded = !state.isExpanded;
-            return state;
-        });
-    }
-
     onEdit(event) {
         if (event) {
             // Don't let enter propagate to EditorModal.
@@ -72,7 +65,7 @@ class BulletListItem extends React.Component {
 
     onKeyDown(event) {
         if (event.keyCode === KeyCodes.SPACE) {
-            this.onToggle(event);
+            this.setIsExpanded(!this.getIsExpanded());
         } else if (event.keyCode === KeyCodes.ENTER) {
             this.onEdit(event);
         } else if (event.keyCode === KeyCodes.DELETE) {
@@ -81,6 +74,21 @@ class BulletListItem extends React.Component {
             if (this.props.allowReordering) this.props.onMoveUp(event);
         } else if (event.keyCode === KeyCodes.DOWN_ARROW) {
             if (this.props.allowReordering) this.props.onMoveDown(event);
+        }
+    }
+
+    getIsExpanded() {
+        if (typeof this.props.isExpanded !== 'undefined') {
+            return this.props.isExpanded;
+        }
+        return this.state.isExpanded;
+    }
+
+    setIsExpanded(isExpanded) {
+        if (typeof this.props.isExpanded !== 'undefined') {
+            this.props.setIsExpanded(isExpanded);
+        } else {
+            this.setState({ isExpanded });
         }
     }
 
@@ -99,16 +107,17 @@ class BulletListItem extends React.Component {
             alwaysHighlighted: true,
             className: 'mr-1',
         };
+        const isExpanded = this.getIsExpanded();
         if (this.state.isHighlighted) {
             return (
-                <Icon {...iconProps} onClick={(event) => this.onToggle(event)}>
-                    {this.state.isExpanded ? <TiMinus /> : <TiPlus />}
+                <Icon {...iconProps} onClick={() => this.setIsExpanded(!isExpanded)}>
+                    {isExpanded ? <TiMinus /> : <TiPlus />}
                 </Icon>
             );
         }
         return (
             <Icon {...iconProps}>
-                {this.state.isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
+                {isExpanded ? <TiMinus /> : <GoPrimitiveDot />}
             </Icon>
         );
     }
@@ -144,7 +153,7 @@ class BulletListItem extends React.Component {
     }
 
     renderExpanded() {
-        if (!this.state.isExpanded) {
+        if (!this.getIsExpanded()) {
             return null;
         }
         // 13 = width of 1 icon. 4 = margin right of bullet icon
@@ -206,6 +215,8 @@ BulletListItem.propTypes = {
     allowReordering: PropTypes.bool,
     onMoveUp: PropTypes.func,
     onMoveDown: PropTypes.func,
+    isExpanded: PropTypes.bool,
+    setIsExpanded: PropTypes.func,
 };
 
 export default BulletListItem;
