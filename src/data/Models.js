@@ -44,7 +44,7 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            on_sidebar: {
+            is_favorite: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
@@ -282,7 +282,7 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            on_sidebar: {
+            is_favorite: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },

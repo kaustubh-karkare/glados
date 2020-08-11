@@ -26,7 +26,7 @@ class LogEvent extends Base {
             title: title || '',
             details: '',
             logLevel: logLevel || LogLevel.getIndex(LogLevel.NORMAL),
-            onSidebar: false,
+            isFavorite: false,
             isComplete: true,
             logStructure: logStructure || null,
         };
@@ -110,7 +110,7 @@ class LogEvent extends Base {
             title: logEvent.title,
             details: logEvent.details,
             logLevel: logEvent.log_level,
-            onSidebar: logEvent.on_sidebar,
+            isFavorite: logEvent.is_favorite,
             isComplete: logEvent.is_complete,
             logStructure: outputLogStructure,
         };
@@ -137,7 +137,7 @@ class LogEvent extends Base {
             title: inputLogEvent.title,
             details: inputLogEvent.details,
             log_level: inputLogEvent.logLevel,
-            on_sidebar: inputLogEvent.onSidebar,
+            is_favorite: inputLogEvent.isFavorite,
             is_complete: inputLogEvent.isComplete,
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,

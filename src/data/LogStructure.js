@@ -188,7 +188,6 @@ class LogStructure extends Base {
             warningDays: null,
             suppressUntilDate: null,
             logLevel: LogLevel.getIndex(LogLevel.NORMAL),
-            onSidebar: false,
         };
     }
 

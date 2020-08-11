@@ -48,7 +48,7 @@ export default class Utils {
                 inputLogTopic.details || '',
                 { '#': logTopics },
             );
-            inputLogTopic.onSidebar = false;
+            inputLogTopic.isFavorite = false;
             inputLogTopic.hasStructure = false;
             const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
             logTopicMap[outputLogTopic.name] = outputLogTopic;
@@ -125,7 +125,7 @@ export default class Utils {
                 { '#': logTopics },
             );
             inputLogEvent.logLevel = 0;
-            inputLogEvent.onSidebar = false;
+            inputLogEvent.isFavorite = false;
             inputLogEvent.isComplete = getBool(inputLogEvent, 'isComplete', true);
             if (inputLogEvent.structureName) {
                 inputLogEvent.logStructure = logStructureMap[inputLogEvent.structureName];

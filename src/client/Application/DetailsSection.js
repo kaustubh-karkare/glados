@@ -152,14 +152,14 @@ class DetailsSection extends React.Component {
                 </Button>,
             );
         }
-        if (typeof item.onSidebar === 'boolean') {
+        if (typeof item.isFavorite === 'boolean') {
             buttons.push(
                 <Button
                     key="favorite"
-                    onClick={() => this.onChange({ ...item, onSidebar: !item.onSidebar })}
+                    onClick={() => this.onChange({ ...item, isFavorite: !item.isFavorite })}
                     title="Favorite?"
                 >
-                    {item.onSidebar ? <MdFavorite /> : <MdFavoriteBorder />}
+                    {item.isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
                 </Button>,
             );
         }

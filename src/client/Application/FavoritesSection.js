@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { DataLoader, SidebarSection } from '../Common';
 
-class SidebarItemsSection extends React.Component {
+class FavoritesSection extends React.Component {
     constructor(props) {
         super(props);
         this.state = { items: null };
@@ -13,7 +13,7 @@ class SidebarItemsSection extends React.Component {
             getInput: () => ({
                 name: `${this.props.dataType}-list`,
                 args: {
-                    where: { on_sidebar: true },
+                    where: { is_favorite: true },
                 },
             }),
             callback: (items) => this.setState({
@@ -45,11 +45,11 @@ class SidebarItemsSection extends React.Component {
     }
 }
 
-SidebarItemsSection.propTypes = {
+FavoritesSection.propTypes = {
     title: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
     ViewerComponent: PropTypes.func.isRequired,
     valueKey: PropTypes.string.isRequired,
 };
 
-export default SidebarItemsSection;
+export default FavoritesSection;

@@ -121,11 +121,11 @@ ActionsRegistry['backup-load'] = async function () {
 
     /*
     if (true) {
-        data.log_structures.forEach((log_structure) => {
-            log_structure.log_level = log_structure.is_major ? 2 : 1;
+        data.log_topics.forEach((log_topic) => {
+            log_topic.is_favorite = log_topic.on_sidebar;
         });
         data.log_events.forEach((log_event) => {
-            log_event.log_level = log_event.is_major ? 2 : 1;
+            log_event.is_favorite = log_event.on_sidebar;
         });
     }
     */

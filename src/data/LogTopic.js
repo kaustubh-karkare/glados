@@ -10,7 +10,7 @@ class LogTopic extends Base {
             parentLogTopic: parentLogTopic || null,
             name: name || '',
             details: '',
-            onSidebar: false,
+            isFavorite: false,
         };
     }
 
@@ -40,7 +40,7 @@ class LogTopic extends Base {
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
             details: logTopic.details,
-            onSidebar: logTopic.on_sidebar,
+            isFavorite: logTopic.is_favorite,
         };
     }
 
@@ -65,7 +65,7 @@ class LogTopic extends Base {
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
             details: inputLogTopic.details,
-            on_sidebar: inputLogTopic.onSidebar,
+            is_favorite: inputLogTopic.isFavorite,
         };
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 

@@ -14,7 +14,7 @@ import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import LayoutSection from './LayoutSection';
-import SidebarItemsSection from './SidebarItemsSection';
+import FavoritesSection from './FavoritesSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
 
@@ -46,13 +46,13 @@ class Applicaton extends React.Component {
                 />
                 <BackupSection />
                 <ConsistencySection />
-                <SidebarItemsSection
+                <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
                     ViewerComponent={LogEventList.Single}
                     valueKey="logEvent"
                 />
-                <SidebarItemsSection
+                <FavoritesSection
                     title="Favorite Topics"
                     dataType="log-topic"
                     ViewerComponent={LogTopicList.Single}
