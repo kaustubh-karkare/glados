@@ -14,7 +14,7 @@ function initCookies() {
     document.cookies = document.cookie.split('; ').reduce((result, item) => {
         const [key, value] = item.split('=');
         // eslint-disable-next-line no-param-reassign
-        result[key] = value;
+        result[key] = decodeURIComponent(value);
         return result;
     }, {});
 }
@@ -33,8 +33,9 @@ window.main = function main() {
         (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 
+    const config = JSON.parse(document.cookies.client);
     ReactDOM.render(
-        <Application />,
+        <Application rightSidebarTopicIds={config.right_sidebar_topic_ids} />,
         document.getElementById('root'),
     );
 };

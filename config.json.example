@@ -10,5 +10,8 @@
     "server": {
         "host": "localhost",
         "port": 8080
+    },
+    "client": {
+        "right_sidebar_topic_ids": []
     }
 }

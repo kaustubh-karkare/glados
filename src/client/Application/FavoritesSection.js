@@ -30,9 +30,9 @@ class FavoritesSection extends React.Component {
         if (this.state.items === null) {
             return 'Loading ...';
         }
-        const { ViewerComponent, valueKey } = this.props;
+        const { ViewerComponent, viewerComponentProps, valueKey } = this.props;
         return this.state.items.map((item) => (
-            <ViewerComponent key={item.id} {...{ [valueKey]: item }} />
+            <ViewerComponent key={item.id} {...viewerComponentProps} {...{ [valueKey]: item }} />
         ));
     }
 
@@ -49,7 +49,13 @@ FavoritesSection.propTypes = {
     title: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
     ViewerComponent: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    viewerComponentProps: PropTypes.object,
     valueKey: PropTypes.string.isRequired,
+};
+
+FavoritesSection.defaultProps = {
+    viewerComponentProps: {},
 };
 
 export default FavoritesSection;

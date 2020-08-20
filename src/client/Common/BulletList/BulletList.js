@@ -46,10 +46,7 @@ class BulletList extends React.Component {
         this.dataLoader = new DataLoader({
             getInput: () => ({
                 name: `${this.props.dataType}-list`,
-                args: {
-                    where: this.props.where,
-                    ordering: this.props.allowReordering,
-                },
+                args: { where: this.props.where },
             }),
             callback: (items) => this.setState({ items }),
         });

@@ -7,20 +7,32 @@ import LogEventEditor from './LogEventEditor';
 
 
 function LogEventViewer(props) {
-    return (
-        <LeftRight>
+    const content = (
+        <div>
+            <span className="mr-1" style={{ float: 'left' }}>
+                {props.displayDate ? `${props.logEvent.date}: ` : ''}
+            </span>
             <TextEditor
                 unstyled
                 disabled
                 value={props.logEvent.title}
             />
-            {props.displayLogLevel && props.logEvent.logLevel === 2 ? '(major)' : null}
-        </LeftRight>
+        </div>
     );
+    if (props.displayLogLevel) {
+        return (
+            <LeftRight>
+                {content}
+                {props.displayLogLevel ? `L${props.logEvent.logLevel}` : null}
+            </LeftRight>
+        );
+    }
+    return content;
 }
 
 LogEventViewer.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,
+    displayDate: PropTypes.bool,
     displayLogLevel: PropTypes.bool,
 };
 
@@ -59,18 +71,22 @@ function LogEventList(props) {
 
 LogEventList.propTypes = {
     name: PropTypes.string.isRequired,
-    showAdder: PropTypes.bool.isRequired,
+    showAdder: PropTypes.bool,
 };
 
-LogEventList.Single = (props) => (
-    <BulletList.Item
-        dataType="log-event"
-        value={props.logEvent}
-        valueKey="logEvent"
-        ViewerComponent={LogEventViewer}
-        EditorComponent={LogEventEditor}
-    />
-);
+LogEventList.Single = (props) => {
+    const { logEvent, ...moreProps } = props;
+    return (
+        <BulletList.Item
+            {...moreProps}
+            dataType="log-event"
+            value={logEvent}
+            valueKey="logEvent"
+            ViewerComponent={LogEventViewer}
+            EditorComponent={LogEventEditor}
+        />
+    );
+};
 
 LogEventList.Single.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,

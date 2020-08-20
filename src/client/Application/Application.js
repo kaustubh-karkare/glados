@@ -1,5 +1,6 @@
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import PropTypes from 'prop-types';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
 import {
@@ -15,6 +16,7 @@ import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import LayoutSection from './LayoutSection';
 import FavoritesSection from './FavoritesSection';
+import TopicSection from './TopicSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
 
@@ -46,10 +48,12 @@ class Applicaton extends React.Component {
                 />
                 <BackupSection />
                 <ConsistencySection />
+                {this.props.rightSidebarTopicIds.map((id) => <TopicSection key={id} id={id} />)}
                 <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
                     ViewerComponent={LogEventList.Single}
+                    viewerComponentProps={{ viewerComponentProps: { displayDate: true } }}
                     valueKey="logEvent"
                 />
                 <FavoritesSection
@@ -137,5 +141,13 @@ class Applicaton extends React.Component {
         );
     }
 }
+
+Applicaton.propTypes = {
+    rightSidebarTopicIds: PropTypes.arrayOf(PropTypes.number),
+};
+
+Applicaton.defaultProps = {
+    rightSidebarTopicIds: [],
+};
 
 export default Applicaton;

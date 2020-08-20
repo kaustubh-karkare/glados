@@ -1,5 +1,6 @@
 .input-line {
     flex: 1 1 auto;
+    height: auto;
     overflow: hidden;
     width: 0px;
 }

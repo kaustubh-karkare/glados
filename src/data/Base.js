@@ -51,10 +51,10 @@ class Base extends ValidationBase {
         });
     }
 
-    static async list({ where, ordering } = {}) {
+    static async list({ where } = {}) {
         await Base.updateWhere.call(this, where);
         let items = await this.database.findAll(this.DataType.name, where);
-        if (ordering) {
+        if (items.length && typeof items[0].ordering_index !== 'undefined') {
             items = items.sort((left, right) => {
                 if (left.ordering_index !== null && right.ordering_index !== null) {
                     return left.ordering_index - right.ordering_index;

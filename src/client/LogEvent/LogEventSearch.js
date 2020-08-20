@@ -1,6 +1,6 @@
 import assert from 'assert';
 import React from 'react';
-import { eachDayOfInterval, getDay } from 'date-fns';
+import { eachDayOfInterval, getDay, subDays } from 'date-fns';
 import PropTypes from 'prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
@@ -35,6 +35,19 @@ const DATE_RANGE_ITEM = {
         });
     },
 };
+const YESTERDAY_ITEM = {
+    __type__: 'date-range',
+    id: getVirtualID(),
+    name: 'Yesterday',
+    getItem(option) {
+        const yesterday = DateUtils.getLabel(subDays(DateUtils.getTodayDate(), 1));
+        return Promise.resolve({
+            __type__: option.__type__,
+            id: 0,
+            name: `${yesterday} to ${yesterday}`,
+        });
+    },
+};
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
     id: getVirtualID(),
@@ -46,7 +59,11 @@ const ALL_EVENTS_ITEM = {
     name: 'All Events',
 };
 
-const SPECIAL_ITEMS = [DATE_RANGE_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM];
+const SPECIAL_ITEMS = [DATE_RANGE_ITEM, YESTERDAY_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM];
+
+function getDayOfTheWeek(label) {
+    return DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(label))];
+}
 
 class LogEventSearch extends React.Component {
     static getTypeaheadOptions() {
@@ -71,7 +88,7 @@ class LogEventSearch extends React.Component {
 
         const where = {
             is_complete: true,
-            log_level: [2],
+            log_level: [2, 3],
         };
         let dates;
         let dateSearch = false;
@@ -107,9 +124,11 @@ class LogEventSearch extends React.Component {
         if (dates || dateSearch) {
             state.dates = dates;
             state.dateSearch = !dates;
+            state.defaultDisplay = false;
         } else {
-            state.dates = [DateUtils.getTodayLabel()];
+            state.dates = null;
             state.dateSearch = false;
+            state.defaultDisplay = true;
         }
         return state;
     }
@@ -146,27 +165,44 @@ class LogEventSearch extends React.Component {
     }
 
     render() {
-        if (this.state.dateSearch || !this.state.dates) {
-            return null;
+        if (this.state.defaultDisplay ? false : !this.state.dates) {
+            return null; // Loading ...
         }
-        const today = DateUtils.getTodayLabel();
         const { where } = this.state;
         const moreProps = {};
         if (!where.log_level) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps = { displayLogLevel: true };
         }
+        if (this.state.defaultDisplay) {
+            const today = DateUtils.getTodayLabel();
+            return (
+                <>
+                    <LogEventList
+                        name="Today: Done"
+                        where={{ date: today, ...where, is_complete: true }}
+                        showAdder
+                        {...moreProps}
+                    />
+                    <LogEventList
+                        name="Incomplete"
+                        where={{ ...where, is_complete: false }}
+                        showAdder
+                        {...moreProps}
+                    />
+                </>
+            );
+        }
         return this.state.dates.map((date) => {
             let name = 'Unspecified';
             if (date) {
-                name = `${date} ${DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(date))]}`;
+                name = `${date} ${getDayOfTheWeek(date)}`;
             }
             return (
                 <LogEventList
                     key={date || 'null'}
                     name={name}
                     where={{ date, ...where }}
-                    showAdder={date === today}
                     {...moreProps}
                 />
             );
