@@ -7,7 +7,9 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;
     ActionsRegistry[`${name}-list`] = async function (input) {
         const context = { ...this, DataType };
-        return DataType.list.call(context, input);
+        const where = (input && input.where) || {};
+        await DataType.updateWhere.call(context, where);
+        return DataType.list.call(context, where);
     };
     ActionsRegistry[`${name}-typeahead`] = async function (input) {
         const context = { ...this, DataType };
@@ -35,6 +37,7 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
             throw new Error(errors.join('\n'));
         }
         const id = await DataType.save.call(context, input);
+        // This informs the client-side DataLoader.
         this.broadcast(`${name}-load`, { id });
         this.broadcast(`${name}-list`, { where: { id } });
         return DataType.load.call(context, id);

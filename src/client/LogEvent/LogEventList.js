@@ -1,17 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BulletList, LeftRight, TextEditor } from '../Common';
+import { BulletList, TextEditor } from '../Common';
 
 import LogEventAdder from './LogEventAdder';
 import LogEventEditor from './LogEventEditor';
 
 
 function LogEventViewer(props) {
-    const content = (
-        <div>
+    let datePrefix;
+    if (props.displayDate) {
+        datePrefix = (
             <span className="mr-1" style={{ float: 'left' }}>
-                {props.displayDate ? `${props.logEvent.date}: ` : ''}
+                {`${props.logEvent.date}: `}
             </span>
+        );
+    }
+    let logLevelSuffix;
+    if (props.displayLogLevel) {
+        logLevelSuffix = (
+            <span className="ml-1" style={{ float: 'right' }}>
+                {`L${props.logEvent.logLevel}`}
+            </span>
+        );
+    }
+    return (
+        <div>
+            {datePrefix}
+            {logLevelSuffix}
             <TextEditor
                 unstyled
                 disabled
@@ -19,15 +34,6 @@ function LogEventViewer(props) {
             />
         </div>
     );
-    if (props.displayLogLevel) {
-        return (
-            <LeftRight>
-                {content}
-                {props.displayLogLevel ? `L${props.logEvent.logLevel}` : null}
-            </LeftRight>
-        );
-    }
-    return content;
 }
 
 LogEventViewer.propTypes = {

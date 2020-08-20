@@ -1,16 +1,7 @@
-import {
-    addDays, addYears,
-    compareAsc,
-    getDay,
-    isFriday, isMonday, isSaturday, isSunday,
-    setDate, setMonth,
-    subDays, subYears,
-} from 'date-fns';
-import assert from 'assert';
 import { getVirtualID, getPartialItem } from './Utils';
 import Base from './Base';
-import DateUtils from '../common/DateUtils';
 import Enum from '../common/Enum';
+import Frequency from './Frequency';
 import LogStructureGroup from './LogStructureGroup';
 import TextEditorUtils from '../common/TextEditorUtils';
 
@@ -51,102 +42,6 @@ const LogStructureKey = Enum([
         },
     },
 ]);
-
-const FrequencyRawOptions = [
-    {
-        value: 'everyday',
-        label: 'Everyday',
-        getPreviousMatch(date) {
-            return subDays(date, 1);
-        },
-        getNextMatch(date) {
-            return addDays(date, 1);
-        },
-    },
-    {
-        value: 'weekdays',
-        label: 'Weekdays',
-        getPreviousMatch(date) {
-            if (isMonday(date)) {
-                return subDays(date, 3);
-            } if (isSunday(date)) {
-                return subDays(date, 2);
-            }
-            return subDays(date, 1);
-        },
-        getNextMatch(date) {
-            if (isFriday(date)) {
-                return addDays(date, 3);
-            } if (isSaturday(date)) {
-                return addDays(date, 2);
-            }
-            return addDays(date, 1);
-        },
-    },
-    {
-        value: 'weekends',
-        label: 'Weekends',
-        getPreviousMatch(date) {
-            if (isSunday(date)) {
-                return subDays(date, 1);
-            }
-            return subDays(date, getDay(date));
-        },
-        getNextMatch(date) {
-            if (isSaturday(date)) {
-                return addDays(date, 1);
-            }
-            return addDays(date, 6 - getDay(date));
-        },
-    },
-    // TODO: Add more as needed.
-];
-
-DateUtils.DaysOfTheWeek.forEach((day, index) => {
-    FrequencyRawOptions.push({
-        value: day.toLowerCase(),
-        label: day,
-        getPreviousMatch(date) {
-            const diff = (getDay(date) - index + 7) % 7;
-            return subDays(date, diff || 7);
-        },
-        getNextMatch(date) {
-            const diff = (index - getDay(date) + 7) % 7;
-            return addDays(date, diff || 7);
-        },
-    });
-});
-
-function parseYearlyFrequencyArgs(args) {
-    let [month, dayOfTheMonth] = args.split('-');
-    month = parseInt(month, 10) - 1; // 0 = January
-    dayOfTheMonth = parseInt(dayOfTheMonth, 10);
-    return { month, dayOfTheMonth };
-}
-
-FrequencyRawOptions.push({
-    value: 'yearly',
-    label: 'Yearly',
-    getPreviousMatch(date, args) {
-        const { month, dayOfTheMonth } = parseYearlyFrequencyArgs(args);
-        let target = setDate(setMonth(date, month), dayOfTheMonth);
-        if (compareAsc(date, target) <= 0) {
-            target = subYears(target, 1);
-        }
-        return target;
-    },
-    getNextMatch(date, args) {
-        const { month, dayOfTheMonth } = parseYearlyFrequencyArgs(args);
-        let target = setDate(setMonth(date, month), dayOfTheMonth);
-        if (compareAsc(date, target) >= 0) {
-            target = addYears(target, 1);
-        }
-        return target;
-    },
-});
-
-const LogStructureFrequency = Enum(FrequencyRawOptions);
-
 
 const LogLevel = Enum([
     {
@@ -206,41 +101,6 @@ class LogStructure extends Base {
         if (logStructure.logKeys.length) {
             logStructure.needsEdit = true;
         }
-    }
-
-    static async reminderCheck(logStructure) {
-        // input = after loading
-        assert(logStructure.isPeriodic);
-        const todayDate = DateUtils.getTodayDate(this);
-        const suppressUntilDate = DateUtils.getDate(logStructure.suppressUntilDate);
-        if (compareAsc(todayDate, suppressUntilDate) <= 0) {
-            return false;
-        }
-        const option = LogStructureFrequency[logStructure.frequency];
-        const lookaheadDate = addDays(todayDate, 1 + logStructure.warningDays);
-        const reminderDate = option.getPreviousMatch(lookaheadDate, logStructure.frequencyArgs);
-        const warningStartDate = subDays(reminderDate, logStructure.warningDays);
-        const isWarningActive = compareAsc(warningStartDate, todayDate) <= 0;
-        if (!isWarningActive) return false;
-
-        let foundLogEventForReminder = false;
-        const latestLogEvent = await this.invoke.call(this, 'latest-log-event', { logStructure });
-        if (latestLogEvent) {
-            const latestLogEventDate = DateUtils.getDate(latestLogEvent.date);
-            if (compareAsc(warningStartDate, latestLogEventDate) <= 0) {
-                foundLogEventForReminder = true;
-            }
-        }
-        return !foundLogEventForReminder;
-    }
-
-    static getSuppressUntilDate(logStructure) {
-        assert(logStructure.isPeriodic);
-        const today = DateUtils.getTodayDate(this);
-        const option = LogStructureFrequency[logStructure.frequency];
-        const ReminderDate = option.getNextMatch(today, logStructure.frequencyArgs);
-        const warningStartDate = subDays(ReminderDate, 1 + logStructure.warningDays);
-        return DateUtils.getLabel(warningStartDate);
     }
 
     static async validateInternal(inputLogStructure) {
@@ -475,7 +335,7 @@ class LogStructure extends Base {
 }
 
 LogStructure.Key = LogStructureKey;
-LogStructure.Frequency = LogStructureFrequency;
+LogStructure.Frequency = Frequency;
 LogStructure.LogLevel = LogLevel;
 
 export default LogStructure;

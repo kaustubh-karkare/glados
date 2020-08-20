@@ -13,7 +13,7 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
-    static async updateWhere(where = {}) {
+    static async updateWhere(where) {
         await awaitSequence(Object.keys(where), async (fieldName) => {
             // Special case! The topic_id filter is handled via junction tables,
             // unlike the remaining fields that can be queried normally.
@@ -51,8 +51,7 @@ class Base extends ValidationBase {
         });
     }
 
-    static async list({ where } = {}) {
-        await Base.updateWhere.call(this, where);
+    static async list(where) {
         let items = await this.database.findAll(this.DataType.name, where);
         if (items.length && typeof items[0].ordering_index !== 'undefined') {
             items = items.sort((left, right) => {
