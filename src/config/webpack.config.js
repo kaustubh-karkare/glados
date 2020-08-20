@@ -25,7 +25,12 @@ module.exports = {
         rules: [
             {
                 test: /\.[tj]sx?$/,
-                use: ['babel-loader'],
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        configFile: path.join(__dirname, 'babel.config.js'),
+                    },
+                },
                 exclude: /node_modules/,
             },
             {

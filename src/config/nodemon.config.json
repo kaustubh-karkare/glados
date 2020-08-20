@@ -1,7 +1,4 @@
 {
-    "execMap": {
-        "js": "babel-node"
-    },
     "watch": [
         "src/data/",
         "src/common/",
