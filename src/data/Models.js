@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 
+// eslint-disable-next-line func-names
 export default function (sequelize) {
     const options = {
         timestamps: false,

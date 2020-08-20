@@ -24,13 +24,24 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.[tj]sx?$/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        configFile: path.join(__dirname, 'babel.config.js'),
+                test: /\.js$/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            configFile: path.join(__dirname, 'babel.config.js'),
+                        },
                     },
-                },
+                    /*
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            context: path.resolve(__dirname, '../..'),
+                            configFile: path.join(__dirname, 'tsconfig.json'),
+                        },
+                    },
+                    */
+                ],
                 exclude: /node_modules/,
             },
             {
@@ -45,7 +56,6 @@ module.exports = {
         ],
     },
     plugins: [
-        // new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
             filename: 'index.css',
         }),
@@ -55,7 +65,7 @@ module.exports = {
     ],
     stats: {
         assets: false,
-        builtAt: true, // the one signal I wanted
+        builtAt: true, // the one signal I actually want
         children: false,
         entrypoints: false,
         hash: false,
