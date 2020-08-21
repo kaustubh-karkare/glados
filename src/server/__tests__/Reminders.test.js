@@ -90,3 +90,55 @@ test('test_reminder_for_incomplete_items', async () => {
     });
     await checkIfReminderIsShown(null, true);
 });
+
+async function checkReminderScore(date, expected) {
+    const actions = Utils.getActions();
+    actions.context.todayLabel = date;
+    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
+    const score = await actions.invoke('reminder-score', { logStructure });
+    expect(score.value).toEqual(expected);
+    delete actions.context.todayLabel;
+}
+
+test('test_reminder_score', async () => {
+    await Utils.loadData({
+        logStructureGroups: [
+            { name: 'Weekly' },
+        ],
+        logStructures: [
+            {
+                groupName: 'Weekly',
+                name: 'Weekly Report',
+                isPeriodic: true,
+                frequency: 'friday',
+                warningDays: 2, // warning starts on wednesday
+                suppressUntilDate: '2020-08-20',
+            },
+        ],
+    });
+    const addEvent = (date) => Utils.loadData({
+        logEvents: [{ date, structureName: 'Weekly Report' }],
+    });
+    await checkReminderScore('2020-08-15', 0);
+    await checkReminderScore('2020-08-20', 0);
+    // week 1: event date = reminder date
+    await addEvent('2020-08-21'); // friday
+    await checkReminderScore('2020-08-21', 1); // friday
+    // week 2: event date < reminder date
+    await checkReminderScore('2020-08-25', 1); // tuesday
+    await checkReminderScore('2020-08-26', 1); // wednesday
+    await addEvent('2020-08-27'); // thursday
+    await checkReminderScore('2020-08-28', 2); // friday
+    // week 3: event date > reminder date
+    await checkReminderScore('2020-09-04', 2); // friday
+    await addEvent('2020-09-05'); // saturday
+    // week 4
+    await checkReminderScore('2020-09-06', 3); // sunday
+    await checkReminderScore('2020-09-11', 3); // friday
+    // week 5
+    await checkReminderScore('2020-09-18', -1); // friday
+    // week 6
+    await checkReminderScore('2020-09-25', -2); // friday
+    await addEvent('2020-09-25'); // friday
+    await checkReminderScore('2020-09-26', 1); // saturday
+});

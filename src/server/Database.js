@@ -70,10 +70,10 @@ class Database {
         return this.create(name, fields);
     }
 
-    async findAll(name, where) {
+    async findAll(name, where, order) {
         const transaction = this.getTransaction();
         const Model = this._models[name];
-        return Model.findAll({ where, transaction });
+        return Model.findAll({ where, order, transaction });
     }
 
     async findOne(name, where, order) {

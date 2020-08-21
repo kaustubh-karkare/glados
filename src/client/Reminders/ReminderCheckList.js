@@ -10,6 +10,7 @@ import {
 import DateUtils from '../../common/DateUtils';
 import { LogEvent } from '../../data';
 import { LogEventEditor } from '../LogEvent';
+import { LogStructureEditor } from '../LogStructure';
 
 class ReminderCheckList extends React.Component {
     static getLogEventFromItem(item) {
@@ -31,7 +32,11 @@ class ReminderCheckList extends React.Component {
         this.state = { isItemHighlighted: {} };
     }
 
-    onEditButtonClick(item) {
+    onEditButtonClick(event, item) {
+        if (event.shiftKey && item.__type__ === 'log-structure') {
+            this.displayLogStructureEditorModal(item);
+            return;
+        }
         const logEvent = ReminderCheckList.getLogEventFromItem(item);
         this.displayLogEventEditorModal(item, logEvent);
     }
@@ -78,6 +83,16 @@ class ReminderCheckList extends React.Component {
         });
     }
 
+    // eslint-disable-next-line class-methods-use-this
+    displayLogStructureEditorModal(logStructure) {
+        Coordinator.invoke('modal-editor', {
+            dataType: 'log-structure',
+            EditorComponent: LogStructureEditor,
+            valueKey: 'logStructure',
+            value: logStructure,
+        });
+    }
+
     updateHighlight(item, isHighlighted) {
         this.setState((state) => {
             state.isItemHighlighted[item.id] = isHighlighted;
@@ -93,9 +108,7 @@ class ReminderCheckList extends React.Component {
             <Icon
                 className="ml-1"
                 title="Edit"
-                onClick={(event) => {
-                    this.onEditButtonClick(item);
-                }}
+                onClick={(event) => this.onEditButtonClick(event, item)}
             >
                 <MdEdit />
             </Icon>
@@ -105,7 +118,14 @@ class ReminderCheckList extends React.Component {
     renderItem(item) {
         let title;
         if (item.__type__ === 'log-structure') {
-            title = item.reminderText || item.name;
+            title = (
+                <span>
+                    {item.reminderText || item.name}
+                    <span style={{ float: 'right' }} title={item.reminderScore.dateRanges.join('\n')}>
+                        {item.reminderScore.value}
+                    </span>
+                </span>
+            );
         } else {
             title = (
                 <TextEditor
