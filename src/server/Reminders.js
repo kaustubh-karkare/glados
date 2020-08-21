@@ -56,7 +56,7 @@ ActionsRegistry['reminder-score'] = async function (input) {
     const logEvents = await this.database.findAll(
         'LogEvent',
         {
-            structure_id: input.logStructure.id,
+            structure_id: logStructure.id,
             date: { [this.database.Op.ne]: null },
         },
         [['date', 'DESC']],
@@ -66,12 +66,17 @@ ActionsRegistry['reminder-score'] = async function (input) {
     // to the start of the warning for the next reminder.
     const option = LogStructure.Frequency[logStructure.frequency];
     const todayDate = DateUtils.getTodayDate(this);
-    const nextReminderDate = option.getNextMatch(subDays(todayDate, 1), logStructure.frequencyArgs);
-    const deadlineDate = subDays(nextReminderDate, logStructure.warningDays);
+    const nextReminderDate = option.getNextMatch(
+        // Using addDays here, so that deadlineDate will be in the future.
+        addDays(todayDate, logStructure.warningDays),
+        logStructure.frequencyArgs,
+    );
+    const deadlineDate = subDays(nextReminderDate, 1 + logStructure.warningDays);
 
     // Start from the current window, and then go as far back as needed to compute the score.
     let currentDate = addDays(todayDate, 1 + logStructure.warningDays);
     let value = 0;
+    let deadline = null;
     const dateRanges = [];
     let firstIteration = true;
     while (logEvents.length) {
@@ -95,7 +100,7 @@ ActionsRegistry['reminder-score'] = async function (input) {
         if (firstIteration) { // special handling for currently open window.
             firstIteration = false;
             if (!foundLogEventInReminderWindow) {
-                dateRanges.push(`Deadline: ${DateUtils.getLabel(deadlineDate)}`);
+                deadline = DateUtils.getLabel(deadlineDate);
                 // eslint-disable-next-line no-continue
                 continue;
             }
@@ -118,7 +123,7 @@ ActionsRegistry['reminder-score'] = async function (input) {
         }
     }
 
-    return { value, dateRanges };
+    return { value, deadline, dateRanges };
 };
 
 ActionsRegistry['reminder-sidebar'] = async function (input) {

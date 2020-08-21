@@ -118,10 +118,12 @@ class ReminderCheckList extends React.Component {
     renderItem(item) {
         let title;
         if (item.__type__ === 'log-structure') {
+            let tooltip = (item.reminderScore.deadline ? `Deadline: ${item.reminderScore.deadline}\n\n` : '');
+            tooltip += item.reminderScore.dateRanges.join('\n');
             title = (
                 <span>
                     {item.reminderText || item.name}
-                    <span style={{ float: 'right' }} title={item.reminderScore.dateRanges.join('\n')}>
+                    <span style={{ float: 'right' }} title={tooltip}>
                         {item.reminderScore.value}
                     </span>
                 </span>
