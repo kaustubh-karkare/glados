@@ -10,19 +10,19 @@ import { isVirtualItem } from '../data';
 import { Coordinator } from './Common';
 import { Application } from './Application';
 
-function initCookies() {
-    document.cookies = document.cookie.split('; ').reduce((result, item) => {
+function getCookies() {
+    const cookies = {};
+    document.cookie.split('; ').forEach((item) => {
         const [key, value] = item.split('=');
-        // eslint-disable-next-line no-param-reassign
-        result[key] = decodeURIComponent(value);
-        return result;
-    }, {});
+        cookies[key] = decodeURIComponent(value);
+    });
+    return cookies;
 }
 
 window.main = function main() {
-    initCookies();
+    const cookies = getCookies();
     window.api = SocketRPC.client(
-        io(`${document.cookies.host}:${document.cookies.port}`),
+        io(`${cookies.host}:${cookies.port}`),
         (name, input, output) => {
             const suffix = '-upsert';
             if (name.endsWith(suffix) && isVirtualItem(input)) {
@@ -33,7 +33,7 @@ window.main = function main() {
         (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 
-    const config = JSON.parse(document.cookies.client);
+    const config = JSON.parse(cookies.client);
     ReactDOM.render(
         <Application rightSidebarTopicIds={config.right_sidebar_topic_ids} />,
         document.getElementById('root'),

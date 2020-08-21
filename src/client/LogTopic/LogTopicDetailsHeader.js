@@ -37,7 +37,7 @@ class LogTopicDetailsHeader extends React.Component {
                     options={{
                         name: 'log-topic-list',
                         args: {
-                            where: { parent_topic_id: logTopic.id },
+                            where: { parentLogTopic: logTopic },
                             ordering: true,
                         },
                     }}

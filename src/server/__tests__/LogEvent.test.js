@@ -96,7 +96,7 @@ test('test_log_event_value_typeahead', async () => {
     let logValueSuggestions;
 
     const logEvent = await actions.invoke('log-event-load', { id: 1 });
-    const input = { structure_id: logEvent.logStructure.id, index: null, query: '' };
+    const input = { logStructure: logEvent.logStructure, index: null, query: '' };
 
     logValueSuggestions = await actions.invoke('value-typeahead', { ...input, index: 0 });
     expect(logValueSuggestions).toEqual(['small']);

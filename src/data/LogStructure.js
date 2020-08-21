@@ -86,6 +86,14 @@ class LogStructure extends Base {
         };
     }
 
+    static async updateWhere(where) {
+        await Base.updateWhere.call(this, where, {
+            id: 'id',
+            logStructureGroup: 'group_id',
+            isPeriodic: 'is_periodic',
+        });
+    }
+
     static trigger(logStructure) {
         let content = TextEditorUtils.deserialize(
             logStructure.titleTemplate,
@@ -277,7 +285,7 @@ class LogStructure extends Base {
         const inputLogEvents = await this.invoke.call(
             this,
             'log-event-list',
-            { where: { structure_id: inputLogStructure.id } },
+            { where: { logStructure: inputLogStructure } },
         );
         await Promise.all(inputLogEvents.map(async (inputLogEvent) => {
             // TODO: Update inputLogEvent based on inputLogStructure.

@@ -16,8 +16,10 @@ class LogTopicSearch extends React.Component {
         let defaultDisplay = true;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-topic') {
-                if (!where.id) where.id = [];
-                where.id.push(item.id);
+                if (!where.logTopics) {
+                    where.logTopics = [];
+                }
+                where.logTopics.push(item);
                 defaultDisplay = false;
             } else {
                 assert(false, item);
@@ -35,19 +37,19 @@ class LogTopicSearch extends React.Component {
 
     render() {
         if (this.state.defaultDisplay) {
-            return <LogTopicList where={{ parent_topic_id: null }} />;
+            return <LogTopicList where={{ parentLogTopic: null }} />;
         }
         return (
             <>
                 <LogTopicList
                     name="Selected Topic"
-                    where={this.state.where}
+                    where={{ id: this.state.where.logTopics.map((logTopic) => logTopic.id) }}
                     allowCreation={false}
                     allowReordering={false}
                 />
                 <LogTopicList
                     name="Referencing Topics"
-                    where={{ topic_id: this.state.where.ids }}
+                    where={this.state.where}
                     allowCreation={false}
                     allowReordering={false}
                 />

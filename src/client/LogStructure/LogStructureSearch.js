@@ -21,8 +21,10 @@ class LogStructureSearch extends React.Component {
                 where.id.push(item.id);
                 defaultDisplay = false;
             } else if (item.__type__ === 'log-topic') {
-                if (!where.topic_id) where.topic_id = [];
-                where.topic_id.push(item.id);
+                if (!where.logTopics) {
+                    where.logTopics = [];
+                }
+                where.logTopics.push(item);
                 defaultDisplay = false;
             } else {
                 assert(false, item);

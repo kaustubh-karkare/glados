@@ -17,7 +17,7 @@ ActionsRegistry['log-event-dates'] = async function (input) {
 
 ActionsRegistry['value-typeahead'] = async function (input) {
     const outputLogEvents = await this.invoke.call(
-        this, 'log-event-list', { where: { structure_id: input.structure_id } },
+        this, 'log-event-list', { where: { logStructure: input.logStructure } },
     );
     const resultToFrequencyMap = {};
     outputLogEvents.forEach((outputLogEvent) => {

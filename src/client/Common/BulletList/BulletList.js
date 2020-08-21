@@ -62,7 +62,7 @@ class BulletList extends React.Component {
 
     onAddButtonClick(event) {
         const DataType = getDataTypeMapping()[this.props.dataType];
-        const value = DataType.createVirtual(this.props.creator || this.props.where);
+        const value = DataType.createVirtual(this.props.where);
         const context = { ...this };
         context.props = { ...context.props, value };
         BulletListItem.prototype.onEdit.call(context, event);
@@ -166,8 +166,6 @@ BulletList.propTypes = {
     valueKey: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     where: PropTypes.object,
-    // eslint-disable-next-line react/forbid-prop-types
-    creator: PropTypes.object,
     allowCreation: PropTypes.bool,
     allowReordering: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,

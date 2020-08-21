@@ -87,23 +87,21 @@ class LogEventSearch extends React.Component {
         state.signature = signature;
 
         const where = {
-            is_complete: true,
-            log_level: [2, 3],
+            isComplete: true,
+            logLevel: [2, 3],
         };
         let dates;
         let dateSearch = false;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-structure') {
-                if (!where.structure_id) {
-                    where.structure_id = [];
-                }
-                where.structure_id.push(item.id);
+                assert(!where.logStructure);
+                where.logStructure = item;
                 dateSearch = true;
             } else if (item.__type__ === 'log-topic') {
-                if (!where.topic_id) {
-                    where.topic_id = [];
+                if (!where.logTopics) {
+                    where.logTopics = [];
                 }
-                where.topic_id.push(item.id);
+                where.logTopics.push(item);
                 dateSearch = true;
             } else if (item.__type__ === DATE_RANGE_ITEM.__type__) {
                 const [startDate, endDate] = item.name.split(' to ');
@@ -112,10 +110,10 @@ class LogEventSearch extends React.Component {
                     end: DateUtils.getDate(endDate),
                 }).map((date) => DateUtils.getLabel(date));
             } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
-                where.is_complete = false;
+                where.isComplete = false;
                 dateSearch = true;
             } else if (item.__type__ === ALL_EVENTS_ITEM.__type__) {
-                delete where.log_level;
+                delete where.logLevel;
             } else {
                 assert(false, item);
             }
@@ -170,7 +168,7 @@ class LogEventSearch extends React.Component {
         }
         const { where } = this.state;
         const moreProps = {};
-        if (!where.log_level) {
+        if (!where.logLevel) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps = { displayLogLevel: true };
         }
@@ -180,13 +178,13 @@ class LogEventSearch extends React.Component {
                 <>
                     <LogEventList
                         name="Today: Done"
-                        where={{ date: today, ...where, is_complete: true }}
+                        where={{ date: today, ...where, isComplete: true }}
                         showAdder
                         {...moreProps}
                     />
                     <LogEventList
                         name="Incomplete"
-                        where={{ ...where, is_complete: false }}
+                        where={{ ...where, isComplete: false }}
                         showAdder
                         {...moreProps}
                     />

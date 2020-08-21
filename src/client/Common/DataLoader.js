@@ -1,3 +1,4 @@
+import { isItem, getPartialItem } from '../../data';
 
 class DataLoader {
     constructor({ getInput, callback }) {
@@ -10,6 +11,14 @@ class DataLoader {
 
     reload({ force } = {}) {
         const input = this.getInput();
+        if (input.args && input.args.where) {
+            // This is an optimization to prevent sending unnecessary data to the server.
+            Object.entries(input.args.where).forEach(([key, value]) => {
+                if (isItem(value)) {
+                    input.args.where[key] = getPartialItem(value);
+                }
+            });
+        }
         if (!force && JSON.stringify(input) === JSON.stringify(this.input)) {
             return;
         }

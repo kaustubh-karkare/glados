@@ -48,7 +48,7 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
         ordering: true,
     });
     const periodicLogStructures = await this.invoke.call(this, 'log-structure-list', {
-        where: { is_periodic: true },
+        where: { isPeriodic: true },
         ordering: true,
     });
     let reminderGroups = await Promise.all(
@@ -68,9 +68,7 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
     reminderGroups = reminderGroups.filter((reminderGroup) => reminderGroup);
 
     const logEvents = await this.invoke.call(this, 'log-event-list', {
-        where: {
-            is_complete: false,
-        },
+        where: { isComplete: false },
     });
     if (logEvents.length) {
         reminderGroups.push({ id: 'incomplete', name: 'Incomplete', items: logEvents });

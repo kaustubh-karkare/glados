@@ -14,6 +14,14 @@ class LogTopic extends Base {
         };
     }
 
+    static async updateWhere(where) {
+        await Base.updateWhere.call(this, where, {
+            id: 'id',
+            isFavorite: 'is_favorite',
+            parentLogTopic: 'parent_topic_id',
+        });
+    }
+
     static async validateInternal(inputLogTopic) {
         const results = [];
         results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));

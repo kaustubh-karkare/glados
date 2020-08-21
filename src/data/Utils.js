@@ -6,6 +6,10 @@ export function getVirtualID() {
     return virtualID;
 }
 
+export function isItem(item) {
+    return item && typeof item.id === 'number';
+}
+
 export function isVirtualItem(item) {
     return item && item.id < 0;
 }

@@ -13,7 +13,7 @@ class FavoritesSection extends React.Component {
             getInput: () => ({
                 name: `${this.props.dataType}-list`,
                 args: {
-                    where: { is_favorite: true },
+                    where: { isFavorite: true },
                 },
             }),
             callback: (items) => this.setState({

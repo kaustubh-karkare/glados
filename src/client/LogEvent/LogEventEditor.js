@@ -173,7 +173,7 @@ class LogEventEditor extends React.Component {
                         updatedLogEvent.logStructure.logKeys[index] = updatedLogKey;
                     })}
                     onSearch={(query) => window.api.send('value-typeahead', {
-                        structure_id: this.props.logEvent.logStructure.id,
+                        logStructure: this.props.logEvent.logStructure,
                         query,
                         index,
                     })}

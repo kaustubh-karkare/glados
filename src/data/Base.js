@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import assert from 'assert';
-import { awaitSequence } from './Utils';
+import { awaitSequence, isItem } from './Utils';
 import ValidationBase from './ValidationBase';
 
 function getDataType(name) {
@@ -13,11 +13,11 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
-    static async updateWhere(where) {
+    static async updateWhere(where, mapping) {
         await awaitSequence(Object.keys(where), async (fieldName) => {
-            // Special case! The topic_id filter is handled via junction tables,
+            // Special case! The logTopics filter is handled via junction tables,
             // unlike the remaining fields that can be queried normally.
-            if (fieldName === 'topic_id') {
+            if (fieldName === 'logTopics') {
                 const junctionTableName = `${this.DataType.name}ToLogTopic`;
                 const junctionSourceName = {
                     LogTopic: 'source_topic_id',
@@ -25,28 +25,39 @@ class Base extends ValidationBase {
                     LogEvent: 'source_event_id',
                 }[this.DataType.name];
                 assert(junctionSourceName);
+                const logTopicIds = where.logTopics.map((item) => item.id);
                 const edges = await this.database.getEdges(
                     junctionTableName,
                     'target_topic_id',
-                    where.topic_id,
+                    logTopicIds,
                 );
-                let ids;
-                if (Array.isArray(where.topic_id)) {
+                let itemIds;
+                if (logTopicIds.length > 1) {
                     // assuming AND operation, not OR
                     const counters = {};
                     edges.forEach((edge) => {
                         const id = edge[junctionSourceName];
                         counters[id] = (counters[id] || 0) + 1;
                     });
-                    ids = Object.entries(counters)
-                        .filter((pair) => pair[1] === where.topic_id.length)
+                    itemIds = Object.entries(counters)
+                        .filter((pair) => pair[1] === logTopicIds.length)
                         .map((pair) => parseInt(pair[0], 10));
                 } else {
-                    ids = edges.map((edge) => edge[junctionSourceName]);
+                    itemIds = edges.map((edge) => edge[junctionSourceName]);
                 }
-                delete where.topic_id;
+                delete where.logTopics;
                 assert(!where.id);
-                where.id = { [this.database.Op.in]: ids };
+                where.id = itemIds;
+            } else if (fieldName in mapping) {
+                const newFieldName = mapping[fieldName];
+                let value = where[fieldName];
+                value = isItem(value) ? value.id : value;
+                where[newFieldName] = value;
+                if (fieldName !== newFieldName) {
+                    delete where[fieldName];
+                }
+            } else {
+                assert(false, `undefined where mapping: ${fieldName}`);
             }
         });
     }

@@ -34,6 +34,16 @@ class LogEvent extends Base {
         return logEvent;
     }
 
+    static async updateWhere(where) {
+        await Base.updateWhere.call(this, where, {
+            date: 'date',
+            logStructure: 'structure_id',
+            isFavorite: 'is_favorite',
+            isComplete: 'is_complete',
+            logLevel: 'log_level',
+        });
+    }
+
     static trigger(logEvent) {
         if (logEvent.logStructure) {
             let content = TextEditorUtils.deserialize(
