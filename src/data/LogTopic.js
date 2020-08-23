@@ -3,12 +3,12 @@ import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
-    static createVirtual({ parentLogTopic, name } = {}) {
+    static createVirtual({ parentLogTopic = null, name = '' } = {}) {
         return {
             __type__: 'log-topic',
             id: getVirtualID(),
-            parentLogTopic: parentLogTopic || null,
-            name: name || '',
+            parentLogTopic,
+            name,
             details: '',
             isFavorite: false,
         };

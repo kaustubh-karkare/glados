@@ -66,12 +66,12 @@ LogLevel.getValue = (index) => LogLevel.Options[index - 1].value;
 
 
 class LogStructure extends Base {
-    static createVirtual({ logStructureGroup, name } = {}) {
+    static createVirtual({ logStructureGroup, name = '' }) {
         return {
             __type__: 'log-structure',
             id: getVirtualID(),
             logStructureGroup,
-            name: name || '',
+            name,
             details: '',
             logKeys: [],
             titleTemplate: '',

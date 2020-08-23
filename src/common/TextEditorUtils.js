@@ -24,6 +24,8 @@ const DRAFTJS_MENTION_PLUGIN_NAME = 'mention';
 const DRAFTJS_MENTION_ENTITY_TYPE = 'mention';
 const MARKDOWN_MENTION_PREFIX = 'mention';
 
+const LINK_ENTITY_TYPE = 'LINK';
+
 const draftToMarkdownOptions = {
     entityItems: {
         mention: {
@@ -386,45 +388,75 @@ class TextEditorUtils {
     }
 
     static evaluateDraftContentExpressions(contentState) {
-        const pendingExpressions = [];
+        const pendingUpdates = [];
 
         contentState.getBlocksAsArray().forEach((contentBlock) => {
             const currentBlockKey = contentBlock.getKey();
-            let start = 0;
-            Array.from(contentBlock.getText().matchAll(/(?:\{[^}]*\}|[^{}]*)/g))
-                .forEach(([part]) => {
-                    if (part.startsWith('{') && part.endsWith('}')) {
-                        try {
-                            // eslint-disable-next-line no-eval
-                            const result = eval(part.substring(1, part.length - 1)).toString();
-                            pendingExpressions.push([
-                                currentBlockKey,
-                                start,
-                                start + part.length,
-                                result,
-                            ]);
-                        } catch (error) {
-                            // eslint-disable-next-line no-console
-                            // console.error(error);
-                        }
+            const currentBlockText = contentBlock.getText();
+            for (let startIndex = 0, endIndex = -1; startIndex < currentBlockText.length;) {
+                const originalStartIndex = startIndex;
+                if (currentBlockText[startIndex] === '{') {
+                    endIndex = currentBlockText.indexOf('}', startIndex);
+                    assert(endIndex !== -1);
+                    const expression = currentBlockText.substring(startIndex + 1, endIndex);
+                    startIndex = endIndex + 1;
+                    try {
+                        // eslint-disable-next-line no-eval
+                        const result = eval(expression).toString();
+                        pendingUpdates.push({
+                            blockKey: currentBlockKey,
+                            startIndex: originalStartIndex,
+                            endIndex: startIndex,
+                            text: result,
+                        });
+                    } catch (error) {
+                        // eslint-disable-next-line no-console
+                        console.error(error);
                     }
-                    start += part.length;
-                });
+                } else if (currentBlockText[startIndex] === '[') {
+                    endIndex = currentBlockText.indexOf(']', startIndex);
+                    assert(endIndex !== -1);
+                    const linkText = currentBlockText.substring(startIndex + 1, endIndex);
+                    startIndex = endIndex + 1;
+                    assert(currentBlockText[startIndex] === '(');
+                    endIndex = currentBlockText.indexOf(')', startIndex);
+                    assert(endIndex !== -1);
+                    const linkHref = currentBlockText.substring(startIndex + 1, endIndex);
+                    startIndex = endIndex + 1;
+
+                    contentState = contentState.createEntity(
+                        LINK_ENTITY_TYPE,
+                        'IMMUTABLE',
+                        { url: linkHref },
+                    );
+                    pendingUpdates.push({
+                        blockKey: currentBlockKey,
+                        startIndex: originalStartIndex,
+                        endIndex: startIndex,
+                        text: linkText,
+                        entityKey: contentState.getLastCreatedEntityKey(),
+                    });
+                } else {
+                    startIndex += 1;
+                }
+            }
         });
 
-        pendingExpressions.reverse().forEach(([blockKey, start, end, result]) => {
+        pendingUpdates.reverse().forEach(({
+            blockKey, startIndex, endIndex, text, entityKey,
+        }) => {
             let selectionState = SelectionState.createEmpty(blockKey);
             selectionState = selectionState.merge({
-                anchorOffset: start,
-                focusOffset: end,
+                anchorOffset: startIndex,
+                focusOffset: endIndex,
                 hasFocus: true,
             });
             contentState = Modifier.replaceText(
                 contentState,
                 selectionState,
-                result,
+                text,
                 null,
-                null,
+                entityKey || null,
             );
         });
 

@@ -3,9 +3,9 @@ import Utils from './Utils';
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
 
-async function checkIfReminderIsShown(date, shown) {
+async function checkIfReminderIsShown(todayLabel, shown) {
     const actions = Utils.getActions();
-    actions.context.todayLabel = date;
+    actions.context.todayLabel = todayLabel;
     const results = await actions.invoke('reminder-sidebar');
     expect(results.length).toEqual(shown ? 1 : 0);
     delete actions.context.todayLabel;
@@ -91,9 +91,9 @@ test('test_reminder_for_incomplete_items', async () => {
     await checkIfReminderIsShown(null, true);
 });
 
-async function checkReminderScore(date, value, deadline) {
+async function checkReminderScore(todayLabel, value, deadline) {
     const actions = Utils.getActions();
-    actions.context.todayLabel = date;
+    actions.context.todayLabel = todayLabel;
     const logStructure = await actions.invoke('log-structure-load', { id: 1 });
     const score = await actions.invoke('reminder-score', { logStructure });
     expect(score.value).toEqual(value);

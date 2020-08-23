@@ -24,7 +24,7 @@ test('test_structure_deletion', async () => {
     expect(logTopics.length).toEqual(0);
 });
 
-test('test_structure_title_template', async () => {
+test('test_structure_title_template_expression', async () => {
     await Utils.loadData({
         logStructureGroups: [
             {
@@ -78,6 +78,38 @@ test('test_structure_title_template', async () => {
     expect(logEvents[0].name).toEqual('Cycling: 15 miles / 60 minutes (15.00 mph)');
     expect(logEvents[1].name).toEqual('Cycling: 15 miles / 55 minutes (16.36 mph)');
     expect(logEvents[2].name).toEqual('Cycling: 15 miles / 50 minutes (18.00 mph)');
+});
+
+test('test_structure_title_template_link', async () => {
+    await Utils.loadData({
+        logStructureGroups: [
+            {
+                name: 'Education',
+            },
+        ],
+        logStructures: [
+            {
+                groupName: 'Education',
+                name: 'Article',
+                logKeys: [
+                    { name: 'Title', type: 'string' },
+                    { name: 'Link', type: 'string' },
+                ],
+                titleTemplate: '$0: [$1]($2)',
+            },
+        ],
+        logEvents: [
+            {
+                date: '2020-08-23',
+                structureName: 'Article',
+                logValues: ['Facebook', 'https://facebook.com'],
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+    const logEvents = await actions.invoke('log-event-list');
+    expect(logEvents[0].name).toEqual('Article: Facebook');
 });
 
 test('test_structure_with_topic', async () => {

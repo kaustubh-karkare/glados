@@ -10,8 +10,12 @@ const { LogLevel } = LogStructure;
 
 class LogEvent extends Base {
     static createVirtual({
-        date, title, logLevel, logStructure,
-    } = {}) {
+        date = null,
+        title = '',
+        logLevel = LogLevel.getIndex(LogLevel.NORMAL),
+        logStructure = null,
+        isComplete = true,
+    }) {
         if (logStructure) {
             logStructure.logKeys.forEach((logKey) => {
                 logKey.value = LogStructure.Key[logKey.type].default || null;
@@ -19,16 +23,16 @@ class LogEvent extends Base {
         }
         const logEvent = {
             __type__: 'log-event',
-            date: date || null,
+            date,
             orderingIndex: null,
             id: getVirtualID(),
             name: '',
-            title: title || '',
+            title,
             details: '',
-            logLevel: logLevel || LogLevel.getIndex(LogLevel.NORMAL),
+            logLevel,
             isFavorite: false,
-            isComplete: true,
-            logStructure: logStructure || null,
+            isComplete,
+            logStructure,
         };
         LogEvent.trigger(logEvent);
         return logEvent;
