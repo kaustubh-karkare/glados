@@ -1,11 +1,10 @@
 import { MdEdit } from 'react-icons/md';
-import assert from 'assert';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Coordinator, Highlightable, Icon, InputLine, SidebarSection, TextEditor,
+    Coordinator, Highlightable, Icon, InputLine, SidebarSection,
 } from '../Common';
 import DateUtils from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -13,46 +12,32 @@ import { LogEventEditor } from '../LogEvent';
 import { LogStructureEditor } from '../LogStructure';
 
 class ReminderCheckList extends React.Component {
-    static getLogEventFromItem(item) {
-        if (item.__type__ === 'log-structure') {
-            const logStructure = item;
-            return LogEvent.createVirtual({ date: DateUtils.getTodayLabel(), logStructure });
-        }
-        assert(item.__type__ === 'log-event');
-        return {
-            ...item,
-            date: DateUtils.getTodayLabel(),
-            orderingIndex: null,
-            isComplete: true,
-        };
+    static getLogEventFromStructure(logStructure) {
+        return LogEvent.createVirtual({ date: DateUtils.getTodayLabel(), logStructure });
     }
 
     constructor(props) {
         super(props);
-        this.state = { isItemHighlighted: {} };
+        this.state = { isHighlighted: {} };
     }
 
-    onEditButtonClick(event, item) {
-        if (event.shiftKey && item.__type__ === 'log-structure') {
-            this.displayLogStructureEditorModal(item);
+    onEditButtonClick(event, logStructure) {
+        if (event.shiftKey) {
+            this.displayLogStructureEditorModal(logStructure);
             return;
         }
-        const logEvent = ReminderCheckList.getLogEventFromItem(item);
-        this.displayLogEventEditorModal(item, logEvent);
+        const logEvent = ReminderCheckList.getLogEventFromStructure(logStructure);
+        this.displayLogEventEditorModal(logStructure, logEvent);
     }
 
-    onCompleteReminder(item, logEvent = null) {
+    onCompleteReminder(logStructure, logEvent = null) {
         const wasLogEventProvided = !!logEvent;
         if (!logEvent) {
-            logEvent = ReminderCheckList.getLogEventFromItem(item);
+            logEvent = ReminderCheckList.getLogEventFromStructure(logStructure);
         }
-        let logStructure;
-        if (item.__type__ === 'log-structure') {
-            logStructure = item;
-            if (logStructure.needsEdit && !wasLogEventProvided) {
-                this.displayLogEventEditorModal(item, logEvent);
-                return;
-            }
+        if (logStructure.needsEdit && !wasLogEventProvided) {
+            this.displayLogEventEditorModal(logStructure, logEvent);
+            return;
         }
         window.api.send('reminder-complete', { logStructure, logEvent })
             .then((result) => {
@@ -65,21 +50,17 @@ class ReminderCheckList extends React.Component {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    onDismissReminder(item) {
-        if (item.__type__ !== 'log-structure') {
-            Coordinator.invoke('modal-error', 'Can only dismiss periodic reminders!');
-            return;
-        }
-        window.api.send('reminder-dismiss', { logStructure: item });
+    onDismissReminder(logStructure) {
+        window.api.send('reminder-dismiss', { logStructure });
     }
 
-    displayLogEventEditorModal(item, logEvent) {
+    displayLogEventEditorModal(logStructure, logEvent) {
         this.closeModal = Coordinator.invoke('modal-editor', {
             dataType: 'log-event',
             EditorComponent: LogEventEditor,
             valueKey: 'logEvent',
             value: logEvent,
-            onSave: (updatedLogEvent) => this.onCompleteReminder(item, updatedLogEvent),
+            onSave: (updatedLogEvent) => this.onCompleteReminder(logStructure, updatedLogEvent),
         });
     }
 
@@ -93,55 +74,44 @@ class ReminderCheckList extends React.Component {
         });
     }
 
-    updateHighlight(item, isHighlighted) {
+    updateHighlight(logStructure, isHighlighted) {
         this.setState((state) => {
-            state.isItemHighlighted[item.id] = isHighlighted;
+            state.isHighlighted[logStructure.id] = isHighlighted;
             return state;
         });
     }
 
-    renderItemSuffix(item) {
-        if (!this.state.isItemHighlighted[item.id]) {
+    renderSuffix(logStructure) {
+        if (!this.state.isHighlighted[logStructure.id]) {
             return null;
         }
         return (
             <Icon
                 className="ml-1"
                 title="Edit"
-                onClick={(event) => this.onEditButtonClick(event, item)}
+                onClick={(event) => this.onEditButtonClick(event, logStructure)}
             >
                 <MdEdit />
             </Icon>
         );
     }
 
-    renderItem(item) {
-        let title;
-        if (item.__type__ === 'log-structure') {
-            let tooltip = (item.reminderScore.deadline ? `Deadline: ${item.reminderScore.deadline}\n\n` : '');
-            tooltip += item.reminderScore.dateRanges.join('\n');
-            title = (
-                <span>
-                    {item.reminderText || item.name}
-                    <span style={{ float: 'right' }} title={tooltip}>
-                        {item.reminderScore.value}
-                    </span>
+    renderRow(logStructure) {
+        let tooltip = (logStructure.reminderScore.deadline ? `Deadline: ${logStructure.reminderScore.deadline}\n\n` : '');
+        tooltip += logStructure.reminderScore.dateRanges.join('\n');
+        const title = (
+            <span>
+                {logStructure.reminderText || logStructure.name}
+                <span style={{ float: 'right' }} title={tooltip}>
+                    {logStructure.reminderScore.value}
                 </span>
-            );
-        } else {
-            title = (
-                <TextEditor
-                    unstyled
-                    disabled
-                    value={item.title}
-                />
-            );
-        }
+            </span>
+        );
         return (
             <Highlightable
-                key={item.id}
-                isHighlighted={this.state.isItemHighlighted[item.id] || false}
-                onChange={(isHighlighted) => this.updateHighlight(item, isHighlighted)}
+                key={logStructure.id}
+                isHighlighted={this.state.isHighlighted[logStructure.id] || false}
+                onChange={(isHighlighted) => this.updateHighlight(logStructure, isHighlighted)}
             >
                 <InputGroup>
                     <Form.Check
@@ -151,9 +121,9 @@ class ReminderCheckList extends React.Component {
                         readOnly
                         onClick={(event) => {
                             if (event.shiftKey) {
-                                this.onDismissReminder(item);
+                                this.onDismissReminder(logStructure);
                             } else {
-                                this.onCompleteReminder(item);
+                                this.onCompleteReminder(logStructure);
                             }
                         }}
                         style={{ marginRight: 'none' }}
@@ -162,17 +132,17 @@ class ReminderCheckList extends React.Component {
                     <InputLine styled={false}>
                         {title}
                     </InputLine>
-                    {this.renderItemSuffix(item)}
+                    {this.renderSuffix(logStructure)}
                 </InputGroup>
             </Highlightable>
         );
     }
 
     renderContent() {
-        if (this.props.items.length === 0) {
+        if (this.props.logStructures.length === 0) {
             return <div className="ml-3">All done for now!</div>;
         }
-        return this.props.items.map((item) => this.renderItem(item));
+        return this.props.logStructures.map((logStructure) => this.renderRow(logStructure));
     }
 
     render() {
@@ -186,7 +156,7 @@ class ReminderCheckList extends React.Component {
 
 ReminderCheckList.propTypes = {
     name: PropTypes.string.isRequired,
-    items: PropTypes.arrayOf(PropTypes.any.isRequired).isRequired,
+    logStructures: PropTypes.arrayOf(PropTypes.Custom.LogStructure.isRequired).isRequired,
 };
 
 export default ReminderCheckList;

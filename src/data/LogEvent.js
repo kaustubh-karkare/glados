@@ -21,6 +21,10 @@ class LogEvent extends Base {
                 logKey.value = LogStructure.Key[logKey.type].default || null;
             });
         }
+        // Abstraction leak! The LogEventSearch component filters to logLevels = [2,3] by default.
+        if (Array.isArray(logLevel)) {
+            [logLevel] = logLevel;
+        }
         const logEvent = {
             __type__: 'log-event',
             date,
@@ -39,6 +43,15 @@ class LogEvent extends Base {
     }
 
     static async updateWhere(where) {
+        if (where.isUpcoming) {
+            assert(where.date !== null);
+            assert(where.isComplete === false);
+            where.date = {
+                [this.database.Op.ne]: null,
+                [this.database.Op.notIn]: [where.date],
+            };
+        }
+        delete where.isUpcoming;
         await Base.updateWhere.call(this, where, {
             date: 'date',
             logStructure: 'structure_id',
@@ -71,9 +84,6 @@ class LogEvent extends Base {
 
     static async validateInternal(inputLogEvent) {
         const results = [];
-        if (inputLogEvent.date !== null) {
-            results.push(Base.validateDateLabel('.date', inputLogEvent.date));
-        }
         results.push(Base.validateNonEmptyString('.title', inputLogEvent.name));
         if (inputLogEvent.logStructure) {
             const logStructureResults = await Base.validateRecursive(
@@ -99,6 +109,13 @@ class LogEvent extends Base {
                 }),
             );
             results.push(...logKeyResults.filter((result) => result));
+        }
+        if (inputLogEvent.isComplete) {
+            results.push([
+                '.date',
+                inputLogEvent.date !== null,
+                'should not be null.',
+            ]);
         }
         return results;
     }

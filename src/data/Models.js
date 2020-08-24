@@ -252,7 +252,6 @@ export default function (sequelize) {
             date: {
                 type: Sequelize.STRING,
                 allowNull: true,
-                comment: 'Used for grouping.',
             },
             ordering_index: {
                 type: Sequelize.INTEGER,

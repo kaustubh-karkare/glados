@@ -134,7 +134,7 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
         where: { isPeriodic: true },
         ordering: true,
     });
-    let reminderGroups = await Promise.all(
+    const reminderGroups = await Promise.all(
         logStructureGroups.map(async (logStructureGroup) => {
             const logStructures = await filterAsync(
                 periodicLogStructures.filter(
@@ -148,19 +148,10 @@ ActionsRegistry['reminder-sidebar'] = async function (input) {
             await Promise.all(logStructures.map(async (logStructure) => {
                 logStructure.reminderScore = await this.invoke.call(this, 'reminder-score', { logStructure });
             }));
-            return { ...logStructureGroup, items: logStructures };
+            return { ...logStructureGroup, logStructures };
         }),
     );
-    reminderGroups = reminderGroups.filter((reminderGroup) => reminderGroup);
-
-    const logEvents = await this.invoke.call(this, 'log-event-list', {
-        where: { isComplete: false },
-    });
-    if (logEvents.length) {
-        reminderGroups.push({ id: 'incomplete', name: 'Incomplete', items: logEvents });
-    }
-
-    return reminderGroups;
+    return reminderGroups.filter((reminderGroup) => reminderGroup);
 };
 
 function getSuppressUntilDate(logStructure) {

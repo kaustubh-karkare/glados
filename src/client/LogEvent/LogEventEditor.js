@@ -42,11 +42,26 @@ class LogEventEditor extends React.Component {
         this.props.onChange(updatedLogEvent);
     }
 
-    renderDateRow() {
+    renderIsComplete() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    Date
+                    Complete?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logEvent.isComplete}
+                    disabled={this.props.disabled}
+                    onChange={(isComplete) => this.updateLogEvent('isComplete', isComplete)}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderDate() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    {this.props.logEvent.isComplete ? 'Date' : 'Deadline Date'}
                 </InputGroup.Text>
                 <DatePicker
                     date={this.props.logEvent.date}
@@ -57,7 +72,7 @@ class LogEventEditor extends React.Component {
         );
     }
 
-    renderTitleRow() {
+    renderTitle() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -84,7 +99,7 @@ class LogEventEditor extends React.Component {
         );
     }
 
-    renderDetailsRow() {
+    renderDetails() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -101,7 +116,7 @@ class LogEventEditor extends React.Component {
         );
     }
 
-    renderLogLevelRow() {
+    renderLogLevel() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -112,21 +127,6 @@ class LogEventEditor extends React.Component {
                     value={LogLevel.getValue(this.props.logEvent.logLevel)}
                     disabled={this.props.disabled}
                     onChange={(value) => this.updateLogEvent('logLevel', LogLevel.getIndex(value))}
-                />
-            </InputGroup>
-        );
-    }
-
-    renderIsCompleteRow() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Is Complete?
-                </InputGroup.Text>
-                <Selector.Binary
-                    value={this.props.logEvent.isComplete}
-                    disabled={this.props.disabled}
-                    onChange={(isComplete) => this.updateLogEvent('isComplete', isComplete)}
                 />
             </InputGroup>
         );
@@ -187,12 +187,12 @@ class LogEventEditor extends React.Component {
         return (
             <div>
                 <div className="my-3">
-                    {this.renderDateRow()}
+                    {this.renderIsComplete()}
+                    {this.renderDate()}
                 </div>
-                {this.renderTitleRow()}
-                {this.renderDetailsRow()}
-                {this.renderLogLevelRow()}
-                {this.renderIsCompleteRow()}
+                {this.renderTitle()}
+                {this.renderDetails()}
+                {this.renderLogLevel()}
                 <div className="my-3">
                     {this.renderStructureSelector()}
                     {this.renderStructureValues()}

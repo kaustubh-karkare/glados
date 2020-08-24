@@ -167,26 +167,40 @@ class LogEventSearch extends React.Component {
             return null; // Loading ...
         }
         const { where } = this.state;
-        const moreProps = {};
+        const moreProps = { viewerComponentProps: {} };
         if (!where.logLevel) {
             moreProps.allowReordering = true;
-            moreProps.viewerComponentProps = { displayLogLevel: true };
+            moreProps.viewerComponentProps.displayLogLevel = true;
         }
         if (this.state.defaultDisplay) {
             const today = DateUtils.getTodayLabel();
+            const upcomingMoreProps = {
+                ...moreProps,
+                viewerComponentProps: { ...moreProps.viewerComponentProps },
+            };
+            upcomingMoreProps.viewerComponentProps.displayDate = true;
             return (
                 <>
                     <LogEventList
-                        name="Today: Done"
+                        name="Done (Today)"
                         where={{ date: today, ...where, isComplete: true }}
                         showAdder
                         {...moreProps}
                     />
                     <LogEventList
-                        name="Incomplete"
-                        where={{ ...where, isComplete: false }}
+                        name="Todo (Today)"
+                        where={{
+                            date: today, ...where, isComplete: false, isUpcoming: false,
+                        }}
                         showAdder
                         {...moreProps}
+                    />
+                    <LogEventList
+                        name="Todo (Upcoming)"
+                        where={{
+                            date: today, ...where, isComplete: false, isUpcoming: true,
+                        }}
+                        {...upcomingMoreProps}
                     />
                 </>
             );

@@ -5,13 +5,13 @@ import { DataLoader } from '../Common';
 class ReminderSidebar extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { reminderGroups: null };
+        this.state = { logStructureGroups: null };
     }
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
             getInput: () => ({ name: 'reminder-sidebar' }),
-            callback: (reminderGroups) => this.setState({ reminderGroups }),
+            callback: (logStructureGroups) => this.setState({ logStructureGroups }),
         });
     }
 
@@ -20,14 +20,14 @@ class ReminderSidebar extends React.Component {
     }
 
     render() {
-        if (this.state.reminderGroups === null) {
+        if (this.state.logStructureGroups === null) {
             return 'Loading ...';
         }
-        return this.state.reminderGroups.map((reminderGroup) => (
+        return this.state.logStructureGroups.map((reminderGroup) => (
             <ReminderCheckList
                 key={reminderGroup.id}
                 name={reminderGroup.name}
-                items={reminderGroup.items}
+                logStructures={reminderGroup.logStructures}
             />
         ));
     }

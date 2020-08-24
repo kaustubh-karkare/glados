@@ -78,19 +78,6 @@ test('test_reminder_with_warning', async () => {
     await checkIfReminderIsShown('2020-08-15', false);
 });
 
-test('test_reminder_for_incomplete_items', async () => {
-    await Utils.loadData({
-        logEvents: [
-            {
-                date: null,
-                title: 'Read article!',
-                isComplete: false,
-            },
-        ],
-    });
-    await checkIfReminderIsShown(null, true);
-});
-
 async function checkReminderScore(todayLabel, value, deadline) {
     const actions = Utils.getActions();
     actions.context.todayLabel = todayLabel;

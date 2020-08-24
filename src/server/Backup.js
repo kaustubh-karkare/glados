@@ -121,11 +121,8 @@ ActionsRegistry['backup-load'] = async function () {
 
     /*
     if (true) {
-        data.log_topics.forEach((log_topic) => {
-            log_topic.is_favorite = log_topic.on_sidebar;
-        });
         data.log_events.forEach((log_event) => {
-            log_event.is_favorite = log_event.on_sidebar;
+            log_event.warning_days = log_event.is_complete ? null : 0;
         });
     }
     */
