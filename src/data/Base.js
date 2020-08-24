@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import assert from 'assert';
-import { awaitSequence, isItem } from './Utils';
+import { awaitSequence, isItem, getSortComparator } from './Utils';
 import ValidationBase from './ValidationBase';
 
 function getDataType(name) {
@@ -65,16 +65,7 @@ class Base extends ValidationBase {
     static async list(where) {
         let items = await this.database.findAll(this.DataType.name, where);
         if (items.length && typeof items[0].ordering_index !== 'undefined') {
-            items = items.sort((left, right) => {
-                if (left.ordering_index !== null && right.ordering_index !== null) {
-                    return left.ordering_index - right.ordering_index;
-                } if (left.ordering_index === null && right.ordering_index !== null) {
-                    return 1;
-                } if (left.ordering_index !== null && right.ordering_index === null) {
-                    return -1;
-                }
-                return left.id - right.id;
-            });
+            items = items.sort(getSortComparator(['ordering_index']));
         }
         return Promise.all(
             items.map((item) => this.DataType.load.call(this, item.id)),

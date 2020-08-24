@@ -1,3 +1,4 @@
+import assert from 'assert';
 
 let virtualID = 0;
 
@@ -77,4 +78,32 @@ export function getCallbackAndPromise() {
         }
     };
     return [callback, promise];
+}
+
+export function getSortComparator(fieldNames) {
+    const compare = (leftValue, rightValue) => {
+        if (typeof leftValue === 'string') {
+            assert(typeof rightValue === 'string');
+            return leftValue.localeCompare(rightValue);
+        } if (typeof leftValue === 'number') {
+            assert(typeof rightValue === 'number');
+            return leftValue - rightValue;
+        }
+        assert(false, `unsupported type: ${leftValue}`);
+        return 0;
+    };
+    return (left, right) => {
+        for (let ii = 0; ii < fieldNames.length; ii += 1) {
+            const leftValue = left[fieldNames[ii]];
+            const rightValue = right[fieldNames[ii]];
+            if (leftValue !== null && rightValue !== null) {
+                return compare(leftValue, rightValue);
+            } if (leftValue === null && rightValue !== null) {
+                return 1;
+            } if (leftValue !== null && rightValue === null) {
+                return -1;
+            }
+        }
+        return left.id - right.id;
+    };
 }

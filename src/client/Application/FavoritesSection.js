@@ -16,9 +16,7 @@ class FavoritesSection extends React.Component {
                     where: { isFavorite: true },
                 },
             }),
-            callback: (items) => this.setState({
-                items: items.sort((left, right) => left.name.localeCompare(right.name)),
-            }),
+            callback: (items) => this.setState({ items: items.sort(this.props.sortComparator) }),
         });
     }
 
@@ -48,6 +46,7 @@ class FavoritesSection extends React.Component {
 FavoritesSection.propTypes = {
     title: PropTypes.string.isRequired,
     dataType: PropTypes.string.isRequired,
+    sortComparator: PropTypes.func.isRequired,
     ViewerComponent: PropTypes.func.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     viewerComponentProps: PropTypes.object,

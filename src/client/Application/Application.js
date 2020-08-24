@@ -19,6 +19,7 @@ import FavoritesSection from './FavoritesSection';
 import TopicSection from './TopicSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
+import { getSortComparator } from '../../data';
 
 
 class Applicaton extends React.Component {
@@ -52,6 +53,7 @@ class Applicaton extends React.Component {
                 <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
+                    sortComparator={getSortComparator(['date', 'orderingIndex'])}
                     ViewerComponent={LogEventList.Single}
                     viewerComponentProps={{ viewerComponentProps: { displayDate: true } }}
                     valueKey="logEvent"
@@ -59,6 +61,7 @@ class Applicaton extends React.Component {
                 <FavoritesSection
                     title="Favorite Topics"
                     dataType="log-topic"
+                    sortComparator={getSortComparator(['name'])}
                     ViewerComponent={LogTopicList.Single}
                     valueKey="logTopic"
                 />
