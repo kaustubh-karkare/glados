@@ -7,7 +7,8 @@ import {
 } from 'react-icons/md';
 import { RiLoaderLine } from 'react-icons/ri';
 import {
-    Coordinator, ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector, debounce,
+    Coordinator, DataLoader, ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector,
+    debounce,
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
@@ -70,28 +71,41 @@ class DetailsSection extends React.Component {
     }
 
     componentDidMount() {
-        this.componentDidUpdate();
+        this.dataLoader = new DataLoader({
+            getInput: () => {
+                const { item } = this.props;
+                if (!item) {
+                    return null;
+                } if (item.__type__ in HEADER_MAPPING) {
+                    return {
+                        name: `${item.__type__}-load`,
+                        args: { id: item.id },
+                    };
+                }
+                return null;
+            },
+            onData: (item) => {
+                this.setState({ item });
+            },
+            onError: () => {
+                const { item } = this.props;
+                if (item) {
+                    Coordinator.invoke(
+                        'modal-error',
+                        `${JSON.stringify(item, null, 4)}\n\nThis item does support details!`,
+                    );
+                }
+                this.props.onChange(null);
+            },
+        });
     }
 
-    componentDidUpdate(prevProps) {
-        const left = this.props.item;
-        const right = this.state.item;
-        if (!left && right) {
-            // eslint-disable-next-line react/no-did-update-set-state
-            this.setState({ item: null });
-        }
-        if (left && (!right || left.__type__ !== right.__type__ || left.id !== right.id)) {
-            if (left.__type__ in HEADER_MAPPING) {
-                window.api.send(`${left.__type__}-load`, left)
-                    .then((item) => this.setState({ item }));
-            } else {
-                this.props.onChange(null);
-                Coordinator.invoke(
-                    'modal-error',
-                    `${JSON.stringify(left, null, 4)}\n\nThis item does support details!`,
-                );
-            }
-        }
+    componentDidUpdate() {
+        this.dataLoader.reload();
+    }
+
+    componentWillUnmount() {
+        this.dataLoader.stop();
     }
 
     onChange(item) {

@@ -12,7 +12,7 @@ class AsyncSelector extends React.Component {
     componentDidMount() {
         this.dataLoader = new DataLoader({
             getInput: () => this.props.options,
-            callback: (options) => this.setState({
+            onData: (options) => this.setState({
                 options: [...this.props.prefixOptions, ...options, ...this.props.suffixOptions],
             }),
         });

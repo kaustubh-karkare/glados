@@ -19,7 +19,7 @@ class BackupSection extends React.Component {
             getInput: () => ({
                 name: 'backup-latest',
             }),
-            callback: (latestBackup) => this.setState({ latestBackup }),
+            onData: (latestBackup) => this.setState({ latestBackup }),
         });
     }
 

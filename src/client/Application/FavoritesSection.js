@@ -16,7 +16,7 @@ class FavoritesSection extends React.Component {
                     where: { isFavorite: true },
                 },
             }),
-            callback: (items) => this.setState({ items: items.sort(this.props.sortComparator) }),
+            onData: (items) => this.setState({ items: items.sort(this.props.sortComparator) }),
         });
     }
 

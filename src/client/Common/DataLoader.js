@@ -1,17 +1,20 @@
 import { isItem, getPartialItem } from '../../data';
 
+const IGNORE = () => null;
+
 class DataLoader {
-    constructor({ getInput, callback }) {
+    constructor({ getInput, onData, onError }) {
         this.getInput = getInput;
         this.input = null;
         this.cancelSubscription = null;
-        this.callback = callback;
+        this.onData = onData || IGNORE;
+        this.onError = onError || IGNORE;
         this.reload();
     }
 
     reload({ force } = {}) {
         const input = this.getInput();
-        if (input.args && input.args.where) {
+        if (input && input.args && input.args.where) {
             // This is an optimization to prevent sending unnecessary data to the server.
             Object.entries(input.args.where).forEach(([key, value]) => {
                 if (isItem(value)) {
@@ -24,13 +27,16 @@ class DataLoader {
         }
         this.input = input;
         if (this.input === null) {
-            this.callback(null);
+            this.onData(null);
             return;
         }
         window.api.send(this.input.name, this.input.args)
             .then((data) => {
                 this.setupSubscription();
-                this.callback(data);
+                this.onData(data);
+            })
+            .catch((error) => {
+                this.onError(error);
             });
     }
 

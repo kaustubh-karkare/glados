@@ -44,6 +44,9 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     };
     ActionsRegistry[`${name}-delete`] = async function (id) {
         const context = { ...this, DataType };
+        // This informs the client-side DataLoader.
+        this.broadcast(`${name}-load`, { id });
+        this.broadcast(`${name}-list`, { where: { id } });
         return DataType.delete.call(context, id);
     };
 });

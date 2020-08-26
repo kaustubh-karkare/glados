@@ -18,7 +18,7 @@ class CustomDropdown extends React.Component {
         } else {
             this.dataLoader = new DataLoader({
                 getInput: () => this.props.options,
-                callback: (options) => this.setOptions(options),
+                onData: (options) => this.setOptions(options),
             });
         }
     }

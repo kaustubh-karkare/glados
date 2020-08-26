@@ -11,7 +11,7 @@ class ReminderSidebar extends React.Component {
     componentDidMount() {
         this.dataLoader = new DataLoader({
             getInput: () => ({ name: 'reminder-sidebar' }),
-            callback: (logStructureGroups) => this.setState({ logStructureGroups }),
+            onData: (logStructureGroups) => this.setState({ logStructureGroups }),
         });
     }
 

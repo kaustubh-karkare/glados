@@ -30,6 +30,7 @@ window.main = function main() {
                 Coordinator.broadcast(`${dataType}-created`, output);
             }
         },
+        // TODO: Eliminate this catch-all.
         (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 

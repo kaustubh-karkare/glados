@@ -48,7 +48,7 @@ class BulletList extends React.Component {
                 name: `${this.props.dataType}-list`,
                 args: { where: this.props.where },
             }),
-            callback: (items) => this.setState({ items }),
+            onData: (items) => this.setState({ items }),
         });
     }
 

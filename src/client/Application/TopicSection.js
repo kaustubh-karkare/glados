@@ -19,7 +19,7 @@ class TopicSection extends React.Component {
                 name: 'log-topic-load',
                 args: { id: this.props.id },
             }),
-            callback: (logTopic) => this.setState({ logTopic }),
+            onData: (logTopic) => this.setState({ logTopic }),
         });
     }
 
