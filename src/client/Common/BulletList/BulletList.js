@@ -99,6 +99,8 @@ class BulletList extends React.Component {
                 viewerComponentProps={this.props.viewerComponentProps}
                 EditorComponent={this.props.EditorComponent}
                 allowReordering={this.props.allowReordering}
+                prefixActions={this.props.prefixActions
+                    .map((action) => ({ ...action, perform: action.perform.bind(null, item) }))}
                 onMoveUp={(event) => this.onMove(index, -1, event)}
                 onMoveDown={(event) => this.onMove(index, 1, event)}
                 isExpanded={this.state.isExpanded[item.id] || false}
@@ -173,10 +175,13 @@ BulletList.propTypes = {
     viewerComponentProps: PropTypes.object,
     EditorComponent: PropTypes.func.isRequired,
     AdderComponent: PropTypes.func,
+    // eslint-disable-next-line react/forbid-prop-types
+    prefixActions: PropTypes.array,
 };
 
 BulletList.defaultProps = {
     allowCreation: true,
+    prefixActions: [],
 };
 
 BulletList.Item = BulletListItem;

@@ -37,6 +37,14 @@ class CustomDropdown extends React.Component {
         });
     }
 
+    hide() {
+        this.setState({ isShown: false });
+    }
+
+    show() {
+        this.setState({ isShown: true });
+    }
+
     renderItems() {
         if (!this.state.options) return null;
         if (this.state.options.length === 0) {
@@ -49,7 +57,7 @@ class CustomDropdown extends React.Component {
         return this.state.options.map((option) => (
             <Dropdown.Item
                 key={option.id}
-                onMouseDown={() => this.props.onChange(option)}
+                onMouseDown={(event) => this.props.onChange(option, event)}
             >
                 {option[this.props.labelKey]}
             </Dropdown.Item>

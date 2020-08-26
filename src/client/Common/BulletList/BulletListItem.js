@@ -1,4 +1,4 @@
-import { FaRegTrashAlt } from 'react-icons/fa';
+import { BsList } from 'react-icons/bs';
 import { GoPrimitiveDot } from 'react-icons/go';
 import { MdFormatLineSpacing, MdEdit } from 'react-icons/md';
 import { SortableHandle } from 'react-sortable-hoc';
@@ -11,6 +11,7 @@ import { KeyCodes } from '../Utils';
 import Highlightable from '../Highlightable';
 import Icon from '../Icon';
 import InputLine from '../InputLine';
+import Dropdown from '../Dropdown';
 
 
 const SortableDragHandle = SortableHandle(() => (
@@ -24,6 +25,7 @@ class BulletListItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = { isHighlighted: false, isExpanded: false };
+        this.dropdownRef = React.createRef();
     }
 
     onEdit(event) {
@@ -92,6 +94,13 @@ class BulletListItem extends React.Component {
         }
     }
 
+    setIsHighlighted(isHighlighted) {
+        if (!isHighlighted && this.dropdownRef.current) {
+            this.dropdownRef.current.hide();
+        }
+        this.setState({ isHighlighted });
+    }
+
     getViewerProps() {
         return { [this.props.valueKey]: this.props.value, ...this.props.viewerComponentProps };
     }
@@ -126,29 +135,42 @@ class BulletListItem extends React.Component {
         if (!this.state.isHighlighted) {
             return null;
         }
-        return (
-            <Icon
-                className="ml-1"
-                title="Edit"
-                onClick={(event) => this.onEdit(event)}
-            >
-                <MdEdit />
-            </Icon>
-        );
+        return <MdEdit onClick={(event) => this.onEdit(event)} />;
     }
 
-    renderDeleteButton() {
+    renderActionsDropdown() {
         if (!this.state.isHighlighted) {
             return null;
         }
+        const actions = [...this.props.prefixActions];
+        actions.push({
+            id: 'delete',
+            name: 'Delete',
+            perform: (event) => this.onDelete(event),
+        });
+        actions.push({
+            id: 'info',
+            name: 'Debug Info',
+            perform: (event) => Coordinator.invoke(
+                'modal-error',
+                JSON.stringify(this.props.value, null, 4),
+            ),
+        });
         return (
-            <Icon
-                className="ml-1"
-                title="Delete"
-                onClick={(event) => this.onDelete(event)}
+            <Dropdown
+                disabled={false}
+                options={actions}
+                onChange={(action, event) => action.perform(event)}
+                ref={this.dropdownRef}
             >
-                <FaRegTrashAlt />
-            </Icon>
+                <BsList
+                    onMouseOver={() => {
+                        if (this.dropdownRef.current) {
+                            this.dropdownRef.current.show();
+                        }
+                    }}
+                />
+            </Dropdown>
         );
     }
 
@@ -183,15 +205,19 @@ class BulletListItem extends React.Component {
             <>
                 <Highlightable
                     isHighlighted={this.state.isHighlighted}
-                    onChange={(isHighlighted) => this.setState({ isHighlighted })}
+                    onChange={(isHighlighted) => this.setIsHighlighted(isHighlighted)}
                     onKeyDown={(event) => this.onKeyDown(event)}
                 >
                     <InputGroup>
                         {this.renderDragHandle()}
                         {this.renderBullet()}
                         <InputLine>{this.renderViewer()}</InputLine>
-                        {this.renderEditButton()}
-                        {this.renderDeleteButton()}
+                        <Icon className="ml-1" title="Edit">
+                            {this.renderEditButton()}
+                        </Icon>
+                        <Icon className="ml-1" title="Actions">
+                            {this.renderActionsDropdown()}
+                        </Icon>
                     </InputGroup>
                 </Highlightable>
                 {this.renderExpanded()}
@@ -209,6 +235,8 @@ BulletListItem.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     viewerComponentProps: PropTypes.object,
     EditorComponent: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    prefixActions: PropTypes.array,
 
     // The following props are only used by BulletList.
     dragHandleSpace: PropTypes.bool,
@@ -217,6 +245,10 @@ BulletListItem.propTypes = {
     onMoveDown: PropTypes.func,
     isExpanded: PropTypes.bool,
     setIsExpanded: PropTypes.func,
+};
+
+BulletListItem.defaultProps = {
+    prefixActions: [],
 };
 
 export default BulletListItem;

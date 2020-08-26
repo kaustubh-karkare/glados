@@ -1,10 +1,11 @@
+import { BsList } from 'react-icons/bs';
 import { MdEdit } from 'react-icons/md';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Coordinator, Highlightable, Icon, InputLine, SidebarSection,
+    Coordinator, Dropdown, Highlightable, Icon, InputLine, SidebarSection,
 } from '../Common';
 import DateUtils from '../../common/DateUtils';
 import { LogEvent } from '../../data';
@@ -19,6 +20,7 @@ class ReminderCheckList extends React.Component {
     constructor(props) {
         super(props);
         this.state = { isHighlighted: {} };
+        this.dropdownRef = React.createRef();
     }
 
     onEditButtonClick(event, logStructure) {
@@ -97,21 +99,66 @@ class ReminderCheckList extends React.Component {
     }
 
     renderRow(logStructure) {
-        let tooltip = (logStructure.reminderScore.deadline ? `Deadline: ${logStructure.reminderScore.deadline}\n\n` : '');
-        tooltip += logStructure.reminderScore.dateRanges.join('\n');
-        const title = (
-            <span>
-                {logStructure.reminderText || logStructure.name}
-                <span style={{ float: 'right' }} title={tooltip}>
+        const isHighlighted = this.state.isHighlighted[logStructure.id] || false;
+        let rightSide;
+        if (isHighlighted) {
+            const actions = [
+                {
+                    id: 'done',
+                    name: 'Mark as Complete',
+                    perform: (event) => this.onCompleteReminder(logStructure),
+                },
+                {
+                    id: 'dismiss',
+                    name: 'Dismiss Reminder',
+                    perform: (event) => this.onDismissReminder(logStructure),
+                },
+                {
+                    id: 'edit',
+                    name: 'Edit Structure',
+                    perform: (event) => this.onEditButtonClick(event, logStructure),
+                },
+                {
+                    id: 'info',
+                    name: 'Debug Info',
+                    perform: (event) => Coordinator.invoke(
+                        'modal-error',
+                        JSON.stringify(logStructure, null, 4),
+                    ),
+                },
+            ];
+            rightSide = (
+                <Icon className="ml-1" title="Actions">
+                    <Dropdown
+                        disabled={false}
+                        options={actions}
+                        onChange={(action, event) => action.perform(event)}
+                        ref={this.dropdownRef}
+                    >
+                        <BsList
+                            onMouseOver={() => {
+                                if (this.dropdownRef.current) {
+                                    this.dropdownRef.current.show();
+                                }
+                            }}
+                        />
+                    </Dropdown>
+                </Icon>
+            );
+        } else {
+            rightSide = (
+                <span style={{ float: 'right' }}>
                     {logStructure.reminderScore.value}
                 </span>
-            </span>
-        );
+            );
+        }
         return (
             <Highlightable
                 key={logStructure.id}
-                isHighlighted={this.state.isHighlighted[logStructure.id] || false}
-                onChange={(isHighlighted) => this.updateHighlight(logStructure, isHighlighted)}
+                isHighlighted={isHighlighted}
+                onChange={
+                    (newIsHighlighted) => this.updateHighlight(logStructure, newIsHighlighted)
+                }
             >
                 <InputGroup>
                     <Form.Check
@@ -130,9 +177,9 @@ class ReminderCheckList extends React.Component {
                         tabIndex={-1}
                     />
                     <InputLine styled={false}>
-                        {title}
+                        {logStructure.reminderText || logStructure.name}
                     </InputLine>
-                    {this.renderSuffix(logStructure)}
+                    {rightSide}
                 </InputGroup>
             </Highlightable>
         );

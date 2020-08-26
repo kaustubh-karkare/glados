@@ -3,6 +3,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import './ScrollableSection.css';
+
 class WindowHeightDetector {
     static subscribe(callback) {
         if (!WindowHeightDetector.instance) {
@@ -38,7 +40,7 @@ class ScrollableSection extends React.Component {
             - this.props.padding
             - 32; // Why 32? 16px padding at top/bottom.
         return (
-            <div className="scrollable-section" style={{ height, overflow: 'scroll' }}>
+            <div className="scrollable-section" style={{ height }}>
                 {this.props.children}
             </div>
         );

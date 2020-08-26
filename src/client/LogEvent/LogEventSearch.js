@@ -179,6 +179,19 @@ class LogEventSearch extends React.Component {
                 viewerComponentProps: { ...moreProps.viewerComponentProps },
             };
             upcomingMoreProps.viewerComponentProps.displayDate = true;
+            upcomingMoreProps.prefixActions = [
+                {
+                    id: 'complete',
+                    name: 'Complete',
+                    perform: (logEvent) => {
+                        window.api.send('log-event-upsert', {
+                            ...logEvent,
+                            date: DateUtils.getTodayLabel(),
+                            isComplete: true,
+                        });
+                    },
+                },
+            ];
             return (
                 <>
                     <LogEventList
