@@ -14,6 +14,7 @@ import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
 import { LogTopic, getVirtualID } from '../../data';
+import TextEditorUtils from '../../common/TextEditorUtils';
 
 import './DetailsSection.css';
 
@@ -159,7 +160,9 @@ class DetailsSection extends React.Component {
         }
         const { item } = this.state;
         window.api.send(`${item.__type__}-upsert`, item)
-            .then((newItem) => this.setState({ isDirty: item.details !== newItem.details }));
+            .then((newItem) => this.setState({
+                isDirty: !TextEditorUtils.equals(item.details, newItem.details),
+            }));
     }
 
     renderPrefixButtons(item) {

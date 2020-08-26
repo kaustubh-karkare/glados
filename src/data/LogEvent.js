@@ -11,7 +11,7 @@ const { LogLevel } = LogStructure;
 class LogEvent extends Base {
     static createVirtual({
         date = null,
-        title = '',
+        title = null,
         logLevel = LogLevel.getIndex(LogLevel.NORMAL),
         logStructure = null,
         isComplete = true,
@@ -63,19 +63,11 @@ class LogEvent extends Base {
 
     static trigger(logEvent) {
         if (logEvent.logStructure) {
-            let content = TextEditorUtils.deserialize(
+            logEvent.title = TextEditorUtils.updateDraftContent(
                 logEvent.logStructure.titleTemplate,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
-            content = TextEditorUtils.updateDraftContent(
-                content,
                 logEvent.logStructure.logKeys,
                 logEvent.logStructure.logKeys.map((logKey) => logKey.value || logKey),
-            );
-            content = TextEditorUtils.evaluateDraftContentExpressions(content);
-            logEvent.title = TextEditorUtils.serialize(
-                content,
-                TextEditorUtils.StorageType.DRAFTJS,
+                true, // evaluateExpressions
             );
             logEvent.logLevel = logEvent.logStructure.logLevel;
         }
@@ -138,8 +130,14 @@ class LogEvent extends Base {
             date: logEvent.date,
             orderingIndex: logEvent.ordering_index,
             name: logEvent.name,
-            title: logEvent.title,
-            details: logEvent.details,
+            title: TextEditorUtils.deserialize(
+                logEvent.title,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
+            details: TextEditorUtils.deserialize(
+                logEvent.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             logLevel: logEvent.log_level,
             isFavorite: logEvent.is_favorite,
             isComplete: logEvent.is_complete,
@@ -166,8 +164,14 @@ class LogEvent extends Base {
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
             name: inputLogEvent.name,
-            title: inputLogEvent.title,
-            details: inputLogEvent.details,
+            title: TextEditorUtils.serialize(
+                inputLogEvent.title,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
+            details: TextEditorUtils.serialize(
+                inputLogEvent.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             log_level: inputLogEvent.logLevel,
             is_favorite: inputLogEvent.isFavorite,
             is_complete: inputLogEvent.isComplete,
@@ -176,17 +180,9 @@ class LogEvent extends Base {
         };
         logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
 
-        const updatedTitle = TextEditorUtils.deserialize(
-            logEvent.title,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        const updatedDetails = TextEditorUtils.deserialize(
-            logEvent.details,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
         const targetLogTopics = {
-            ...TextEditorUtils.extractMentions(updatedTitle, 'log-topic'),
-            ...TextEditorUtils.extractMentions(updatedDetails, 'log-topic'),
+            ...TextEditorUtils.extractMentions(inputLogEvent.title, 'log-topic'),
+            ...TextEditorUtils.extractMentions(inputLogEvent.details, 'log-topic'),
         };
         if (logValues) {
             logValues.forEach((value) => {

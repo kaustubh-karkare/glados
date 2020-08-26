@@ -95,16 +95,12 @@ class LogStructure extends Base {
     }
 
     static trigger(logStructure) {
-        let content = TextEditorUtils.deserialize(
-            logStructure.titleTemplate,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
         // TODO: If a key is deleted, remove it from the content.
         const options = [getPartialItem(logStructure), ...logStructure.logKeys];
-        content = TextEditorUtils.updateDraftContent(content, options, options);
-        logStructure.titleTemplate = TextEditorUtils.serialize(
-            content,
-            TextEditorUtils.StorageType.DRAFTJS,
+        logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
+            logStructure.titleTemplate,
+            options,
+            options,
         );
         if (logStructure.logKeys.length) {
             logStructure.needsEdit = true;
@@ -127,13 +123,12 @@ class LogStructure extends Base {
             }
         });
 
-        const content = TextEditorUtils.deserialize(
-            inputLogStructure.titleTemplate,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
         results.push([
             '.titleTemplate',
-            inputLogStructure.id in TextEditorUtils.extractMentions(content, 'log-structure'),
+            inputLogStructure.id in TextEditorUtils.extractMentions(
+                inputLogStructure.titleTemplate,
+                'log-structure',
+            ),
             'must mention the structure!',
         ]);
 
@@ -171,9 +166,15 @@ class LogStructure extends Base {
             id: logStructure.id,
             logStructureGroup: outputLogStructureGroup,
             name: logStructure.name,
-            details: logStructure.details,
+            details: TextEditorUtils.deserialize(
+                logStructure.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             logKeys,
-            titleTemplate: logStructure.title_template,
+            titleTemplate: TextEditorUtils.deserialize(
+                logStructure.title_template,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             needsEdit: logStructure.needs_edit,
             isPeriodic: logStructure.is_periodic,
             reminderText: logStructure.reminder_text,
@@ -201,11 +202,17 @@ class LogStructure extends Base {
             group_id: inputLogStructure.logStructureGroup.id,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
-            details: inputLogStructure.details,
+            details: TextEditorUtils.serialize(
+                inputLogStructure.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             keys: JSON.stringify(inputLogStructure.logKeys.map(
                 (logKey) => LogStructure.saveKey.call(this, logKey),
             )),
-            title_template: inputLogStructure.titleTemplate,
+            title_template: TextEditorUtils.serialize(
+                inputLogStructure.titleTemplate,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             needs_edit: inputLogStructure.needsEdit,
             is_periodic: inputLogStructure.isPeriodic,
             reminder_text: inputLogStructure.reminderText,
@@ -219,17 +226,9 @@ class LogStructure extends Base {
             'LogStructure', logStructure, fields,
         );
 
-        let updatedTitleTemplate = TextEditorUtils.deserialize(
-            inputLogStructure.titleTemplate,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        const updatedDetails = TextEditorUtils.deserialize(
-            inputLogStructure.details,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
         const targetLogTopics = {
-            ...TextEditorUtils.extractMentions(updatedTitleTemplate, 'log-topic'),
-            ...TextEditorUtils.extractMentions(updatedDetails, 'log-topic'),
+            ...TextEditorUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
+            ...TextEditorUtils.extractMentions(inputLogStructure.details, 'log-topic'),
         };
         await this.database.setEdges(
             'LogStructureToLogTopic',
@@ -255,7 +254,7 @@ class LogStructure extends Base {
                 );
                 shouldRegenerateLogEvents = !TextEditorUtils.equals(
                     originalTitleTemplate,
-                    updatedTitleTemplate,
+                    inputLogStructure.titleTemplate,
                 );
             }
             if (!shouldRegenerateLogEvents) {
@@ -267,19 +266,19 @@ class LogStructure extends Base {
                 await LogStructure.updateLogEvents.call(this, inputLogStructure);
             }
         } else {
-            updatedTitleTemplate = TextEditorUtils.updateDraftContent(
-                updatedTitleTemplate,
+            const updatedTitleTemplate = TextEditorUtils.updateDraftContent(
+                inputLogStructure.titleTemplate,
                 [inputLogStructure],
                 [{ ...getPartialItem(inputLogStructure), id: updatedLogStructure.id }],
             );
-            inputLogStructure.titleTemplate = TextEditorUtils.serialize(
-                updatedTitleTemplate,
-                TextEditorUtils.StorageType.DRAFTJS,
-            );
             const transaction = this.database.getTransaction();
-            await updatedLogStructure.update({
-                title_template: inputLogStructure.titleTemplate,
-            }, { transaction });
+            const fields2 = {
+                title_template: TextEditorUtils.serialize(
+                    updatedTitleTemplate,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                ),
+            };
+            await updatedLogStructure.update(fields2, { transaction });
         }
 
         this.broadcast('reminder-sidebar');

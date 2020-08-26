@@ -1,7 +1,8 @@
 /* eslint-disable func-names */
 
-import { LogEvent, LogTopic, awaitSequence } from '../data';
+import { LogEvent, awaitSequence } from '../data';
 import ActionsRegistry from './ActionsRegistry';
+import TextEditorUtils from '../common/TextEditorUtils';
 
 ActionsRegistry['log-event-dates'] = async function (input) {
     // Warning! Having to change context here is an abstraction leak!
@@ -45,7 +46,7 @@ ActionsRegistry.consistency = async function () {
     const logTopics = await this.invoke.call(this, 'log-topic-list');
     await awaitSequence(logTopics, async (logTopic) => {
         try {
-            logTopic.details = LogTopic.updateContent(
+            logTopic.details = TextEditorUtils.updateDraftContent(
                 logTopic.details, logTopicItems,
             );
             await this.invoke.call(this, 'log-topic-upsert', logTopic);
@@ -58,7 +59,7 @@ ActionsRegistry.consistency = async function () {
     const logStructures = await this.invoke.call(this, 'log-structure-list');
     await awaitSequence(logStructures, async (logStructure) => {
         try {
-            logStructure.titleTemplate = LogTopic.updateContent(
+            logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
                 logStructure.titleTemplate, logTopicItems,
             );
             await this.invoke.call(this, 'log-structure-upsert', logStructure);
@@ -71,10 +72,10 @@ ActionsRegistry.consistency = async function () {
     const logEvents = await this.invoke.call(this, 'log-event-list');
     await awaitSequence(logEvents, async (logEvent) => {
         try {
-            logEvent.title = LogTopic.updateContent(
+            logEvent.title = TextEditorUtils.updateDraftContent(
                 logEvent.title, logTopicItems,
             );
-            logEvent.details = LogTopic.updateContent(
+            logEvent.details = TextEditorUtils.updateDraftContent(
                 logEvent.details, logTopicItems,
             );
             await this.invoke.call(this, 'log-event-upsert', logEvent);

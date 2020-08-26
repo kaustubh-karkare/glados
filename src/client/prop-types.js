@@ -36,7 +36,8 @@ const LogStructure = PropTypes.shape({
 
 const LogEvent = PropTypes.shape({
     id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    title: PropTypes.object,
     logStructure: LogStructure,
 });
 

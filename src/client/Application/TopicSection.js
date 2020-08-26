@@ -34,7 +34,10 @@ class TopicSection extends React.Component {
         }
         // TODO: Update the style of bullet items in the TextEditor, use that instead.
         const details = TextEditorUtils.deserialize(
-            logTopic.details,
+            TextEditorUtils.serialize(
+                logTopic.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             TextEditorUtils.StorageType.MARKDOWN,
         );
         const lines = details.split('\n')

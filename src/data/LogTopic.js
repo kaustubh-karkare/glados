@@ -47,7 +47,10 @@ class LogTopic extends Base {
             id: logTopic.id,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
-            details: logTopic.details,
+            details: TextEditorUtils.deserialize(
+                logTopic.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             isFavorite: logTopic.is_favorite,
         };
     }
@@ -72,16 +75,15 @@ class LogTopic extends Base {
             parent_topic_id: parentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
-            details: inputLogTopic.details,
+            details: TextEditorUtils.serialize(
+                inputLogTopic.details,
+                TextEditorUtils.StorageType.DRAFTJS,
+            ),
             is_favorite: inputLogTopic.isFavorite,
         };
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 
-        const updatedDetails = TextEditorUtils.deserialize(
-            logTopic.details,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        const targetLogTopics = TextEditorUtils.extractMentions(updatedDetails, 'log-topic');
+        const targetLogTopics = TextEditorUtils.extractMentions(inputLogTopic.details, 'log-topic');
         await this.database.setEdges(
             'LogTopicToLogTopic',
             'source_topic_id',
@@ -147,28 +149,12 @@ class LogTopic extends Base {
         await Promise.all(
             inputItems.map((inputItem) => {
                 entityFieldNames.forEach((entityFieldName) => {
-                    inputItem[entityFieldName] = LogTopic.updateContent(
+                    inputItem[entityFieldName] = TextEditorUtils.updateDraftContent(
                         inputItem[entityFieldName], [updatedLogTopic],
                     );
                 });
                 return this.invoke.call(this, `${entityType}-upsert`, inputItem);
             }),
-        );
-    }
-
-    static updateContent(value, oldLogTopics, newLogTopics = null) {
-        let content = TextEditorUtils.deserialize(
-            value,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        content = TextEditorUtils.updateDraftContent(
-            content,
-            oldLogTopics,
-            newLogTopics || oldLogTopics,
-        );
-        return TextEditorUtils.serialize(
-            content,
-            TextEditorUtils.StorageType.DRAFTJS,
         );
     }
 

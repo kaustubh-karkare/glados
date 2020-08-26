@@ -1,10 +1,11 @@
 
 import {
-    ContentState, EditorState, Modifier, SelectionState, convertFromRaw, convertToRaw,
+    EditorState, Modifier, SelectionState, convertFromRaw, convertToRaw,
 } from 'draft-js';
 import { draftToMarkdown, markdownToDraft } from 'markdown-draft-js';
 
 import assert from 'assert';
+import deepEqual from 'deep-equal';
 
 const StorageType = {
     MARKDOWN: 'markdown:',
@@ -17,8 +18,6 @@ function toString(value) {
     }
     return JSON.stringify(value, null, 4);
 }
-
-const deserializeCache = {};
 
 const DRAFTJS_MENTION_PLUGIN_NAME = 'mention';
 const DRAFTJS_MENTION_ENTITY_TYPE = 'mention';
@@ -58,7 +57,10 @@ function postProcessDraftRawContent(rawContent) {
 class TextEditorUtils {
     // eslint-disable-next-line consistent-return
     static extractPlainText(value) {
-        const content = TextEditorUtils.deserialize(value, StorageType.DRAFTJS);
+        if (!value) {
+            return '';
+        }
+        const content = convertFromRaw(value);
         const blocks = content.getBlocksAsArray();
         assert(blocks.length === 1);
         return blocks[0].getText();
@@ -66,22 +68,11 @@ class TextEditorUtils {
 
     static equals(left, right) {
         if (left === right) return true;
-        const leftRaw = convertToRaw(left);
-        const rightRaw = convertToRaw(right);
-        const replaceKey = (block) => { delete block.key; delete block.data.language; };
-        leftRaw.blocks.forEach(replaceKey);
-        rightRaw.blocks.forEach(replaceKey);
-        return JSON.stringify(leftRaw) === JSON.stringify(rightRaw);
-    }
-
-    static _deserializeToDraftContent(payload) {
-        if (!(payload in deserializeCache)) {
-            const editorState = EditorState.createWithContent(
-                ContentState.createFromText(payload),
-            );
-            deserializeCache[payload] = editorState.getCurrentContent();
-        }
-        return deserializeCache[payload];
+        if (left === null || right === null) return false;
+        const replaceKey = (block) => { delete block.key; delete block.data; };
+        left.blocks.forEach(replaceKey);
+        right.blocks.forEach(replaceKey);
+        return deepEqual(left, right);
     }
 
     // eslint-disable-next-line consistent-return
@@ -90,7 +81,7 @@ class TextEditorUtils {
             if (type === StorageType.MARKDOWN) {
                 return '';
             } if (type === StorageType.DRAFTJS) {
-                return TextEditorUtils._deserializeToDraftContent('');
+                return null;
             }
         } else if (value.startsWith(StorageType.MARKDOWN)) {
             const payload = value.substring(StorageType.MARKDOWN.length);
@@ -99,14 +90,14 @@ class TextEditorUtils {
             } if (type === StorageType.DRAFTJS) {
                 const rawContent = markdownToDraft(value);
                 postProcessDraftRawContent(rawContent);
-                return convertFromRaw(rawContent);
+                return rawContent;
             }
         } else if (value.startsWith(StorageType.DRAFTJS)) {
             const payload = value.substring(StorageType.DRAFTJS.length);
             if (type === StorageType.MARKDOWN) {
                 return draftToMarkdown(JSON.parse(payload), draftToMarkdownOptions);
             } if (type === StorageType.DRAFTJS) {
-                return convertFromRaw(JSON.parse(payload));
+                return JSON.parse(payload);
             }
         }
         assert(false, `Invalid deserialize type: ${toString(type)} for ${toString(value)}`);
@@ -118,17 +109,16 @@ class TextEditorUtils {
             return '';
         } if (type === StorageType.MARKDOWN) {
             if (typeof value === 'object') {
-                value = draftToMarkdown(convertToRaw(value), draftToMarkdownOptions);
+                value = draftToMarkdown(value, draftToMarkdownOptions);
             }
             return StorageType.MARKDOWN + value;
         } if (type === StorageType.DRAFTJS) {
             if (typeof value === 'string') {
-                const rawContent = markdownToDraft(value);
-                postProcessDraftRawContent(rawContent);
-                value = convertFromRaw(rawContent);
+                value = markdownToDraft(value);
+                postProcessDraftRawContent(value);
             }
-            if (value.hasText()) {
-                return StorageType.DRAFTJS + JSON.stringify(convertToRaw(value));
+            if (value) {
+                return StorageType.DRAFTJS + JSON.stringify(value);
             }
             return '';
         }
@@ -136,11 +126,14 @@ class TextEditorUtils {
     }
 
     static fromEditorState(editorState) {
-        return editorState.getCurrentContent();
+        const content = editorState.getCurrentContent();
+        return content.hasText() ? convertToRaw(content) : null;
     }
 
     static toEditorState(value) {
-        const editorState = EditorState.createWithContent(value);
+        const editorState = value
+            ? EditorState.createWithContent(convertFromRaw(value))
+            : EditorState.createEmpty();
         return EditorState.moveSelectionToEnd(editorState);
     }
 
@@ -217,10 +210,9 @@ class TextEditorUtils {
                 markdown += value[ii];
             }
         }
-        return TextEditorUtils.serialize(
-            markdown,
-            StorageType.DRAFTJS,
-        );
+        const content = markdownToDraft(markdown);
+        postProcessDraftRawContent(content);
+        return content;
     }
 
 
@@ -258,8 +250,10 @@ class TextEditorUtils {
     static extractMentions(content, type) {
         // There's no way to extract the list of entity-keys from the contentState API.
         // And so I'm just accessing the raw data here.
-        content = convertToRaw(content);
         const result = {};
+        if (!content) {
+            return result;
+        }
         Object.values(content.entityMap)
             .filter((entity) => entity.type === DRAFTJS_MENTION_ENTITY_TYPE)
             .forEach((entity) => {
@@ -271,7 +265,15 @@ class TextEditorUtils {
         return result;
     }
 
-    static updateDraftContent(contentState, oldItems, newItems) {
+    static updateDraftContent(content, oldItems, newItems, evaluateExpressions = false) {
+        if (!content) {
+            return content;
+        }
+        if (!newItems) {
+            newItems = oldItems;
+        }
+        let contentState = convertFromRaw(content);
+
         const keyToIndex = {};
         oldItems.forEach((oldItem, index) => {
             const key = `${oldItem.__type__}:${oldItem.id}`;
@@ -341,7 +343,10 @@ class TextEditorUtils {
             }
         });
 
-        return contentState;
+        if (evaluateExpressions) {
+            contentState = TextEditorUtils.evaluateDraftContentExpressions(contentState);
+        }
+        return convertToRaw(contentState);
     }
 
     static addPrefixToDraftContent(contentState, items) {

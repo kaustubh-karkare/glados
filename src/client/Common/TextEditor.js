@@ -57,19 +57,11 @@ class TextEditor extends React.Component {
         const isFirstTime = !('value' in state);
         // WARNING: Even if props.value is equivalent to state.value, they might
         // not be in the same format, and that could lead to an infinite loop!
-        const oldContent = TextEditorUtils.deserialize(
-            state.value,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        const newContent = TextEditorUtils.deserialize(
-            props.value,
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        if (isFirstTime || !TextEditorUtils.equals(oldContent, newContent)) {
+        if (isFirstTime || !TextEditorUtils.equals(state.value, props.value)) {
             state.value = props.value;
             // The new value is not what we expected. Reset editor state.
             // eslint-disable-next-line no-param-reassign
-            state.editorState = TextEditorUtils.toEditorState(newContent);
+            state.editorState = TextEditorUtils.toEditorState(props.value);
         }
         return state;
     }
@@ -129,12 +121,8 @@ class TextEditor extends React.Component {
     onChange(editorState) {
         editorState = TextEditorUtils.fixCursorBug(this.state.editorState, editorState);
         this.setState({ editorState });
-        const oldValue = this.props.value;
-        const newValue = TextEditorUtils.serialize(
-            TextEditorUtils.fromEditorState(editorState),
-            TextEditorUtils.StorageType.DRAFTJS,
-        );
-        if (oldValue !== newValue && this.props.onChange) {
+        const newValue = TextEditorUtils.fromEditorState(editorState);
+        if (this.props.onChange) {
             this.setState(
                 { onChange: true, value: newValue },
                 () => this.props.onChange(newValue),
@@ -220,7 +208,8 @@ TextEditor.propTypes = {
     disabled: PropTypes.bool,
     placeholder: PropTypes.string,
 
-    value: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    value: PropTypes.object,
     onChange: PropTypes.func,
 
     isSingleLine: PropTypes.bool,

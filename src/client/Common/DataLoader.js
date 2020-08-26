@@ -1,3 +1,4 @@
+import deepEqual from 'deep-equal';
 import { isItem, getPartialItem } from '../../data';
 
 const IGNORE = () => null;
@@ -22,7 +23,7 @@ class DataLoader {
                 }
             });
         }
-        if (!force && JSON.stringify(input) === JSON.stringify(this.input)) {
+        if (!force && deepEqual(input, this.input)) {
             return;
         }
         this.input = input;
