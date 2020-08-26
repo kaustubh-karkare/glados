@@ -244,21 +244,26 @@ class LogStructure extends Base {
         );
 
         if (originalLogStructure) {
-            let shouldRegenerateLogEventTitles = (
+            let shouldRegenerateLogEvents = (
                 originalLogStructure.name !== updatedLogStructure.name
                 || originalLogStructure.keys !== updatedLogStructure.keys
             );
-            if (!shouldRegenerateLogEventTitles) {
+            if (!shouldRegenerateLogEvents) {
                 const originalTitleTemplate = TextEditorUtils.deserialize(
                     originalLogStructure.title_template,
                     TextEditorUtils.StorageType.DRAFTJS,
                 );
-                shouldRegenerateLogEventTitles = !TextEditorUtils.equals(
+                shouldRegenerateLogEvents = !TextEditorUtils.equals(
                     originalTitleTemplate,
                     updatedTitleTemplate,
                 );
             }
-            if (shouldRegenerateLogEventTitles) {
+            if (!shouldRegenerateLogEvents) {
+                shouldRegenerateLogEvents = (
+                    originalLogStructure.log_level !== updatedLogStructure.log_level
+                );
+            }
+            if (shouldRegenerateLogEvents) {
                 await LogStructure.updateLogEvents.call(this, inputLogStructure);
             }
         } else {

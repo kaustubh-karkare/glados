@@ -84,8 +84,18 @@ class DetailsSection extends React.Component {
                 }
                 return null;
             },
-            onData: (item) => {
-                this.setState({ item });
+            onData: (newItem) => {
+                const oldItem = this.state.item;
+                if (
+                    oldItem
+                    && newItem
+                    && oldItem.__type__ === newItem.__type__
+                    && oldItem.id === newItem.id
+                ) {
+                    // Do nothing.
+                } else {
+                    this.setState({ item: newItem });
+                }
             },
             onError: () => {
                 const { item } = this.props;

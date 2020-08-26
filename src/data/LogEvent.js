@@ -43,15 +43,15 @@ class LogEvent extends Base {
     }
 
     static async updateWhere(where) {
-        if (where.isUpcoming) {
+        if (where.dateOp) {
             assert(where.date !== null);
             assert(where.isComplete === false);
             where.date = {
                 [this.database.Op.ne]: null,
-                [this.database.Op.notIn]: [where.date],
+                [this.database.Op[where.dateOp]]: where.date,
             };
         }
-        delete where.isUpcoming;
+        delete where.dateOp;
         await Base.updateWhere.call(this, where, {
             date: 'date',
             logStructure: 'structure_id',
@@ -152,11 +152,12 @@ class LogEvent extends Base {
 
         Base.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
 
-        if (inputLogEvent.date === null) {
-            assert(!inputLogEvent.isComplete);
-        }
+        // If is_complete was updated, reset ordering_index.
+        const isCompleteChanged = logEvent
+            ? logEvent.is_complete !== inputLogEvent.isComplete
+            : true;
         const orderingIndex = await Base.getOrderingIndex
-            .call(this, logEvent, { date: inputLogEvent.date });
+            .call(this, isCompleteChanged ? null : logEvent, { date: inputLogEvent.date });
         let logValues;
         if (inputLogEvent.logStructure) {
             logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value);

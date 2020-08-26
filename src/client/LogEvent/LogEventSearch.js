@@ -187,18 +187,28 @@ class LogEventSearch extends React.Component {
                         showAdder
                         {...moreProps}
                     />
+                    <div className="mt-4" />
                     <LogEventList
                         name="Todo (Today)"
                         where={{
-                            date: today, ...where, isComplete: false, isUpcoming: false,
+                            date: today, ...where, isComplete: false,
                         }}
                         showAdder
                         {...moreProps}
                     />
+                    <div className="mt-4" />
+                    <LogEventList
+                        name="Todo (Overdue)"
+                        where={{
+                            date: today, ...where, isComplete: false, dateOp: 'lt',
+                        }}
+                        {...upcomingMoreProps}
+                    />
+                    <div className="mt-4" />
                     <LogEventList
                         name="Todo (Upcoming)"
                         where={{
-                            date: today, ...where, isComplete: false, isUpcoming: true,
+                            date: today, ...where, isComplete: false, dateOp: 'gt',
                         }}
                         {...upcomingMoreProps}
                     />
