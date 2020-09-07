@@ -1,7 +1,7 @@
 import assert from 'assert';
 import React from 'react';
 import { eachDayOfInterval, getDay, subDays } from 'date-fns';
-import PropTypes from 'prop-types';
+import PropTypes from '../prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
     Coordinator, TypeaheadOptions,
@@ -66,9 +66,13 @@ function getDayOfTheWeek(label) {
 }
 
 class LogEventSearch extends React.Component {
-    static getTypeaheadOptions() {
+    static getTypeaheadOptions(logMode) {
+        const where = { logMode: logMode || undefined };
         return new TypeaheadOptions({
-            serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
+            serverSideOptions: [
+                { name: 'log-topic', args: { where } },
+                { name: 'log-structure', args: { where } },
+            ],
             prefixOptions: SPECIAL_ITEMS,
             onSelect: (option) => {
                 if (option && option.getItem) {
@@ -80,13 +84,14 @@ class LogEventSearch extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        const signature = JSON.stringify([props.search, state.dateRange]);
+        const signature = JSON.stringify([props.logMode, props.search, state.dateRange]);
         if (state.signature === signature) {
             return state;
         }
         state.signature = signature;
 
         const where = {
+            logMode: props.logMode || undefined,
             isComplete: true,
             logLevel: [2, 3],
         };
@@ -168,7 +173,7 @@ class LogEventSearch extends React.Component {
         }
         const { where } = this.state;
         const moreProps = { viewerComponentProps: {} };
-        if (!where.logLevel) {
+        if (!where.logLevel && !where.logMode) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps.displayLogLevel = true;
         }
@@ -246,6 +251,7 @@ class LogEventSearch extends React.Component {
 }
 
 LogEventSearch.propTypes = {
+    logMode: PropTypes.Custom.LogMode,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

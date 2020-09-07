@@ -26,6 +26,7 @@ class URLState {
             layout: params.layout,
             search: params.search ? params.search.map(deserializeItem) : [],
             details: params.details ? deserializeItem(params.details) : null,
+            mode: params.mode ? deserializeItem(params.mode) : null,
         };
     }
 
@@ -35,6 +36,7 @@ class URLState {
             layout: state.layout,
             search: state.search ? state.search.map(serializeItem) : undefined,
             details: state.details ? serializeItem(state.details) : undefined,
+            mode: state.mode ? serializeItem(state.mode) : undefined,
         };
         return URLManager.getLink(params);
     }

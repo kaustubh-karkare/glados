@@ -11,9 +11,10 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         await DataType.updateWhere.call(context, where);
         return DataType.list.call(context, where);
     };
-    ActionsRegistry[`${name}-typeahead`] = async function (input) {
+    ActionsRegistry[`${name}-typeahead`] = async function ({ query, where = {} }) {
         const context = { ...this, DataType };
-        return DataType.typeahead.call(context, input);
+        await DataType.updateWhere.call(context, where);
+        return DataType.typeahead.call(context, { query, where });
     };
     ActionsRegistry[`${name}-validate`] = async function (input) {
         const context = { ...this, DataType };

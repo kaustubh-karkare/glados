@@ -3,10 +3,11 @@ import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
-    static createVirtual({ parentLogTopic = null, name = '' } = {}) {
+    static createVirtual({ logMode = null, parentLogTopic = null, name = '' } = {}) {
         return {
             __type__: 'log-topic',
             id: getVirtualID(),
+            logMode,
             parentLogTopic,
             name,
             details: null,
@@ -19,7 +20,14 @@ class LogTopic extends Base {
             id: 'id',
             isFavorite: 'is_favorite',
             parentLogTopic: 'parent_topic_id',
+            logMode: 'mode_id',
         });
+    }
+
+    static trigger(logTopic) {
+        if (logTopic.parentLogTopic) {
+            logTopic.logMode = logTopic.parentLogTopic.logMode;
+        }
     }
 
     static async validateInternal(inputLogTopic) {
@@ -31,7 +39,9 @@ class LogTopic extends Base {
     static async load(id) {
         const logTopic = await this.database.findByPk('LogTopic', id);
         let outputParentLogTopic = null;
+        const outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logTopic.mode_id });
         if (logTopic.parent_topic_id) {
+            // Intentionally loading only partial data.
             const parentLogTopic = await this.database.findByPk(
                 'LogTopic',
                 logTopic.parent_topic_id,
@@ -40,11 +50,13 @@ class LogTopic extends Base {
                 __type__: 'log-topic',
                 id: parentLogTopic.id,
                 name: parentLogTopic.name,
+                logMode: outputLogMode,
             };
         }
         return {
             __type__: 'log-topic',
             id: logTopic.id,
+            logMode: outputLogMode,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
             details: TextEditorUtils.deserialize(
@@ -71,7 +83,7 @@ class LogTopic extends Base {
         const originalName = logTopic ? logTopic.name : null;
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const fields = {
-            id: inputLogTopic.id,
+            mode_id: inputLogTopic.logMode.id,
             parent_topic_id: parentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,

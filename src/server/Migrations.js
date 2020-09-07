@@ -52,6 +52,7 @@ ActionsRegistry['migration-perform'] = async function ({ logging } = {}) {
         return;
     }
 
+    // TODO: This will fail since the schema of the database is different from code.
     const data = await this.invoke.call(this, 'backup-data-load');
     await this.invoke.call(this, 'backup-file-save', { data }); // in case of problems
 

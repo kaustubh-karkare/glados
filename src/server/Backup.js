@@ -117,7 +117,7 @@ ActionsRegistry['backup-data-save'] = async function ({ data }) {
 
 // Actual API
 
-ActionsRegistry['backup-save'] = async function ({ logging }) {
+ActionsRegistry['backup-save'] = async function ({ logging } = {}) {
     const data = await this.invoke.call(this, 'backup-data-load');
     const result = await this.invoke.call(this, 'backup-file-save', { data });
     if (logging) {
@@ -139,7 +139,7 @@ ActionsRegistry['backup-latest'] = async function () {
     return { filename, ...components };
 };
 
-ActionsRegistry['backup-load'] = async function ({ logging }) {
+ActionsRegistry['backup-load'] = async function ({ logging } = {}) {
     const latestBackup = await this.invoke.call(this, 'backup-latest');
     assert(latestBackup, 'at least one backup is required');
     const data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });

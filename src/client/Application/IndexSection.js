@@ -1,11 +1,11 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from '../prop-types';
 import { ScrollableSection, TypeaheadSelector } from '../Common';
 
 function IndexSection(props) {
     const { Component } = props;
-    const typeaheadOptions = Component.getTypeaheadOptions();
+    const typeaheadOptions = Component.getTypeaheadOptions(props.logMode);
     const filteredSearch = typeaheadOptions.filter(props.search);
     if (filteredSearch.length !== props.search.length) {
         window.setTimeout(props.onChange.bind(filteredSearch), 0);
@@ -26,7 +26,10 @@ function IndexSection(props) {
                 </InputGroup>
             </div>
             <ScrollableSection padding={20 + 4}>
-                <Component search={filteredSearch} />
+                <Component
+                    logMode={props.logMode}
+                    search={filteredSearch}
+                />
             </ScrollableSection>
         </div>
     );
@@ -34,6 +37,7 @@ function IndexSection(props) {
 
 IndexSection.propTypes = {
     Component: PropTypes.func.isRequired,
+    logMode: PropTypes.Custom.LogMode,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,

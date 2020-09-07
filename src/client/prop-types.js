@@ -11,6 +11,11 @@ const Item = PropTypes.shape({
     name: PropTypes.string.isRequired,
 });
 
+const LogMode = PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+});
+
 const LogTopic = PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
@@ -44,6 +49,7 @@ const LogEvent = PropTypes.shape({
 PropTypes.Custom = {
     DateRange,
     Item,
+    LogMode,
     LogTopic,
     LogStructureGroup,
     LogStructureKey,

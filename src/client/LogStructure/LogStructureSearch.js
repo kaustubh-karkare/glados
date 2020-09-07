@@ -1,19 +1,25 @@
 import assert from 'assert';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from '../prop-types';
 import { TypeaheadOptions } from '../Common';
 import LogStructureList from './LogStructureList';
 import LogStructureGroupList from './LogStructureGroupList';
 
 class LogStructureSearch extends React.Component {
-    static getTypeaheadOptions() {
+    static getTypeaheadOptions(logMode) {
+        const where = { logMode: logMode || undefined };
         return new TypeaheadOptions({
-            serverSideOptions: [{ name: 'log-structure' }, { name: 'log-topic' }],
+            serverSideOptions: [
+                { name: 'log-structure', args: { where } },
+                { name: 'log-topic', args: { where } },
+            ],
         });
     }
 
     static getDerivedStateFromProps(props, state) {
-        const where = {};
+        const where = {
+            logMode: props.logMode || undefined,
+        };
         let defaultDisplay = true;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-structure') {
@@ -42,7 +48,8 @@ class LogStructureSearch extends React.Component {
 
     render() {
         if (this.state.defaultDisplay) {
-            return <LogStructureGroupList />;
+            const where = { logMode: this.props.logMode || undefined };
+            return <LogStructureGroupList where={where} />;
         }
         return (
             <LogStructureList
@@ -56,6 +63,7 @@ class LogStructureSearch extends React.Component {
 }
 
 LogStructureSearch.propTypes = {
+    logMode: PropTypes.Custom.LogMode,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

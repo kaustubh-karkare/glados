@@ -2,7 +2,6 @@ import { getVirtualID, getPartialItem } from './Utils';
 import Base from './Base';
 import Enum from '../common/Enum';
 import Frequency from './Frequency';
-import LogStructureGroup from './LogStructureGroup';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 
@@ -91,6 +90,7 @@ class LogStructure extends Base {
             id: 'id',
             logStructureGroup: 'group_id',
             isPeriodic: 'is_periodic',
+            logMode: 'mode_id',
         });
     }
 
@@ -153,8 +153,10 @@ class LogStructure extends Base {
 
     static async load(id) {
         const logStructure = await this.database.findByPk('LogStructure', id);
-        const outputLogStructureGroup = await LogStructureGroup.load.call(
-            this, logStructure.group_id,
+        const outputLogStructureGroup = await this.invoke.call(
+            this,
+            'log-structure-group-load',
+            { id: logStructure.group_id },
         );
         const logKeys = await Promise.all(
             JSON.parse(logStructure.keys).map(
@@ -199,6 +201,7 @@ class LogStructure extends Base {
 
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
+            mode_id: inputLogStructure.logStructureGroup.logMode.id,
             group_id: inputLogStructure.logStructureGroup.id,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
@@ -260,6 +263,7 @@ class LogStructure extends Base {
             if (!shouldRegenerateLogEvents) {
                 shouldRegenerateLogEvents = (
                     originalLogStructure.log_level !== updatedLogStructure.log_level
+                    || originalLogStructure.mode_id !== updatedLogStructure.mode_id
                 );
             }
             if (shouldRegenerateLogEvents) {

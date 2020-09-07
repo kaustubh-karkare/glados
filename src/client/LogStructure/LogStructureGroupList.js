@@ -30,9 +30,10 @@ LogStructureGroupViewer.Expanded.propTypes = {
     logStructureGroup: PropTypes.Custom.LogStructureGroup.isRequired,
 };
 
-function LogStructureGroupList() {
+function LogStructureGroupList(props) {
     return (
         <BulletList
+            {...props}
             name="Structures"
             dataType="log-structure-group"
             valueKey="logStructureGroup"

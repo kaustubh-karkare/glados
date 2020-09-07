@@ -5,14 +5,17 @@ afterEach(Utils.afterEach);
 
 async function checkIfReminderIsShown(todayLabel, shown) {
     const actions = Utils.getActions();
-    const results = await actions.invoke('reminder-sidebar', null, { todayLabel });
+    const results = await actions.invoke('reminder-sidebar', {}, { todayLabel });
     expect(results.length).toEqual(shown ? 1 : 0);
 }
 
 test('test_reminder_without_warning', async () => {
     await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
         logStructureGroups: [
-            { name: 'Daily Routine' },
+            { modeName: 'Test', name: 'Daily Routine' },
         ],
         logStructures: [
             {
@@ -39,8 +42,11 @@ test('test_reminder_without_warning', async () => {
 
 test('test_reminder_with_warning', async () => {
     await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
         logStructureGroups: [
-            { name: 'Birthdays' },
+            { modeName: 'Test', name: 'Birthdays' },
         ],
         logStructures: [
             {
@@ -86,8 +92,11 @@ async function checkReminderScore(todayLabel, value, deadline) {
 
 test('test_reminder_score', async () => {
     await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
         logStructureGroups: [
-            { name: 'Weekly' },
+            { modeName: 'Test', name: 'Weekly' },
         ],
         logStructures: [
             {

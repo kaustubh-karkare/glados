@@ -72,6 +72,10 @@
     height: 20px;
 }
 
+.input-group > .rbt input:first-child[disabled] {
+    background-color: var(--input-disabled-background-color);;
+}
+
 .input-group > .text-editor {
     flex-grow: 1;
     width: 1px;

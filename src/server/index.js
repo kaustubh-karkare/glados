@@ -19,7 +19,6 @@ async function init() {
 
     this.database = new Database(this.config.database);
     this.actions = new Actions(this.config, this.database);
-    await this.actions.invoke('migration-perform', { logging: true });
 
     if (this.action) {
         await this.actions.invoke(this.action, { logging: true });

@@ -21,6 +21,31 @@ export default function (sequelize) {
         { timestamps: false },
     );
 
+    const LogMode = sequelize.define(
+        'log_modes',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            ordering_index: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['name'] },
+            ],
+        },
+    );
+
     const LogTopic = sequelize.define(
         'log_topics',
         {
@@ -28,6 +53,10 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
+            },
+            mode_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
             },
             parent_topic_id: {
                 type: Sequelize.INTEGER,
@@ -57,6 +86,13 @@ export default function (sequelize) {
             ],
         },
     );
+
+    LogTopic.belongsTo(LogMode, {
+        foreignKey: 'mode_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
 
     LogTopic.belongsTo(LogTopic, {
         foreignKey: 'parent_topic_id',
@@ -112,6 +148,10 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
+            mode_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
             ordering_index: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
@@ -124,6 +164,13 @@ export default function (sequelize) {
         options,
     );
 
+    LogStructureGroup.belongsTo(LogMode, {
+        foreignKey: 'mode_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
+
     const LogStructure = sequelize.define(
         'log_structures',
         {
@@ -131,6 +178,10 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
+            },
+            mode_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
             },
             group_id: {
                 type: Sequelize.INTEGER,
@@ -249,6 +300,10 @@ export default function (sequelize) {
                 autoIncrement: true,
                 primaryKey: true,
             },
+            mode_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
             date: {
                 type: Sequelize.STRING,
                 allowNull: true,
@@ -293,6 +348,13 @@ export default function (sequelize) {
         },
         options,
     );
+
+    LogEvent.belongsTo(LogMode, {
+        foreignKey: 'mode_id',
+        allowNull: true,
+        onDelete: 'restrict',
+        onUpdate: 'restrict',
+    });
 
     LogEvent.belongsTo(LogStructure, {
         foreignKey: 'structure_id',
@@ -342,6 +404,7 @@ export default function (sequelize) {
     // while respecting foreign key constraints.
     return [
         ['SequelizeMeta', SequelizeMeta],
+        ['LogMode', LogMode],
         ['LogTopic', LogTopic],
         ['LogTopicToLogTopic', LogTopicToLogTopic],
         ['LogStructureGroup', LogStructureGroup],

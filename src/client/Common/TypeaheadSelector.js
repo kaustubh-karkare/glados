@@ -51,7 +51,7 @@ class TypeaheadSelector extends React.Component {
     }
 
     renderDeleteButton() {
-        if (!this.props.value) {
+        if (this.props.disabled || !this.props.value) {
             return null;
         }
         return (

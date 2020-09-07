@@ -12,6 +12,7 @@ class LogEvent extends Base {
     static createVirtual({
         date = null,
         title = null,
+        logMode = null,
         logLevel = LogLevel.getIndex(LogLevel.NORMAL),
         logStructure = null,
         isComplete = true,
@@ -27,6 +28,7 @@ class LogEvent extends Base {
         }
         const logEvent = {
             __type__: 'log-event',
+            logMode,
             date,
             orderingIndex: null,
             id: getVirtualID(),
@@ -58,11 +60,13 @@ class LogEvent extends Base {
             isFavorite: 'is_favorite',
             isComplete: 'is_complete',
             logLevel: 'log_level',
+            logMode: 'mode_id',
         });
     }
 
     static trigger(logEvent) {
         if (logEvent.logStructure) {
+            logEvent.logMode = logEvent.logStructure.logStructureGroup.logMode;
             logEvent.title = TextEditorUtils.updateDraftContent(
                 logEvent.logStructure.titleTemplate,
                 logEvent.logStructure.logKeys,
@@ -76,6 +80,9 @@ class LogEvent extends Base {
 
     static async validateInternal(inputLogEvent) {
         const results = [];
+
+        // TODO: Validate inputLogEvent.logMode
+
         results.push(Base.validateNonEmptyString('.title', inputLogEvent.name));
         if (inputLogEvent.logStructure) {
             const logStructureResults = await Base.validateRecursive(
@@ -124,10 +131,13 @@ class LogEvent extends Base {
         } else {
             assert(logEvent.structure_values === null);
         }
+        const outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logEvent.mode_id });
         return {
             __type__: 'log-event',
             id: logEvent.id,
+            logMode: outputLogMode,
             date: logEvent.date,
+            isComplete: logEvent.is_complete,
             orderingIndex: logEvent.ordering_index,
             name: logEvent.name,
             title: TextEditorUtils.deserialize(
@@ -140,7 +150,6 @@ class LogEvent extends Base {
             ),
             logLevel: logEvent.log_level,
             isFavorite: logEvent.is_favorite,
-            isComplete: logEvent.is_complete,
             logStructure: outputLogStructure,
         };
     }
@@ -150,17 +159,18 @@ class LogEvent extends Base {
 
         Base.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
 
-        // If is_complete was updated, reset ordering_index.
-        const isCompleteChanged = logEvent
-            ? logEvent.is_complete !== inputLogEvent.isComplete
-            : true;
+        const shouldResetOrderingIndex = logEvent ? (
+            logEvent.date !== inputLogEvent.date
+            || logEvent.is_complete !== inputLogEvent.isComplete
+        ) : true;
         const orderingIndex = await Base.getOrderingIndex
-            .call(this, isCompleteChanged ? null : logEvent, { date: inputLogEvent.date });
+            .call(this, shouldResetOrderingIndex ? null : logEvent, { date: inputLogEvent.date });
         let logValues;
         if (inputLogEvent.logStructure) {
             logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
         }
         const fields = {
+            mode_id: inputLogEvent.logMode.id,
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
             name: inputLogEvent.name,

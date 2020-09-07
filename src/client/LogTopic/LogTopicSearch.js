@@ -1,18 +1,23 @@
 import assert from 'assert';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from '../prop-types';
 import { TypeaheadOptions } from '../Common';
 import LogTopicList from './LogTopicList';
 
 class LogTopicSearch extends React.Component {
-    static getTypeaheadOptions() {
+    static getTypeaheadOptions(logMode) {
+        const where = { logMode: logMode || undefined };
         return new TypeaheadOptions({
-            serverSideOptions: [{ name: 'log-topic' }],
+            serverSideOptions: [
+                { name: 'log-topic', args: { where } },
+            ],
         });
     }
 
     static getDerivedStateFromProps(props, state) {
-        const where = {};
+        const where = {
+            logMode: props.logMode || undefined,
+        };
         let defaultDisplay = true;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-topic') {
@@ -37,7 +42,11 @@ class LogTopicSearch extends React.Component {
 
     render() {
         if (this.state.defaultDisplay) {
-            return <LogTopicList where={{ parentLogTopic: null }} />;
+            const where = {
+                logMode: this.props.logMode || undefined,
+                parentLogTopic: null,
+            };
+            return <LogTopicList where={where} />;
         }
         return (
             <>
@@ -59,6 +68,7 @@ class LogTopicSearch extends React.Component {
 }
 
 LogTopicSearch.propTypes = {
+    logMode: PropTypes.Custom.LogMode,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

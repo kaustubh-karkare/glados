@@ -35,6 +35,10 @@ class LogStructureEditor extends React.Component {
     }
 
     renderGroup() {
+        const options = new TypeaheadOptions({
+            serverSideOptions: [{ name: 'log-structure-group' }],
+            onSelect: async (option) => window.api.send('log-structure-group-load', option),
+        });
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -42,7 +46,7 @@ class LogStructureEditor extends React.Component {
                 </InputGroup.Text>
                 <TypeaheadSelector
                     id="log-structure-editor-structure-group"
-                    serverSideTypes={['log-structure-group']}
+                    options={options}
                     value={this.props.logStructure.logStructureGroup}
                     disabled={this.props.disabled}
                     onChange={(logStructureGroup) => this.updateLogStructure(

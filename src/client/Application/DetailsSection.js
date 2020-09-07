@@ -1,11 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {
     MdCheckCircle, MdClose, MdEdit, MdFavorite, MdFavoriteBorder, MdSearch,
 } from 'react-icons/md';
 import { RiLoaderLine } from 'react-icons/ri';
+import PropTypes from '../prop-types';
 import {
     Coordinator, DataLoader, ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector,
     debounce,
@@ -99,6 +99,14 @@ class DetailsSection extends React.Component {
                         return state;
                     });
                 } else {
+                    if (
+                        this.props.logMode
+                        && newItem
+                        && newItem.logMode
+                        && this.props.logMode.id !== newItem.logMode.id
+                    ) {
+                        this.props.onChange(null);
+                    }
                     this.setState({ item: newItem });
                 }
             },
@@ -228,11 +236,19 @@ class DetailsSection extends React.Component {
                 </InputGroup>
             );
         }
+
+        const where = { logMode: this.props.logMode || undefined };
+        const options = new TypeaheadOptions({
+            serverSideOptions: [
+                { name: 'log-topic', where },
+                { name: 'log-structure', where },
+            ],
+        });
         return (
             <InputGroup>
                 <TypeaheadSelector
                     id="details-section-topic-or-structure"
-                    serverSideTypes={['log-topic', 'log-structure']}
+                    options={options}
                     value={null}
                     disabled={this.props.disabled}
                     onChange={(newItem) => this.props.onChange(newItem)}
@@ -273,8 +289,8 @@ class DetailsSection extends React.Component {
 }
 
 DetailsSection.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    item: PropTypes.any,
+    logMode: PropTypes.Custom.LogMode,
+    item: PropTypes.Custom.Item,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };

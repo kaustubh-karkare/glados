@@ -42,6 +42,21 @@ class LogEventEditor extends React.Component {
         this.props.onChange(updatedLogEvent);
     }
 
+    renderDate() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    {this.props.logEvent.isComplete ? 'Date' : 'Deadline Date'}
+                </InputGroup.Text>
+                <DatePicker
+                    date={this.props.logEvent.date}
+                    disabled={this.props.disabled}
+                    onChange={(date) => this.updateLogEvent('date', date)}
+                />
+            </InputGroup>
+        );
+    }
+
     renderIsComplete() {
         return (
             <InputGroup className="my-1">
@@ -57,16 +72,21 @@ class LogEventEditor extends React.Component {
         );
     }
 
-    renderDate() {
+    renderMode() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
-                    {this.props.logEvent.isComplete ? 'Date' : 'Deadline Date'}
+                    Mode
                 </InputGroup.Text>
-                <DatePicker
-                    date={this.props.logEvent.date}
-                    disabled={this.props.disabled}
-                    onChange={(date) => this.updateLogEvent('date', date)}
+                <TypeaheadSelector
+                    id="log-event-editor-mode"
+                    serverSideTypes={['log-mode']}
+                    value={this.props.logEvent.logMode}
+                    disabled={this.props.logEvent.logStructure ? true : this.props.disabled}
+                    onChange={(logMode) => this.updateLogEvent(
+                        'logMode',
+                        logMode,
+                    )}
                 />
             </InputGroup>
         );
@@ -187,11 +207,14 @@ class LogEventEditor extends React.Component {
         return (
             <div>
                 <div className="my-3">
-                    {this.renderIsComplete()}
                     {this.renderDate()}
+                    {this.renderIsComplete()}
                 </div>
-                {this.renderTitle()}
-                {this.renderDetails()}
+                <div className="my-3">
+                    {this.renderMode()}
+                    {this.renderTitle()}
+                    {this.renderDetails()}
+                </div>
                 {this.renderLogLevel()}
                 <div className="my-3">
                     {this.renderStructureSelector()}

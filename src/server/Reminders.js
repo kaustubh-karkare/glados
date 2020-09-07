@@ -126,9 +126,10 @@ ActionsRegistry['reminder-score'] = async function (input) {
     return { value, deadline, dateRanges };
 };
 
-ActionsRegistry['reminder-sidebar'] = async function (input) {
+ActionsRegistry['reminder-sidebar'] = async function (input = {}) {
     const logStructureGroups = await this.invoke.call(this, 'log-structure-group-list', {
         ordering: true,
+        where: input.where,
     });
     const periodicLogStructures = await this.invoke.call(this, 'log-structure-list', {
         where: { isPeriodic: true },

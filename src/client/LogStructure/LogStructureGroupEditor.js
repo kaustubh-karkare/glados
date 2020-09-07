@@ -1,7 +1,7 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
-import { TextInput } from '../Common';
+import { TextInput, TypeaheadSelector } from '../Common';
 
 class LogStructureGroupEditor extends React.Component {
     constructor(props) {
@@ -13,21 +13,57 @@ class LogStructureGroupEditor extends React.Component {
         this.nameRef.current.focus();
     }
 
+    updateLogStructureGroup(methodOrName, maybeValue) {
+        const updatedLogStructureGroup = { ...this.props.logStructureGroup };
+        if (typeof methodOrName === 'function') {
+            methodOrName(updatedLogStructureGroup);
+        } else {
+            updatedLogStructureGroup[methodOrName] = maybeValue;
+        }
+        this.props.onChange(updatedLogStructureGroup);
+    }
+
+    renderMode() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Mode
+                </InputGroup.Text>
+                <TypeaheadSelector
+                    id="log-structure-editor-mode"
+                    serverSideTypes={['log-mode']}
+                    value={this.props.logStructureGroup.logMode}
+                    disabled={this.props.disabled}
+                    onChange={(logMode) => this.updateLogStructureGroup(
+                        'logMode',
+                        logMode,
+                    )}
+                />
+            </InputGroup>
+        );
+    }
+
+    renderName() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Name
+                </InputGroup.Text>
+                <TextInput
+                    value={this.props.logStructureGroup.name}
+                    disabled={this.props.disabled}
+                    onChange={(name) => this.updateLogStructureGroup('name', name)}
+                    ref={this.nameRef}
+                />
+            </InputGroup>
+        );
+    }
+
     render() {
-        const { logStructureGroup } = this.props;
         return (
             <>
-                <InputGroup className="my-1">
-                    <InputGroup.Text>
-                        Name
-                    </InputGroup.Text>
-                    <TextInput
-                        value={logStructureGroup.name}
-                        disabled={this.props.disabled}
-                        onChange={(name) => this.props.onChange({ ...logStructureGroup, name })}
-                        ref={this.nameRef}
-                    />
-                </InputGroup>
+                {this.renderMode()}
+                {this.renderName()}
             </>
         );
     }

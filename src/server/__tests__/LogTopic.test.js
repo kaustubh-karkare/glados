@@ -6,12 +6,15 @@ afterEach(Utils.afterEach);
 
 test('test_log_topic_typeahead', async () => {
     await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
         logTopics: [
-            { name: 'Anurag Dubey' },
-            { name: 'Kaustubh Karkare' },
-            { name: 'Vishnu Mohandas' },
-            { name: 'philosophy' },
-            { name: 'productivity' },
+            { modeName: 'Test', name: 'Anurag Dubey' },
+            { modeName: 'Test', name: 'Kaustubh Karkare' },
+            { modeName: 'Test', name: 'Vishnu Mohandas' },
+            { modeName: 'Test', name: 'philosophy' },
+            { modeName: 'Test', name: 'productivity' },
         ],
     });
 
@@ -30,12 +33,15 @@ test('test_log_topic_typeahead', async () => {
 
 test('test_update_propagation', async () => {
     await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
         logTopics: [
-            { name: 'Hacky' },
-            { name: 'Todo', details: 'Speak to a #1' },
+            { modeName: 'Test', name: 'Hacky' },
+            { modeName: 'Test', name: 'Todo', details: 'Speak to a #1' },
         ],
         logEvents: [
-            { date: '{today}', title: 'Spoke to a #1' },
+            { modeName: 'Test', date: '{today}', title: 'Spoke to a #1' },
         ],
     });
 
