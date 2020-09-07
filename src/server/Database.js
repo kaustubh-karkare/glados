@@ -1,17 +1,13 @@
 import assert from 'assert';
+import fs from 'fs';
 import defineModels from '../data/Models';
 import { isRealItem } from '../data';
 
 const Sequelize = require('sequelize');
 
 class Database {
-    static async init(config, options) {
-        const instance = new Database(config);
-        return instance.sequelize.sync(options).then(() => instance);
-    }
-
     constructor(config) {
-        this.sequelize = new Sequelize({ ...config, logging: false });
+        this.sequelize = new Sequelize(config);
         const nameAndModels = defineModels(this.sequelize);
         this._modelSequence = nameAndModels.map(([_name, model]) => model);
         this._models = nameAndModels.reduce((result, [name, model]) => {
@@ -28,6 +24,16 @@ class Database {
         // we have the transaction available in context, and API remains simple.
         assert(!!this.transaction);
         return this.transaction;
+    }
+
+    async reset() {
+        // You cant invoke sync during an active transaction!
+        await this.transaction.commit();
+        if (fs.existsSync(this.sequelize.options.storage)) {
+            fs.unlinkSync(this.sequelize.options.storage);
+        }
+        await this.sequelize.sync({ force: true });
+        this.transaction = await this.sequelize.transaction();
     }
 
     async close() {

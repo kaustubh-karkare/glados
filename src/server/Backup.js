@@ -1,10 +1,10 @@
 /* eslint-disable func-names */
 
+import assert from 'assert';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
-import assert from 'assert';
 // import TextEditorUtils from '../common/TextEditorUtils';
 import { awaitSequence, getCallbackAndPromise } from '../data';
 import ActionsRegistry from './ActionsRegistry';
@@ -41,41 +41,20 @@ function parseFileName(filename) {
     };
 }
 
-ActionsRegistry['backup-save'] = async function () {
+// Intermediate Operations (used by Migrations too).
+
+ActionsRegistry['backup-file-load'] = async function ({ filename }) {
+    const [callback, promise] = getCallbackAndPromise();
+    fs.readFile(path.join(this.config.backup.location, filename), callback);
+    const filedata = await promise;
+    return JSON.parse(filedata);
+};
+
+ActionsRegistry['backup-file-save'] = async function ({ data }) {
     const { date, time } = getDateAndTime();
-    const result = {};
-    await awaitSequence(this.database.getModelSequence(), async (model) => {
-        const items = await model.findAll({ transaction: this.database.transaction });
-        result[model.name] = items.map((item) => item.dataValues);
-    });
 
-    /*
-    if (false) {
-        // Switch to using markdown instead of draftjs content, which takes less space.
-        const convert = (value) => {
-            return TextEditorUtils.serialize(
-                TextEditorUtils.deserialize(
-                    value,
-                    TextEditorUtils.StorageType.DRAFTJS,
-                ),
-                TextEditorUtils.StorageType.MARKDOWN,
-            );
-        }
-        result.log_topics.forEach(log_topic => {
-            log_topic.details = convert(log_topic.details);
-        });
-        result.log_structures.forEach(log_structure => {
-            log_structure.title_template = convert(log_structure.title_template);
-        });
-        result.log_events.forEach(log_event => {
-            log_event.title = convert(log_event.title);
-            log_event.details = convert(log_event.details);
-        });
-    }
-    */
-
-    const data = JSON.stringify(result, null, '\t');
-    const hash = crypto.createHash('md5').update(data).digest('hex');
+    const dataSerialized = JSON.stringify(data, null, '\t');
+    const hash = crypto.createHash('md5').update(dataSerialized).digest('hex');
 
     try {
         const latestBackup = await this.invoke.call(this, 'backup-latest');
@@ -88,7 +67,7 @@ ActionsRegistry['backup-save'] = async function () {
 
     const [callback, promise] = getCallbackAndPromise();
     const filename = getFileName({ date, time, hash });
-    fs.writeFile(path.join(this.config.backup.location, filename), data, callback);
+    fs.writeFile(path.join(this.config.backup.location, filename), dataSerialized, callback);
     await promise;
     this.broadcast('backup-latest');
     return {
@@ -96,40 +75,24 @@ ActionsRegistry['backup-save'] = async function () {
     };
 };
 
-ActionsRegistry['backup-latest'] = async function () {
-    const [callback, promise] = getCallbackAndPromise();
-    fs.readdir(this.config.backup.location, callback);
-    let filenames = await promise;
-    filenames = filenames.filter((filename) => filename.startsWith('backup-')).sort();
-    if (!filenames.length) {
-        return null;
-    }
-    assert(filenames.length, 'no backups found');
-    const filename = filenames[filenames.length - 1];
-    const components = parseFileName(filename);
-    return { filename, ...components };
+ActionsRegistry['backup-data-load'] = async function () {
+    const data = {};
+    await awaitSequence(this.database.getModelSequence(), async (model) => {
+        try {
+            const items = await model.findAll({ transaction: this.database.transaction });
+            data[model.name] = items.map((item) => item.dataValues);
+        } catch (error) {
+            assert(error.toString().includes('SQLITE_ERROR: no such table'));
+            data[model.name] = [];
+        }
+    });
+    return data;
 };
 
-ActionsRegistry['backup-load'] = async function () {
-    const latestBackup = await this.invoke.call(this, 'backup-latest');
-    assert(latestBackup, 'at least one backup is required');
-
-    const [callback, promise] = getCallbackAndPromise();
-    fs.readFile(path.join(this.config.backup.location, latestBackup.filename), callback);
-    const filedata = await promise;
-    const data = JSON.parse(filedata);
-
-    /*
-    if (true) {
-        data.log_events.forEach((log_event) => {
-            log_event.warning_days = log_event.is_complete ? null : 0;
-        });
-    }
-    */
-
-    // This is where we can transform the input data to fix compatibility!
+ActionsRegistry['backup-data-save'] = async function ({ data }) {
+    await this.database.reset();
     await awaitSequence(this.database.getModelSequence(), async (model) => {
-        const items = data[model.name];
+        const items = data[model.name] || [];
         if (model.name !== 'log_topics') {
             await awaitSequence(items, async (item) => {
                 try {
@@ -147,6 +110,43 @@ ActionsRegistry['backup-load'] = async function () {
             await model.bulkCreate(items, { transaction: this.database.transaction });
         }
     });
+};
+
+// Actual API
+
+ActionsRegistry['backup-save'] = async function ({ logging }) {
+    const data = await this.invoke.call(this, 'backup-data-load');
+    const result = await this.invoke.call(this, 'backup-file-save', { data });
+    if (logging) {
+        // eslint-disable-next-line no-console
+        console.info(`Saved ${result.filename}${result.isUnchanged ? ' (unchanged)' : ''}`);
+    }
+    return result;
+};
+
+ActionsRegistry['backup-latest'] = async function () {
+    const [callback, promise] = getCallbackAndPromise();
+    fs.readdir(this.config.backup.location, callback);
+    let filenames = await promise;
+    filenames = filenames.filter((filename) => filename.startsWith('backup-')).sort();
+    if (!filenames.length) {
+        return null;
+    }
+    assert(filenames.length, 'no backups found');
+    const filename = filenames[filenames.length - 1];
+    const components = parseFileName(filename);
+    return { filename, ...components };
+};
+
+ActionsRegistry['backup-load'] = async function ({ logging }) {
+    const latestBackup = await this.invoke.call(this, 'backup-latest');
+    assert(latestBackup, 'at least one backup is required');
+    const data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
+    await this.invoke.call(this, 'backup-data-save', { data });
+    if (logging) {
+        // eslint-disable-next-line no-console
+        console.info(`Loaded ${latestBackup.filename}`);
+    }
     return latestBackup;
 };
 

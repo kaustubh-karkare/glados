@@ -17,9 +17,11 @@ export default class Utils {
         const config = {
             dialect: 'sqlite',
             storage: ':memory:',
+            logging: false,
         };
-        const database = await Database.init(config);
-        actions = new Actions({ database });
+        const database = new Database(config);
+        await database.sequelize.sync(); // create tables
+        actions = new Actions(null, database);
     }
 
     static getActions() {
@@ -27,7 +29,7 @@ export default class Utils {
     }
 
     static async afterEach() {
-        if (actions) await actions.context.database.close();
+        if (actions) await actions.database.close();
     }
 
     static async loadData(data) {

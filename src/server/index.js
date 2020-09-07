@@ -5,42 +5,25 @@ import Database from './Database';
 import Actions from './Actions';
 import SocketRPC from '../common/SocketRPC';
 
-const assert = require('assert');
 const express = require('express');
 const fs = require('fs');
 const http = require('http');
 const process = require('process');
+const SingleInstance = require('single-instance');
 const SocketIO = require('socket.io');
 const yargs = require('yargs');
 
 
 async function init() {
-    if (this.config.backup.load_on_startup && this.config.backup.save_interval_ms) {
-        assert(false, 'Not allowed to auto-load and auto-save backups simultaneously.');
-    }
+    // This method should return true if cleanup should be called immediately, false if not.
 
-    const backupLoad = this.action === 'backup-load';
-    if (backupLoad) {
-        // Sequelize doesn't drop tables in the proper order,
-        // so we just delete the whole file.
-        if (fs.existsSync(this.config.database.storage)) {
-            fs.unlinkSync(this.config.database.storage);
-        }
-    }
-    this.database = await Database.init(
-        this.config.database,
-        { force: backupLoad },
-    );
-    this.actions = new Actions(this);
+    this.database = new Database(this.config.database);
+    this.actions = new Actions(this.config, this.database);
+    await this.actions.invoke('migration-perform', { logging: true });
 
-    if (backupLoad) {
-        const { filename } = await this.actions.invoke('backup-load');
-        console.info(`Loaded ${filename}`);
-        return;
-    } if (this.action === 'backup-save') {
-        const { filename, isUnchanged } = await this.actions.invoke('backup-save');
-        console.info(`Saved ${filename}${isUnchanged ? ' (unchanged)' : ''}`);
-        return;
+    if (this.action) {
+        await this.actions.invoke(this.action, { logging: true });
+        return true;
     }
 
     const app = express();
@@ -59,6 +42,7 @@ async function init() {
 
     // eslint-disable-next-line no-use-before-define
     this.loopTimeout = setTimeout(loop.bind(this), this.config.backup.save_interval_ms);
+    return false;
 }
 
 async function loop() {
@@ -81,10 +65,18 @@ async function cleanup() {
     this.cleaningUp = true;
 
     console.info('Terminating ...');
-    this.server.close();
+    if (this.server) {
+        this.server.close();
+    }
     await loop.call(this);
     clearTimeout(this.loopTimeout);
+    if (this.database) {
+        this.database.close();
+    }
     console.info('Terminated!');
+    if (this.resolve) {
+        this.resolve();
+    }
 }
 
 // Put everything together!
@@ -96,11 +88,29 @@ const { argv } = yargs
     .choices('action', ['backup-load', 'backup-save']);
 
 const context = {};
-context.configPath = argv.configPath;
 context.config = JSON.parse(fs.readFileSync(argv.configPath));
 context.action = argv.action;
 
-init.call(context)
+const locker = new SingleInstance(context.config.lock_name || 'glados');
+console.info('Acquiring lock ...');
+locker.lock()
+    .then(() => {
+        console.info('Acquired lock!');
+        return init.call(context);
+    })
+    .then((result) => {
+        if (result) {
+            return cleanup.call(context);
+        }
+        return new Promise((resolve) => {
+            context.resolve = resolve;
+        });
+    })
+    .finally(() => {
+        console.info('Releasing lock ...');
+        locker.unlock()
+            .then(() => console.info('Released lock!'));
+    })
     .catch((error) => console.error(error));
 
 process.on('SIGTERM', cleanup.bind(context));

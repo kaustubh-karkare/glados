@@ -1,7 +1,8 @@
 {
     "database": {
         "dialect": "sqlite",
-        "storage": "database/test.sqlite"
+        "storage": "database/test.sqlite",
+        "logging": false
     },
     "backup": {
         "location": "database",
