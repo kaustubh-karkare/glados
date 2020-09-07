@@ -72,7 +72,7 @@ class LogStructure extends Base {
             id: getVirtualID(),
             logStructureGroup,
             name,
-            details: '',
+            details: null,
             logKeys: [],
             titleTemplate: '',
             needsEdit: false,

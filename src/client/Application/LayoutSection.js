@@ -9,7 +9,7 @@ const Layout = Enum([
         value: 'default',
     },
     {
-        label: 'Topic',
+        label: 'Focus',
         value: 'topic',
     },
 ]);

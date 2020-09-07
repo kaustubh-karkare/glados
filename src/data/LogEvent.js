@@ -32,7 +32,7 @@ class LogEvent extends Base {
             id: getVirtualID(),
             name: '',
             title,
-            details: '',
+            details: null,
             logLevel,
             isFavorite: false,
             isComplete,

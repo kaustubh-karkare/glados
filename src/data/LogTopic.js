@@ -9,7 +9,7 @@ class LogTopic extends Base {
             id: getVirtualID(),
             parentLogTopic,
             name,
-            details: '',
+            details: null,
             isFavorite: false,
         };
     }
@@ -105,6 +105,7 @@ class LogTopic extends Base {
                 'source_event_id',
                 'log-event',
                 ['title', 'details'],
+                // TODO: What about structureValues?
             );
             await LogTopic.updateOtherEntities.call(
                 this,

@@ -93,7 +93,11 @@ class DetailsSection extends React.Component {
                     && oldItem.__type__ === newItem.__type__
                     && oldItem.id === newItem.id
                 ) {
-                    // Do nothing.
+                    this.setState((state) => {
+                        const { details } = state.item; // copy local details
+                        state.item = { ...newItem, details };
+                        return state;
+                    });
                 } else {
                     this.setState({ item: newItem });
                 }
