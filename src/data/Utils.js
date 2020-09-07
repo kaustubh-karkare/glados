@@ -63,21 +63,16 @@ export function filterAsync(items, method) {
     });
 }
 
-export function getCallbackAndPromise() {
-    let resolve; let
-        reject;
-    const promise = new Promise((resolveFn, rejectFn) => {
-        resolve = resolveFn;
-        reject = rejectFn;
+export function callbackToPromise(method, ...args) {
+    return new Promise((resolve, reject) => {
+        method(...args, (error, result) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(result);
+            }
+        });
     });
-    const callback = (error, result) => {
-        if (error) {
-            reject(error);
-        } else {
-            resolve(result);
-        }
-    };
-    return [callback, promise];
 }
 
 export function getSortComparator(fieldNames) {

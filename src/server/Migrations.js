@@ -4,16 +4,14 @@ import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
 
-import { awaitSequence, getCallbackAndPromise } from '../data';
+import { awaitSequence, callbackToPromise } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 
 const MIGRATIONS_PATH = path.resolve(__dirname, '../data/migrations');
 
 ActionsRegistry['migration-check'] = async function () {
     const getAvailableMigrations = async () => {
-        const [callback, promise] = getCallbackAndPromise();
-        fs.readdir(MIGRATIONS_PATH, callback);
-        const filelist = await promise;
+        const filelist = await callbackToPromise(fs.readdir, MIGRATIONS_PATH);
         return filelist.filter((filename) => !filename.startsWith('.'));
     };
     const getCompletedMigrations = async () => {

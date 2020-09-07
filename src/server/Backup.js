@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 // import TextEditorUtils from '../common/TextEditorUtils';
-import { awaitSequence, getCallbackAndPromise } from '../data';
+import { awaitSequence, callbackToPromise } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 
 function getDateAndTime() {
@@ -44,9 +44,10 @@ function parseFileName(filename) {
 // Intermediate Operations (used by Migrations too).
 
 ActionsRegistry['backup-file-load'] = async function ({ filename }) {
-    const [callback, promise] = getCallbackAndPromise();
-    fs.readFile(path.join(this.config.backup.location, filename), callback);
-    const filedata = await promise;
+    const filedata = await callbackToPromise(
+        fs.readFile,
+        path.join(this.config.backup.location, filename),
+    );
     return JSON.parse(filedata);
 };
 
@@ -65,10 +66,12 @@ ActionsRegistry['backup-file-save'] = async function ({ data }) {
         assert(error.message === 'no backups found');
     }
 
-    const [callback, promise] = getCallbackAndPromise();
     const filename = getFileName({ date, time, hash });
-    fs.writeFile(path.join(this.config.backup.location, filename), dataSerialized, callback);
-    await promise;
+    await callbackToPromise(
+        fs.writeFile,
+        path.join(this.config.backup.location, filename),
+        dataSerialized,
+    );
     this.broadcast('backup-latest');
     return {
         filename, date, time, hash,
@@ -125,9 +128,7 @@ ActionsRegistry['backup-save'] = async function ({ logging }) {
 };
 
 ActionsRegistry['backup-latest'] = async function () {
-    const [callback, promise] = getCallbackAndPromise();
-    fs.readdir(this.config.backup.location, callback);
-    let filenames = await promise;
+    let filenames = await callbackToPromise(fs.readdir, this.config.backup.location);
     filenames = filenames.filter((filename) => filename.startsWith('backup-')).sort();
     if (!filenames.length) {
         return null;
@@ -151,7 +152,5 @@ ActionsRegistry['backup-load'] = async function ({ logging }) {
 };
 
 ActionsRegistry['backup-delete'] = async function ({ filename }) {
-    const [callback, promise] = getCallbackAndPromise();
-    fs.unlink(path.join(this.config.backup.location, filename), callback);
-    return promise;
+    return callbackToPromise(fs.unlink, path.join(this.config.backup.location, filename));
 };
