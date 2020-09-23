@@ -79,15 +79,17 @@ ActionsRegistry['backup-file-save'] = async function ({ data }) {
 };
 
 ActionsRegistry['backup-data-load'] = async function () {
+    // Since the database format might not be in-sync with the code,
+    // use the QueryInterface to load the data, instead of models.
+    const { sequelize } = this.database;
+    const api = sequelize.getQueryInterface();
+    const tableNames = await api.showAllTables();
     const data = {};
-    await awaitSequence(this.database.getModelSequence(), async (model) => {
-        try {
-            const items = await model.findAll({ transaction: this.database.transaction });
-            data[model.name] = items.map((item) => item.dataValues);
-        } catch (error) {
-            assert(error.toString().includes('SQLITE_ERROR: no such table'));
-            data[model.name] = [];
-        }
+    await awaitSequence(tableNames, async (tableName) => {
+        data[tableName] = await sequelize.query(
+            `SELECT * FROM ${tableName}`,
+            { type: sequelize.QueryTypes.SELECT },
+        );
     });
     return data;
 };
