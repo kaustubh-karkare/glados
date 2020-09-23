@@ -284,6 +284,11 @@ class LogStructure extends Base {
             };
             await updatedLogStructure.update(fields2, { transaction });
         }
+        await this.invoke.call(
+            this,
+            'value-typeahead-index-refresh',
+            { structure_id: updatedLogStructure.id },
+        );
 
         this.broadcast('reminder-sidebar');
         return updatedLogStructure.id;
@@ -306,6 +311,11 @@ class LogStructure extends Base {
     static async delete(id) {
         const logStructure = await this.database.deleteByPk('LogStructure', id);
         Base.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
+        await this.invoke.call(
+            this,
+            'value-typeahead-index-refresh',
+            { structure_id: logStructure.id },
+        );
         return { id: logStructure.id };
     }
 

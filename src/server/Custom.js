@@ -16,27 +16,6 @@ ActionsRegistry['log-event-dates'] = async function (input) {
     return Array.from(dates).sort();
 };
 
-ActionsRegistry['value-typeahead'] = async function (input) {
-    const outputLogEvents = await this.invoke.call(
-        this, 'log-event-list', { where: { logStructure: input.logStructure } },
-    );
-    const resultToFrequencyMap = {};
-    outputLogEvents.forEach((outputLogEvent) => {
-        const logKey = outputLogEvent.logStructure.logKeys[input.index];
-        // If logKey.type = time, then sort by closeness.
-        const { value } = logKey;
-        if (typeof value === 'string' && value.startsWith(input.query)) {
-            if (!(value in resultToFrequencyMap)) {
-                resultToFrequencyMap[value] = 0;
-            }
-            resultToFrequencyMap[value] += 1;
-        }
-    });
-    return Object.entries(resultToFrequencyMap)
-        .sort((left, right) => right[1] - left[1])
-        .map((item) => item[0]);
-};
-
 ActionsRegistry.consistency = async function () {
     const results = [];
     // These items only contain the __type__, id & name.

@@ -70,7 +70,7 @@ class LogEvent extends Base {
             logEvent.title = TextEditorUtils.updateDraftContent(
                 logEvent.logStructure.titleTemplate,
                 logEvent.logStructure.logKeys,
-                logEvent.logStructure.logKeys.map((logKey) => logKey.value || logKey),
+                logEvent.logStructure.logKeys.map((logKey) => logKey.value || (logKey.isOptional ? '' : logKey)),
                 true, // evaluateExpressions
             );
             logEvent.logLevel = logEvent.logStructure.logLevel;
@@ -212,6 +212,11 @@ class LogEvent extends Base {
                 return result;
             }, {}),
         );
+        await this.invoke.call(
+            this,
+            'value-typeahead-index-refresh',
+            { structure_id: logEvent.structure_id },
+        );
 
         this.broadcast('reminder-sidebar');
         return logEvent.id;
@@ -220,6 +225,11 @@ class LogEvent extends Base {
     static async delete(id) {
         const logEvent = await this.database.deleteByPk('LogEvent', id);
         Base.broadcast.call(this, 'log-event-list', logEvent, ['date']);
+        await this.invoke.call(
+            this,
+            'value-typeahead-index-refresh',
+            { structure_id: logEvent.structure_id },
+        );
         return { id: logEvent.id };
     }
 }

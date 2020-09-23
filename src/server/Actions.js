@@ -4,11 +4,13 @@ import './Reminders';
 import './Custom';
 import './Backup';
 import './Migrations';
+import './Suggestions';
 
 export default class {
     constructor(config, database) {
         this.config = config;
         this.database = database;
+        this.memory = {};
         this.socket = null;
         this.broadcasts = null;
     }
@@ -46,6 +48,10 @@ export default class {
             // The Object.create method creates a new object with the given prototype.
             // This allows us to concurrently set the transaction field below.
             database: Object.create(this.database),
+            // The `memory` object is shared across all actions, used for caching.
+            memory: this.memory,
+            // Arguments for deferred `invoke` operations on separate transactions.
+            deferredInvoke: [],
         };
         context.database.transaction = await this.database.sequelize.transaction();
         try {
@@ -58,6 +64,7 @@ export default class {
             } else {
                 this.broadcasts = broadcasts;
             }
+            context.deferredInvoke.forEach((deferredArgs) => this.invoke(...deferredArgs));
             return response;
         } catch (error) {
             // console.error(error.toString());
