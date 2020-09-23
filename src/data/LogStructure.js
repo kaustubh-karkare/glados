@@ -40,6 +40,11 @@ const LogStructureKey = Enum([
             return logTopic.parentLogTopic.id === logKey.parentLogTopic.id;
         },
     },
+    {
+        value: 'rich_text_line',
+        label: 'Rich Text Line',
+        validator: async (value) => true,
+    },
 ]);
 
 const LogLevel = Enum([
@@ -233,6 +238,11 @@ class LogStructure extends Base {
             ...TextEditorUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
             ...TextEditorUtils.extractMentions(inputLogStructure.details, 'log-topic'),
         };
+        inputLogStructure.logKeys.forEach((logKey) => {
+            if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.parentLogTopic) {
+                targetLogTopics[logKey.parentLogTopic.id] = logKey.parentLogTopic;
+            }
+        });
         await this.database.setEdges(
             'LogStructureToLogTopic',
             'source_structure_id',

@@ -300,7 +300,8 @@ class TextEditorUtils {
                     let nextItem = newItems[keyToIndex[key]];
                     if (typeof nextItem === 'object') {
                         if (
-                            prevItem.id === nextItem.id
+                            nextItem.__type__
+                            && prevItem.id === nextItem.id
                             && prevItem.name === nextItem.name
                         ) {
                             return; // no change
@@ -321,16 +322,51 @@ class TextEditorUtils {
                 hasFocus: true,
             });
             if (typeof item === 'object') {
-                contentState = Modifier.replaceText(
-                    contentState,
-                    selectionState,
-                    item.name,
-                    null,
-                    entityKey,
-                ).replaceEntityData(
-                    entityKey,
-                    { [DRAFTJS_MENTION_PLUGIN_NAME]: item },
-                );
+                if (item.__type__) {
+                    contentState = Modifier.replaceText(
+                        contentState,
+                        selectionState,
+                        item.name,
+                        null,
+                        entityKey,
+                    ).replaceEntityData(
+                        entityKey,
+                        { [DRAFTJS_MENTION_PLUGIN_NAME]: item },
+                    );
+                } else {
+                    const innerContentState = convertFromRaw(item);
+                    const innerContentBlocks = innerContentState.getBlocksAsArray();
+                    assert(innerContentBlocks.length === 1);
+                    const innerContentBlock = innerContentBlocks[0];
+                    contentState = Modifier.replaceText(
+                        contentState,
+                        selectionState,
+                        innerContentBlock.getText(),
+                        null,
+                        null,
+                    );
+                    let currentEntityKey;
+                    innerContentBlock.findEntityRanges((charMetadata) => {
+                        currentEntityKey = charMetadata.getEntity();
+                        return !!currentEntityKey;
+                    }, (innerStart, innerEnd) => {
+                        const currentEntity = innerContentState.getEntity(currentEntityKey);
+                        contentState = contentState.createEntity(
+                            currentEntity.getType(),
+                            currentEntity.getMutability(),
+                            currentEntity.getData(),
+                        );
+                        const innerSelectionState = selectionState.merge({
+                            anchorOffset: selectionState.anchorOffset + innerStart,
+                            focusOffset: selectionState.anchorOffset + innerEnd,
+                        });
+                        contentState = Modifier.applyEntity(
+                            contentState,
+                            innerSelectionState,
+                            contentState.getLastCreatedEntityKey(),
+                        );
+                    });
+                }
             } else {
                 // item is a string
                 contentState = Modifier.replaceText(

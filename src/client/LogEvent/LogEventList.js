@@ -7,11 +7,12 @@ import LogEventEditor from './LogEventEditor';
 
 
 function LogEventViewer(props) {
+    const { logEvent } = props;
     let datePrefix;
     if (props.displayDate) {
         datePrefix = (
             <span className="mr-1" style={{ float: 'left' }}>
-                {`${props.logEvent.date}: `}
+                {`${logEvent.date}: `}
             </span>
         );
     }
@@ -19,7 +20,7 @@ function LogEventViewer(props) {
     if (props.displayLogLevel) {
         logLevelSuffix = (
             <span className="ml-1" style={{ float: 'right' }}>
-                {`L${props.logEvent.logLevel}`}
+                {`L${logEvent.logLevel}`}
             </span>
         );
     }
@@ -30,7 +31,7 @@ function LogEventViewer(props) {
             <TextEditor
                 unstyled
                 disabled
-                value={props.logEvent.title}
+                value={logEvent.title}
             />
         </div>
     );

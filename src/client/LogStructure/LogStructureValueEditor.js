@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Selector, TypeaheadInput, TypeaheadSelector } from '../Common';
+import {
+    Selector, TextEditor, TypeaheadInput, TypeaheadSelector,
+} from '../Common';
 import { LogStructure, getPartialItem } from '../../data';
 
 class LogStructureValueEditor extends React.Component {
@@ -11,7 +13,7 @@ class LogStructureValueEditor extends React.Component {
 
     update(value) {
         const logKey = { ...this.props.logKey };
-        if (typeof value === 'object') {
+        if (logKey.type === LogStructure.Key.LOG_TOPIC && value) {
             value = getPartialItem(value);
         }
         logKey.value = value;
@@ -24,7 +26,16 @@ class LogStructureValueEditor extends React.Component {
 
     render() {
         const { logKey } = this.props;
-        if (logKey.type === LogStructure.Key.LOG_TOPIC) {
+        if (logKey.type === LogStructure.Key.YES_OR_NO) {
+            return (
+                <Selector.Binary
+                    value={logKey.value === 'yes'}
+                    disabled={this.props.disabled}
+                    onChange={(value) => this.update(value ? 'yes' : 'no')}
+                    ref={this.ref}
+                />
+            );
+        } if (logKey.type === LogStructure.Key.LOG_TOPIC) {
             return (
                 <TypeaheadSelector
                     id="log-structure-value-editor-topic"
@@ -36,12 +47,14 @@ class LogStructureValueEditor extends React.Component {
                     ref={this.ref}
                 />
             );
-        } if (logKey.type === LogStructure.Key.YES_OR_NO) {
+        } if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
             return (
-                <Selector.Binary
-                    value={logKey.value === 'yes'}
+                <TextEditor
+                    isSingleLine
+                    serverSideTypes={['log-topic']}
+                    value={logKey.value}
                     disabled={this.props.disabled}
-                    onChange={(value) => this.update(value ? 'yes' : 'no')}
+                    onChange={(value) => this.update(value)}
                     ref={this.ref}
                 />
             );

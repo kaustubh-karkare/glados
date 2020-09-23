@@ -4,6 +4,7 @@ import TextEditorUtils from '../common/TextEditorUtils';
 
 class LogTopic extends Base {
     static createVirtual({ logMode = null, parentLogTopic = null, name = '' } = {}) {
+        logMode = parentLogTopic ? parentLogTopic.logMode : logMode;
         return {
             __type__: 'log-topic',
             id: getVirtualID(),

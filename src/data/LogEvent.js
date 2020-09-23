@@ -190,14 +190,19 @@ class LogEvent extends Base {
         };
         logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
 
-        const targetLogTopics = {
+        let targetLogTopics = {
             ...TextEditorUtils.extractMentions(inputLogEvent.title, 'log-topic'),
             ...TextEditorUtils.extractMentions(inputLogEvent.details, 'log-topic'),
         };
-        if (logValues) {
-            logValues.forEach((value) => {
-                if (typeof value === 'object' && value && value.__type__ === 'log-topic') {
-                    targetLogTopics[value.id] = value;
+        if (inputLogEvent.logStructure) {
+            inputLogEvent.logStructure.logKeys.forEach((logKey) => {
+                if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.value) {
+                    targetLogTopics[logKey.value.id] = logKey.value;
+                } else if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
+                    targetLogTopics = {
+                        ...targetLogTopics,
+                        ...TextEditorUtils.extractMentions(logKey.value, 'log-topic'),
+                    };
                 }
             });
         }

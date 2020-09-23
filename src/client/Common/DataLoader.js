@@ -1,3 +1,4 @@
+import deepcopy from 'deepcopy';
 import deepEqual from 'deep-equal';
 import { isItem, getPartialItem } from '../../data';
 
@@ -14,7 +15,7 @@ class DataLoader {
     }
 
     reload({ force } = {}) {
-        const input = this.getInput();
+        const input = deepcopy(this.getInput());
         if (input && input.args && input.args.where) {
             // This is an optimization to prevent sending unnecessary data to the server.
             Object.entries(input.args.where).forEach(([key, value]) => {
