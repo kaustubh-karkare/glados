@@ -65,3 +65,18 @@ ActionsRegistry.consistency = async function () {
 
     return results;
 };
+
+ActionsRegistry['validate-log-topic-modes'] = async function ({ logMode, targetLogTopics }) {
+    const results = [];
+    await awaitSequence(Object.values(targetLogTopics), async (targetLogTopic) => {
+        if (!targetLogTopic.logMode) {
+            targetLogTopic = await this.invoke.call(this, 'log-topic-load', targetLogTopic);
+        }
+        results.push([
+            `.logTopic[${targetLogTopic.name}].logMode`,
+            targetLogTopic.logMode.id === logMode.id,
+            'should match .logMode',
+        ]);
+    });
+    return results;
+};

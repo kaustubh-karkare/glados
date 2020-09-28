@@ -1,5 +1,6 @@
 import { getVirtualID } from './Utils';
 import Base from './Base';
+import LogMode from './LogMode';
 
 class LogStructureGroup extends Base {
     static createVirtual({
@@ -18,6 +19,19 @@ class LogStructureGroup extends Base {
             id: 'id',
             logMode: 'mode_id',
         });
+    }
+
+    static async validateInternal(inputLogStructureGroup) {
+        const results = [];
+
+        const logModeResults = await Base.validateRecursive(
+            LogMode, '.logMode', inputLogStructureGroup.logMode,
+        );
+        results.push(...logModeResults);
+
+        results.push(Base.validateNonEmptyString('.name', inputLogStructureGroup.name));
+
+        return results;
     }
 
     static async load(id) {

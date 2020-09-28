@@ -1,6 +1,7 @@
 import { getVirtualID } from './Utils';
 import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
+import LogMode from './LogMode';
 
 class LogTopic extends Base {
     static createVirtual({ logMode = null, parentLogTopic = null, name = '' } = {}) {
@@ -33,7 +34,22 @@ class LogTopic extends Base {
 
     static async validateInternal(inputLogTopic) {
         const results = [];
+
+        const logModeResults = await Base.validateRecursive.call(
+            this, LogMode, '.logMode', inputLogTopic.logMode,
+        );
+        results.push(...logModeResults);
+
         results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));
+
+        const targetLogTopics = TextEditorUtils.extractMentions(inputLogTopic.details, 'log-topic');
+        const modeValidationResults = await this.invoke.call(
+            this,
+            'validate-log-topic-modes',
+            { logMode: inputLogTopic.logMode, targetLogTopics },
+        );
+        results.push(...modeValidationResults);
+
         return results;
     }
 

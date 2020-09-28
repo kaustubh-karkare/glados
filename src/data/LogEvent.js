@@ -1,5 +1,6 @@
 import assert from 'assert';
 import Base from './Base';
+import LogMode from './LogMode';
 import LogStructure from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
@@ -78,17 +79,47 @@ class LogEvent extends Base {
         logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
+    static extractLogTopics(inputLogEvent) {
+        let logTopics = {
+            ...TextEditorUtils.extractMentions(inputLogEvent.title, 'log-topic'),
+            ...TextEditorUtils.extractMentions(inputLogEvent.details, 'log-topic'),
+        };
+        if (inputLogEvent.logStructure) {
+            inputLogEvent.logStructure.logKeys.forEach((logKey) => {
+                if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.value) {
+                    logTopics[logKey.value.id] = logKey.value;
+                } else if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
+                    logTopics = {
+                        ...logTopics,
+                        ...TextEditorUtils.extractMentions(logKey.value, 'log-topic'),
+                    };
+                }
+            });
+        }
+        return logTopics;
+    }
+
     static async validateInternal(inputLogEvent) {
         const results = [];
 
-        // TODO: Validate inputLogEvent.logMode
+        const logModeResults = await Base.validateRecursive.call(
+            this, LogMode, '.logMode', inputLogEvent.logMode,
+        );
+        results.push(...logModeResults);
 
         results.push(Base.validateNonEmptyString('.title', inputLogEvent.name));
         if (inputLogEvent.logStructure) {
-            const logStructureResults = await Base.validateRecursive(
-                LogStructure, '.logStructure', inputLogEvent.logStructure,
+            const logStructureResults = await Base.validateRecursive.call(
+                this, LogStructure, '.logStructure', inputLogEvent.logStructure,
             );
             results.push(...logStructureResults);
+
+            results.push([
+                '.logStructure.logMode',
+                inputLogEvent.logStructure.logStructureGroup.logMode.id
+                === inputLogEvent.logMode.id,
+                'should match .logMode',
+            ]);
 
             const logKeyResults = await Promise.all(
                 inputLogEvent.logStructure.logKeys.map(async (logKey, index) => {
@@ -109,6 +140,15 @@ class LogEvent extends Base {
             );
             results.push(...logKeyResults.filter((result) => result));
         }
+
+        const targetLogTopics = LogEvent.extractLogTopics(inputLogEvent);
+        const modeValidationResults = await this.invoke.call(
+            this,
+            'validate-log-topic-modes',
+            { logMode: inputLogEvent.logMode, targetLogTopics },
+        );
+        results.push(...modeValidationResults);
+
         if (inputLogEvent.isComplete) {
             results.push([
                 '.date',
@@ -190,22 +230,7 @@ class LogEvent extends Base {
         };
         logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
 
-        let targetLogTopics = {
-            ...TextEditorUtils.extractMentions(inputLogEvent.title, 'log-topic'),
-            ...TextEditorUtils.extractMentions(inputLogEvent.details, 'log-topic'),
-        };
-        if (inputLogEvent.logStructure) {
-            inputLogEvent.logStructure.logKeys.forEach((logKey) => {
-                if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.value) {
-                    targetLogTopics[logKey.value.id] = logKey.value;
-                } else if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
-                    targetLogTopics = {
-                        ...targetLogTopics,
-                        ...TextEditorUtils.extractMentions(logKey.value, 'log-topic'),
-                    };
-                }
-            });
-        }
+        const targetLogTopics = LogEvent.extractLogTopics(inputLogEvent);
         await this.database.setEdges(
             'LogEventToLogTopic',
             'source_event_id',

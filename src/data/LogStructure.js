@@ -3,6 +3,7 @@ import Base from './Base';
 import Enum from '../common/Enum';
 import Frequency from './Frequency';
 import TextEditorUtils from '../common/TextEditorUtils';
+import LogStructureGroup from './LogStructureGroup';
 
 
 const LogStructureKey = Enum([
@@ -112,8 +113,26 @@ class LogStructure extends Base {
         }
     }
 
+    static extractLogTopics(inputLogStructure) {
+        const logTopics = {
+            ...TextEditorUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
+            ...TextEditorUtils.extractMentions(inputLogStructure.details, 'log-topic'),
+        };
+        inputLogStructure.logKeys.forEach((logKey) => {
+            if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.parentLogTopic) {
+                logTopics[logKey.parentLogTopic.id] = logKey.parentLogTopic;
+            }
+        });
+        return logTopics;
+    }
+
     static async validateInternal(inputLogStructure) {
         const results = [];
+
+        const logStructureGroupResults = await Base.validateRecursive.call(
+            this, LogStructureGroup, '.logStructureGroup', inputLogStructure.logStructureGroup,
+        );
+        results.push(...logStructureGroupResults);
 
         inputLogStructure.logKeys.forEach((logKey, index) => {
             const prefix = `.logKey[${index}]`;
@@ -152,6 +171,14 @@ class LogStructure extends Base {
                 'requires frequency & suppressUntilDate to be unset.',
             ]);
         }
+
+        const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
+        const modeValidationResults = await this.invoke.call(
+            this,
+            'validate-log-topic-modes',
+            { logMode: inputLogStructure.logStructureGroup.logMode, targetLogTopics },
+        );
+        results.push(...modeValidationResults);
 
         return results;
     }
@@ -234,15 +261,7 @@ class LogStructure extends Base {
             'LogStructure', logStructure, fields,
         );
 
-        const targetLogTopics = {
-            ...TextEditorUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
-            ...TextEditorUtils.extractMentions(inputLogStructure.details, 'log-topic'),
-        };
-        inputLogStructure.logKeys.forEach((logKey) => {
-            if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.parentLogTopic) {
-                targetLogTopics[logKey.parentLogTopic.id] = logKey.parentLogTopic;
-            }
-        });
+        const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
         await this.database.setEdges(
             'LogStructureToLogTopic',
             'source_structure_id',
