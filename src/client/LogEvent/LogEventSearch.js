@@ -9,6 +9,8 @@ import {
 import LogEventList from './LogEventList';
 import { getVirtualID } from '../../data';
 
+const DATE_RANGE_SEPARATOR = ' to ';
+
 const DATE_RANGE_ITEM = {
     __type__: 'date-range',
     id: getVirtualID(),
@@ -25,7 +27,7 @@ const DATE_RANGE_ITEM = {
                         resolve({
                             __type__: option.__type__,
                             id: 0,
-                            name: `${dateRange.startDate} to ${dateRange.endDate}`,
+                            name: dateRange.startDate + DATE_RANGE_SEPARATOR + dateRange.endDate,
                         });
                     } else {
                         resolve(null);
@@ -44,7 +46,7 @@ const YESTERDAY_ITEM = {
         return Promise.resolve({
             __type__: option.__type__,
             id: 0,
-            name: `${yesterday} to ${yesterday}`,
+            name: yesterday + DATE_RANGE_SEPARATOR + yesterday,
         });
     },
 };
@@ -58,6 +60,9 @@ const ALL_EVENTS_ITEM = {
     id: getVirtualID(),
     name: 'All Events',
 };
+
+const EVENT_TITLE_ITEM_TYPE = 'log-event-title';
+const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
 
 const SPECIAL_ITEMS = [DATE_RANGE_ITEM, YESTERDAY_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM];
 
@@ -74,6 +79,18 @@ class LogEventSearch extends React.Component {
                 { name: 'log-structure', args: { where } },
             ],
             prefixOptions: SPECIAL_ITEMS,
+            computedOptionTypes: [EVENT_TITLE_ITEM_TYPE],
+            getComputedOptions: (query) => {
+                const options = [];
+                if (query) {
+                    options.push({
+                        __type__: EVENT_TITLE_ITEM_TYPE,
+                        id: getVirtualID(),
+                        name: EVENT_TITLE_ITEM_PREFIX + query,
+                    });
+                }
+                return options;
+            },
             onSelect: (option) => {
                 if (option && option.getItem) {
                     return option.getItem(option);
@@ -109,7 +126,7 @@ class LogEventSearch extends React.Component {
                 where.logTopics.push(item);
                 dateSearch = true;
             } else if (item.__type__ === DATE_RANGE_ITEM.__type__) {
-                const [startDate, endDate] = item.name.split(' to ');
+                const [startDate, endDate] = item.name.split(DATE_RANGE_SEPARATOR);
                 dates = eachDayOfInterval({
                     start: DateUtils.getDate(startDate),
                     end: DateUtils.getDate(endDate),
@@ -119,6 +136,9 @@ class LogEventSearch extends React.Component {
                 dateSearch = true;
             } else if (item.__type__ === ALL_EVENTS_ITEM.__type__) {
                 delete where.logLevel;
+            } else if (item.__type__ === EVENT_TITLE_ITEM_TYPE) {
+                where.name = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
+                dateSearch = true;
             } else {
                 assert(false, item);
             }

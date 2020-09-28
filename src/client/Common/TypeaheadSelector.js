@@ -24,7 +24,7 @@ class TypeaheadSelector extends React.Component {
         this.setState({ isLoading: true });
         TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
             .search(query)
-            .then((options) => this.setState({ isLoading: false, options }));
+            .then((options) => this.setState({ isLoading: false, options }, this.forceUpdate));
     }
 
     async onChange(selected) {

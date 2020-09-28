@@ -53,10 +53,16 @@ class LogEvent extends Base {
                 [this.database.Op.ne]: null,
                 [this.database.Op[where.dateOp]]: where.date,
             };
+            delete where.dateOp;
         }
-        delete where.dateOp;
+        if (where.name) {
+            where.name = {
+                [this.database.Op.like]: `%${where.name}%`,
+            };
+        }
         await Base.updateWhere.call(this, where, {
             date: 'date',
+            name: 'name',
             logStructure: 'structure_id',
             isFavorite: 'is_favorite',
             isComplete: 'is_complete',
