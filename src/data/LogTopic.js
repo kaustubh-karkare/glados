@@ -35,10 +35,14 @@ class LogTopic extends Base {
     static async validateInternal(inputLogTopic) {
         const results = [];
 
-        const logModeResults = await Base.validateRecursive.call(
-            this, LogMode, '.logMode', inputLogTopic.logMode,
-        );
-        results.push(...logModeResults);
+        if (inputLogTopic.logMode) {
+            const logModeResults = await Base.validateRecursive.call(
+                this, LogMode, '.logMode', inputLogTopic.logMode,
+            );
+            results.push(...logModeResults);
+        } else {
+            results.push(['.logMode', false, 'is missing.']);
+        }
 
         results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));
 

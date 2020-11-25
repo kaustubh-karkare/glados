@@ -24,10 +24,14 @@ class LogStructureGroup extends Base {
     static async validateInternal(inputLogStructureGroup) {
         const results = [];
 
-        const logModeResults = await Base.validateRecursive(
-            LogMode, '.logMode', inputLogStructureGroup.logMode,
-        );
-        results.push(...logModeResults);
+        if (inputLogStructureGroup.logMode) {
+            const logModeResults = await Base.validateRecursive(
+                LogMode, '.logMode', inputLogStructureGroup.logMode,
+            );
+            results.push(...logModeResults);
+        } else {
+            results.push(['.logMode', false, 'is missing.']);
+        }
 
         results.push(Base.validateNonEmptyString('.name', inputLogStructureGroup.name));
 

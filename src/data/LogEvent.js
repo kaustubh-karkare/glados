@@ -108,10 +108,14 @@ class LogEvent extends Base {
     static async validateInternal(inputLogEvent) {
         const results = [];
 
-        const logModeResults = await Base.validateRecursive.call(
-            this, LogMode, '.logMode', inputLogEvent.logMode,
-        );
-        results.push(...logModeResults);
+        if (inputLogEvent.logMode) {
+            const logModeResults = await Base.validateRecursive.call(
+                this, LogMode, '.logMode', inputLogEvent.logMode,
+            );
+            results.push(...logModeResults);
+        } else {
+            results.push(['.logMode', false, 'is missing.']);
+        }
 
         results.push(Base.validateNonEmptyString('.title', inputLogEvent.name));
         if (inputLogEvent.logStructure) {
