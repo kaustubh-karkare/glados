@@ -41,7 +41,7 @@ class Applicaton extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    renderRightSidebar() {
+    renderRightSidebar({ showReminders }) {
         return (
             <Col md={2} className="my-3">
                 <ModeSection
@@ -55,7 +55,9 @@ class Applicaton extends React.Component {
                 />
                 <BackupSection />
                 <ConsistencySection />
-                {this.props.rightSidebarTopicIds.map((id) => <TopicSection key={id} id={id} />)}
+                {showReminders
+                    ? this.props.rightSidebarTopicIds.map((id) => <TopicSection key={id} id={id} />)
+                    : null}
                 <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
@@ -77,6 +79,40 @@ class Applicaton extends React.Component {
     }
 
     renderDefaultLayout() {
+        return (
+            <Row>
+                <Col md={2} className="my-3">
+                    <ScrollableSection>
+                        <TabSection
+                            value={this.state.urlParams.tab}
+                            onChange={(tab) => Coordinator.invoke('url-update', { tab })}
+                            ref={this.tabRef}
+                        />
+                    </ScrollableSection>
+                </Col>
+                <Col md={4} className="my-3">
+                    <IndexSection
+                        Component={TabSection.Enum[this.state.urlParams.tab].Component}
+                        logMode={this.state.urlParams.mode}
+                        search={this.state.urlParams.search}
+                        disabled={this.state.disabled}
+                        onChange={(search) => Coordinator.invoke('url-update', { search })}
+                    />
+                </Col>
+                <Col md={4} className="my-3">
+                    <DetailsSection
+                        logMode={this.state.urlParams.mode}
+                        item={this.state.urlParams.details}
+                        disabled={this.state.disabled}
+                        onChange={(details) => Coordinator.invoke('url-update', { details })}
+                    />
+                </Col>
+                {this.renderRightSidebar({ showReminders: false })}
+            </Row>
+        );
+    }
+
+    renderRemindersLayout() {
         return (
             <Row>
                 <Col md={2} className="my-3">
@@ -109,7 +145,7 @@ class Applicaton extends React.Component {
                         onChange={(details) => Coordinator.invoke('url-update', { details })}
                     />
                 </Col>
-                {this.renderRightSidebar()}
+                {this.renderRightSidebar({ showReminders: true })}
             </Row>
         );
     }
@@ -131,7 +167,7 @@ class Applicaton extends React.Component {
                         onChange={(details) => Coordinator.invoke('url-update', { details })}
                     />
                 </Col>
-                {this.renderRightSidebar()}
+                {this.renderRightSidebar({ showReminders: false })}
             </Row>
         );
     }
@@ -140,6 +176,8 @@ class Applicaton extends React.Component {
         const { layout } = this.state.urlParams;
         if (layout === LayoutSection.Enum.DEFAULT) {
             return this.renderDefaultLayout();
+        } if (layout === LayoutSection.Enum.REMINDERS) {
+            return this.renderRemindersLayout();
         } if (layout === LayoutSection.Enum.TOPIC) {
             return this.renderTopicLayout();
         }

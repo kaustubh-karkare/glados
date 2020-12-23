@@ -9,6 +9,10 @@ const Layout = Enum([
         value: 'default',
     },
     {
+        label: 'Reminders',
+        value: 'reminders',
+    },
+    {
         label: 'Focus',
         value: 'topic',
     },
