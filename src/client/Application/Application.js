@@ -17,6 +17,7 @@ import IndexSection from './IndexSection';
 import LayoutSection from './LayoutSection';
 import FavoritesSection from './FavoritesSection';
 import ModeSection from './ModeSection';
+import TimeSection from './TimeSection';
 import TopicSection from './TopicSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
@@ -44,6 +45,10 @@ class Applicaton extends React.Component {
     renderRightSidebar({ showReminders }) {
         return (
             <Col md={2} className="my-3">
+                <TimeSection
+                    label="Time in India"
+                    timezone="Asia/Kolkata"
+                />
                 <ModeSection
                     logMode={this.state.urlParams.mode}
                     disabled={this.state.disabled}
