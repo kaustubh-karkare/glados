@@ -6,8 +6,9 @@ import DateUtils from '../../common/DateUtils';
 import {
     Coordinator, TypeaheadOptions,
 } from '../Common';
+import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
-import { getVirtualID } from '../../data';
+import { getVirtualID, LogEvent } from '../../data';
 
 const DATE_RANGE_SEPARATOR = ' to ';
 
@@ -193,6 +194,22 @@ class LogEventSearch extends React.Component {
         }
         const { where } = this.state;
         const moreProps = { viewerComponentProps: {} };
+        moreProps.prefixActions = [];
+        moreProps.prefixActions.push({
+            id: 'duplicate',
+            name: 'Duplicate',
+            perform: (logEvent) => {
+                Coordinator.invoke('modal-editor', {
+                    dataType: 'log-event',
+                    EditorComponent: LogEventEditor,
+                    valueKey: 'logEvent',
+                    value: LogEvent.createVirtual({
+                        ...logEvent,
+                        date: DateUtils.getTodayLabel(),
+                    }),
+                });
+            },
+        });
         if (!where.logLevel && !where.logMode) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps.displayLogLevel = true;
@@ -202,21 +219,20 @@ class LogEventSearch extends React.Component {
             const upcomingMoreProps = {
                 ...moreProps,
                 viewerComponentProps: { ...moreProps.viewerComponentProps },
+                prefixActions: [...moreProps.prefixActions],
             };
             upcomingMoreProps.viewerComponentProps.displayDate = true;
-            upcomingMoreProps.prefixActions = [
-                {
-                    id: 'complete',
-                    name: 'Complete',
-                    perform: (logEvent) => {
-                        window.api.send('log-event-upsert', {
-                            ...logEvent,
-                            date: DateUtils.getTodayLabel(),
-                            isComplete: true,
-                        });
-                    },
+            upcomingMoreProps.prefixActions.push({
+                id: 'complete',
+                name: 'Complete',
+                perform: (logEvent) => {
+                    window.api.send('log-event-upsert', {
+                        ...logEvent,
+                        date: DateUtils.getTodayLabel(),
+                        isComplete: true,
+                    });
                 },
-            ];
+            });
             return (
                 <>
                     <LogEventList

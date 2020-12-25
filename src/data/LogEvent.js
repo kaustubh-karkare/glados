@@ -13,15 +13,18 @@ class LogEvent extends Base {
     static createVirtual({
         date = null,
         title = null,
+        details = null,
         logMode = null,
         logLevel = LogLevel.getIndex(LogLevel.NORMAL),
         logStructure = null,
+        isFavorite = false,
         isComplete = true,
     }) {
         if (logStructure) {
-            logStructure.logKeys.forEach((logKey) => {
-                logKey.value = LogStructure.Key[logKey.type].default || null;
-            });
+            logStructure.logKeys = logStructure.logKeys.map((logKey) => ({
+                ...logKey,
+                value: logKey.value || LogStructure.Key[logKey.type].default || null,
+            }));
         }
         // Abstraction leak! The LogEventSearch component filters to logLevels = [2,3] by default.
         if (Array.isArray(logLevel)) {
@@ -33,13 +36,13 @@ class LogEvent extends Base {
             date,
             orderingIndex: null,
             id: getVirtualID(),
-            name: '',
+            // name is added in trigger
             title,
-            details: null,
+            details,
             logLevel,
-            isFavorite: false,
-            isComplete,
             logStructure,
+            isFavorite,
+            isComplete,
         };
         LogEvent.trigger(logEvent);
         return logEvent;
