@@ -1,40 +1,43 @@
 import Dropdown from 'react-bootstrap/Dropdown';
 import React from 'react';
 import PropTypes from 'prop-types';
-import DataLoader from './DataLoader';
+import TypeaheadOptions from './TypeaheadOptions';
 
 import './Dropdown.css';
 
 class CustomDropdown extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { isShown: false, options: [] };
-        this.dataLoader = null;
+        this.state = { isShown: false };
     }
 
     componentDidMount() {
         if (Array.isArray(this.props.options)) {
-            this.setOptions(this.props.options);
-        } else {
-            this.dataLoader = new DataLoader({
-                getInput: () => this.props.options,
-                onData: (options) => this.setOptions(options),
-            });
+            this.setState({ items: this.props.options });
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.dataLoader) this.dataLoader.reload();
+    onSelect(item, event) {
+        if (this.props.options instanceof TypeaheadOptions) {
+            this.props.options.select(item)
+                .then((adjustedItem) => {
+                    // undefined = no change
+                    // null = cancel operation
+                    if (adjustedItem !== null) {
+                        this.props.onChange(adjustedItem || item, event);
+                    }
+                });
+        } else {
+            this.props.onChange(item, event);
+        }
     }
 
-    componentWillUnmount() {
-        if (this.dataLoader) this.dataLoader.stop();
-    }
-
-    setOptions(options) {
-        this.setState({
-            options: [...this.props.prefixOptions, ...options, ...this.props.suffixOptions],
-        });
+    setIsShown(nextIsShown) {
+        if (nextIsShown) {
+            this.show();
+        } else {
+            this.hide();
+        }
     }
 
     hide() {
@@ -42,24 +45,29 @@ class CustomDropdown extends React.Component {
     }
 
     show() {
-        this.setState({ isShown: true });
+        if (this.props.options instanceof TypeaheadOptions) {
+            this.props.options.search('')
+                .then((items) => this.setState({ isShown: true, items }));
+        } else {
+            this.setState({ isShown: true });
+        }
     }
 
     renderItems() {
-        if (!this.state.options) return null;
-        if (this.state.options.length === 0) {
+        if (!this.state.items) return null;
+        if (this.state.items.length === 0) {
             return (
                 <Dropdown.Item disabled>
                     No Results
                 </Dropdown.Item>
             );
         }
-        return this.state.options.map((option) => (
+        return this.state.items.map((item) => (
             <Dropdown.Item
-                key={option.id}
-                onMouseDown={(event) => this.props.onChange(option, event)}
+                key={item.id}
+                onMouseDown={(event) => this.onSelect(item, event)}
             >
-                {option[this.props.labelKey]}
+                {item[this.props.labelKey]}
             </Dropdown.Item>
         ));
     }
@@ -68,7 +76,7 @@ class CustomDropdown extends React.Component {
         return (
             <Dropdown
                 as="span"
-                onToggle={(isShown) => this.setState({ isShown })}
+                onToggle={(isShown) => this.setIsShown(isShown)}
                 show={this.state.isShown}
             >
                 <Dropdown.Toggle as="span">
@@ -87,13 +95,9 @@ CustomDropdown.propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
     disabled: PropTypes.bool.isRequired,
     options: PropTypes.oneOfType([
+        PropTypes.instanceOf(TypeaheadOptions),
         PropTypes.array,
-        PropTypes.object,
     ]).isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    prefixOptions: PropTypes.array,
-    // eslint-disable-next-line react/forbid-prop-types
-    suffixOptions: PropTypes.array,
     onChange: PropTypes.func.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
@@ -101,8 +105,6 @@ CustomDropdown.propTypes = {
 
 CustomDropdown.defaultProps = {
     labelKey: 'name',
-    prefixOptions: [],
-    suffixOptions: [],
 };
 
 export default CustomDropdown;

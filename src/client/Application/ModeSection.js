@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
 import {
-    Dropdown, LeftRight, SidebarSection,
+    Dropdown, LeftRight, SidebarSection, TypeaheadOptions,
 } from '../Common';
 import { getVirtualID } from '../../data';
 
@@ -18,8 +18,10 @@ function ModeSection(props) {
                 Mode
                 <InputGroup>
                     <Dropdown
-                        options={{ name: 'log-mode-list' }}
-                        prefixOptions={[NONE_OPTION]}
+                        options={new TypeaheadOptions({
+                            serverSideOptions: [{ name: 'log-mode' }],
+                            prefixOptions: [NONE_OPTION],
+                        })}
                         disabled={props.disabled}
                         onChange={(newLogMode) => {
                             if (newLogMode.id === NONE_OPTION.id) {

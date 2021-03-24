@@ -28,7 +28,7 @@ const CREATE_ITEM = {
 class LogTopicOptions {
     static get({ parentLogTopic, beforeSelect, afterSelect } = {}) {
         return new TypeaheadOptions({
-            serverSideOptions: [{ name: 'log-topic' }],
+            serverSideOptions: [{ name: 'log-topic', where: { parentLogTopic } }],
             suffixOptions: [CREATE_ITEM],
             onSelect: async (option) => {
                 if (option.getItem) {

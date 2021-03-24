@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Coordinator, Dropdown, InputLine, Link,
 } from '../Common';
+import LogTopicOptions from './LogTopicOptions';
 
 class LogTopicDetailsHeader extends React.Component {
     static onSearchButtonClick(logTopic) {
@@ -34,13 +35,7 @@ class LogTopicDetailsHeader extends React.Component {
                 {' / '}
                 <Dropdown
                     disabled={false}
-                    options={{
-                        name: 'log-topic-list',
-                        args: {
-                            where: { parentLogTopic: logTopic },
-                            ordering: true,
-                        },
-                    }}
+                    options={LogTopicOptions.get({ parentLogTopic: logTopic })}
                     onChange={(childLogTopic) => Coordinator.invoke(
                         'url-update',
                         { details: childLogTopic },
