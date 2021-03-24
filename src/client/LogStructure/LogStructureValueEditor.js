@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Selector, TextEditor, TypeaheadInput, TypeaheadSelector,
 } from '../Common';
+import { LogTopicOptions } from '../LogTopic';
 import { LogStructure, getPartialItem } from '../../data';
 
 class LogStructureValueEditor extends React.Component {
@@ -39,7 +40,7 @@ class LogStructureValueEditor extends React.Component {
             return (
                 <TypeaheadSelector
                     id="log-structure-value-editor-topic"
-                    serverSideTypes={['log-topic']}
+                    options={LogTopicOptions.get({ parentLogTopic: logKey.parentLogTopic })}
                     value={logKey.value}
                     disabled={this.props.disabled}
                     onChange={(value) => this.update(value)}

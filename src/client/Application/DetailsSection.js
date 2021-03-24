@@ -12,8 +12,7 @@ import {
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
-import { LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
-import { LogTopic, getVirtualID } from '../../data';
+import { LogTopicOptions, LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
 import TextEditorUtils from '../../common/TextEditorUtils';
 
 import './DetailsSection.css';
@@ -33,30 +32,6 @@ const HEADER_MAPPING = {
         HeaderComponent: LogTopicDetailsHeader,
         EditorComponent: LogTopicEditor,
         valueKey: 'logTopic',
-    },
-};
-
-const NEW_TOPIC_ITEM = {
-    __type__: 'log-topic',
-    id: getVirtualID(),
-    name: 'Create New Topic ...',
-    getItem(option, item) {
-        return new Promise((resolve) => {
-            const parentLogTopic = item && item.__type__ === 'log-topic' ? item : null;
-            Coordinator.invoke('modal-editor', {
-                dataType: 'log-topic',
-                EditorComponent: LogTopicEditor,
-                valueKey: 'logTopic',
-                value: LogTopic.createVirtual({ parentLogTopic }),
-                onClose: (newLogTopic) => {
-                    if (newLogTopic) {
-                        resolve(newLogTopic);
-                    } else {
-                        resolve(null);
-                    }
-                },
-            });
-        });
     },
 };
 
@@ -147,22 +122,6 @@ class DetailsSection extends React.Component {
             EditorComponent,
             valueKey,
             value: item,
-        });
-    }
-
-    getTypeaheadOptions() {
-        return new TypeaheadOptions({
-            serverSideOptions: [{ name: 'log-topic' }],
-            suffixOptions: [NEW_TOPIC_ITEM],
-            onSelect: async (option) => {
-                if (option.getItem) {
-                    this.setState({ isSaveDisabled: true });
-                    const result = await option.getItem(option, this.state.item);
-                    this.setState({ isSaveDisabled: false });
-                    return result;
-                }
-                return undefined;
-            },
         });
     }
 
@@ -259,16 +218,22 @@ class DetailsSection extends React.Component {
     }
 
     renderDetails() {
-        if (!this.state.item) {
+        const { item } = this.state;
+        if (!item) {
             return null;
         }
+        const parentLogTopic = item && item.__type__ === 'log-topic' ? item : null;
         return (
             <div>
                 <TextEditor
                     unstyled
-                    value={this.state.item.details}
-                    onChange={(details) => this.onChange({ ...this.state.item, details })}
-                    options={this.getTypeaheadOptions()}
+                    value={item.details}
+                    onChange={(details) => this.onChange({ ...item, details })}
+                    options={LogTopicOptions.get({
+                        parentLogTopic,
+                        beforeSelect: () => this.setState({ isSaveDisabled: true }),
+                        afterSelect: () => this.setState({ isSaveDisabled: false }),
+                    })}
                 />
             </div>
         );
