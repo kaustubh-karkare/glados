@@ -103,6 +103,11 @@ class LogStructure extends Base {
     static trigger(logStructure) {
         // TODO: If a key is deleted, remove it from the content.
         const options = [getPartialItem(logStructure), ...logStructure.logKeys];
+        if (logStructure.name && !logStructure.titleTemplate) {
+            logStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent('$0', {
+                $: [logStructure],
+            });
+        }
         logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
             logStructure.titleTemplate,
             options,

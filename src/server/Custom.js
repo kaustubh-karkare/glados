@@ -1,5 +1,7 @@
 /* eslint-disable func-names */
 
+import assert from 'assert';
+
 import { LogEvent, awaitSequence } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 import TextEditorUtils from '../common/TextEditorUtils';
@@ -82,4 +84,57 @@ ActionsRegistry['validate-log-topic-modes'] = async function ({ logMode, targetL
     });
     */
     return results;
+};
+
+ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
+    const ID_TO_NAME = {
+        9: 'Birthdays',
+        13: 'Anniversaries',
+    };
+    const logStructureGroups = await this.invoke.call(
+        this,
+        'log-structure-group-list',
+        { where: { id: Object.keys(ID_TO_NAME) } },
+    );
+    return Promise.all(
+        logStructureGroups.map(async (logStructureGroup) => {
+            assert(
+                ID_TO_NAME[logStructureGroup.id] === logStructureGroup.name,
+                logStructureGroup.name,
+            );
+            const logStructures = await this.invoke.call(
+                this,
+                'log-structure-list',
+                { where: { logStructureGroup } },
+            );
+            return Promise.all(
+                logStructures.map(async (logStructure) => {
+                    const nameRegexResult = logStructure.name.match(/^(\d{2}-\d{2})\w?$/);
+                    assert(nameRegexResult, logStructure.name);
+                    const expectedValues = {
+                        isPeriodic: true,
+                        frequency: 'yearly',
+                        frequencyArgs: nameRegexResult[1],
+                        reminderText: TextEditorUtils.extractPlainText(logStructure.titleTemplate),
+                        warningDays: 2,
+                    };
+                    let needsUpdate = false;
+                    Object.keys(expectedValues).forEach((key) => {
+                        if (logStructure[key] !== expectedValues[key]) {
+                            logStructure[key] = expectedValues[key];
+                            needsUpdate = true;
+                        }
+                    });
+                    if (!needsUpdate) {
+                        return logStructure;
+                    }
+                    return this.invoke.call(
+                        this,
+                        'log-structure-upsert',
+                        logStructure,
+                    );
+                }),
+            );
+        }),
+    );
 };

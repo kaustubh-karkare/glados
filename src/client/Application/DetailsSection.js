@@ -222,7 +222,7 @@ class DetailsSection extends React.Component {
         if (!item) {
             return null;
         }
-        const parentLogTopic = item && item.__type__ === 'log-topic' ? item : null;
+        const parentLogTopic = item && item.__type__ === 'log-topic' ? item : undefined;
         return (
             <div>
                 <TextEditor
