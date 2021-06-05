@@ -51,6 +51,26 @@ const YESTERDAY_ITEM = {
         });
     },
 };
+const THIS_WEEK_ITEM = {
+    __type__: 'date-range',
+    id: getVirtualID(),
+    name: 'This Week',
+    getItem(option) {
+        const todayDate = DateUtils.getTodayDate();
+        let day = getDay(todayDate);
+        if (day === 0) { // sunday
+            day = 7;
+        }
+        const mondayDate = subDays(todayDate, day - 1);
+        return Promise.resolve({
+            __type__: option.__type__,
+            id: 0,
+            name: DateUtils.getLabel(mondayDate)
+                + DATE_RANGE_SEPARATOR
+                + DateUtils.getLabel(todayDate),
+        });
+    },
+};
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
     id: getVirtualID(),
@@ -65,7 +85,13 @@ const ALL_EVENTS_ITEM = {
 const EVENT_TITLE_ITEM_TYPE = 'log-event-title';
 const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
 
-const SPECIAL_ITEMS = [DATE_RANGE_ITEM, YESTERDAY_ITEM, INCOMPLETE_ITEM, ALL_EVENTS_ITEM];
+const SPECIAL_ITEMS = [
+    DATE_RANGE_ITEM,
+    YESTERDAY_ITEM,
+    THIS_WEEK_ITEM,
+    INCOMPLETE_ITEM,
+    ALL_EVENTS_ITEM,
+];
 
 function getDayOfTheWeek(label) {
     return DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(label))];
