@@ -5,6 +5,13 @@ const DateRange = PropTypes.shape({
     endDate: PropTypes.string.isRequired,
 });
 
+const EnumOptions = PropTypes.arrayOf(
+    PropTypes.shape({
+        value: PropTypes.string.isRequired,
+        label: PropTypes.string.isRequired,
+    }).isRequired,
+);
+
 const Item = PropTypes.shape({
     __type__: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
@@ -48,6 +55,7 @@ const LogEvent = PropTypes.shape({
 
 PropTypes.Custom = {
     DateRange,
+    EnumOptions,
     Item,
     LogMode,
     LogTopic,

@@ -24,6 +24,7 @@ class URLState {
         return {
             tab: params.tab,
             layout: params.layout,
+            widgets: params.widgets,
             search: params.search ? params.search.map(deserializeItem) : [],
             details: params.details ? deserializeItem(params.details) : null,
             mode: params.mode ? deserializeItem(params.mode) : null,
@@ -34,6 +35,7 @@ class URLState {
         const params = {
             tab: state.tab,
             layout: state.layout,
+            widgets: state.widgets,
             search: state.search ? state.search.map(serializeItem) : undefined,
             details: state.details ? serializeItem(state.details) : undefined,
             mode: state.mode ? serializeItem(state.mode) : undefined,

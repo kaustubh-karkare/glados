@@ -1,26 +1,11 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { LeftRight, SidebarSection } from '../Common';
-import Enum from '../../common/Enum';
+import PropTypes from '../prop-types';
+import LeftRight from './LeftRight';
+import SidebarSection from './SidebarSection';
 
-const Layout = Enum([
-    {
-        label: 'Default',
-        value: 'default',
-    },
-    {
-        label: 'Reminders',
-        value: 'reminders',
-    },
-    {
-        label: 'Focus',
-        value: 'topic',
-    },
-]);
-
-class LayoutSection extends React.Component {
+class EnumSelectorSection extends React.Component {
     renderOptions() {
-        return Layout.Options.map((option, index) => {
+        return this.props.options.map((option, index) => {
             let { label } = option;
             if (this.props.value !== option.value) {
                 label = (
@@ -43,7 +28,7 @@ class LayoutSection extends React.Component {
         return (
             <SidebarSection>
                 <LeftRight>
-                    {'Layout: '}
+                    {this.props.label}
                     <div>{this.renderOptions()}</div>
                 </LeftRight>
             </SidebarSection>
@@ -51,11 +36,11 @@ class LayoutSection extends React.Component {
     }
 }
 
-LayoutSection.Enum = Layout;
-
-LayoutSection.propTypes = {
+EnumSelectorSection.propTypes = {
+    label: PropTypes.string.isRequired,
+    options: PropTypes.Custom.EnumOptions.isRequired,
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-export default LayoutSection;
+export default EnumSelectorSection;
