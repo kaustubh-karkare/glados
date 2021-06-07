@@ -14,7 +14,6 @@ import './GraphSection.css';
 const CustomTooltip = ({ active, label, payload }) => {
     if (active && payload && payload.length) {
         const line = payload[0];
-        // TODO: Add background style.
         return (
             <div className="graph-tooltip">
                 {'Date: '}
@@ -111,7 +110,7 @@ class GraphSection extends React.Component {
         const samples = [];
         for (
             let currentDate = minDate;
-            compareAsc(currentDate, maxDate) < 0;
+            compareAsc(currentDate, maxDate) <= 0;
             currentDate = addDays(currentDate, 1)
         ) {
             const sample = { date: DateUtils.getLabel(currentDate) };

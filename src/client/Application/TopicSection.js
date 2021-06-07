@@ -1,10 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import InputGroup from 'react-bootstrap/InputGroup';
-import { GoPrimitiveDot } from 'react-icons/go';
-import {
-    DataLoader, Icon, SidebarSection,
-} from '../Common';
+import { DataLoader, SidebarSection } from '../Common';
 import TextEditorUtils from '../../common/TextEditorUtils';
 
 class TopicSection extends React.Component {
@@ -44,12 +40,9 @@ class TopicSection extends React.Component {
             .filter((line) => line.startsWith('- '))
             .map((line) => line.substr(2));
         return lines.map((item) => (
-            <InputGroup key={item}>
-                <Icon alwaysHighlighted className="mr-1">
-                    <GoPrimitiveDot />
-                </Icon>
+            <SidebarSection.Item key={item}>
                 {item}
-            </InputGroup>
+            </SidebarSection.Item>
         ));
     }
 

@@ -11,6 +11,7 @@ import { LogTopicList } from '../LogTopic';
 import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import ConsistencySection from './ConsistencySection';
+import ConversationRemindersSection from './ConversationRemindersSection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
@@ -184,6 +185,7 @@ class Applicaton extends React.Component {
                     ViewerComponent={LogTopicList.Single}
                     valueKey="logTopic"
                 />
+                <ConversationRemindersSection />
             </>
         );
     }

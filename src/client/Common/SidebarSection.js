@@ -2,6 +2,8 @@ import { TiMinus, TiPlus } from 'react-icons/ti';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { GoPrimitiveDot } from 'react-icons/go';
 import Icon from './Icon';
 import LeftRight from './LeftRight';
 
@@ -67,6 +69,20 @@ SidebarSection.propTypes = {
     selected: PropTypes.bool,
     // eslint-disable-next-line react/forbid-prop-types
     title: PropTypes.any,
+    // eslint-disable-next-line react/forbid-prop-types
+    children: PropTypes.any,
+};
+
+SidebarSection.Item = ({ children }) => (
+    <InputGroup>
+        <Icon alwaysHighlighted className="mr-1">
+            <GoPrimitiveDot />
+        </Icon>
+        {children}
+    </InputGroup>
+);
+
+SidebarSection.Item.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
 };
