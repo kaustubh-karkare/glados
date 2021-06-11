@@ -262,6 +262,43 @@ class LogStructure extends Base {
             suppress_until_date: inputLogStructure.suppressUntilDate,
             log_level: inputLogStructure.logLevel,
         };
+
+        // Fetch affected logEvents BEFORE updating the database.
+        // Why? To prevent loading the new log-structure from the log-event.
+        let inputLogEvents = null;
+        if (originalLogStructure) {
+            let shouldRegenerateLogEvents = false;
+            if (!shouldRegenerateLogEvents) {
+                shouldRegenerateLogEvents = (
+                    originalLogStructure.name !== fields.name
+                    || originalLogStructure.keys !== fields.keys
+                );
+            }
+            if (!shouldRegenerateLogEvents) {
+                const originalTitleTemplate = TextEditorUtils.deserialize(
+                    originalLogStructure.title_template,
+                    TextEditorUtils.StorageType.DRAFTJS,
+                );
+                shouldRegenerateLogEvents = !TextEditorUtils.equals(
+                    originalTitleTemplate,
+                    inputLogStructure.titleTemplate,
+                );
+            }
+            if (!shouldRegenerateLogEvents) {
+                shouldRegenerateLogEvents = (
+                    originalLogStructure.log_level !== fields.log_level
+                    || originalLogStructure.mode_id !== fields.mode_id
+                );
+            }
+            if (shouldRegenerateLogEvents) {
+                inputLogEvents = await this.invoke.call(
+                    this,
+                    'log-event-list',
+                    { where: { logStructure: inputLogStructure } },
+                );
+            }
+        }
+
         const updatedLogStructure = await this.database.createOrUpdateItem(
             'LogStructure', logStructure, fields,
         );
@@ -280,30 +317,23 @@ class LogStructure extends Base {
         );
 
         if (originalLogStructure) {
-            let shouldRegenerateLogEvents = (
-                originalLogStructure.name !== updatedLogStructure.name
-                || originalLogStructure.keys !== updatedLogStructure.keys
-            );
-            if (!shouldRegenerateLogEvents) {
-                const originalTitleTemplate = TextEditorUtils.deserialize(
-                    originalLogStructure.title_template,
-                    TextEditorUtils.StorageType.DRAFTJS,
-                );
-                shouldRegenerateLogEvents = !TextEditorUtils.equals(
-                    originalTitleTemplate,
-                    inputLogStructure.titleTemplate,
-                );
-            }
-            if (!shouldRegenerateLogEvents) {
-                shouldRegenerateLogEvents = (
-                    originalLogStructure.log_level !== updatedLogStructure.log_level
-                    || originalLogStructure.mode_id !== updatedLogStructure.mode_id
-                );
-            }
-            if (shouldRegenerateLogEvents) {
-                await LogStructure.updateLogEvents.call(this, inputLogStructure);
+            if (inputLogEvents) {
+                await Promise.all(inputLogEvents.map(async (inputLogEvent) => {
+                    // Update the logEvent to support logKey addition, reorder, deletion.
+                    const mapping = {};
+                    inputLogEvent.logStructure.logKeys.forEach((logKey) => {
+                        mapping[logKey.id] = logKey;
+                    });
+                    inputLogEvent.logStructure = {
+                        ...inputLogStructure,
+                        logKeys: inputLogStructure.logKeys
+                            .map((logKey) => mapping[logKey.id] || logKey),
+                    };
+                    return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
+                }));
             }
         } else {
+            // On creation, replace the virtual ID in the title template.
             const updatedTitleTemplate = TextEditorUtils.updateDraftContent(
                 inputLogStructure.titleTemplate,
                 [inputLogStructure],
@@ -326,20 +356,6 @@ class LogStructure extends Base {
 
         this.broadcast('reminder-sidebar');
         return updatedLogStructure.id;
-    }
-
-    static async updateLogEvents(inputLogStructure) {
-        const inputLogEvents = await this.invoke.call(
-            this,
-            'log-event-list',
-            { where: { logStructure: inputLogStructure } },
-        );
-        await Promise.all(inputLogEvents.map(async (inputLogEvent) => {
-            // TODO: Update inputLogEvent based on inputLogStructure.
-            // eslint-disable-next-line no-unused-expressions
-            inputLogStructure;
-            return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
-        }));
     }
 
     static async delete(id) {

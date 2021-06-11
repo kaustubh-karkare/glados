@@ -1,8 +1,67 @@
+import { LogStructure } from '../../data';
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from './Utils';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
+
+test('test_key_updates', async () => {
+    await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
+        logStructureGroups: [
+            {
+                modeName: 'Test',
+                name: 'Entertainment',
+            },
+        ],
+        logStructures: [
+            {
+                groupName: 'Entertainment',
+                name: 'Movie',
+                logKeys: [
+                    { name: 'Title', type: 'string' },
+                    { name: 'Link', type: 'string' },
+                    { name: 'Rating', type: 'integer' },
+                ],
+                titleTemplate: '$0: [$1]($2)',
+            },
+        ],
+        logEvents: [
+            {
+                date: '2020-08-23',
+                structureName: 'Movie',
+                logValues: ['The Martian', 'https://www.imdb.com/title/tt3659388/', '9'],
+            },
+        ],
+    });
+
+    const actions = Utils.getActions();
+
+    const oldLogEvent = await actions.invoke('log-event-load', { id: 1 });
+    const oldValues = oldLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
+
+    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
+    const newLogKey = {
+        ...LogStructure.createNewKey({ index: 4 }),
+        name: 'Worthwhile?',
+        type: LogStructure.Key.YES_OR_NO,
+        value: 'yes',
+    };
+    logStructure.logKeys = [
+        logStructure.logKeys[1],
+        logStructure.logKeys[0],
+        newLogKey,
+    ];
+    await actions.invoke('log-structure-upsert', logStructure);
+
+    const newLogEvent = await actions.invoke('log-event-load', { id: 1 });
+    const newValues = newLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
+    expect(newValues[0]).toEqual(oldValues[1]);
+    expect(newValues[1]).toEqual(oldValues[0]);
+    expect(newValues[2]).toEqual(newLogKey.value);
+});
 
 test('test_structure_deletion', async () => {
     await Utils.loadData({
