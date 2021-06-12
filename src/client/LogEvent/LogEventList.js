@@ -1,3 +1,4 @@
+import { BiDetail } from 'react-icons/bi';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { BulletList, TextEditor } from '../Common';
@@ -16,6 +17,27 @@ function LogEventViewer(props) {
             </span>
         );
     }
+    const title = (
+        <span className="mr-1" style={{ float: 'left' }}>
+            <TextEditor
+                unstyled
+                disabled
+                value={logEvent.title}
+            />
+        </span>
+    );
+    let detailsSuffix;
+    if (logEvent.details) {
+        detailsSuffix = (
+            <span className="mr-1" style={{ float: 'left' }}>
+                <BiDetail
+                    color="var(--link-color)"
+                    style={{ cursor: 'pointer' }}
+                    onClick={props.toggleExpansion}
+                />
+            </span>
+        );
+    }
     let logLevelSuffix;
     if (props.displayLogLevel) {
         logLevelSuffix = (
@@ -28,11 +50,8 @@ function LogEventViewer(props) {
         <div>
             {datePrefix}
             {logLevelSuffix}
-            <TextEditor
-                unstyled
-                disabled
-                value={logEvent.title}
-            />
+            {title}
+            {detailsSuffix}
         </div>
     );
 }
@@ -41,6 +60,7 @@ LogEventViewer.propTypes = {
     logEvent: PropTypes.Custom.LogEvent.isRequired,
     displayDate: PropTypes.bool,
     displayLogLevel: PropTypes.bool,
+    toggleExpansion: PropTypes.func.isRequired,
 };
 
 LogEventViewer.Expanded = (props) => {

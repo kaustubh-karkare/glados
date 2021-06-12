@@ -189,7 +189,12 @@ class BulletListItem extends React.Component {
 
     renderViewer() {
         const { ViewerComponent } = this.props;
-        return <ViewerComponent {...this.getViewerProps()} />;
+        return (
+            <ViewerComponent
+                {...this.getViewerProps()}
+                toggleExpansion={() => this.setIsExpanded(!this.getIsExpanded())}
+            />
+        );
     }
 
     renderExpandedViewer() {

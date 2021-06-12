@@ -7,10 +7,6 @@
     position: relative;
 }
 
-.text-editor .public-DraftEditor-content {
-    min-width: 100px;
-}
-
 .text-editor.styled {
     background: var(--input-background-color);
     color: var(--input-text-color);
