@@ -44,7 +44,7 @@ test('test_key_updates', async () => {
 
     const logStructure = await actions.invoke('log-structure-load', { id: 1 });
     const newLogKey = {
-        ...LogStructure.createNewKey({ index: 4 }),
+        ...LogStructure.createNewKey(),
         name: 'Worthwhile?',
         type: LogStructure.Key.YES_OR_NO,
         value: 'yes',

@@ -95,6 +95,7 @@ class LogStructure extends Base {
         await Base.updateWhere.call(this, where, {
             id: 'id',
             logStructureGroup: 'group_id',
+            name: 'name',
             isPeriodic: 'is_periodic',
             logMode: 'mode_id',
         });
@@ -197,7 +198,7 @@ class LogStructure extends Base {
         );
         const logKeys = await Promise.all(
             JSON.parse(logStructure.keys).map(
-                (logKey) => LogStructure.loadKey.call(this, logKey),
+                (logKey, index) => LogStructure.loadKey.call(this, logKey, index + 1),
             ),
         );
         return {
@@ -235,6 +236,8 @@ class LogStructure extends Base {
             logStructure,
             { group_id: inputLogStructure.logStructureGroup.id },
         );
+
+        // isVirtualItem
 
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
@@ -326,8 +329,10 @@ class LogStructure extends Base {
                     });
                     inputLogEvent.logStructure = {
                         ...inputLogStructure,
-                        logKeys: inputLogStructure.logKeys
-                            .map((logKey) => mapping[logKey.id] || logKey),
+                        logKeys: inputLogStructure.logKeys.map((logKey) => ({
+                            ...logKey,
+                            value: (mapping[logKey.id] || logKey).value,
+                        })),
                     };
                     return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
                 }));
@@ -371,18 +376,19 @@ class LogStructure extends Base {
 
     // Log Structure Keys
 
-    static createNewKey({ index }) {
+    static createNewKey() {
         return {
             __type__: 'log-structure-key',
-            id: index,
+            id: getVirtualID(),
             name: '',
             type: LogStructureKey.STRING,
             isOptional: false,
+            template: null,
             parentLogTopic: null,
         };
     }
 
-    static async loadKey(rawLogKey) {
+    static async loadKey(rawLogKey, index) {
         let parentLogTopic = null;
         if (rawLogKey.parent_topic_id) {
             parentLogTopic = await this.invoke.call(this, 'log-topic-load', {
@@ -391,9 +397,10 @@ class LogStructure extends Base {
         }
         return {
             __type__: 'log-structure-key',
-            id: rawLogKey.id,
+            id: index,
             name: rawLogKey.name,
             type: rawLogKey.type,
+            template: rawLogKey.template,
             isOptional: rawLogKey.is_optional,
             parentLogTopic,
         };
@@ -401,10 +408,10 @@ class LogStructure extends Base {
 
     static saveKey(inputLogKey) {
         return {
-            id: inputLogKey.id,
             name: inputLogKey.name,
             type: inputLogKey.type,
             is_optional: inputLogKey.isOptional,
+            template: inputLogKey.template,
             parent_topic_id: inputLogKey.parentLogTopic ? inputLogKey.parentLogTopic.id : null,
         };
     }

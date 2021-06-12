@@ -77,6 +77,21 @@ class LogEvent extends Base {
     static trigger(logEvent) {
         if (logEvent.logStructure) {
             logEvent.logMode = logEvent.logStructure.logStructureGroup.logMode;
+            const getLogKeyValue = (logKey) => logKey.value || (logKey.isOptional ? '' : logKey);
+            logEvent.logStructure.logKeys.forEach((logKey, index) => {
+                if (!logKey.template) {
+                    return;
+                }
+                const previousLogKeys = logEvent.logStructure.logKeys.slice(0, index);
+                logKey.value = TextEditorUtils.extractPlainText(
+                    TextEditorUtils.updateDraftContent(
+                        logKey.template,
+                        previousLogKeys,
+                        previousLogKeys.map(getLogKeyValue),
+                        true, // evaluateExpressions
+                    ),
+                );
+            });
             logEvent.title = TextEditorUtils.updateDraftContent(
                 logEvent.logStructure.titleTemplate,
                 logEvent.logStructure.logKeys,
@@ -220,7 +235,7 @@ class LogEvent extends Base {
             .call(this, shouldResetOrderingIndex ? null : logEvent, { date: inputLogEvent.date });
         let logValues;
         if (inputLogEvent.logStructure) {
-            logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
+            logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value || null);
         }
         const fields = {
             mode_id: inputLogEvent.logMode.id,

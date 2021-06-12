@@ -88,6 +88,7 @@ class SortableList extends React.Component {
                 [valueKey]: item,
                 disabled,
                 onChange: (updatedItem) => this.onChange(index, updatedItem),
+                index,
                 ...moreProps,
             }),
             wrappedRowDisabled: disabled,

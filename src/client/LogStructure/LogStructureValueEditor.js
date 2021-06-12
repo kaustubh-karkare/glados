@@ -27,11 +27,12 @@ class LogStructureValueEditor extends React.Component {
 
     render() {
         const { logKey } = this.props;
+        const disabled = this.props.disabled || !!logKey.template;
         if (logKey.type === LogStructure.Key.YES_OR_NO) {
             return (
                 <Selector.Binary
                     value={logKey.value === 'yes'}
-                    disabled={this.props.disabled}
+                    disabled={disabled}
                     onChange={(value) => this.update(value ? 'yes' : 'no')}
                     ref={this.ref}
                 />
@@ -42,7 +43,7 @@ class LogStructureValueEditor extends React.Component {
                     id="log-structure-value-editor-topic"
                     options={LogTopicOptions.get({ parentLogTopic: logKey.parentLogTopic })}
                     value={logKey.value}
-                    disabled={this.props.disabled}
+                    disabled={disabled}
                     onChange={(value) => this.update(value)}
                     where={{ parent_topic_id: logKey.parentLogTopic.id }}
                     ref={this.ref}
@@ -54,7 +55,7 @@ class LogStructureValueEditor extends React.Component {
                     isSingleLine
                     serverSideTypes={['log-topic']}
                     value={logKey.value}
-                    disabled={this.props.disabled}
+                    disabled={disabled}
                     onChange={(value) => this.update(value)}
                     ref={this.ref}
                 />
@@ -64,7 +65,7 @@ class LogStructureValueEditor extends React.Component {
             <TypeaheadInput
                 id={logKey.name}
                 value={logKey.value || ''}
-                disabled={this.props.disabled}
+                disabled={disabled}
                 onChange={(value) => this.update(value)}
                 onSearch={(query) => this.props.onSearch(query)}
                 ref={this.ref}

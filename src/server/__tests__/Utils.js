@@ -94,7 +94,7 @@ export default class Utils {
             if (inputLogStructure.logKeys) {
                 inputLogStructure.logKeys.forEach((logKey, index) => {
                     logKey.__type__ = 'log-structure-key';
-                    logKey.id = index;
+                    logKey.id = index + 1;
                     if (logKey.parentTopicName) {
                         logKey.parentLogTopic = logTopicMap[logKey.parentTopicName];
                         delete logKey.parentTopicName;

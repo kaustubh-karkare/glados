@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Selector, TextInput, TypeaheadSelector,
+    Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogStructure } from '../../data';
 import LogStructureValueEditor from './LogStructureValueEditor';
@@ -80,6 +80,21 @@ class LogStructureKeyEditor extends React.Component {
         );
     }
 
+    renderTemplate() {
+        return (
+            <TextEditor
+                isSingleLine
+                value={this.props.logKey.template}
+                options={new TypeaheadOptions({
+                    prefixOptions: this.props.logStructure.logKeys.slice(0, this.props.index),
+                    serverSideOptions: [],
+                })}
+                disabled={this.props.disabled}
+                onChange={(template) => this.update('template', template)}
+            />
+        );
+    }
+
     render() {
         // eslint-disable-next-line react/prop-types
         const children = this.props.children || [];
@@ -95,6 +110,7 @@ class LogStructureKeyEditor extends React.Component {
                     ? this.renderParentLogTopic() : null}
                 {this.renderOptionalSelector()}
                 {this.renderValue()}
+                {this.renderTemplate()}
                 {children.pop()}
             </InputGroup>
         );
@@ -102,6 +118,8 @@ class LogStructureKeyEditor extends React.Component {
 }
 
 LogStructureKeyEditor.propTypes = {
+    logStructure: PropTypes.Custom.LogStructure.isRequired,
+    index: PropTypes.number.isRequired,
     logKey: PropTypes.Custom.LogStructureKey.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,

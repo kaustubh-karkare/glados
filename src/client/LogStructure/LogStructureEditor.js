@@ -97,11 +97,10 @@ class LogStructureEditor extends React.Component {
                     disabled={this.props.disabled}
                     onClick={() => {
                         this.updateLogStructure((updatedLogStructure) => {
-                            const index = updatedLogStructure.logKeys.length;
                             // eslint-disable-next-line no-param-reassign
                             updatedLogStructure.logKeys = [
                                 ...updatedLogStructure.logKeys,
-                                LogStructure.createNewKey({ index }),
+                                LogStructure.createNewKey(),
                             ];
                         });
                     }}
@@ -164,6 +163,7 @@ class LogStructureEditor extends React.Component {
                         }}
                         type={LogStructureKeyEditor}
                         valueKey="logKey"
+                        logStructure={this.props.logStructure}
                     />
                     {this.renderNeedsEditSelector()}
                 </div>
