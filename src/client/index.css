@@ -35,3 +35,15 @@ a.topic:hover {
 pre {
     color: var(--text-color);
 }
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.monospace {
+    font-family: Consolas;
+}

@@ -91,6 +91,9 @@ export function getSortComparator(fieldNames) {
         for (let ii = 0; ii < fieldNames.length; ii += 1) {
             const leftValue = left[fieldNames[ii]];
             const rightValue = right[fieldNames[ii]];
+            if (typeof leftValue === 'undefined' || typeof rightValue === 'undefined') {
+                return 0;
+            }
             if (leftValue !== null && rightValue !== null) {
                 return compare(leftValue, rightValue);
             } if (leftValue === null && rightValue !== null) {

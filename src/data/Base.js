@@ -13,41 +13,45 @@ class Base extends ValidationBase {
         throw new Exception('not implemented');
     }
 
+    static async updateLogTopicsWhere(where) {
+        // Special case! The logTopics filter is handled via junction tables,
+        // unlike the remaining fields that can be queried normally.
+        const junctionTableName = `${this.DataType.name}ToLogTopic`;
+        const junctionSourceName = {
+            LogTopic: 'source_topic_id',
+            LogStructure: 'source_structure_id',
+            LogEvent: 'source_event_id',
+        }[this.DataType.name];
+        assert(junctionSourceName);
+        const logTopicIds = where.logTopics.map((item) => item.id);
+        const edges = await this.database.getEdges(
+            junctionTableName,
+            'target_topic_id',
+            logTopicIds,
+        );
+        let itemIds;
+        if (logTopicIds.length > 1) {
+            // assuming AND operation, not OR
+            const counters = {};
+            edges.forEach((edge) => {
+                const id = edge[junctionSourceName];
+                counters[id] = (counters[id] || 0) + 1;
+            });
+            itemIds = Object.entries(counters)
+                .filter((pair) => pair[1] === logTopicIds.length)
+                .map((pair) => parseInt(pair[0], 10));
+        } else {
+            itemIds = edges.map((edge) => edge[junctionSourceName]);
+        }
+        delete where.logTopics;
+        assert(!where.id);
+        where.id = itemIds;
+    }
+
     static async updateWhere(where, mapping) {
         await awaitSequence(Object.keys(where), async (fieldName) => {
-            // Special case! The logTopics filter is handled via junction tables,
-            // unlike the remaining fields that can be queried normally.
             if (fieldName === 'logTopics') {
-                const junctionTableName = `${this.DataType.name}ToLogTopic`;
-                const junctionSourceName = {
-                    LogTopic: 'source_topic_id',
-                    LogStructure: 'source_structure_id',
-                    LogEvent: 'source_event_id',
-                }[this.DataType.name];
-                assert(junctionSourceName);
-                const logTopicIds = where.logTopics.map((item) => item.id);
-                const edges = await this.database.getEdges(
-                    junctionTableName,
-                    'target_topic_id',
-                    logTopicIds,
-                );
-                let itemIds;
-                if (logTopicIds.length > 1) {
-                    // assuming AND operation, not OR
-                    const counters = {};
-                    edges.forEach((edge) => {
-                        const id = edge[junctionSourceName];
-                        counters[id] = (counters[id] || 0) + 1;
-                    });
-                    itemIds = Object.entries(counters)
-                        .filter((pair) => pair[1] === logTopicIds.length)
-                        .map((pair) => parseInt(pair[0], 10));
-                } else {
-                    itemIds = edges.map((edge) => edge[junctionSourceName]);
-                }
-                delete where.logTopics;
-                assert(!where.id);
-                where.id = itemIds;
+                await Base.updateLogTopicsWhere.call(this, where);
             } else if (fieldName in mapping) {
                 const newFieldName = mapping[fieldName];
                 let value = where[fieldName];
@@ -64,9 +68,7 @@ class Base extends ValidationBase {
 
     static async list(where) {
         let items = await this.database.findAll(this.DataType.name, where);
-        if (items.length && typeof items[0].ordering_index !== 'undefined') {
-            items = items.sort(getSortComparator(['ordering_index']));
-        }
+        items = items.sort(getSortComparator(['date', 'ordering_index']));
         return Promise.all(
             items.map((item) => this.DataType.load.call(this, item.id)),
         );

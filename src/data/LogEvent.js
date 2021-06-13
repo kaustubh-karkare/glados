@@ -49,21 +49,18 @@ class LogEvent extends Base {
     }
 
     static async updateWhere(where) {
-        if (where.dateOp) {
-            assert(where.date !== null);
-            assert(where.isComplete === false);
+        if (where.date && typeof where.date === 'object') {
             where.date = {
-                [this.database.Op.ne]: null,
-                [this.database.Op[where.dateOp]]: where.date,
+                [this.database.Op.gte]: where.date.startDate,
+                [this.database.Op.lte]: where.date.endDate,
             };
-            delete where.dateOp;
-        }
-        if (where.dateRange) {
-            where.date = {
-                [this.database.Op.gte]: where.dateRange.startDate,
-                [this.database.Op.lte]: where.dateRange.endDate,
-            };
-            delete where.dateRange;
+        } else if (typeof where.date === 'string') {
+            const reResult = where.date.match(/^(\w+)\(([\w-]+)\)$/);
+            if (reResult) {
+                const operator = this.database.Op[reResult[1]];
+                const value = reResult[1] === 'null' ? null : reResult[2];
+                where.date = { [operator]: value };
+            }
         }
         if (where.name) {
             where.name = {

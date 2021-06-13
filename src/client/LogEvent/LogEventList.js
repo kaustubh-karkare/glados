@@ -12,13 +12,13 @@ function LogEventViewer(props) {
     let datePrefix;
     if (props.displayDate) {
         datePrefix = (
-            <span className="mr-1" style={{ float: 'left' }}>
+            <span className="float-left monospace mr-1">
                 {`${logEvent.date}: `}
             </span>
         );
     }
     const title = (
-        <span className="mr-1" style={{ float: 'left' }}>
+        <span className="float-left mr-1">
             <TextEditor
                 unstyled
                 disabled
@@ -29,7 +29,7 @@ function LogEventViewer(props) {
     let detailsSuffix;
     if (logEvent.details) {
         detailsSuffix = (
-            <span className="mr-1" style={{ float: 'left' }}>
+            <span className="float-left mr-1">
                 <BiDetail
                     color="var(--link-color)"
                     style={{ cursor: 'pointer' }}
@@ -41,7 +41,7 @@ function LogEventViewer(props) {
     let logLevelSuffix;
     if (props.displayLogLevel) {
         logLevelSuffix = (
-            <span className="ml-1" style={{ float: 'right' }}>
+            <span className="float-right ml-1">
                 {`L${logEvent.logLevel}`}
             </span>
         );

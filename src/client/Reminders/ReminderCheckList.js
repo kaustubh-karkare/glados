@@ -147,7 +147,7 @@ class ReminderCheckList extends React.Component {
             );
         } else {
             rightSide = (
-                <span style={{ float: 'right' }}>
+                <span className="float-right">
                     {logStructure.reminderScore.value}
                 </span>
             );

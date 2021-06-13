@@ -3,22 +3,10 @@
 import assert from 'assert';
 
 import { differenceInCalendarDays } from 'date-fns';
-import { LogEvent, awaitSequence } from '../data';
+import { awaitSequence } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 import DateUtils from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
-
-ActionsRegistry['log-event-dates'] = async function (input) {
-    // Warning! Having to change context here is an abstraction leak!
-    await LogEvent.updateWhere.call({ ...this, DataType: LogEvent }, input.where);
-    const results = await this.database.count(
-        'LogEvent',
-        input.where,
-        ['date'],
-    );
-    const dates = new Set(results.map((result) => result.date));
-    return Array.from(dates).sort();
-};
 
 ActionsRegistry.consistency = async function () {
     const results = [];

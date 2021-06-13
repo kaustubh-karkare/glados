@@ -29,6 +29,34 @@ const SPECIAL_ITEMS = [
     ALL_EVENTS_ITEM,
 ];
 
+const COMPLETE_ACTION = {
+    id: 'complete',
+    name: 'Complete',
+    perform: (logEvent) => {
+        window.api.send('log-event-upsert', {
+            ...logEvent,
+            date: DateUtils.getTodayLabel(),
+            isComplete: true,
+        });
+    },
+};
+
+const DUPLICATE_ACTION = {
+    id: 'duplicate',
+    name: 'Duplicate',
+    perform: (logEvent) => {
+        Coordinator.invoke('modal-editor', {
+            dataType: 'log-event',
+            EditorComponent: LogEventEditor,
+            valueKey: 'logEvent',
+            value: LogEvent.createVirtual({
+                ...logEvent,
+                date: DateUtils.getTodayLabel(),
+            }),
+        });
+    },
+};
+
 function getDayOfTheWeek(label) {
     return DateUtils.DaysOfTheWeek[getDay(DateUtils.getDate(label))];
 }
@@ -63,73 +91,6 @@ class LogEventSearch extends React.Component {
         });
     }
 
-    static getDerivedStateFromProps(props, state) {
-        const signature = JSON.stringify([
-            props.logMode,
-            props.dateRange,
-            props.search,
-            state.dateRange,
-        ]);
-        if (state.signature === signature) {
-            return state;
-        }
-        state.signature = signature;
-
-        let dates;
-        if (props.dateRange) {
-            dates = eachDayOfInterval({
-                start: DateUtils.getDate(props.dateRange.startDate),
-                end: DateUtils.getDate(props.dateRange.endDate),
-            }).map((date) => DateUtils.getLabel(date));
-        }
-
-        const where = {
-            logMode: props.logMode || undefined,
-            isComplete: true,
-            logLevel: [2, 3],
-        };
-        let dateSearch = false;
-        props.search.forEach((item) => {
-            if (item.__type__ === 'log-structure') {
-                assert(!where.logStructure);
-                where.logStructure = item;
-                dateSearch = true;
-            } else if (item.__type__ === 'log-topic') {
-                if (!where.logTopics) {
-                    where.logTopics = [];
-                }
-                where.logTopics.push(item);
-                dateSearch = true;
-            } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
-                where.isComplete = false;
-                dateSearch = true;
-            } else if (item.__type__ === ALL_EVENTS_ITEM.__type__) {
-                delete where.logLevel;
-            } else if (item.__type__ === EVENT_TITLE_ITEM_TYPE) {
-                where.name = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
-                dateSearch = true;
-            } else {
-                assert(false, item);
-            }
-        });
-        state.where = where;
-        if (dates || dateSearch) {
-            state.dates = dates;
-            state.dateSearch = !dates;
-            state.defaultDisplay = false;
-        } else {
-            state.dates = null;
-            state.dateSearch = false;
-            state.defaultDisplay = true;
-        }
-        return state;
-    }
-
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-
     componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.subscribe('log-event-created', (logEvent) => {
@@ -138,119 +99,169 @@ class LogEventSearch extends React.Component {
                 }
             }),
         ];
-        this.componentDidUpdate();
-    }
-
-    componentDidUpdate() {
-        if (this.state.dateSearch) {
-            const where = { ...this.state.where, date: this.state.dates };
-            // eslint-disable-next-line react/no-did-update-set-state
-            this.setState({ dateSearch: false, dates: null });
-            window.api.send('log-event-dates', { where })
-                // eslint-disable-next-line react/no-did-update-set-state
-                .then((result) => this.setState({ dates: result }));
-        }
     }
 
     componentWillUnmount() {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    render() {
-        if (this.state.defaultDisplay ? false : !this.state.dates) {
-            return null; // Loading ...
-        }
-        const { where } = this.state;
-        const moreProps = { viewerComponentProps: {} };
-        moreProps.prefixActions = [];
-        moreProps.prefixActions.push({
-            id: 'duplicate',
-            name: 'Duplicate',
-            perform: (logEvent) => {
-                Coordinator.invoke('modal-editor', {
-                    dataType: 'log-event',
-                    EditorComponent: LogEventEditor,
-                    valueKey: 'logEvent',
-                    value: LogEvent.createVirtual({
-                        ...logEvent,
-                        date: DateUtils.getTodayLabel(),
-                    }),
-                });
+    // eslint-disable-next-line class-methods-use-this
+    renderDefault(where, moreProps) {
+        const today = DateUtils.getTodayLabel();
+        const todoMoreProps = {
+            ...moreProps,
+            prefixActions: [...moreProps.prefixActions, COMPLETE_ACTION],
+        };
+        const overdueAndUpcomingMoreProps = {
+            ...todoMoreProps,
+            viewerComponentProps: {
+                ...todoMoreProps.viewerComponentProps,
+                displayDate: true,
             },
-        });
-        if (!where.logLevel && !where.logMode) {
-            moreProps.allowReordering = true;
-            moreProps.viewerComponentProps.displayLogLevel = true;
-        }
-        if (this.state.defaultDisplay) {
-            const today = DateUtils.getTodayLabel();
-            const upcomingMoreProps = {
-                ...moreProps,
-                viewerComponentProps: { ...moreProps.viewerComponentProps },
-                prefixActions: [...moreProps.prefixActions],
-            };
-            upcomingMoreProps.viewerComponentProps.displayDate = true;
-            upcomingMoreProps.prefixActions.push({
-                id: 'complete',
-                name: 'Complete',
-                perform: (logEvent) => {
-                    window.api.send('log-event-upsert', {
-                        ...logEvent,
-                        date: DateUtils.getTodayLabel(),
-                        isComplete: true,
-                    });
-                },
-            });
-            return (
-                <>
-                    <LogEventList
-                        name="Done (Today)"
-                        where={{ date: today, ...where, isComplete: true }}
-                        showAdder
-                        {...moreProps}
-                    />
-                    <div className="mt-4" />
-                    <LogEventList
-                        name="Todo (Today)"
-                        where={{
-                            date: today, ...where, isComplete: false,
-                        }}
-                        showAdder
-                        {...moreProps}
-                    />
-                    <div className="mt-4" />
-                    <LogEventList
-                        name="Todo (Overdue)"
-                        where={{
-                            date: today, ...where, isComplete: false, dateOp: 'lt',
-                        }}
-                        {...upcomingMoreProps}
-                    />
-                    <div className="mt-4" />
-                    <LogEventList
-                        name="Todo (Upcoming)"
-                        where={{
-                            date: today, ...where, isComplete: false, dateOp: 'gt',
-                        }}
-                        {...upcomingMoreProps}
-                    />
-                </>
-            );
-        }
-        return this.state.dates.map((date) => {
-            let name = 'Unspecified';
-            if (date) {
-                name = `${date} ${getDayOfTheWeek(date)}`;
-            }
+        };
+        return (
+            <>
+                <LogEventList
+                    name="Done (Today)"
+                    where={{ date: today, ...where, isComplete: true }}
+                    showAdder
+                    {...moreProps}
+                />
+                <div className="mt-4" />
+                <LogEventList
+                    name="Todo (Today)"
+                    where={{
+                        date: today, ...where, isComplete: false,
+                    }}
+                    showAdder
+                    {...todoMoreProps}
+                />
+                <div className="mt-4" />
+                <LogEventList
+                    name="Todo (Overdue)"
+                    where={{
+                        date: `lt(${today})`, ...where, isComplete: false,
+                    }}
+                    {...overdueAndUpcomingMoreProps}
+                />
+                <div className="mt-4" />
+                <LogEventList
+                    name="Todo (Upcoming)"
+                    where={{
+                        date: `gt(${today})`, ...where, isComplete: false,
+                    }}
+                    {...overdueAndUpcomingMoreProps}
+                />
+            </>
+        );
+    }
+
+    renderMultipleDays(where, moreProps) {
+        return eachDayOfInterval({
+            start: DateUtils.getDate(this.props.dateRange.startDate),
+            end: DateUtils.getDate(this.props.dateRange.endDate),
+        }).map((date) => {
+            const dateLabel = DateUtils.getLabel(date);
             return (
                 <LogEventList
-                    key={date || 'null'}
-                    name={name}
-                    where={{ date, ...where }}
+                    key={dateLabel}
+                    name={`${dateLabel} (${getDayOfTheWeek(dateLabel)})`}
+                    where={{ date: dateLabel, ...where }}
                     {...moreProps}
                 />
             );
         });
+    }
+
+    renderSearchResults(where, moreProps) {
+        moreProps.viewerComponentProps.displayDate = true;
+        if (this.props.dateRange) {
+            where = { ...where, date: this.props.dateRange };
+        }
+        return (
+            <LogEventList
+                name="Search Results"
+                where={where}
+                {...moreProps}
+            />
+        );
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    renderIncomplete(where, moreProps) {
+        const displayDateMoreProps = {
+            ...moreProps,
+            viewerComponentProps: {
+                ...moreProps.viewerComponentProps,
+                displayDate: true,
+            },
+        };
+        return (
+            <>
+                <LogEventList
+                    name="With Dates"
+                    where={{ ...where, date: 'ne(null)' }}
+                    {...displayDateMoreProps}
+                />
+                <LogEventList
+                    name="Without Dates"
+                    where={{ ...where, date: null }}
+                    {...moreProps}
+                />
+            </>
+        );
+    }
+
+    render() {
+        // Filters for the default view.
+        const where = {
+            logMode: this.props.logMode || undefined,
+            isComplete: true,
+            logLevel: [2, 3],
+        };
+        let searchResultMode = false;
+        let incompleteMode = false;
+        this.props.search.forEach((item) => {
+            if (item.__type__ === 'log-structure') {
+                assert(!where.logStructure);
+                where.logStructure = item;
+                searchResultMode = true;
+            } else if (item.__type__ === 'log-topic') {
+                if (!where.logTopics) {
+                    where.logTopics = [];
+                }
+                where.logTopics.push(item);
+                searchResultMode = true;
+            } else if (item.__type__ === EVENT_TITLE_ITEM_TYPE) {
+                where.name = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
+                searchResultMode = true;
+            } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
+                where.isComplete = false;
+                incompleteMode = true;
+            } else if (item.__type__ === ALL_EVENTS_ITEM.__type__) {
+                delete where.logLevel;
+            } else {
+                assert(false, item);
+            }
+        });
+
+        const moreProps = { viewerComponentProps: {} };
+        moreProps.prefixActions = [];
+        moreProps.prefixActions.push(DUPLICATE_ACTION);
+        if (!where.logLevel && !where.logMode) {
+            moreProps.allowReordering = true;
+            moreProps.viewerComponentProps.displayLogLevel = true;
+        }
+
+
+        if (incompleteMode) {
+            return this.renderIncomplete(where, moreProps);
+        } if (searchResultMode) {
+            return this.renderSearchResults(where, moreProps);
+        } if (this.props.dateRange) {
+            return this.renderMultipleDays(where, moreProps);
+        }
+        return this.renderDefault(where, moreProps);
     }
 }
 
