@@ -1,6 +1,6 @@
 import { DateRangePicker as DateRangePickerOriginal } from 'react-date-range';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from '../prop-types';
 import PopoverElement from './PopoverElement';
 import DateUtils from '../../common/DateUtils';
 
@@ -77,8 +77,24 @@ class DateRangePicker extends React.Component {
     }
 }
 
-DateRangePicker.propTypes = DateRangeSelector.propTypes;
+DateRangePicker.propTypes = {
+    dateRange: PropTypes.Custom.DateRange,
+    onChange: PropTypes.func.isRequired,
+};
 
 DateRangePicker.Selector = DateRangeSelector;
+
+const DATE_RANGE_SEPARATOR = ' to ';
+
+DateRangePicker.serialize = (dateRange) => {
+    if (!dateRange) return null;
+    return dateRange.startDate + DATE_RANGE_SEPARATOR + dateRange.endDate;
+};
+
+DateRangePicker.deserialize = (value) => {
+    if (!value) return null;
+    const [startDate, endDate] = value.split(DATE_RANGE_SEPARATOR);
+    return { startDate, endDate };
+};
 
 export default DateRangePicker;

@@ -54,7 +54,12 @@ class GraphSection extends React.Component {
                 }
                 return {
                     name: 'log-event-list',
-                    args: { where: { logStructure } },
+                    args: {
+                        where: {
+                            dateRange: this.props.dateRange || undefined,
+                            logStructure,
+                        },
+                    },
                 };
             },
             onData: (logEvents) => this.setState({ graphData: this.processData(logEvents) }),
@@ -105,8 +110,9 @@ class GraphSection extends React.Component {
             // TODO: Handle multiple logEvents on a single day.
             dateLabelToLogEvent[item.date] = item;
         });
-        const minDate = DateUtils.getDate(Object.keys(dateLabelToLogEvent).sort()[0]);
-        const maxDate = DateUtils.getTodayDate();
+        const dateLabels = Object.keys(dateLabelToLogEvent).sort();
+        const minDate = DateUtils.getDate(dateLabels[0]);
+        const maxDate = DateUtils.getDate(dateLabels[dateLabels.length - 1]);
         const samples = [];
         for (
             let currentDate = minDate;
@@ -129,7 +135,7 @@ class GraphSection extends React.Component {
     }
 
     processData(logEvents) {
-        if (!logEvents) return [];
+        if (!logEvents || !logEvents.length) return { isEmpty: true };
         try {
             const lines = this.getLines(logEvents[0]);
             const samples = this.getTimeSeries(logEvents, lines);
@@ -150,6 +156,8 @@ class GraphSection extends React.Component {
             return null;
         } if (!graphData) {
             return 'Loading ...';
+        } if (graphData.isEmpty) {
+            return 'No data!';
         }
         return graphData.lines.map((line) => (
             <ResponsiveContainer key={line.index} width="100%" height={400}>
@@ -180,6 +188,7 @@ class GraphSection extends React.Component {
 }
 
 GraphSection.propTypes = {
+    dateRange: PropTypes.Custom.DateRange,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

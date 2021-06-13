@@ -1,7 +1,7 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from '../prop-types';
-import { ScrollableSection, TypeaheadSelector } from '../Common';
+import { DateRangePicker, ScrollableSection, TypeaheadSelector } from '../Common';
 
 function IndexSection(props) {
     const { Component } = props;
@@ -10,16 +10,21 @@ function IndexSection(props) {
     if (filteredSearch.length !== props.search.length) {
         window.setTimeout(props.onChange.bind(filteredSearch), 0);
     }
+    const { dateRange } = props;
     return (
         <div className="index-section">
             <div className="mb-1">
                 <InputGroup>
+                    <DateRangePicker
+                        dateRange={dateRange}
+                        onChange={(newDateRange) => props.onChange({ dateRange: newDateRange })}
+                    />
                     <TypeaheadSelector
                         id="search"
                         options={typeaheadOptions}
                         value={filteredSearch}
                         disabled={props.disabled}
-                        onChange={props.onChange}
+                        onChange={(search) => props.onChange({ search })}
                         placeholder="Search ..."
                         multiple
                     />
@@ -28,6 +33,7 @@ function IndexSection(props) {
             <ScrollableSection padding={20 + 4}>
                 <Component
                     logMode={props.logMode}
+                    dateRange={dateRange}
                     search={filteredSearch}
                 />
             </ScrollableSection>
@@ -38,6 +44,7 @@ function IndexSection(props) {
 IndexSection.propTypes = {
     Component: PropTypes.func.isRequired,
     logMode: PropTypes.Custom.LogMode,
+    dateRange: PropTypes.Custom.DateRange,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,

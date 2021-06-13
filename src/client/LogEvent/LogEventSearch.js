@@ -1,6 +1,6 @@
 import assert from 'assert';
 import React from 'react';
-import { eachDayOfInterval, getDay, subDays } from 'date-fns';
+import { eachDayOfInterval, getDay } from 'date-fns';
 import PropTypes from '../prop-types';
 import DateUtils from '../../common/DateUtils';
 import {
@@ -10,67 +10,6 @@ import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
 import { getVirtualID, LogEvent } from '../../data';
 
-const DATE_RANGE_SEPARATOR = ' to ';
-
-const DATE_RANGE_ITEM = {
-    __type__: 'date-range',
-    id: getVirtualID(),
-    name: 'Date Range',
-    getItem(option) {
-        return new Promise((resolve) => {
-            Coordinator.invoke('modal-date-range', {
-                dateRange: {
-                    startDate: DateUtils.getTodayLabel(),
-                    endDate: DateUtils.getTodayLabel(),
-                },
-                onClose: (dateRange) => {
-                    if (dateRange) {
-                        resolve({
-                            __type__: option.__type__,
-                            id: 0,
-                            name: dateRange.startDate + DATE_RANGE_SEPARATOR + dateRange.endDate,
-                        });
-                    } else {
-                        resolve(null);
-                    }
-                },
-            });
-        });
-    },
-};
-const YESTERDAY_ITEM = {
-    __type__: 'date-range',
-    id: getVirtualID(),
-    name: 'Yesterday',
-    getItem(option) {
-        const yesterday = DateUtils.getLabel(subDays(DateUtils.getTodayDate(), 1));
-        return Promise.resolve({
-            __type__: option.__type__,
-            id: 0,
-            name: yesterday + DATE_RANGE_SEPARATOR + yesterday,
-        });
-    },
-};
-const THIS_WEEK_ITEM = {
-    __type__: 'date-range',
-    id: getVirtualID(),
-    name: 'This Week',
-    getItem(option) {
-        const todayDate = DateUtils.getTodayDate();
-        let day = getDay(todayDate);
-        if (day === 0) { // sunday
-            day = 7;
-        }
-        const mondayDate = subDays(todayDate, day - 1);
-        return Promise.resolve({
-            __type__: option.__type__,
-            id: 0,
-            name: DateUtils.getLabel(mondayDate)
-                + DATE_RANGE_SEPARATOR
-                + DateUtils.getLabel(todayDate),
-        });
-    },
-};
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
     id: getVirtualID(),
@@ -86,9 +25,6 @@ const EVENT_TITLE_ITEM_TYPE = 'log-event-title';
 const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
 
 const SPECIAL_ITEMS = [
-    DATE_RANGE_ITEM,
-    YESTERDAY_ITEM,
-    THIS_WEEK_ITEM,
     INCOMPLETE_ITEM,
     ALL_EVENTS_ITEM,
 ];
@@ -128,18 +64,30 @@ class LogEventSearch extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        const signature = JSON.stringify([props.logMode, props.search, state.dateRange]);
+        const signature = JSON.stringify([
+            props.logMode,
+            props.dateRange,
+            props.search,
+            state.dateRange,
+        ]);
         if (state.signature === signature) {
             return state;
         }
         state.signature = signature;
+
+        let dates;
+        if (props.dateRange) {
+            dates = eachDayOfInterval({
+                start: DateUtils.getDate(props.dateRange.startDate),
+                end: DateUtils.getDate(props.dateRange.endDate),
+            }).map((date) => DateUtils.getLabel(date));
+        }
 
         const where = {
             logMode: props.logMode || undefined,
             isComplete: true,
             logLevel: [2, 3],
         };
-        let dates;
         let dateSearch = false;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-structure') {
@@ -152,12 +100,6 @@ class LogEventSearch extends React.Component {
                 }
                 where.logTopics.push(item);
                 dateSearch = true;
-            } else if (item.__type__ === DATE_RANGE_ITEM.__type__) {
-                const [startDate, endDate] = item.name.split(DATE_RANGE_SEPARATOR);
-                dates = eachDayOfInterval({
-                    start: DateUtils.getDate(startDate),
-                    end: DateUtils.getDate(endDate),
-                }).map((date) => DateUtils.getLabel(date));
             } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
                 where.isComplete = false;
                 dateSearch = true;
@@ -314,6 +256,7 @@ class LogEventSearch extends React.Component {
 
 LogEventSearch.propTypes = {
     logMode: PropTypes.Custom.LogMode,
+    dateRange: PropTypes.Custom.DateRange,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

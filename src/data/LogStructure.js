@@ -135,10 +135,18 @@ class LogStructure extends Base {
     static async validateInternal(inputLogStructure) {
         const results = [];
 
-        const logStructureGroupResults = await Base.validateRecursive.call(
-            this, LogStructureGroup, '.logStructureGroup', inputLogStructure.logStructureGroup,
-        );
-        results.push(...logStructureGroupResults);
+        if (inputLogStructure.logStructureGroup) {
+            const logStructureGroupResults = await Base.validateRecursive.call(
+                this, LogStructureGroup, '.logStructureGroup', inputLogStructure.logStructureGroup,
+            );
+            results.push(...logStructureGroupResults);
+        } else {
+            results.push([
+                '.logStructureGroup',
+                false,
+                'must be provided!',
+            ]);
+        }
 
         inputLogStructure.logKeys.forEach((logKey, index) => {
             const prefix = `.logKey[${index}]`;
@@ -179,12 +187,14 @@ class LogStructure extends Base {
         }
 
         const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
-        const modeValidationResults = await this.invoke.call(
-            this,
-            'validate-log-topic-modes',
-            { logMode: inputLogStructure.logStructureGroup.logMode, targetLogTopics },
-        );
-        results.push(...modeValidationResults);
+        if (inputLogStructure.logStructureGroup) {
+            const modeValidationResults = await this.invoke.call(
+                this,
+                'validate-log-topic-modes',
+                { logMode: inputLogStructure.logStructureGroup.logMode, targetLogTopics },
+            );
+            results.push(...modeValidationResults);
+        }
 
         return results;
     }

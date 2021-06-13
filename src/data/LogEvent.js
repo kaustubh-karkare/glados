@@ -58,6 +58,13 @@ class LogEvent extends Base {
             };
             delete where.dateOp;
         }
+        if (where.dateRange) {
+            where.date = {
+                [this.database.Op.gte]: where.dateRange.startDate,
+                [this.database.Op.lte]: where.dateRange.endDate,
+            };
+            delete where.dateRange;
+        }
         if (where.name) {
             where.name = {
                 [this.database.Op.like]: `%${where.name}%`,

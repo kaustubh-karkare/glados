@@ -1,4 +1,4 @@
-import { Coordinator, URLManager } from '../Common';
+import { Coordinator, DateRangePicker, URLManager } from '../Common';
 
 /**
  * [...Array(128).keys()]
@@ -25,6 +25,7 @@ class URLState {
             tab: params.tab,
             layout: params.layout,
             widgets: params.widgets,
+            dateRange: DateRangePicker.deserialize(params.date_range),
             search: params.search ? params.search.map(deserializeItem) : [],
             details: params.details ? deserializeItem(params.details) : null,
             mode: params.mode ? deserializeItem(params.mode) : null,
@@ -36,6 +37,7 @@ class URLState {
             tab: state.tab,
             layout: state.layout,
             widgets: state.widgets,
+            date_range: DateRangePicker.serialize(state.dateRange),
             search: state.search ? state.search.map(serializeItem) : undefined,
             details: state.details ? serializeItem(state.details) : undefined,
             mode: state.mode ? serializeItem(state.mode) : undefined,

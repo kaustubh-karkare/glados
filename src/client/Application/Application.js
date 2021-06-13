@@ -100,9 +100,10 @@ class Applicaton extends React.Component {
             <IndexSection
                 Component={TabSection.Enum[this.state.urlParams.tab].Component}
                 logMode={this.state.urlParams.mode}
+                dateRange={this.state.urlParams.dateRange}
                 search={this.state.urlParams.search}
                 disabled={this.state.disabled}
-                onChange={(search) => Coordinator.invoke('url-update', { search })}
+                onChange={(params) => Coordinator.invoke('url-update', params)}
             />
         );
         const detailsSection = (
