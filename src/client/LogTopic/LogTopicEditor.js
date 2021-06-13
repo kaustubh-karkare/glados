@@ -2,7 +2,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    TextInput, TypeaheadOptions, TypeaheadSelector,
+    Selector, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogTopic } from '../../data';
 
@@ -82,12 +82,32 @@ class LogTopicEditor extends React.Component {
         );
     }
 
+    renderIsDeprecated() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Deprecated?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logTopic.isDeprecated}
+                    disabled={this.props.disabled}
+                    onChange={(isDeprecated) => this.updateLogTopic('isDeprecated', isDeprecated)}
+                />
+            </InputGroup>
+        );
+    }
+
     render() {
         return (
             <>
-                {this.renderMode()}
-                {this.renderParent()}
-                {this.renderName()}
+                <div className="my-3">
+                    {this.renderMode()}
+                    {this.renderParent()}
+                    {this.renderName()}
+                </div>
+                <div className="my-3">
+                    {this.renderIsDeprecated()}
+                </div>
             </>
         );
     }

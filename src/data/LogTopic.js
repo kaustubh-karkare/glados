@@ -14,6 +14,7 @@ class LogTopic extends Base {
             name,
             details: null,
             isFavorite: false,
+            isDeprecated: false,
         };
     }
 
@@ -21,6 +22,7 @@ class LogTopic extends Base {
         await Base.updateWhere.call(this, where, {
             id: 'id',
             isFavorite: 'is_favorite',
+            isDeprecated: 'is_deprecated',
             parentLogTopic: 'parent_topic_id',
             logMode: 'mode_id',
         });
@@ -85,6 +87,7 @@ class LogTopic extends Base {
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
             isFavorite: logTopic.is_favorite,
+            isDeprecated: logTopic.is_deprecated,
         };
     }
 
@@ -113,6 +116,7 @@ class LogTopic extends Base {
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
             is_favorite: inputLogTopic.isFavorite,
+            is_deprecated: inputLogTopic.isDeprecated,
         };
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 

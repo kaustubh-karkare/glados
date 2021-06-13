@@ -76,6 +76,14 @@ class Base extends ValidationBase {
 
     // eslint-disable-next-line no-unused-vars
     static async typeahead({ query, where }) {
+        if (
+            {
+                LogTopic: true,
+                LogStructure: true,
+            }[this.DataType.name]
+        ) {
+            where = { ...where, is_deprecated: false };
+        }
         const options = await this.database.findAll(
             this.DataType.name,
             { ...where, name: { [this.database.Op.like]: `${query}%` } },

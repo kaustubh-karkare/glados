@@ -88,6 +88,7 @@ class LogStructure extends Base {
             warningDays: null,
             suppressUntilDate: null,
             logLevel: LogLevel.getIndex(LogLevel.NORMAL),
+            isDeprecated: false,
         };
     }
 
@@ -98,6 +99,7 @@ class LogStructure extends Base {
             name: 'name',
             isPeriodic: 'is_periodic',
             logMode: 'mode_id',
+            isDeprecated: 'is_deprecated',
         });
     }
 
@@ -233,6 +235,7 @@ class LogStructure extends Base {
             warningDays: logStructure.warning_days,
             suppressUntilDate: logStructure.suppress_until_date,
             logLevel: logStructure.log_level,
+            isDeprecated: logStructure.is_deprecated,
         };
     }
 
@@ -274,6 +277,7 @@ class LogStructure extends Base {
             warning_days: inputLogStructure.warningDays,
             suppress_until_date: inputLogStructure.suppressUntilDate,
             log_level: inputLogStructure.logLevel,
+            is_deprecated: inputLogStructure.isDeprecated,
         };
 
         // Fetch affected logEvents BEFORE updating the database.

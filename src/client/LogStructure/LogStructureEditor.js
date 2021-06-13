@@ -143,6 +143,21 @@ class LogStructureEditor extends React.Component {
         );
     }
 
+    renderIsDeprecated() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Is Deprecated?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logStructure.isDeprecated}
+                    disabled={this.props.disabled}
+                    onChange={(isDeprecated) => this.updateLogStructure('isDeprecated', isDeprecated)}
+                />
+            </InputGroup>
+        );
+    }
+
     render() {
         return (
             <>
@@ -176,6 +191,7 @@ class LogStructureEditor extends React.Component {
                 </div>
                 <div className="my-3">
                     {this.renderLogLevelSelector()}
+                    {this.renderIsDeprecated()}
                 </div>
             </>
         );

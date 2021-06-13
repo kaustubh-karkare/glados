@@ -11,6 +11,7 @@ body {
     --input-disabled-background-color: #222;
     --suggestion-highlight-color: #375a7f;
     --input-background-token-color: #444;
+    --warning-color: #ff5281;
 
     --font-size: 13px;
     --font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";

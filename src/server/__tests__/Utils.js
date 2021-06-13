@@ -59,6 +59,7 @@ export default class Utils {
                 { '#': logTopics },
             );
             inputLogTopic.isFavorite = false;
+            inputLogTopic.isDeprecated = false;
             inputLogTopic.hasStructure = false;
             const outputLogTopic = await actions.invoke('log-topic-upsert', inputLogTopic);
             logTopicMap[outputLogTopic.name] = outputLogTopic;
@@ -108,6 +109,7 @@ export default class Utils {
                 { $: [inputLogStructure, ...inputLogStructure.logKeys] },
             );
             inputLogStructure.needsEdit = inputLogStructure.needsEdit || false;
+            inputLogStructure.isDeprecated = false;
 
             inputLogStructure.isPeriodic = inputLogStructure.isPeriodic || false;
             inputLogStructure.reminderText = inputLogStructure.reminderText || null;

@@ -78,6 +78,10 @@ export default function (sequelize) {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
+            is_deprecated: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
         },
         {
             ...options,
@@ -240,6 +244,10 @@ export default function (sequelize) {
             // Additional fields to be copied to events.
             log_level: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            is_deprecated: {
+                type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
         },

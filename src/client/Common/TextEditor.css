@@ -24,6 +24,10 @@
     background: var(--input-disabled-background-color);
 }
 
+.text-editor.isSingleLine {
+    display: inline-block;
+}
+
 /* TextEditor Mention Suggestions + Dropdown Options (used by RBT Suggestions) */
 
 .dropdown-menu,

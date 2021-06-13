@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BulletList, LeftRight, TextEditor } from '../Common';
+import {
+    BulletList, LeftRight, TextEditor, WarningIcon,
+} from '../Common';
 import LogStructureEditor from './LogStructureEditor';
-
 
 function LogStructureViewer(props) {
     const { logStructure } = props;
@@ -16,11 +17,15 @@ function LogStructureViewer(props) {
     }
     return (
         <LeftRight>
-            <TextEditor
-                unstyled
-                disabled
-                value={logStructure.titleTemplate}
-            />
+            <span>
+                <TextEditor
+                    unstyled
+                    disabled
+                    value={logStructure.titleTemplate}
+                    isSingleLine
+                />
+                <WarningIcon isShown={logStructure.isDeprecated} />
+            </span>
             {suffix}
         </LeftRight>
     );

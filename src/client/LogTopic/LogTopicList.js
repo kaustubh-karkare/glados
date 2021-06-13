@@ -1,11 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BulletList, Link } from '../Common';
+import { BulletList, Link, WarningIcon } from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 
 function LogTopicViewer(props) {
     const { logTopic } = props;
-    return <Link logTopic={logTopic}>{logTopic.name}</Link>;
+    return (
+        <Link logTopic={logTopic}>
+            {logTopic.name}
+            <WarningIcon isShown={logTopic.isDeprecated} />
+        </Link>
+    );
 }
 
 LogTopicViewer.propTypes = {

@@ -183,6 +183,7 @@ class TextEditor extends React.Component {
                 unstyled: this.props.unstyled,
                 styled: !this.props.unstyled,
                 disabled: this.props.disabled,
+                isSingleLine: this.props.isSingleLine,
             })}
             >
                 <Editor

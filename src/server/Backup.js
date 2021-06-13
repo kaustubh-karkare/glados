@@ -117,6 +117,10 @@ ActionsRegistry['backup-data-save'] = async function ({ data }) {
     });
 };
 
+ActionsRegistry['backup-transform-data'] = async function (data) {
+    return data;
+};
+
 // Actual API
 
 ActionsRegistry['backup-save'] = async function ({ logging } = {}) {
@@ -144,7 +148,8 @@ ActionsRegistry['backup-latest'] = async function () {
 ActionsRegistry['backup-load'] = async function ({ logging } = {}) {
     const latestBackup = await this.invoke.call(this, 'backup-latest');
     assert(latestBackup, 'at least one backup is required');
-    const data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
+    let data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
+    data = await this.invoke.call(this, 'backup-transform-data', data);
     await this.invoke.call(this, 'backup-data-save', { data });
     if (logging) {
         // eslint-disable-next-line no-console
