@@ -89,13 +89,16 @@ export function getSortComparator(fieldNames) {
     };
     return (left, right) => {
         for (let ii = 0; ii < fieldNames.length; ii += 1) {
-            const leftValue = left[fieldNames[ii]];
-            const rightValue = right[fieldNames[ii]];
+            const fieldName = fieldNames[ii];
+            const leftValue = left[fieldName];
+            const rightValue = right[fieldName];
             if (typeof leftValue === 'undefined' || typeof rightValue === 'undefined') {
-                return 0;
+                // eslint-disable-next-line no-continue
+                continue;
             }
             if (leftValue !== null && rightValue !== null) {
-                return compare(leftValue, rightValue);
+                const result = compare(leftValue, rightValue);
+                if (result) return result;
             } if (leftValue === null && rightValue !== null) {
                 return 1;
             } if (leftValue !== null && rightValue === null) {

@@ -1,5 +1,6 @@
 /* eslint-disable func-names */
 
+import assert from 'assert';
 import ActionsRegistry, { enableCache } from './ActionsRegistry';
 import { LogStructure } from '../data';
 
@@ -8,13 +9,18 @@ ActionsRegistry['value-typeahead-index'] = async function (input) {
         if (!(key in item)) item[key] = defaultValue;
         return item[key];
     };
-    const getValue = (logKey) => {
+    const getValues = (logKey) => {
         if (!logKey.value) {
-            return null;
-        } if (logKey.type === LogStructure.Key.LOG_TOPIC) {
-            return logKey.value.id;
+            return [];
         }
-        return logKey.value;
+        if (logKey.type === LogStructure.Key.STRING_LIST) {
+            assert(Array.isArray(logKey.value));
+            return logKey.value;
+        }
+        if (logKey.type === LogStructure.Key.LOG_TOPIC) {
+            return [logKey.value.id];
+        }
+        return [logKey.value];
     };
 
     const where = { logStructure: { id: input.structure_id } };
@@ -26,9 +32,10 @@ ActionsRegistry['value-typeahead-index'] = async function (input) {
     outputLogEvents.forEach((outputLogEvent) => {
         outputLogEvent.logStructure.logKeys.forEach((logKey, index) => {
             const keyIndexData = getOrDefault(structureIndexData, index, { logKey, counts: {} });
-            const value = getValue(logKey);
-            getOrDefault(keyIndexData.counts, value, 0);
-            keyIndexData.counts[value] += 1;
+            getValues(logKey).forEach((value) => {
+                getOrDefault(keyIndexData.counts, value, 0);
+                keyIndexData.counts[value] += 1;
+            });
         });
     });
     Object.values(structureIndexData).forEach((keyIndexData) => {

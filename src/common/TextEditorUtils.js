@@ -306,8 +306,12 @@ class TextEditorUtils {
                         ) {
                             return; // no change
                         }
-                        // The symbol is forwarded only for testing!
-                        nextItem = { ...nextItem, symbol: prevItem.symbol };
+                        if (Array.isArray(nextItem)) { // String List
+                            nextItem = JSON.stringify(nextItem);
+                        } else {
+                            // The symbol is forwarded only for testing!
+                            nextItem = { ...nextItem, symbol: prevItem.symbol };
+                        }
                     }
                     pendingEntities.push([currentBlockKey, start, end, currentEntityKey, nextItem]);
                 }
@@ -322,7 +326,7 @@ class TextEditorUtils {
                 hasFocus: true,
             });
             if (typeof item === 'object') {
-                if (item.__type__) {
+                if (item.__type__) { // Item
                     contentState = Modifier.replaceText(
                         contentState,
                         selectionState,
@@ -333,7 +337,7 @@ class TextEditorUtils {
                         entityKey,
                         { [DRAFTJS_MENTION_PLUGIN_NAME]: item },
                     );
-                } else {
+                } else { // Rich Text
                     const innerContentState = convertFromRaw(item);
                     const innerContentBlocks = innerContentState.getBlocksAsArray();
                     assert(innerContentBlocks.length === 1);

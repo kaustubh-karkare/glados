@@ -184,6 +184,7 @@ class TextEditor extends React.Component {
                 styled: !this.props.unstyled,
                 disabled: this.props.disabled,
                 isSingleLine: this.props.isSingleLine,
+                'min-width': this.props.minWidth,
             })}
             >
                 <Editor
@@ -208,6 +209,7 @@ TextEditor.propTypes = {
     unstyled: PropTypes.bool,
     disabled: PropTypes.bool,
     placeholder: PropTypes.string,
+    minWidth: PropTypes.bool,
 
     // eslint-disable-next-line react/forbid-prop-types
     value: PropTypes.object,
@@ -224,6 +226,7 @@ TextEditor.defaultProps = {
     unstyled: false,
     disabled: false,
     isSingleLine: false,
+    minWidth: false,
 };
 
 export default TextEditor;

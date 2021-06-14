@@ -20,7 +20,7 @@ class TypeaheadOptions {
             config.suffixOptions = [];
         }
         if (!config.getComputedOptions) {
-            config.getComputedOptions = () => [];
+            config.getComputedOptions = async () => [];
         }
         if (!config.computedOptionTypes) {
             config.computedOptionTypes = [];
@@ -63,7 +63,8 @@ class TypeaheadOptions {
                 }
             });
         }
-        options.push(...this.config.getComputedOptions(query));
+        const computedOptions = await this.config.getComputedOptions(query);
+        options.push(...computedOptions);
         // TODO: Maybe prefix type?
         return options;
     }

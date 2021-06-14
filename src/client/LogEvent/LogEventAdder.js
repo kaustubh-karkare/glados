@@ -58,6 +58,7 @@ class LogEventAdder extends React.Component {
                 isSingleLine
                 focusOnLoad
                 unstyled
+                minWidth
                 placeholder="Add Event ..."
                 value={logEvent.title}
                 options={new TypeaheadOptions({

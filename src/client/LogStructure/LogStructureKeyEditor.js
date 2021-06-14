@@ -18,13 +18,20 @@ class LogStructureKeyEditor extends React.Component {
         this.props.onChange(logKey);
     }
 
+    updateType(newType) {
+        const logKey = { ...this.props.logKey };
+        logKey.type = newType;
+        logKey.value = LogStructure.Key[newType].default;
+        this.props.onChange(logKey);
+    }
+
     renderTypeSelector() {
         return (
             <Selector
                 value={this.props.logKey.type}
                 options={LogStructure.Key.Options}
                 disabled={this.props.disabled}
-                onChange={(type) => this.update('type', type)}
+                onChange={(type) => this.updateType(type)}
                 style={{ borderRight: '2px solid transparent' }}
             />
         );

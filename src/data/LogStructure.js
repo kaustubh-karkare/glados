@@ -11,21 +11,31 @@ const LogStructureKey = Enum([
         value: 'string',
         label: 'String',
         validator: async () => true,
+        default: '',
+    },
+    {
+        value: 'string_list',
+        label: 'String List',
+        validator: async (value) => Array.isArray(value),
+        default: [],
     },
     {
         value: 'integer',
         label: 'Integer',
         validator: async (value) => !!value.match(/^\d+$/),
+        default: '',
     },
     {
         value: 'number',
         label: 'Number',
         validator: async (value) => !!value.match(/^\d+(?:\.\d+)?$/),
+        default: '',
     },
     {
         value: 'time',
         label: 'Time',
         validator: async (value) => !!value.match(/^\d{2}:\d{2}$/),
+        default: '',
     },
     {
         value: 'yes_or_no',
@@ -40,11 +50,13 @@ const LogStructureKey = Enum([
             const logTopic = await that.invoke.call(that, 'log-topic-load', value);
             return logTopic.parentLogTopic.id === logKey.parentLogTopic.id;
         },
+        default: null,
     },
     {
         value: 'rich_text_line',
         label: 'Rich Text Line',
         validator: async (value) => true,
+        default: null,
     },
 ]);
 

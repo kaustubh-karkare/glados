@@ -71,7 +71,7 @@ class LogEventSearch extends React.Component {
             ],
             prefixOptions: SPECIAL_ITEMS,
             computedOptionTypes: [EVENT_TITLE_ITEM_TYPE],
-            getComputedOptions: (query) => {
+            getComputedOptions: async (query) => {
                 const options = [];
                 if (query) {
                     options.push({
