@@ -20,6 +20,11 @@ const ALL_EVENTS_ITEM = {
     id: getVirtualID(),
     name: 'All Events',
 };
+const NO_STRUCTURE_ITEM = {
+    __type__: 'no-structure',
+    id: getVirtualID(),
+    name: 'No Structure',
+};
 
 const EVENT_TITLE_ITEM_TYPE = 'log-event-title';
 const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
@@ -27,6 +32,7 @@ const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
 const SPECIAL_ITEMS = [
     INCOMPLETE_ITEM,
     ALL_EVENTS_ITEM,
+    NO_STRUCTURE_ITEM,
 ];
 
 const COMPLETE_ACTION = {
@@ -225,6 +231,10 @@ class LogEventSearch extends React.Component {
             if (item.__type__ === 'log-structure') {
                 assert(!where.logStructure);
                 where.logStructure = item;
+                searchResultMode = true;
+            } else if (item.__type__ === NO_STRUCTURE_ITEM.__type__) {
+                assert(!where.logStructure);
+                where.logStructure = null;
                 searchResultMode = true;
             } else if (item.__type__ === 'log-topic') {
                 if (!where.logTopics) {
