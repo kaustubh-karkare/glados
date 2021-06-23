@@ -106,20 +106,32 @@ class LogStructureKeyEditor extends React.Component {
         // eslint-disable-next-line react/prop-types
         const children = this.props.children || [];
         return (
-            <InputGroup className="my-1">
-                {children.shift()}
-                <InputGroup.Text style={{ width: 80 }}>
-                    Key
-                </InputGroup.Text>
-                {this.renderTypeSelector()}
-                {this.renderNameInput()}
-                {this.props.logKey.type === LogStructure.Key.LOG_TOPIC
-                    ? this.renderParentLogTopic() : null}
-                {this.renderOptionalSelector()}
-                {this.renderValue()}
-                {this.renderTemplate()}
-                {children.pop()}
-            </InputGroup>
+            <div className="my-2">
+                <InputGroup className="my-1">
+                    {children.shift()}
+                    <InputGroup.Text style={{ width: 80 }}>
+                        Key
+                    </InputGroup.Text>
+                    {this.renderTypeSelector()}
+                    {this.renderNameInput()}
+                    {this.props.logKey.type === LogStructure.Key.LOG_TOPIC
+                        ? this.renderParentLogTopic() : null}
+                    {this.renderOptionalSelector()}
+                    {this.renderValue()}
+                    {children.pop()}
+                </InputGroup>
+                <InputGroup className="my-1">
+                    <InputGroup.Text style={{ width: 100 }}>
+                        Template
+                    </InputGroup.Text>
+                    {this.renderTemplate()}
+                </InputGroup>
+                <InputGroup className="my-1">
+                    <InputGroup.Text style={{ width: 100 }}>
+                        Graph
+                    </InputGroup.Text>
+                </InputGroup>
+            </div>
         );
     }
 }
