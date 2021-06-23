@@ -74,6 +74,10 @@ class Base extends ValidationBase {
         );
     }
 
+    static async count(where) {
+        return this.database.count(this.DataType.name, where);
+    }
+
     // eslint-disable-next-line no-unused-vars
     static async typeahead({ query, where }) {
         if (

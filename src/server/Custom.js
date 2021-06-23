@@ -26,6 +26,8 @@ ActionsRegistry.consistency = async function () {
         }
     });
 
+    /*
+
     // Update logStructures using latest topic-names
     const logStructures = await this.invoke.call(this, 'log-structure-list');
     await awaitSequence(logStructures, async (logStructure) => {
@@ -54,6 +56,8 @@ ActionsRegistry.consistency = async function () {
             results.push([logEvent, error.toString()]);
         }
     });
+
+    */
 
     return results;
 };

@@ -100,6 +100,7 @@ class LogStructure extends Base {
             warningDays: null,
             suppressUntilDate: null,
             logLevel: LogLevel.getIndex(LogLevel.NORMAL),
+            isFavorite: false,
             isDeprecated: false,
         };
     }
@@ -111,6 +112,7 @@ class LogStructure extends Base {
             name: 'name',
             isPeriodic: 'is_periodic',
             logMode: 'mode_id',
+            isFavorite: 'is_favorite',
             isDeprecated: 'is_deprecated',
         });
     }
@@ -247,6 +249,7 @@ class LogStructure extends Base {
             warningDays: logStructure.warning_days,
             suppressUntilDate: logStructure.suppress_until_date,
             logLevel: logStructure.log_level,
+            isFavorite: logStructure.is_favorite,
             isDeprecated: logStructure.is_deprecated,
         };
     }
@@ -289,6 +292,7 @@ class LogStructure extends Base {
             warning_days: inputLogStructure.warningDays,
             suppress_until_date: inputLogStructure.suppressUntilDate,
             log_level: inputLogStructure.logLevel,
+            is_favorite: inputLogStructure.isFavorite,
             is_deprecated: inputLogStructure.isDeprecated,
         };
 

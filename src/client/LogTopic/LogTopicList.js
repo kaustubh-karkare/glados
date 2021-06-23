@@ -1,15 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BulletList, Link, WarningIcon } from '../Common';
+import {
+    BulletList, DetailsIcon, Link, WarningIcon,
+} from '../Common';
 import LogTopicEditor from './LogTopicEditor';
 
 function LogTopicViewer(props) {
     const { logTopic } = props;
+    let childIndicator = null;
+    if (logTopic.childCount) {
+        childIndicator = (
+            <span className="ml-1" style={{ color: 'var(--link-color)' }}>
+                {logTopic.childCount}
+            </span>
+        );
+    }
     return (
-        <Link logTopic={logTopic}>
-            {logTopic.name}
+        <span>
+            <Link logTopic={logTopic}>
+                {logTopic.name}
+            </Link>
+            <DetailsIcon isShown={!!logTopic.details} />
+            {childIndicator}
             <WarningIcon isShown={logTopic.isDeprecated} />
-        </Link>
+        </span>
     );
 }
 

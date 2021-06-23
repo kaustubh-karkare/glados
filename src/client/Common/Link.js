@@ -1,25 +1,31 @@
+import assert from 'assert';
+
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from '../prop-types';
 import Coordinator from './Coordinator';
 
 function Link(props) {
-    const { logTopic } = props;
+    const { logStructure, logTopic } = props;
+    assert(!(logStructure && logTopic));
+    const item = logStructure || logTopic;
+    assert(item);
+
     let link;
     try {
-        link = Coordinator.invoke('url-link', { details: logTopic });
+        link = Coordinator.invoke('url-link', { details: item });
     } catch (error) {
         link = '#';
     }
     return (
         <a
             className="topic"
-            title={logTopic.name}
+            title={item.name}
             href={link}
             tabIndex={-1}
             onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                Coordinator.invoke('url-update', { details: logTopic });
+                Coordinator.invoke('url-update', { details: item });
             }}
         >
             {props.children}
@@ -28,7 +34,8 @@ function Link(props) {
 }
 
 Link.propTypes = {
-    logTopic: PropTypes.Custom.LogTopic.isRequired,
+    logStructure: PropTypes.Custom.LogStructure,
+    logTopic: PropTypes.Custom.LogTopic,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any,
 };

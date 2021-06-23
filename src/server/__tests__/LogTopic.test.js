@@ -1,5 +1,6 @@
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from './Utils';
+import { awaitSequence } from '../../data';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
@@ -64,4 +65,41 @@ test('test_update_propagation', async () => {
     await actions.invoke('log-event-delete', logEvent.id);
     await actions.invoke('log-topic-delete', logTopic.id);
     await actions.invoke('log-topic-delete', person.id);
+});
+
+test('test_counts', async () => {
+    await Utils.loadData({
+        logModes: [
+            { name: 'Test' },
+        ],
+        logTopics: [
+            { modeName: 'Test', name: 'Parent1' },
+            { modeName: 'Test', name: 'Parent2' },
+            { modeName: 'Test', name: 'Child', parentTopicName: 'Parent1' },
+        ],
+    });
+
+    const actions = Utils.getActions();
+
+    const parentLogTopicIds = [1, 2];
+    const expectChildCounts = async (counts) => {
+        await awaitSequence(
+            parentLogTopicIds,
+            async (id, index) => {
+                const parentLogTopic = await actions.invoke('log-topic-load', { id });
+                expect(parentLogTopic.childCount).toEqual(counts[index]);
+            },
+        );
+    };
+    await expectChildCounts([1, 0]);
+
+    let childLogTopic = await actions.invoke('log-topic-load', { id: 3 });
+    expect(childLogTopic.parentLogTopic.id).toEqual(1);
+    childLogTopic.parentLogTopic.id = 2;
+    childLogTopic = await actions.invoke('log-topic-upsert', childLogTopic);
+    expect(childLogTopic.parentLogTopic.id).toEqual(2);
+    await expectChildCounts([0, 1]);
+
+    await actions.invoke('log-topic-delete', childLogTopic.id);
+    await expectChildCounts([0, 0]);
 });

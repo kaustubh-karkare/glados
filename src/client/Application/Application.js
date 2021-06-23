@@ -7,6 +7,7 @@ import {
     Coordinator, EnumSelectorSection, ModalStack, ScrollableSection,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
+import { LogStructureList } from '../LogStructure';
 import { LogTopicList } from '../LogTopic';
 import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
@@ -185,6 +186,13 @@ class Applicaton extends React.Component {
                     sortComparator={getSortComparator(['name'])}
                     ViewerComponent={LogTopicList.Single}
                     valueKey="logTopic"
+                />
+                <FavoritesSection
+                    title="Favorite Structures"
+                    dataType="log-structure"
+                    sortComparator={getSortComparator(['name'])}
+                    ViewerComponent={LogStructureList.Single}
+                    valueKey="logStructure"
                 />
                 <ConversationRemindersSection />
             </>

@@ -1,7 +1,6 @@
-import { BiDetail } from 'react-icons/bi';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BulletList, TextEditor } from '../Common';
+import { BulletList, DetailsIcon, TextEditor } from '../Common';
 
 import LogEventAdder from './LogEventAdder';
 import LogEventEditor from './LogEventEditor';
@@ -12,13 +11,13 @@ function LogEventViewer(props) {
     let datePrefix;
     if (props.displayDate) {
         datePrefix = (
-            <span className="float-left monospace mr-1">
+            <span className="float-left monospace">
                 {`${logEvent.date}: `}
             </span>
         );
     }
     const title = (
-        <span className="float-left mr-1">
+        <span className="float-left ml-1">
             <TextEditor
                 unstyled
                 disabled
@@ -29,11 +28,10 @@ function LogEventViewer(props) {
     let detailsSuffix;
     if (logEvent.details) {
         detailsSuffix = (
-            <span className="float-left mr-1">
-                <BiDetail
-                    color="var(--link-color)"
-                    style={{ cursor: 'pointer' }}
+            <span className="float-left ml-1">
+                <DetailsIcon
                     onClick={props.toggleExpansion}
+                    isShown
                 />
             </span>
         );

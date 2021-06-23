@@ -60,6 +60,10 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
+            child_count: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
             is_favorite: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
@@ -230,6 +234,10 @@ export default function (sequelize) {
             // Additional fields to be copied to events.
             log_level: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            is_favorite: {
+                type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
             is_deprecated: {

@@ -109,6 +109,7 @@ export default class Utils {
                 { $: [inputLogStructure, ...inputLogStructure.logKeys] },
             );
             inputLogStructure.needsEdit = inputLogStructure.needsEdit || false;
+            inputLogStructure.isFavorite = false;
             inputLogStructure.isDeprecated = false;
 
             inputLogStructure.isPeriodic = inputLogStructure.isPeriodic || false;

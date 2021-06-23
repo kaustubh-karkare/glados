@@ -17,11 +17,12 @@ LogStructureGroupViewer.propTypes = {
 };
 
 LogStructureGroupViewer.Expanded = (props) => {
-    const { logStructureGroup } = props;
+    const { logStructureGroup, ...viewerComponentProps } = props;
     return (
         <LogStructureList
             where={{ logStructureGroup }}
             allowReordering
+            viewerComponentProps={viewerComponentProps}
         />
     );
 };

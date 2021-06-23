@@ -49,7 +49,12 @@ class LogStructureSearch extends React.Component {
     render() {
         if (this.state.defaultDisplay) {
             const where = { logMode: this.props.logMode || undefined };
-            return <LogStructureGroupList where={where} />;
+            return (
+                <LogStructureGroupList
+                    where={where}
+                    viewerComponentProps={{ showDetails: true }}
+                />
+            );
         }
         return (
             <LogStructureList
@@ -57,6 +62,7 @@ class LogStructureSearch extends React.Component {
                 allowCreation={false}
                 allowReordering={false}
                 where={this.state.where}
+                viewerComponentProps={{ showDetails: true }}
             />
         );
     }

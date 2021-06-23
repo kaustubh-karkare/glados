@@ -1,12 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    BulletList, LeftRight, TextEditor, WarningIcon,
+    BulletList, LeftRight, Link, TextEditor, WarningIcon,
 } from '../Common';
 import LogStructureEditor from './LogStructureEditor';
 
 function LogStructureViewer(props) {
-    const { logStructure } = props;
+    const { logStructure, showDetails } = props;
+    if (!showDetails) {
+        return (
+            <Link logStructure={logStructure}>
+                {logStructure.name}
+            </Link>
+        );
+    }
     let suffix;
     if (logStructure.isPeriodic) {
         if (logStructure.frequencyArgs) {
@@ -33,6 +40,7 @@ function LogStructureViewer(props) {
 
 LogStructureViewer.propTypes = {
     logStructure: PropTypes.Custom.LogStructure.isRequired,
+    showDetails: PropTypes.bool,
 };
 
 function LogStructureList(props) {

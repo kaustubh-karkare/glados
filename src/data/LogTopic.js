@@ -13,6 +13,7 @@ class LogTopic extends Base {
             parentLogTopic,
             name,
             details: null,
+            childCount: 0,
             isFavorite: false,
             isDeprecated: false,
         };
@@ -86,6 +87,7 @@ class LogTopic extends Base {
                 logTopic.details,
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
+            childCount: logTopic.child_count,
             isFavorite: logTopic.is_favorite,
             isDeprecated: logTopic.is_deprecated,
         };
@@ -94,27 +96,30 @@ class LogTopic extends Base {
     static async save(inputLogTopic) {
         let logTopic = await this.database.findItem('LogTopic', inputLogTopic);
 
-        const parentTopicId = inputLogTopic.parentLogTopic
+        const oldParentTopicId = logTopic ? logTopic.parent_topic_id : null;
+        const newParentTopicId = inputLogTopic.parentLogTopic
             ? inputLogTopic.parentLogTopic.id
             : null;
         Base.broadcast.call(
             this,
             'log-topic-list',
             logTopic,
-            { parent_topic_id: parentTopicId },
+            { parent_topic_id: newParentTopicId },
         );
 
         const originalName = logTopic ? logTopic.name : null;
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
+        const childCount = await LogTopic.count.call(this, { parent_topic_id: inputLogTopic.id });
         const fields = {
             mode_id: inputLogTopic.logMode.id,
-            parent_topic_id: parentTopicId,
+            parent_topic_id: newParentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
             details: TextEditorUtils.serialize(
                 inputLogTopic.details,
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
+            child_count: childCount,
             is_favorite: inputLogTopic.isFavorite,
             is_deprecated: inputLogTopic.isDeprecated,
         };
@@ -133,7 +138,23 @@ class LogTopic extends Base {
             }, {}),
         );
 
+        if (oldParentTopicId !== newParentTopicId) {
+            // Update counts on parent log topics.
+            const maybeUpdate = async (id) => {
+                if (!id) {
+                    return;
+                }
+                const parentLogTopic = await this.invoke.call(this, 'log-topic-load', { id });
+                await this.invoke.call(this, 'log-topic-upsert', parentLogTopic);
+            };
+            await Promise.all([
+                maybeUpdate(oldParentTopicId),
+                maybeUpdate(newParentTopicId),
+            ]);
+        }
+
         if (originalName && originalName !== logTopic.name) {
+            // Update names on references items.
             const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
             await LogTopic.updateOtherEntities.call(
                 this,
@@ -198,6 +219,14 @@ class LogTopic extends Base {
 
     static async delete(id) {
         const logTopic = await this.database.deleteByPk('LogTopic', id);
+        if (logTopic.parent_topic_id) {
+            const parentLogTopic = await this.invoke.call(
+                this,
+                'log-topic-load',
+                { id: logTopic.parent_topic_id },
+            );
+            await this.invoke.call(this, 'log-topic-upsert', parentLogTopic);
+        }
         Base.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
         return { id: logTopic.id };
     }

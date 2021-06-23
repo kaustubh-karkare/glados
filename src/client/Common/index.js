@@ -24,5 +24,8 @@ export { default as TypeaheadInput } from './TypeaheadInput';
 export { default as TypeaheadOptions } from './TypeaheadOptions';
 export { default as TypeaheadSelector } from './TypeaheadSelector';
 export { default as URLManager } from './URLManager';
+
+export { default as DetailsIcon } from './icons/DetailsIcon';
 export { default as WarningIcon } from './icons/WarningIcon';
+
 export * from './Utils';
