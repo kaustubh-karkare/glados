@@ -3,6 +3,5 @@ config.json
 database
 dist
 node_modules
-notes.txt
 package-lock.json
 yarn.lock

@@ -41,7 +41,7 @@ function parseFileName(filename) {
     };
 }
 
-// Intermediate Operations (used by Migrations too).
+// Intermediate Operations.
 
 ActionsRegistry['backup-file-load'] = async function ({ filename }) {
     const filedata = await callbackToPromise(
