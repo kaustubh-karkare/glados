@@ -1,5 +1,5 @@
 {
-  "name": "productivity",
+  "name": "glados",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -22,15 +22,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kaustubh-karkare/productivity.git"
+    "url": "git+https://github.com/kaustubh-karkare/glados.git"
   },
   "keywords": [],
   "author": "Kaustubh Karkare",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kaustubh-karkare/productivity/issues"
+    "url": "https://github.com/kaustubh-karkare/glados/issues"
   },
-  "homepage": "https://github.com/kaustubh-karkare/productivity#readme",
+  "homepage": "https://github.com/kaustubh-karkare/glados#readme",
   "dependencies": {
     "@babel/core": "^7.9.6",
     "@babel/node": "^7.8.7",

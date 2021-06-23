@@ -1,6 +1,6 @@
 .DS_Store
 config.json
-database
+data
 dist
 node_modules
 package-lock.json

@@ -30,6 +30,7 @@ export default class {
     }
 
     async invoke(name, input, moreContext = {}) {
+        const actionInstance = this;
         const context = {
             ...moreContext,
             invoke(innerName, innerInput) {
@@ -51,6 +52,12 @@ export default class {
             memory: this.memory,
             // Arguments for deferred `invoke` operations on separate transactions.
             deferredInvoke: [],
+            // Transmit logs to client.
+            log(...args) {
+                if (actionInstance.socket) {
+                    actionInstance.socket.log(...args);
+                }
+            },
         };
         context.database.transaction = await this.database.sequelize.transaction();
         try {

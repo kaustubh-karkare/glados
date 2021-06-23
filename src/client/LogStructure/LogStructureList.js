@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    BulletList, LeftRight, Link, TextEditor, WarningIcon,
+    BulletList, DetailsIcon, LeftRight, Link, TextEditor, WarningIcon,
 } from '../Common';
 import LogStructureEditor from './LogStructureEditor';
 
@@ -11,6 +11,8 @@ function LogStructureViewer(props) {
         return (
             <Link logStructure={logStructure}>
                 {logStructure.name}
+                <DetailsIcon isShown={!!logStructure.details} />
+                <WarningIcon isShown={logStructure.isDeprecated} />
             </Link>
         );
     }
@@ -31,6 +33,7 @@ function LogStructureViewer(props) {
                     value={logStructure.titleTemplate}
                     isSingleLine
                 />
+                <DetailsIcon isShown={!!logStructure.details} />
                 <WarningIcon isShown={logStructure.isDeprecated} />
             </span>
             {suffix}

@@ -6,6 +6,7 @@ const CLIENT_SIDE = 'client_side';
 const GENERAL_REQUEST = 'general-request-';
 const GENERAL_RESPONSE = 'general-response-';
 const GENERAL_SUBSCRIPTION = 'general-subscription';
+const LOG_SUBSCRIPTION = 'log-subscription';
 
 const clients = [];
 
@@ -111,6 +112,17 @@ class SocketRPC {
             }
             delete this.subscriptions[name];
         });
+        this.socket.on(LOG_SUBSCRIPTION, async (wrapper) => {
+            const { args } = wrapper;
+            try {
+                const [level, ...moreArgs] = args;
+                // eslint-disable-next-line no-console
+                console[level](...moreArgs);
+            } catch {
+                // eslint-disable-next-line no-console
+                console.error(...args);
+            }
+        });
     }
 
     subscribe(name) {
@@ -130,6 +142,15 @@ class SocketRPC {
     broadcast(name, data) {
         assert(this.type === SERVER_SIDE);
         clients.forEach((client) => client.socket.emit(GENERAL_SUBSCRIPTION, { name, data }));
+    }
+
+    /**
+     * This is separate from the broadcast method because those are buffered
+     * until the transaction is successfully completed.
+     */
+    log(...args) {
+        assert(this.type === SERVER_SIDE);
+        clients.forEach((client) => client.socket.emit(LOG_SUBSCRIPTION, { args }));
     }
 }
 
