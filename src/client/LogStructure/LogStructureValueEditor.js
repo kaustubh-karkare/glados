@@ -85,6 +85,7 @@ class LogStructureValueEditor extends React.Component {
                 />
             );
         } if (logKey.type === LogStructure.Key.LOG_TOPIC) {
+            const parentLogTopicId = logKey.parentLogTopic ? logKey.parentLogTopic.id : undefined;
             return (
                 <TypeaheadSelector
                     id={uniqueId}
@@ -92,7 +93,7 @@ class LogStructureValueEditor extends React.Component {
                     value={value}
                     disabled={disabled}
                     onChange={(newValue) => this.update(newValue)}
-                    where={{ parent_topic_id: logKey.parentLogTopic.id }}
+                    where={{ parent_topic_id: parentLogTopicId }}
                     ref={this.ref}
                 />
             );

@@ -30,7 +30,6 @@ export default class {
     }
 
     async invoke(name, input, moreContext = {}) {
-        const actionInstance = this;
         const context = {
             ...moreContext,
             invoke(innerName, innerInput) {
@@ -53,12 +52,15 @@ export default class {
             // Arguments for deferred `invoke` operations on separate transactions.
             deferredInvoke: [],
             // Transmit logs to client.
-            log(...args) {
-                if (actionInstance.socket) {
-                    actionInstance.socket.log(...args);
-                }
-            },
+            console: {},
         };
+        ['info', 'log', 'warning', 'error'].forEach((logLevel) => {
+            context.console[logLevel] = (...args) => {
+                if (this.socket) {
+                    this.socket.log(logLevel, ...args);
+                }
+            };
+        });
         context.database.transaction = await this.database.sequelize.transaction();
         try {
             const broadcasts = [];

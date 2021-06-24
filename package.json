@@ -1,7 +1,7 @@
 {
   "name": "glados",
   "version": "1.0.0",
-  "description": "",
+  "description": "Generic Life Activity Data Organization System",
   "private": true,
   "scripts": {
     "build-client": "webpack --config ./src/config/webpack.config.js",

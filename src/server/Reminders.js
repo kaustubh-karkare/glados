@@ -1,10 +1,13 @@
 /* eslint-disable func-names */
 
 import assert from 'assert';
-import { addDays, compareAsc, subDays } from 'date-fns';
+import {
+    addDays, compareAsc, differenceInCalendarDays, subDays,
+} from 'date-fns';
 import { LogStructure, filterAsync } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 import DateUtils from '../common/DateUtils';
+import TextEditorUtils from '../common/TextEditorUtils';
 
 ActionsRegistry['latest-log-event'] = async function (input) {
     return this.database.findOne(
@@ -196,4 +199,36 @@ ActionsRegistry['reminder-dismiss'] = async function (input) {
     );
     this.broadcast('reminder-sidebar');
     return { logStructure: outputLogStructure };
+};
+
+ActionsRegistry['topic-reminders'] = async function ({
+    logStructureId,
+    thresholdDays,
+}) {
+    const logStructure = await this.invoke.call(this, 'log-structure-load', { id: logStructureId });
+    const todayDate = DateUtils.getTodayDate();
+    const logTopics = Object.values(
+        TextEditorUtils.extractMentions(logStructure.details, 'log-topic'),
+    );
+    const logTopicAndDayCounts = await Promise.all(logTopics.map(async (logTopic) => {
+        // TODO: Fetch only the latest item from the database.
+        const logEvents = await this.invoke.call(
+            this,
+            'log-event-list',
+            {
+                where: { logStructure, logTopics: [logTopic], isComplete: true },
+                limit: 1,
+            },
+        );
+        const logEvent = logEvents.pop();
+        let dayCount = null;
+        let needsReminder = true;
+        if (logEvent) {
+            const lastDate = DateUtils.getDate(logEvent.date);
+            dayCount = differenceInCalendarDays(todayDate, lastDate);
+            needsReminder = dayCount > thresholdDays;
+        }
+        return needsReminder ? { logTopic, dayCount } : null;
+    }));
+    return { logStructure, logTopicAndDayCounts: logTopicAndDayCounts.filter((item) => item) };
 };

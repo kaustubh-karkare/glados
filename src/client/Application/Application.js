@@ -9,10 +9,9 @@ import {
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
 import { LogTopicList } from '../LogTopic';
-import { ReminderSidebar } from '../Reminders';
+import { ReminderSidebar, TopicRemindersSection } from '../Reminders';
 import BackupSection from './BackupSection';
 import ConsistencySection from './ConsistencySection';
-import ConversationRemindersSection from './ConversationRemindersSection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
@@ -171,7 +170,13 @@ class Applicaton extends React.Component {
         const nameSortComparator = (left, right) => left.name.localeCompare(right.name);
         return (
             <>
-                {this.props.rightSidebarTopicIds.map((id) => <TopicSection key={id} id={id} />)}
+                {this.props.clientConfig.right_sidebar_topic_sections
+                    .map((section) => (
+                        <TopicSection
+                            key={section.topic_id}
+                            logTopicId={section.topic_id}
+                        />
+                    ))}
                 <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
@@ -193,7 +198,14 @@ class Applicaton extends React.Component {
                     ViewerComponent={LogStructureList.Single}
                     valueKey="logStructure"
                 />
-                <ConversationRemindersSection />
+                {this.props.clientConfig.right_sidebar_topic_reminder_sections
+                    .map((section) => (
+                        <TopicRemindersSection
+                            key={section.structure_id}
+                            logStructureId={section.structure_id}
+                            thresholdDays={section.threshold_days}
+                        />
+                    ))}
             </>
         );
     }
@@ -213,11 +225,8 @@ class Applicaton extends React.Component {
 }
 
 Applicaton.propTypes = {
-    rightSidebarTopicIds: PropTypes.arrayOf(PropTypes.number),
-};
-
-Applicaton.defaultProps = {
-    rightSidebarTopicIds: [],
+    // eslint-disable-next-line react/forbid-prop-types
+    clientConfig: PropTypes.any,
 };
 
 export default Applicaton;

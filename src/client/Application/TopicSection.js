@@ -13,7 +13,7 @@ class TopicSection extends React.Component {
         this.dataLoader = new DataLoader({
             getInput: () => ({
                 name: 'log-topic-load',
-                args: { id: this.props.id },
+                args: { id: this.props.logTopicId },
             }),
             onData: (logTopic) => this.setState({ logTopic }),
         });
@@ -57,7 +57,7 @@ class TopicSection extends React.Component {
 }
 
 TopicSection.propTypes = {
-    id: PropTypes.number.isRequired,
+    logTopicId: PropTypes.number.isRequired,
 };
 
 export default TopicSection;

@@ -2,10 +2,8 @@
 
 import assert from 'assert';
 
-import { differenceInCalendarDays } from 'date-fns';
 import { awaitSequence } from '../data';
 import ActionsRegistry from './ActionsRegistry';
-import DateUtils from '../common/DateUtils';
 import TextEditorUtils from '../common/TextEditorUtils';
 
 ActionsRegistry.consistency = async function () {
@@ -78,38 +76,6 @@ ActionsRegistry['validate-log-topic-modes'] = async function ({ logMode, targetL
     });
     */
     return results;
-};
-
-ActionsRegistry['conversation-reminders'] = async function () {
-    const CONVERSATION_STRUCTURE_ID = 101;
-    const CONVERSATION_REMINDER_THRESHOLD_DAYS = 30;
-    const logStructure = await this.invoke.call(
-        this,
-        'log-structure-load',
-        { id: CONVERSATION_STRUCTURE_ID },
-    );
-    const todayDate = DateUtils.getTodayDate();
-    const logTopics = Object.values(
-        TextEditorUtils.extractMentions(logStructure.details, 'log-topic'),
-    );
-    const items = await Promise.all(logTopics.map(async (logTopic) => {
-        // TODO: Fetch only the latest item from the database.
-        const logEvents = await this.invoke.call(
-            this,
-            'log-event-list',
-            { where: { logStructure, logTopics: [logTopic], isComplete: true } },
-        );
-        const logEventDates = logEvents.map((logEvent) => logEvent.date).sort();
-        let dayCount = null;
-        let needsReminder = true;
-        if (logEventDates.length) {
-            const lastDate = DateUtils.getDate(logEventDates[logEventDates.length - 1]);
-            dayCount = differenceInCalendarDays(todayDate, lastDate);
-            needsReminder = dayCount > CONVERSATION_REMINDER_THRESHOLD_DAYS;
-        }
-        return needsReminder ? { logTopic, dayCount } : null;
-    }));
-    return items.filter((item) => item);
 };
 
 ActionsRegistry['fix-birthdays-anniversaries'] = async function () {

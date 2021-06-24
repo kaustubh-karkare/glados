@@ -34,9 +34,9 @@ window.main = function main() {
         (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 
-    const config = JSON.parse(cookies.client);
+    const clientConfig = JSON.parse(cookies.client);
     ReactDOM.render(
-        <Application rightSidebarTopicIds={config.right_sidebar_topic_ids} />,
+        <Application clientConfig={clientConfig} />,
         document.getElementById('root'),
     );
 };
