@@ -22,7 +22,6 @@ import TimeSection from './TimeSection';
 import TopicSection from './TopicSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
-import { getSortComparator } from '../../data';
 import Enum from '../../common/Enum';
 
 
@@ -169,13 +168,13 @@ class Applicaton extends React.Component {
     }
 
     renderRightSidebarWidgets() {
+        const nameSortComparator = (left, right) => left.name.localeCompare(right.name);
         return (
             <>
                 {this.props.rightSidebarTopicIds.map((id) => <TopicSection key={id} id={id} />)}
                 <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
-                    sortComparator={getSortComparator(['date', 'orderingIndex'])}
                     ViewerComponent={LogEventList.Single}
                     viewerComponentProps={{ viewerComponentProps: { displayDate: true } }}
                     valueKey="logEvent"
@@ -183,14 +182,14 @@ class Applicaton extends React.Component {
                 <FavoritesSection
                     title="Favorite Topics"
                     dataType="log-topic"
-                    sortComparator={getSortComparator(['name'])}
+                    sortComparator={nameSortComparator}
                     ViewerComponent={LogTopicList.Single}
                     valueKey="logTopic"
                 />
                 <FavoritesSection
                     title="Favorite Structures"
                     dataType="log-structure"
-                    sortComparator={getSortComparator(['name'])}
+                    sortComparator={nameSortComparator}
                     ViewerComponent={LogStructureList.Single}
                     valueKey="logStructure"
                 />

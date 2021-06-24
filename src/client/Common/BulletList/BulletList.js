@@ -1,32 +1,25 @@
-import { GoPrimitiveDot } from 'react-icons/go';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
+import deepEqual from 'deep-equal';
 import BulletListItem from './BulletListItem';
+import BulletListLine from './BulletListLine';
+import BulletListPager from './BulletListPager';
 import BulletListTitle from './BulletListTitle';
 import DataLoader from '../DataLoader';
 import { getDataTypeMapping } from '../../../data';
 
 
+import './BulletList.css';
+
+
+const BATCH_SIZE = 50;
+
+
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
 const SortableBulletListItem = SortableElement(BulletListItem);
 
-
-function AdderWrapper(props) {
-    // eslint-disable-next-line react/prop-types
-    const { children } = props;
-    return (
-        <InputGroup>
-            <div className="icon" />
-            <div className="icon mr-1">
-                <GoPrimitiveDot />
-            </div>
-            {children}
-        </InputGroup>
-    );
-}
 
 class BulletList extends React.Component {
     static getDerivedStateFromProps(props, state) {
@@ -39,21 +32,40 @@ class BulletList extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { items: null, isExpanded: {} };
+        this.state = {
+            items: null,
+            isExpanded: {},
+            areAllExpanded: true,
+            limit: BATCH_SIZE,
+        };
     }
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
             getInput: () => ({
                 name: `${this.props.dataType}-list`,
-                args: { where: this.props.where },
+                args: {
+                    where: this.props.where,
+                    limit: this.state.limit !== null ? this.state.limit + 1 : undefined,
+                },
             }),
-            onData: (items) => this.setState({ items }),
+            onData: (items) => {
+                if (this.state.limit && items.length > this.state.limit) {
+                    this.setState({ items: items.slice(1), hasMoreItems: true });
+                } else {
+                    this.setState({ items, hasMoreItems: false, limit: null });
+                }
+            },
         });
     }
 
-    componentDidUpdate() {
-        this.dataLoader.reload();
+    componentDidUpdate(prevProps) {
+        if (
+            prevProps.dataType !== this.props.dataType
+            || !deepEqual(prevProps.where, this.props.where)
+        ) {
+            this.updateLimit(BATCH_SIZE);
+        }
     }
 
     componentWillUnmount() {
@@ -88,7 +100,18 @@ class BulletList extends React.Component {
             .then(() => this.setState({ items: orderedItems }));
     }
 
+    updateLimit(limit) {
+        this.setState({ limit, items: null }, () => this.dataLoader.reload());
+    }
+
     renderItems() {
+        if (!this.state.items) {
+            return (
+                <BulletListLine>
+                    <span>Loading ...</span>
+                </BulletListLine>
+            );
+        }
         return this.state.items.map((item, index) => (
             <SortableBulletListItem
                 index={index}
@@ -120,18 +143,15 @@ class BulletList extends React.Component {
             return null;
         }
         return (
-            <AdderWrapper>
+            <BulletListLine>
                 <AdderComponent where={this.props.where} />
-            </AdderWrapper>
+            </BulletListLine>
         );
     }
 
     render() {
-        if (!this.state.items) {
-            return <div>Loading ...</div>;
-        }
         return (
-            <div>
+            <div className="bullet-list">
                 <BulletListTitle
                     name={this.props.name}
                     areAllExpanded={this.state.areAllExpanded}
@@ -148,6 +168,13 @@ class BulletList extends React.Component {
                     onAddButtonClick={this.props.allowCreation
                         ? (event) => this.onAddButtonClick(event)
                         : null}
+                />
+                <BulletListPager
+                    batchSize={BATCH_SIZE}
+                    limit={this.state.limit}
+                    updateLimit={(limit) => this.updateLimit(limit)}
+                    itemsLength={this.state.items ? this.state.items.length : null}
+                    hasMoreItems={this.state.hasMoreItems}
                 />
                 <WrappedContainer
                     helperClass="sortableDraggedItem"

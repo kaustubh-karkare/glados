@@ -7,9 +7,10 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;
     ActionsRegistry[`${name}-list`] = async function (input) {
         const context = { ...this, DataType };
-        const where = (input && input.where) || {};
+        input = input || {};
+        const where = input.where || {};
         await DataType.updateWhere.call(context, where);
-        return DataType.list.call(context, where);
+        return DataType.list.call(context, where, input.limit);
     };
     ActionsRegistry[`${name}-typeahead`] = async function ({ query, where = {} }) {
         const context = { ...this, DataType };

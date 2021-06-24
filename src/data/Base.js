@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import assert from 'assert';
-import { awaitSequence, isItem, getSortComparator } from './Utils';
+import { awaitSequence, isItem } from './Utils';
 import ValidationBase from './ValidationBase';
 
 function getDataType(name) {
@@ -66,11 +66,14 @@ class Base extends ValidationBase {
         });
     }
 
-    static async list(where) {
-        let items = await this.database.findAll(this.DataType.name, where);
-        items = items.sort(getSortComparator(['date', 'ordering_index']));
+    static async list(where, limit) {
+        const order = [['ordering_index', 'DESC']];
+        if (this.DataType.name === 'LogEvent') {
+            order.unshift(['date', 'DESC']);
+        }
+        const items = await this.database.findAll(this.DataType.name, where, order, limit);
         return Promise.all(
-            items.map((item) => this.DataType.load.call(this, item.id)),
+            items.reverse().map((item) => this.DataType.load.call(this, item.id)),
         );
     }
 

@@ -1,0 +1,11 @@
+.bullet-list .pager {
+    color: var(--text-disabled-color);
+}
+
+.bullet-list .pager > span {
+    cursor: pointer;
+}
+
+.bullet-list .pager > span:hover {
+    color: var(--text-color);
+}
