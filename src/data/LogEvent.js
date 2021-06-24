@@ -36,7 +36,6 @@ class LogEvent extends Base {
             date,
             orderingIndex: null,
             id: getVirtualID(),
-            // name is added in trigger
             title,
             details,
             logLevel,
@@ -62,14 +61,20 @@ class LogEvent extends Base {
                 where.date = { [operator]: value };
             }
         }
-        if (where.name) {
-            where.name = {
-                [this.database.Op.like]: `%${where.name}%`,
+        if (where.title) {
+            where.title = {
+                [this.database.Op.like]: `%${where.title}%`,
+            };
+        }
+        if (where.details) {
+            where.details = {
+                [this.database.Op.like]: `%${where.details}%`,
             };
         }
         await Base.updateWhere.call(this, where, {
             date: 'date',
-            name: 'name',
+            title: 'title',
+            details: 'details',
             logStructure: 'structure_id',
             isFavorite: 'is_favorite',
             isComplete: 'is_complete',
@@ -104,7 +109,6 @@ class LogEvent extends Base {
             );
             logEvent.logLevel = logEvent.logStructure.logLevel;
         }
-        logEvent.name = TextEditorUtils.extractPlainText(logEvent.title);
     }
 
     static extractLogTopics(inputLogEvent) {
@@ -139,7 +143,12 @@ class LogEvent extends Base {
             results.push(['.logMode', false, 'is missing.']);
         }
 
-        results.push(Base.validateNonEmptyString('.title', inputLogEvent.name));
+        results.push([
+            '.title',
+            !!inputLogEvent.title,
+            'must be non-empty.',
+        ]);
+
         if (inputLogEvent.logStructure) {
             const logStructureResults = await Base.validateRecursive.call(
                 this, LogStructure, '.logStructure', inputLogEvent.logStructure,
@@ -211,7 +220,6 @@ class LogEvent extends Base {
             date: logEvent.date,
             isComplete: logEvent.is_complete,
             orderingIndex: logEvent.ordering_index,
-            name: logEvent.name,
             title: TextEditorUtils.deserialize(
                 logEvent.title,
                 TextEditorUtils.StorageType.DRAFTJS,
@@ -245,7 +253,6 @@ class LogEvent extends Base {
             mode_id: inputLogEvent.logMode.id,
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
-            name: inputLogEvent.name,
             title: TextEditorUtils.serialize(
                 inputLogEvent.title,
                 TextEditorUtils.StorageType.DRAFTJS,

@@ -129,9 +129,11 @@ test('test_structure_title_template_expression', async () => {
 
     const actions = Utils.getActions();
     let logEvents = await actions.invoke('log-event-list');
-    expect(logEvents[0].name).toEqual('Cycling: 15 miles / 60 minutes');
-    expect(logEvents[1].name).toEqual('Cycling: 15 miles / 55 minutes');
-    expect(logEvents[2].name).toEqual('Cycling: 15 miles / 50 minutes');
+    expect(logEvents.map((logEvent) => TextEditorUtils.extractPlainText(logEvent.title))).toEqual([
+        'Cycling: 15 miles / 60 minutes',
+        'Cycling: 15 miles / 55 minutes',
+        'Cycling: 15 miles / 50 minutes',
+    ]);
 
     const { logStructure } = logEvents[0];
     logStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
@@ -141,9 +143,11 @@ test('test_structure_title_template_expression', async () => {
     await actions.invoke('log-structure-upsert', logStructure);
 
     logEvents = await actions.invoke('log-event-list');
-    expect(logEvents[0].name).toEqual('Cycling: 15 miles / 60 minutes (15.00 mph)');
-    expect(logEvents[1].name).toEqual('Cycling: 15 miles / 55 minutes (16.36 mph)');
-    expect(logEvents[2].name).toEqual('Cycling: 15 miles / 50 minutes (18.00 mph)');
+    expect(logEvents.map((logEvent) => TextEditorUtils.extractPlainText(logEvent.title))).toEqual([
+        'Cycling: 15 miles / 60 minutes (15.00 mph)',
+        'Cycling: 15 miles / 55 minutes (16.36 mph)',
+        'Cycling: 15 miles / 50 minutes (18.00 mph)',
+    ]);
 });
 
 test('test_structure_title_template_link', async () => {
@@ -179,7 +183,7 @@ test('test_structure_title_template_link', async () => {
 
     const actions = Utils.getActions();
     const logEvents = await actions.invoke('log-event-list');
-    expect(logEvents[0].name).toEqual('Article: Facebook');
+    expect(TextEditorUtils.extractPlainText(logEvents[0].title)).toEqual('Article: Facebook');
 });
 
 test('test_structure_with_topic', async () => {

@@ -243,7 +243,7 @@ class LogEventSearch extends React.Component {
                 where.logTopics.push(item);
                 searchResultMode = true;
             } else if (item.__type__ === EVENT_TITLE_ITEM_TYPE) {
-                where.name = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
+                where.title = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
                 searchResultMode = true;
             } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
                 where.isComplete = false;

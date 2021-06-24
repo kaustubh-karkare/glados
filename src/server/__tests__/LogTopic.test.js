@@ -48,7 +48,7 @@ test('test_update_propagation', async () => {
 
     const actions = Utils.getActions();
     let logEvent = await actions.invoke('log-event-load', { id: 1 });
-    expect(logEvent.name).toEqual('Spoke to a Hacky');
+    expect(TextEditorUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Hacky');
     let logTopic = await actions.invoke('log-topic-load', { id: 2 });
     expect(TextEditorUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Hacky');
 
@@ -57,7 +57,7 @@ test('test_update_propagation', async () => {
     await actions.invoke('log-topic-upsert', person);
 
     logEvent = await actions.invoke('log-event-load', logEvent);
-    expect(logEvent.name).toEqual('Spoke to a Noob');
+    expect(TextEditorUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Noob');
     logTopic = await actions.invoke('log-topic-load', logTopic);
     expect(TextEditorUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Noob');
 

@@ -17,7 +17,7 @@ function LogEventViewer(props) {
         );
     }
     const title = (
-        <span className="float-left ml-1">
+        <span className="float-left">
             <TextEditor
                 unstyled
                 disabled

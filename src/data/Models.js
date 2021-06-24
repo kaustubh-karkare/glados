@@ -314,11 +314,6 @@ export default function (sequelize) {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            name: {
-                type: Sequelize.STRING,
-                allowNull: false,
-                comment: 'Derived from Title, used for Search.',
-            },
             title: {
                 type: Sequelize.TEXT,
                 allowNull: false,
