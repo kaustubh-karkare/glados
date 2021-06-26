@@ -17,8 +17,8 @@ function LogEventViewer(props) {
         );
     }
     const title = (
-        <span className="float-left">
-            <TextEditor
+        <span className="ml-1">
+            <TextEditor.SimpleViewer
                 unstyled
                 disabled
                 value={logEvent.title}
@@ -28,12 +28,10 @@ function LogEventViewer(props) {
     let detailsSuffix;
     if (logEvent.details) {
         detailsSuffix = (
-            <span className="float-left ml-1">
-                <DetailsIcon
-                    onClick={props.toggleExpansion}
-                    isShown
-                />
-            </span>
+            <DetailsIcon
+                onClick={props.toggleExpansion}
+                isShown
+            />
         );
     }
     let logLevelSuffix;

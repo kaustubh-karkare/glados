@@ -1,4 +1,4 @@
-
+import assert from 'assert';
 import classNames from 'classnames';
 import Editor from 'draft-js-plugins-editor';
 import { RichUtils } from 'draft-js';
@@ -227,6 +227,61 @@ TextEditor.defaultProps = {
     disabled: false,
     isSingleLine: false,
     minWidth: false,
+};
+
+/**
+ * The primary component generates an inline block that does not look great on
+ * the main page. This alternative implementation generates an inline span.
+ */
+TextEditor.SimpleViewer = (props) => {
+    if (!props.value) {
+        return null;
+    }
+    const rawContent = props.value;
+    assert(rawContent.blocks.length === 1);
+    const { text } = rawContent.blocks[0];
+    let textIndex = 0;
+    const entityRanges = Object.values(rawContent.blocks[0].entityRanges);
+    let entityRangeIndex = 0;
+    const parts = [];
+    while (textIndex < text.length) {
+        const entityRange = entityRanges[entityRangeIndex];
+        let part;
+        if (entityRange && entityRange.offset === textIndex) {
+            const key = `entity-${entityRangeIndex}`;
+            entityRangeIndex += 1;
+            const entity = rawContent.entityMap[entityRange.key];
+            const endIndex = textIndex + entityRange.length;
+            const textPart = text.slice(textIndex, endIndex);
+            textIndex = endIndex;
+            if (entity.type === 'mention') {
+                part = (
+                    <Link key={key} logTopic={entity.data.mention}>
+                        {textPart}
+                    </Link>
+                );
+            } else if (entity.type === 'LINK') {
+                part = (
+                    <a key={key} href={entity.data.url} target="_blank" rel="noopener noreferrer">
+                        {textPart}
+                    </a>
+                );
+            }
+        } else {
+            const endIndex = entityRange ? entityRange.offset : text.length;
+            const textPart = text.slice(textIndex, endIndex);
+            textIndex = endIndex;
+            part = textPart;
+        }
+        assert(part);
+        parts.push(part);
+    }
+    return <span>{parts}</span>;
+};
+
+TextEditor.SimpleViewer.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    value: PropTypes.any,
 };
 
 export default TextEditor;
