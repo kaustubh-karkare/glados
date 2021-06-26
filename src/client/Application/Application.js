@@ -135,33 +135,35 @@ class Applicaton extends React.Component {
     renderRightSidebar() {
         return (
             <Col md={2} className="my-3">
-                <TimeSection
-                    label="Time in India"
-                    timezone="Asia/Kolkata"
-                />
-                <ModeSection
-                    logMode={this.state.urlParams.mode}
-                    disabled={this.state.disabled}
-                    onChange={(mode) => Coordinator.invoke('url-update', { mode })}
-                />
-                <EnumSelectorSection
-                    label="Layout: "
-                    options={Layout.Options}
-                    value={this.state.urlParams.layout}
-                    onChange={(layout) => Coordinator.invoke('url-update', { layout })}
-                />
-                <EnumSelectorSection
-                    label="Widgets: "
-                    options={Widgets.Options}
-                    value={this.state.urlParams.widgets}
-                    onChange={(widgets) => Coordinator.invoke('url-update', { widgets })}
-                />
-                <BackupSection />
-                <ConsistencySection />
-                {this.state.urlParams.widgets === Widgets.SHOW
-                    ? this.renderRightSidebarWidgets()
-                    : null}
-                <CreditsSection />
+                <ScrollableSection>
+                    <TimeSection
+                        label="Time in India"
+                        timezone="Asia/Kolkata"
+                    />
+                    <ModeSection
+                        logMode={this.state.urlParams.mode}
+                        disabled={this.state.disabled}
+                        onChange={(mode) => Coordinator.invoke('url-update', { mode })}
+                    />
+                    <EnumSelectorSection
+                        label="Layout: "
+                        options={Layout.Options}
+                        value={this.state.urlParams.layout}
+                        onChange={(layout) => Coordinator.invoke('url-update', { layout })}
+                    />
+                    <EnumSelectorSection
+                        label="Widgets: "
+                        options={Widgets.Options}
+                        value={this.state.urlParams.widgets}
+                        onChange={(widgets) => Coordinator.invoke('url-update', { widgets })}
+                    />
+                    <BackupSection />
+                    <ConsistencySection />
+                    {this.state.urlParams.widgets === Widgets.SHOW
+                        ? this.renderRightSidebarWidgets()
+                        : null}
+                    <CreditsSection />
+                </ScrollableSection>
             </Col>
         );
     }
