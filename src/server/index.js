@@ -84,7 +84,7 @@ const { argv } = yargs
     .option('configPath', { alias: 'c', default: 'config.json' })
     .demandOption('configPath')
     .option('action', { alias: 'a' })
-    .choices('action', ['backup-load', 'backup-save']);
+    .choices('action', ['database-reset', 'backup-load', 'backup-save']);
 
 const context = {};
 context.config = JSON.parse(fs.readFileSync(argv.configPath));

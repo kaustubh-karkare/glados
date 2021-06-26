@@ -161,3 +161,11 @@ ActionsRegistry['backup-load'] = async function ({ logging } = {}) {
 ActionsRegistry['backup-delete'] = async function ({ filename }) {
     return callbackToPromise(fs.unlink, path.join(this.config.backup.location, filename));
 };
+
+ActionsRegistry['database-reset'] = async function () {
+    /*
+    const data = {};
+    await this.invoke.call(this, 'backup-data-save', { data });
+    console.info('Reset database!');
+    */
+};

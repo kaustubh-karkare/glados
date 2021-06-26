@@ -25,7 +25,7 @@ class LogEventAdder extends React.Component {
     }
 
     onSaveLogEvent(logEvent) {
-        if (logEvent.name) {
+        if (logEvent.title) {
             window.api.send('log-event-upsert', logEvent)
                 .then((newLogEvent) => {
                     this.setState({ logEvent: LogEvent.createVirtual(this.props.where) });

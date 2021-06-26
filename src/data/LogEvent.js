@@ -243,8 +243,12 @@ class LogEvent extends Base {
             logEvent.date !== inputLogEvent.date
             || logEvent.is_complete !== inputLogEvent.isComplete
         ) : true;
+        const orderingIndexWhere = {
+            date: inputLogEvent.date,
+            is_complete: inputLogEvent.isComplete,
+        };
         const orderingIndex = await Base.getOrderingIndex
-            .call(this, shouldResetOrderingIndex ? null : logEvent, { date: inputLogEvent.date });
+            .call(this, shouldResetOrderingIndex ? null : logEvent, orderingIndexWhere);
         let logValues;
         if (inputLogEvent.logStructure) {
             logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value || null);

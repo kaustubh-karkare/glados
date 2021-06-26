@@ -6,6 +6,7 @@
   "scripts": {
     "build-client": "webpack --config ./src/config/webpack.config.js",
     "server": "babel-node --config-file ./src/config/babel.config.js src/server/index.js",
+    "database-reset": "yarn run server -a database-reset",
     "backup-save": "yarn run server -a backup-save",
     "backup-load": "yarn run server -a backup-load",
     "dev-client": "yarn run build-client --watch",
@@ -68,6 +69,7 @@
     "react-icons": "^3.10.0",
     "react-sortable-hoc": "^1.11.0",
     "recharts": "^2.0.9",
+    "selenium-webdriver": "^4.0.0-beta.4",
     "sequelize": "^5.21.10",
     "single-instance": "^0.0.1",
     "socket.io": "^2.3.0",
