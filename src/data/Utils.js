@@ -30,6 +30,7 @@ export function awaitSequence(items, method) {
         let index = 0;
         const results = [];
         const next = () => {
+            // console.info(index, 'of', items.length);
             if (index === items.length) {
                 resolve(results);
             } else {

@@ -1,4 +1,9 @@
+// This file contains custom logic that is specific only for Kaustubh's database.
+
 /* eslint-disable func-names */
+/* eslint-disable camelcase */
+/* eslint-disable no-console */
+/* eslint-disable no-constant-condition */
 
 import assert from 'assert';
 
@@ -129,4 +134,80 @@ ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
             );
         }),
     );
+};
+
+ActionsRegistry['update-television-events'] = async function (data) {
+    const structure_id = data.log_structures.filter((log_structure) => log_structure.name === 'Television')[0].id;
+    const parent_topic_id = data.log_topics.filter((log_topic) => log_topic.name === 'Television Series')[0].id;
+    const value_index = 0;
+
+    data.log_structures.forEach((log_structure) => {
+        if (log_structure.id === structure_id) {
+            const keys = JSON.parse(log_structure.keys);
+            keys[0].type = 'log_topic';
+            keys[0].is_optional = false;
+            keys[0].parent_topic_id = parent_topic_id;
+            log_structure.keys = JSON.stringify(keys);
+            data.log_structures_to_log_topics.push({
+                source_structure_id: log_structure.id,
+                target_topic_id: parent_topic_id,
+            });
+        }
+    });
+    let maxTopicId = Math.max(...data.log_topics.map((log_topic) => log_topic.id));
+    const nameToTopicId = {};
+    data.log_topics.forEach((log_topic) => {
+        if (log_topic.parent_topic_id === parent_topic_id) {
+            nameToTopicId[log_topic.name] = log_topic.id;
+        }
+    });
+    data.log_events.forEach((log_event) => {
+        if (log_event.structure_id === structure_id) {
+            const values = JSON.parse(log_event.structure_values);
+            const series_name = values[value_index];
+            if (!nameToTopicId[series_name]) {
+                maxTopicId += 1;
+                const new_topic_id = maxTopicId;
+                data.log_topics.push({
+                    id: new_topic_id,
+                    mode_id: 1,
+                    parent_topic_id,
+                    ordering_index: 0,
+                    name: series_name,
+                    details: '',
+                    child_count: 0,
+                    is_favorite: 0,
+                    is_deprecated: 0,
+                });
+                nameToTopicId[series_name] = new_topic_id;
+            }
+            const topic_id = nameToTopicId[series_name];
+            values[value_index] = {
+                __type__: 'log-topic',
+                id: topic_id,
+                name: series_name,
+            };
+            log_event.structure_values = JSON.stringify(values);
+            data.log_events_to_log_topics.push({
+                source_event_id: log_event.id,
+                target_topic_id: topic_id,
+            });
+        }
+    });
+    if (false) {
+        const name_to_count = {};
+        data.log_topics.forEach((log_topic) => {
+            if (!(log_topic.name in name_to_count)) {
+                name_to_count[log_topic.name] = 0;
+            }
+            name_to_count[log_topic.name] += 1;
+        });
+        const multiple_topics = Object.entries(name_to_count).filter((kvp) => kvp[1] > 1);
+        if (multiple_topics.length) console.info(multiple_topics);
+    }
+    const validate = async () => {
+        const logStructure = await this.invoke.call(this, 'log-structure-load', { id: structure_id });
+        await this.invoke.call(this, 'log-structure-upsert', logStructure);
+    };
+    return { data, validate };
 };

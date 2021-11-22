@@ -11,7 +11,6 @@ import { LogStructureList } from '../LogStructure';
 import { LogTopicList } from '../LogTopic';
 import { ReminderSidebar, TopicRemindersSection } from '../Reminders';
 import BackupSection from './BackupSection';
-import ConsistencySection from './ConsistencySection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
@@ -158,7 +157,6 @@ class Applicaton extends React.Component {
                         onChange={(widgets) => Coordinator.invoke('url-update', { widgets })}
                     />
                     <BackupSection />
-                    <ConsistencySection />
                     {this.state.urlParams.widgets === Widgets.SHOW
                         ? this.renderRightSidebarWidgets()
                         : null}

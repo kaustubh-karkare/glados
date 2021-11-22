@@ -118,7 +118,8 @@ ActionsRegistry['backup-data-save'] = async function ({ data }) {
 };
 
 ActionsRegistry['backup-transform-data'] = async function (data) {
-    return data;
+    // return this.invoke.call(this, 'update-television-events', data);
+    return { data };
 };
 
 // Actual API
@@ -148,12 +149,15 @@ ActionsRegistry['backup-latest'] = async function () {
 ActionsRegistry['backup-load'] = async function ({ logging } = {}) {
     const latestBackup = await this.invoke.call(this, 'backup-latest');
     assert(latestBackup, 'at least one backup is required');
-    let data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
-    data = await this.invoke.call(this, 'backup-transform-data', data);
-    await this.invoke.call(this, 'backup-data-save', { data });
+    const data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
+    const transformationResult = await this.invoke.call(this, 'backup-transform-data', data);
+    await this.invoke.call(this, 'backup-data-save', { data: transformationResult.data });
     if (logging) {
         // eslint-disable-next-line no-console
         console.info(`Loaded ${latestBackup.filename}`);
+    }
+    if (transformationResult.validate) {
+        await transformationResult.validate();
     }
     return latestBackup;
 };
