@@ -211,3 +211,46 @@ ActionsRegistry['update-television-events'] = async function (data) {
     };
     return { data, validate };
 };
+
+ActionsRegistry['update-hpff-events'] = async function (data) {
+    const log_structure = data.log_structures.filter((item) => item.name === 'HPFF')[0];
+
+    const keys = JSON.parse(log_structure.keys);
+    keys.splice(2, 1, ...[
+        {
+            name: 'Story Status',
+            type: 'string',
+            is_optional: false,
+            template: null,
+            parent_topic_id: null,
+        },
+        {
+            name: 'Reading Status',
+            type: 'string',
+            is_optional: false,
+            template: null,
+            parent_topic_id: null,
+        },
+    ]);
+    log_structure.keys = JSON.stringify(keys);
+
+    const mapping = {
+        start: ['Unknown', 'Not Started'],
+        abandoned: ['Unknown', 'Abandoned'],
+        'completed, but abandoned': ['Incomplete', 'Finished'],
+        completed: ['Complete', 'Finished'],
+        null: ['Unknown', 'Unknown'],
+    };
+    data.log_events.forEach((log_event) => {
+        if (log_event.structure_id === log_structure.id) {
+            const values = JSON.parse(log_event.structure_values);
+            const new_status_values = mapping[values[2]];
+            if (!new_status_values) {
+                throw log_event;
+            }
+            values.splice(2, 1, ...new_status_values);
+            log_event.structure_values = JSON.stringify(values);
+        }
+    });
+    return { data };
+};

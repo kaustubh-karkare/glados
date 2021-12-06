@@ -118,7 +118,7 @@ ActionsRegistry['backup-data-save'] = async function ({ data }) {
 };
 
 ActionsRegistry['backup-transform-data'] = async function (data) {
-    // return this.invoke.call(this, 'update-television-events', data);
+    // return this.invoke.call(this, 'transformation-method', data);
     return { data };
 };
 
