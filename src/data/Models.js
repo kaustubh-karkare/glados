@@ -193,6 +193,10 @@ export default function (sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
+            allow_event_details: {
+                type: Sequelize.BOOLEAN,
+                allowNull: false,
+            },
             // Should this structure have key-value-pairs?
             keys: {
                 type: Sequelize.TEXT,

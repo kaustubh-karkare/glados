@@ -162,6 +162,14 @@ class LogEvent extends Base {
                 'should match .logMode',
             ]);
 
+            results.push([
+                '.logStructure.allowEventDetails',
+                inputLogEvent.logStructure.allowEventDetails
+                    ? true
+                    : inputLogEvent.details === null,
+                'does not allow .details',
+            ]);
+
             const logKeyResults = await Promise.all(
                 inputLogEvent.logStructure.logKeys.map(async (logKey, index) => {
                     if (logKey.isOptional && !logKey.value) return null;

@@ -26,6 +26,7 @@ export { default as TypeaheadSelector } from './TypeaheadSelector';
 export { default as URLManager } from './URLManager';
 
 export { default as DetailsIcon } from './icons/DetailsIcon';
+export { default as InfoIcon } from './icons/InfoIcon';
 export { default as WarningIcon } from './icons/WarningIcon';
 
 export * from './Utils';

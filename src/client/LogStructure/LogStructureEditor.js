@@ -127,6 +127,21 @@ class LogStructureEditor extends React.Component {
         );
     }
 
+    renderAllowEventDetailsSelector() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text>
+                    Event Details?
+                </InputGroup.Text>
+                <Selector.Binary
+                    value={this.props.logStructure.allowEventDetails}
+                    disabled={this.props.disabled}
+                    onChange={(allowEventDetails) => this.updateLogStructure('allowEventDetails', allowEventDetails)}
+                />
+            </InputGroup>
+        );
+    }
+
     renderLogLevelSelector() {
         return (
             <InputGroup className="my-1">
@@ -181,6 +196,7 @@ class LogStructureEditor extends React.Component {
                         logStructure={this.props.logStructure}
                     />
                     {this.renderNeedsEditSelector()}
+                    {this.renderAllowEventDetailsSelector()}
                 </div>
                 <div className="my-3">
                     <LogStructureFrequencyEditor

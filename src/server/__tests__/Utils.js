@@ -92,6 +92,7 @@ export default class Utils {
             inputLogStructure.logStructureGroup = logStructureGroupMap[inputLogStructure.groupName];
             delete inputLogStructure.groupName;
             inputLogStructure.details = '';
+            inputLogStructure.allowEventDetails = true;
             if (inputLogStructure.logKeys) {
                 inputLogStructure.logKeys.forEach((logKey, index) => {
                     logKey.__type__ = 'log-structure-key';

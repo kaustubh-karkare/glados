@@ -120,15 +120,19 @@ class LogEventEditor extends React.Component {
     }
 
     renderDetails() {
+        const { logEvent } = this.props;
+        const allowEventDetails = logEvent.logStructure
+            ? logEvent.logStructure.allowEventDetails
+            : true;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Details
                 </InputGroup.Text>
                 <TextEditor
-                    value={this.props.logEvent.details}
+                    value={logEvent.details}
                     serverSideTypes={['log-topic']}
-                    disabled={this.props.disabled}
+                    disabled={this.props.disabled || !allowEventDetails}
                     onChange={(details) => this.updateLogEvent('details', details)}
                     ref={this.detailsRef}
                 />

@@ -1,4 +1,4 @@
-import { getVirtualID, getPartialItem } from './Utils';
+import { awaitSequence, getVirtualID, getPartialItem } from './Utils';
 import Base from './Base';
 import Enum from '../common/Enum';
 import Frequency from './Frequency';
@@ -90,6 +90,7 @@ class LogStructure extends Base {
             logStructureGroup,
             name,
             details: null,
+            allowEventDetails: false,
             logKeys: [],
             titleTemplate: '',
             needsEdit: false,
@@ -236,6 +237,7 @@ class LogStructure extends Base {
                 logStructure.details,
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
+            allowEventDetails: logStructure.allow_event_details,
             logKeys,
             titleTemplate: TextEditorUtils.deserialize(
                 logStructure.title_template,
@@ -277,6 +279,7 @@ class LogStructure extends Base {
                 inputLogStructure.details,
                 TextEditorUtils.StorageType.DRAFTJS,
             ),
+            allow_event_details: inputLogStructure.allowEventDetails,
             keys: JSON.stringify(inputLogStructure.logKeys.map(
                 (logKey) => LogStructure.saveKey.call(this, logKey),
             )),
@@ -320,6 +323,7 @@ class LogStructure extends Base {
             if (!shouldRegenerateLogEvents) {
                 shouldRegenerateLogEvents = (
                     originalLogStructure.log_level !== fields.log_level
+                    || originalLogStructure.allow_event_details !== fields.allow_event_details
                     || originalLogStructure.mode_id !== fields.mode_id
                 );
             }
@@ -351,7 +355,7 @@ class LogStructure extends Base {
 
         if (originalLogStructure) {
             if (inputLogEvents) {
-                await Promise.all(inputLogEvents.map(async (inputLogEvent) => {
+                await awaitSequence(inputLogEvents, async (inputLogEvent) => {
                     // Update the logEvent to support logKey addition, reorder, deletion.
                     const mapping = {};
                     inputLogEvent.logStructure.logKeys.forEach((logKey) => {
@@ -365,7 +369,7 @@ class LogStructure extends Base {
                         })),
                     };
                     return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
-                }));
+                });
             }
         } else {
             // On creation, replace the virtual ID in the title template.
