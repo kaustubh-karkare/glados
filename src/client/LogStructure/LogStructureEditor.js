@@ -191,6 +191,11 @@ class LogStructureEditor extends React.Component {
                                 updatedLogStructure.logKeys = logKeys;
                             });
                         }}
+                        onSearch={(query, index) => window.api.send('value-typeahead', {
+                            logStructure: this.props.logStructure,
+                            query,
+                            index,
+                        })}
                         type={LogStructureKeyEditor}
                         valueKey="logKey"
                         logStructure={this.props.logStructure}

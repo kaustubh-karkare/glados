@@ -102,6 +102,34 @@ class LogStructureKeyEditor extends React.Component {
         );
     }
 
+    renderEnumValuesSelector() {
+        const { logKey } = this.props;
+        return (
+            <TypeaheadSelector
+                id="log-structure-key-editor-enum-values"
+                multiple
+                options={TypeaheadSelector.getStringListTypeaheadOptions(
+                    (query) => this.props.onSearch(query, this.props.index),
+                )}
+                value={TypeaheadSelector.getStringListItems(logKey.enumValues)}
+                disabled={this.props.disabled}
+                onChange={(items) => this.update('enumValues', items.map((item) => item.name))}
+                placeholder="Enum Values"
+            />
+        );
+    }
+
+    renderEnumValuesSection() {
+        return (
+            <InputGroup className="my-1">
+                <InputGroup.Text style={{ width: 100 }}>
+                    Enum Values
+                </InputGroup.Text>
+                {this.renderEnumValuesSelector()}
+            </InputGroup>
+        );
+    }
+
     render() {
         // eslint-disable-next-line react/prop-types
         const children = this.props.children || [];
@@ -126,11 +154,8 @@ class LogStructureKeyEditor extends React.Component {
                     </InputGroup.Text>
                     {this.renderTemplate()}
                 </InputGroup>
-                <InputGroup className="my-1">
-                    <InputGroup.Text style={{ width: 100 }}>
-                        Graph
-                    </InputGroup.Text>
-                </InputGroup>
+                {this.props.logKey.type === LogStructure.Key.ENUM
+                    ? this.renderEnumValuesSection() : null}
             </div>
         );
     }
@@ -142,6 +167,7 @@ LogStructureKeyEditor.propTypes = {
     logKey: PropTypes.Custom.LogStructureKey.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
+    onSearch: PropTypes.func.isRequired,
 };
 
 export default LogStructureKeyEditor;

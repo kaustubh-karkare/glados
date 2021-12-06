@@ -44,6 +44,11 @@ Selector.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
+Selector.getStringListOptions = (items) => items.map((item) => ({
+    label: item,
+    value: item,
+}));
+
 class BinarySelector extends React.Component {
     constructor(props) {
         super(props);

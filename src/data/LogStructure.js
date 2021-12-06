@@ -11,37 +11,43 @@ const LogStructureKey = Enum([
         value: 'string',
         label: 'String',
         validator: async () => true,
-        default: '',
+        getDefault: () => '',
     },
     {
         value: 'string_list',
         label: 'String List',
         validator: async (value) => Array.isArray(value),
-        default: [],
+        getDefault: () => [],
     },
     {
         value: 'integer',
         label: 'Integer',
         validator: async (value) => !!value.match(/^\d+$/),
-        default: '',
+        getDefault: () => '',
     },
     {
         value: 'number',
         label: 'Number',
         validator: async (value) => !!value.match(/^\d+(?:\.\d+)?$/),
-        default: '',
+        getDefault: () => '',
     },
     {
         value: 'time',
         label: 'Time',
         validator: async (value) => !!value.match(/^\d{2}:\d{2}$/),
-        default: '',
+        getDefault: () => '',
     },
     {
         value: 'yes_or_no',
         label: 'Yes / No',
         validator: async (value) => !!value.match(/^(?:yes|no)$/),
-        default: 'no',
+        getDefault: () => 'no',
+    },
+    {
+        value: 'enum',
+        label: 'Enum',
+        validator: async (value, logKey) => logKey.enumValues.includes(value),
+        getDefault: (logKey) => logKey.enumValues[0],
     },
     {
         value: 'log_topic',
@@ -50,13 +56,13 @@ const LogStructureKey = Enum([
             const logTopic = await that.invoke.call(that, 'log-topic-load', value);
             return logTopic.parentLogTopic.id === logKey.parentLogTopic.id;
         },
-        default: null,
+        getDefault: () => null,
     },
     {
         value: 'rich_text_line',
         label: 'Rich Text Line',
         validator: async (value) => true,
-        default: null,
+        getDefault: () => null,
     },
 ]);
 
@@ -169,7 +175,13 @@ class LogStructure extends Base {
             const prefix = `.logKey[${index}]`;
             results.push(Base.validateNonEmptyString(`${prefix}.name`, logKey.name));
             results.push(Base.validateNonEmptyString(`${prefix}.type`, logKey.type));
-            if (logKey.type === LogStructureKey.LOG_TOPIC) {
+            if (logKey.type === LogStructureKey.ENUM) {
+                results.push([
+                    `${prefix}.enumValues`,
+                    logKey.enumValues.length > 0,
+                    'must be provided!',
+                ]);
+            } if (logKey.type === LogStructureKey.LOG_TOPIC) {
                 results.push([
                     `${prefix}.parentLogTopic`,
                     logKey.parentLogTopic,
@@ -418,6 +430,7 @@ class LogStructure extends Base {
             type: LogStructureKey.STRING,
             isOptional: false,
             template: null,
+            enumValues: [],
             parentLogTopic: null,
         };
     }
@@ -436,6 +449,7 @@ class LogStructure extends Base {
             type: rawLogKey.type,
             template: rawLogKey.template,
             isOptional: rawLogKey.is_optional,
+            enumValues: rawLogKey.enum_values || [],
             parentLogTopic,
         };
     }
@@ -446,6 +460,7 @@ class LogStructure extends Base {
             type: inputLogKey.type,
             is_optional: inputLogKey.isOptional,
             template: inputLogKey.template,
+            enum_values: inputLogKey.enumValues,
             parent_topic_id: inputLogKey.parentLogTopic ? inputLogKey.parentLogTopic.id : null,
         };
     }

@@ -1,45 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Selector, TextEditor, TypeaheadInput, TypeaheadOptions, TypeaheadSelector,
+    Selector, TextEditor, TypeaheadInput, TypeaheadSelector,
 } from '../Common';
 import { LogTopicOptions } from '../LogTopic';
 import { LogStructure, getPartialItem } from '../../data';
-
-const STRING_TYPE = 'string';
 
 class LogStructureValueEditor extends React.Component {
     constructor(props) {
         super(props);
         this.ref = React.createRef();
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    getStringListItems(value) {
-        return value.map((subvalue, index) => ({
-            __type__: STRING_TYPE,
-            id: index + 1,
-            name: subvalue,
-        }));
-    }
-
-    getStringListTypeaheadOptions() {
-        return new TypeaheadOptions({
-            serverSideOptions: [],
-            getComputedOptions: async (query) => {
-                if (!query) {
-                    return [];
-                }
-                let options = await this.props.onSearch(query);
-                options = this.getStringListItems(options);
-                options.push({
-                    __type__: STRING_TYPE,
-                    id: 0,
-                    name: query,
-                });
-                return options;
-            },
-        });
     }
 
     focus() {
@@ -67,8 +37,8 @@ class LogStructureValueEditor extends React.Component {
             return (
                 <TypeaheadSelector
                     id={uniqueId}
-                    options={this.getStringListTypeaheadOptions()}
-                    value={this.getStringListItems(value)}
+                    options={TypeaheadSelector.getStringListTypeaheadOptions(this.props.onSearch)}
+                    value={TypeaheadSelector.getStringListItems(value)}
                     disabled={disabled}
                     onChange={(items) => this.update(items.map((item) => item.name))}
                     multiple
@@ -81,6 +51,16 @@ class LogStructureValueEditor extends React.Component {
                     value={value === 'yes'}
                     disabled={disabled}
                     onChange={(newValue) => this.update(newValue ? 'yes' : 'no')}
+                    ref={this.ref}
+                />
+            );
+        } if (logKey.type === LogStructure.Key.ENUM) {
+            return (
+                <Selector
+                    options={Selector.getStringListOptions(logKey.enumValues)}
+                    value={value}
+                    disabled={disabled}
+                    onChange={(newValue) => this.update(newValue)}
                     ref={this.ref}
                 />
             );

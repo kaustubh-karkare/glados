@@ -23,7 +23,9 @@ class LogEvent extends Base {
         if (logStructure) {
             logStructure.logKeys = logStructure.logKeys.map((logKey) => ({
                 ...logKey,
-                value: logKey.value || LogStructure.Key[logKey.type].default || null,
+                value: logKey.value
+                    || LogStructure.Key[logKey.type].getDefault(logKey)
+                    || null,
             }));
         }
         // Abstraction leak! The LogEventSearch component filters to logLevels = [2,3] by default.

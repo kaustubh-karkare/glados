@@ -22,7 +22,7 @@ class TypeaheadSelector extends React.Component {
 
     onSearch(query) {
         this.setState({ isLoading: true });
-        TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
+        this.getTypeaheadOptions()
             .search(query)
             .then((options) => this.setState({ isLoading: false, options }, this.forceUpdate));
     }
@@ -30,9 +30,7 @@ class TypeaheadSelector extends React.Component {
     async onChange(selected) {
         if (selected.length) {
             const index = selected.length - 1;
-            const result = await TypeaheadOptions.get(
-                this.props.options || this.props.serverSideTypes,
-            ).select(selected[index]);
+            const result = await this.getTypeaheadOptions().select(selected[index]);
             if (result) {
                 selected[index] = result;
             } else if (result === null) {
@@ -44,6 +42,12 @@ class TypeaheadSelector extends React.Component {
         } else {
             this.props.onChange(selected[0] || null);
         }
+    }
+
+    getTypeaheadOptions() {
+        return TypeaheadOptions.get(
+            this.props.options || this.props.serverSideTypes,
+        );
     }
 
     focus() {
@@ -122,5 +126,30 @@ TypeaheadSelector.propTypes = {
 TypeaheadSelector.defaultProps = {
     multiple: false,
 };
+
+TypeaheadSelector.getStringItem = (value, index = -1) => ({
+    __type__: 'string',
+    id: index + 1,
+    name: value,
+});
+
+TypeaheadSelector.getStringListItems = (values) => {
+    if (!values) return [];
+    return values.map(TypeaheadSelector.getStringItem);
+};
+
+TypeaheadSelector.getStringListTypeaheadOptions = (fetcher) => new TypeaheadOptions({
+    serverSideOptions: [],
+    getComputedOptions: async (query) => {
+        // Maybe skip fetching results if query is empty?
+        let options = [];
+        if (fetcher) {
+            options = await fetcher(query);
+        }
+        options = TypeaheadSelector.getStringListItems(options);
+        options.push(TypeaheadSelector.getStringItem(query));
+        return options;
+    },
+});
 
 export default TypeaheadSelector;
