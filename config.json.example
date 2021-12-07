@@ -1,11 +1,11 @@
 {
     "database": {
         "dialect": "sqlite",
-        "storage": "database/test.sqlite",
+        "storage": "data/test.sqlite",
         "logging": false
     },
     "backup": {
-        "location": "database",
+        "location": "data",
         "save_interval_ms": null
     },
     "server": {

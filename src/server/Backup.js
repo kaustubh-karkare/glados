@@ -167,9 +167,7 @@ ActionsRegistry['backup-delete'] = async function ({ filename }) {
 };
 
 ActionsRegistry['database-reset'] = async function () {
-    /*
-    const data = {};
-    await this.invoke.call(this, 'backup-data-save', { data });
+    await this.database.reset();
+    // eslint-disable-next-line no-console
     console.info('Reset database!');
-    */
 };

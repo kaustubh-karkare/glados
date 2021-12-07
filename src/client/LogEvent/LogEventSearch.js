@@ -57,7 +57,7 @@ const DUPLICATE_ACTION = {
             valueKey: 'logEvent',
             value: LogEvent.createVirtual({
                 ...logEvent,
-                date: DateUtils.getTodayLabel(),
+                date: logEvent.date ? DateUtils.getTodayLabel() : null,
             }),
         });
     },
@@ -173,6 +173,7 @@ class LogEventSearch extends React.Component {
                     key={dateLabel}
                     name={`${dateLabel} (${getDayOfTheWeek(dateLabel)})`}
                     where={{ date: dateLabel, ...where }}
+                    showAdder
                     {...moreProps}
                 />
             );
@@ -180,16 +181,35 @@ class LogEventSearch extends React.Component {
     }
 
     renderSearchResults(where, moreProps) {
-        moreProps.viewerComponentProps.displayDate = true;
+        assert(where.isComplete);
+        const displayDateMoreProps = {
+            ...moreProps,
+            viewerComponentProps: {
+                ...moreProps.viewerComponentProps,
+                displayDate: true,
+            },
+        };
         if (this.props.dateRange) {
             where = { ...where, date: this.props.dateRange };
         }
         return (
-            <LogEventList
-                name="Search Results"
-                where={where}
-                {...moreProps}
-            />
+            <>
+                <LogEventList
+                    name="Complete"
+                    where={{ ...where, isComplete: true }}
+                    {...displayDateMoreProps}
+                />
+                <LogEventList
+                    name="Incomplete (with dates)"
+                    where={{ ...where, isComplete: false, date: 'ne(null)' }}
+                    {...displayDateMoreProps}
+                />
+                <LogEventList
+                    name="Incomplete (without dates)"
+                    where={{ ...where, isComplete: false, date: null }}
+                    {...moreProps}
+                />
+            </>
         );
     }
 

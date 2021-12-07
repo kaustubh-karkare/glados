@@ -14,7 +14,7 @@ import { getDataTypeMapping } from '../../../data';
 import './BulletList.css';
 
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 25;
 
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);

@@ -11,8 +11,14 @@
 ```
 git clone https://github.com/kaustubh-karkare/glados
 cp config.json.example config.json
-mkdir data # config.json specifies this as the database & backup location.
+mkdir data # config.json specifies this as the location for sqlite database & backups.
 yarn install
+yarn run database-reset
+```
+
+### Usage
+
+```
 yarn run build-client
 yarn run server
 ```
