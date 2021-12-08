@@ -45,7 +45,6 @@ class Highlightable extends React.Component {
                 })}
                 tabIndex={0}
                 onMouseEnter={() => this.setHighlight(true)}
-                onMouseOver={() => this.setHighlight(true)}
                 onMouseLeave={() => this.setHighlight(false)}
                 onFocus={() => this.setHighlight(true)}
                 onBlur={() => this.setHighlight(false)}

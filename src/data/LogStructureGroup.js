@@ -29,8 +29,6 @@ class LogStructureGroup extends Base {
                 LogMode, '.logMode', inputLogStructureGroup.logMode,
             );
             results.push(...logModeResults);
-        } else {
-            results.push(['.logMode', false, 'is missing.']);
         }
 
         results.push(Base.validateNonEmptyString('.name', inputLogStructureGroup.name));
@@ -40,7 +38,10 @@ class LogStructureGroup extends Base {
 
     static async load(id) {
         const logStructureGroup = await this.database.findByPk('LogStructureGroup', id);
-        const outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logStructureGroup.mode_id });
+        let outputLogMode = null;
+        if (logStructureGroup.mode_id) {
+            outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logStructureGroup.mode_id });
+        }
         return {
             __type__: 'log-structure-group',
             id: logStructureGroup.id,
@@ -56,7 +57,7 @@ class LogStructureGroup extends Base {
         );
         const orderingIndex = await Base.getOrderingIndex.call(this, originalLogStructureGroup);
         const fields = {
-            mode_id: inputLogStructureGroup.logMode.id,
+            mode_id: inputLogStructureGroup.logMode && inputLogStructureGroup.logMode.id,
             ordering_index: orderingIndex,
             name: inputLogStructureGroup.name,
         };

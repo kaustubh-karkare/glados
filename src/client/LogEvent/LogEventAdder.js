@@ -74,11 +74,7 @@ class LogEventAdder extends React.Component {
                 }}
                 onSpecialKeys={(event) => {
                     if (event.keyCode === KeyCodes.ENTER) {
-                        if (!logEvent.logMode) { // TODO: If invalid?
-                            this.onEditLogEvent(logEvent);
-                        } else {
-                            this.onSaveLogEvent(logEvent);
-                        }
+                        this.onSaveLogEvent(logEvent);
                     }
                 }}
                 {...this.props}

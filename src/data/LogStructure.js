@@ -1,4 +1,6 @@
-import { awaitSequence, getVirtualID, getPartialItem } from './Utils';
+import {
+    awaitSequence, getVirtualID, getPartialItem, isVirtualItem,
+} from './Utils';
 import Base from './Base';
 import Enum from '../common/Enum';
 import Frequency from './Frequency';
@@ -215,8 +217,8 @@ class LogStructure extends Base {
             ]);
         }
 
-        const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
-        if (inputLogStructure.logStructureGroup) {
+        if (inputLogStructure.logStructureGroup && inputLogStructure.logStructureGroup.logMode) {
+            const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
             const modeValidationResults = await this.invoke.call(
                 this,
                 'validate-log-topic-modes',
@@ -283,7 +285,8 @@ class LogStructure extends Base {
 
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
-            mode_id: inputLogStructure.logStructureGroup.logMode.id,
+            mode_id: inputLogStructure.logStructureGroup.logMode
+                && inputLogStructure.logStructureGroup.logMode.id,
             group_id: inputLogStructure.logStructureGroup.id,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
@@ -365,30 +368,21 @@ class LogStructure extends Base {
             }, {}),
         );
 
-        if (originalLogStructure) {
-            if (inputLogEvents) {
-                await awaitSequence(inputLogEvents, async (inputLogEvent) => {
-                    // Update the logEvent to support logKey addition, reorder, deletion.
-                    const mapping = {};
-                    inputLogEvent.logStructure.logKeys.forEach((logKey) => {
-                        mapping[logKey.id] = logKey;
-                    });
-                    inputLogEvent.logStructure = {
-                        ...inputLogStructure,
-                        logKeys: inputLogStructure.logKeys.map((logKey) => ({
-                            ...logKey,
-                            value: (mapping[logKey.id] || logKey).value,
-                        })),
-                    };
-                    return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
-                });
-            }
-        } else {
-            // On creation, replace the virtual ID in the title template.
+        if (
+            !originalLogStructure
+            || inputLogStructure.logKeys.some((logKey) => isVirtualItem(logKey))
+        ) {
+            // On creation of logStructure or update of logKeys,
+            // replace the virtual IDs in the title template.
+            const originalItems = [inputLogStructure, ...inputLogStructure.logKeys];
+            const updatedItems = originalItems.map((item, index) => ({
+                ...getPartialItem(item),
+                id: index || updatedLogStructure.id,
+            }));
             const updatedTitleTemplate = TextEditorUtils.updateDraftContent(
                 inputLogStructure.titleTemplate,
-                [inputLogStructure],
-                [{ ...getPartialItem(inputLogStructure), id: updatedLogStructure.id }],
+                originalItems,
+                updatedItems,
             );
             const transaction = this.database.getTransaction();
             const fields2 = {
@@ -399,6 +393,25 @@ class LogStructure extends Base {
             };
             await updatedLogStructure.update(fields2, { transaction });
         }
+
+        if (originalLogStructure && inputLogEvents) {
+            await awaitSequence(inputLogEvents, async (inputLogEvent) => {
+                // Update the logEvent to support logKey addition, reorder, deletion.
+                const mapping = {};
+                inputLogEvent.logStructure.logKeys.forEach((logKey) => {
+                    mapping[logKey.id] = logKey;
+                });
+                inputLogEvent.logStructure = {
+                    ...inputLogStructure,
+                    logKeys: inputLogStructure.logKeys.map((logKey) => ({
+                        ...logKey,
+                        value: (mapping[logKey.id] || logKey).value,
+                    })),
+                };
+                return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
+            });
+        }
+
         await this.invoke.call(
             this,
             'value-typeahead-index-refresh',

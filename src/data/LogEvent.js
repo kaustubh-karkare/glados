@@ -141,8 +141,6 @@ class LogEvent extends Base {
                 this, LogMode, '.logMode', inputLogEvent.logMode,
             );
             results.push(...logModeResults);
-        } else {
-            results.push(['.logMode', false, 'is missing.']);
         }
 
         results.push([
@@ -157,10 +155,11 @@ class LogEvent extends Base {
             );
             results.push(...logStructureResults);
 
+            const groupLogMode = inputLogEvent.logStructure.logStructureGroup.logMode;
+            const eventLogMode = inputLogEvent.logMode;
             results.push([
                 '.logStructure.logMode',
-                inputLogEvent.logStructure.logStructureGroup.logMode.id
-                === inputLogEvent.logMode.id,
+                (groupLogMode && groupLogMode.id) === (eventLogMode && eventLogMode.id),
                 'should match .logMode',
             ]);
 
@@ -192,13 +191,15 @@ class LogEvent extends Base {
             results.push(...logKeyResults.filter((result) => result));
         }
 
-        const targetLogTopics = LogEvent.extractLogTopics(inputLogEvent);
-        const modeValidationResults = await this.invoke.call(
-            this,
-            'validate-log-topic-modes',
-            { logMode: inputLogEvent.logMode, targetLogTopics },
-        );
-        results.push(...modeValidationResults);
+        if (inputLogEvent.logMode) {
+            const targetLogTopics = LogEvent.extractLogTopics(inputLogEvent);
+            const modeValidationResults = await this.invoke.call(
+                this,
+                'validate-log-topic-modes',
+                { logMode: inputLogEvent.logMode, targetLogTopics },
+            );
+            results.push(...modeValidationResults);
+        }
 
         if (inputLogEvent.isComplete) {
             results.push([
@@ -222,7 +223,10 @@ class LogEvent extends Base {
         } else {
             assert(logEvent.structure_values === null);
         }
-        const outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logEvent.mode_id });
+        let outputLogMode = null;
+        if (logEvent.mode_id) {
+            outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logEvent.mode_id });
+        }
         return {
             __type__: 'log-event',
             id: logEvent.id,
@@ -264,7 +268,7 @@ class LogEvent extends Base {
             logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value || null);
         }
         const fields = {
-            mode_id: inputLogEvent.logMode.id,
+            mode_id: inputLogEvent.logMode && inputLogEvent.logMode.id,
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
             title: TextEditorUtils.serialize(

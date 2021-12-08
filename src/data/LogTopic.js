@@ -43,19 +43,19 @@ class LogTopic extends Base {
                 this, LogMode, '.logMode', inputLogTopic.logMode,
             );
             results.push(...logModeResults);
-        } else {
-            results.push(['.logMode', false, 'is missing.']);
         }
 
         results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));
 
-        const targetLogTopics = TextEditorUtils.extractMentions(inputLogTopic.details, 'log-topic');
-        const modeValidationResults = await this.invoke.call(
-            this,
-            'validate-log-topic-modes',
-            { logMode: inputLogTopic.logMode, targetLogTopics },
-        );
-        results.push(...modeValidationResults);
+        if (inputLogTopic.logMode) {
+            const targetLogTopics = TextEditorUtils.extractMentions(inputLogTopic.details, 'log-topic');
+            const modeValidationResults = await this.invoke.call(
+                this,
+                'validate-log-topic-modes',
+                { logMode: inputLogTopic.logMode, targetLogTopics },
+            );
+            results.push(...modeValidationResults);
+        }
 
         return results;
     }
@@ -63,7 +63,10 @@ class LogTopic extends Base {
     static async load(id) {
         const logTopic = await this.database.findByPk('LogTopic', id);
         let outputParentLogTopic = null;
-        const outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logTopic.mode_id });
+        let outputLogMode = null;
+        if (logTopic.mode_id) {
+            outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logTopic.mode_id });
+        }
         if (logTopic.parent_topic_id) {
             // Intentionally loading only partial data.
             const parentLogTopic = await this.database.findByPk(
@@ -111,7 +114,7 @@ class LogTopic extends Base {
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
         const childCount = await LogTopic.count.call(this, { parent_topic_id: inputLogTopic.id });
         const fields = {
-            mode_id: inputLogTopic.logMode.id,
+            mode_id: inputLogTopic.logMode && inputLogTopic.logMode.id,
             parent_topic_id: newParentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,

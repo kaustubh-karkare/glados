@@ -42,7 +42,7 @@ export default function (sequelize) {
             },
             mode_id: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
+                allowNull: true,
             },
             parent_topic_id: {
                 type: Sequelize.INTEGER,
@@ -144,7 +144,7 @@ export default function (sequelize) {
             },
             mode_id: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
+                allowNull: true,
             },
             ordering_index: {
                 type: Sequelize.INTEGER,
@@ -175,7 +175,7 @@ export default function (sequelize) {
             },
             mode_id: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
+                allowNull: true,
             },
             group_id: {
                 type: Sequelize.INTEGER,
@@ -308,7 +308,7 @@ export default function (sequelize) {
             },
             mode_id: {
                 type: Sequelize.INTEGER,
-                allowNull: false,
+                allowNull: true,
             },
             date: {
                 type: Sequelize.STRING,
