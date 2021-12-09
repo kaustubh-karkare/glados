@@ -1,5 +1,5 @@
 .DS_Store
-config.json
+/config.json
 data
 dist
 node_modules
