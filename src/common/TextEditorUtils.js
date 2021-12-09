@@ -432,6 +432,25 @@ class TextEditorUtils {
         return contentState;
     }
 
+    static removePrefixFromDraftContext(content, prefix) {
+        let contentState = convertFromRaw(content);
+        const blocks = contentState.getBlocksAsArray();
+        assert(blocks.length === 1);
+        let selectionState = SelectionState.createEmpty(blocks[0].getKey());
+        selectionState = selectionState.merge({
+            anchorOffset: 0,
+            focusOffset: prefix.length,
+            hasFocus: true,
+        });
+        // https://draftjs.org/docs/api-reference-modifier/#removerange
+        contentState = Modifier.removeRange(
+            contentState,
+            selectionState,
+            'forward',
+        );
+        return convertToRaw(contentState);
+    }
+
     static evaluateDraftContentExpressions(contentState) {
         const pendingUpdates = [];
 

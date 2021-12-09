@@ -7,7 +7,7 @@
 
 import assert from 'assert';
 
-import { awaitSequence } from '../data';
+import { awaitSequence, getPartialItem } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 import TextEditorUtils from '../common/TextEditorUtils';
 
@@ -253,4 +253,36 @@ ActionsRegistry['update-hpff-events'] = async function (data) {
         }
     });
     return { data };
+};
+
+ActionsRegistry['add-structure-to-events'] = async function () {
+    const logTopic = await this.invoke.call(this, 'log-topic-load', { id: 4 });
+    const logStructure = await this.invoke.call(this, 'log-structure-load', { id: 120 });
+    const logEvents = await this.invoke.call(
+        this,
+        'log-event-list',
+        { where: { logTopics: [logTopic], logStructure: null } },
+    );
+
+    const prefix = `${logTopic.name}: `;
+    await Promise.all(logEvents.map(async (logEvent) => {
+        const oldTitleText = TextEditorUtils.extractPlainText(logEvent.title);
+        if (logEvent.logStructure || !oldTitleText.startsWith(prefix)) {
+            return;
+        }
+        logEvent.logStructure = {
+            ...logStructure,
+            logKeys: logStructure.logKeys.map((logKey) => ({ ...logKey })),
+        };
+        logEvent.logStructure.logKeys[0].value = getPartialItem(logTopic);
+        logEvent.logStructure.logKeys[1].value = TextEditorUtils.removePrefixFromDraftContext(
+            logEvent.title,
+            prefix,
+        );
+        // Warning! May need to disable this.database.setEdges in LogEvent.save() to avoid timeout.
+        logEvent = await this.invoke.call(this, 'log-event-upsert', logEvent);
+        const newTitleText = TextEditorUtils.extractPlainText(logEvent.title);
+        console.info('Old:', oldTitleText);
+        console.info('New:', newTitleText);
+    }));
 };
