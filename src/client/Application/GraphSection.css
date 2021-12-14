@@ -2,4 +2,5 @@
     background-color: var(--component-color);
     padding: 4px;
     border-radius: 4px;
+    white-space: pre-wrap;
 }
