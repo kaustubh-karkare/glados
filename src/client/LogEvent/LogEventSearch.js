@@ -3,37 +3,33 @@ import React from 'react';
 import { eachDayOfInterval, getDay } from 'date-fns';
 import PropTypes from '../prop-types';
 import DateUtils from '../../common/DateUtils';
-import {
-    Coordinator, TypeaheadOptions,
-} from '../Common';
+import { Coordinator } from '../Common';
 import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
 import { getVirtualID, LogEvent } from '../../data';
+import LogEventOptions from './LogEventOptions';
+
+// Extra Filters for Events
 
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
     id: getVirtualID(),
     name: 'Incomplete Events',
+    apply: (_item, where, extra) => {
+        where.isComplete = false;
+        extra.incompleteMode = true;
+    },
 };
 const ALL_EVENTS_ITEM = {
     __type__: 'all-events',
     id: getVirtualID(),
     name: 'All Events',
-};
-const NO_STRUCTURE_ITEM = {
-    __type__: 'no-structure',
-    id: getVirtualID(),
-    name: 'No Structure',
+    apply: (_item, where, _extra) => {
+        delete where.logLevel;
+    },
 };
 
-const EVENT_TITLE_ITEM_TYPE = 'log-event-title';
-const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
-
-const SPECIAL_ITEMS = [
-    INCOMPLETE_ITEM,
-    ALL_EVENTS_ITEM,
-    NO_STRUCTURE_ITEM,
-];
+// Extra Actions for Events
 
 const COMPLETE_ACTION = {
     id: 'complete',
@@ -69,32 +65,10 @@ function getDayOfTheWeek(label) {
 
 class LogEventSearch extends React.Component {
     static getTypeaheadOptions(logMode) {
-        const where = { logMode: logMode || undefined };
-        return new TypeaheadOptions({
-            serverSideOptions: [
-                { name: 'log-topic', args: { where } },
-                { name: 'log-structure', args: { where } },
-            ],
-            prefixOptions: SPECIAL_ITEMS,
-            computedOptionTypes: [EVENT_TITLE_ITEM_TYPE],
-            getComputedOptions: async (query) => {
-                const options = [];
-                if (query) {
-                    options.push({
-                        __type__: EVENT_TITLE_ITEM_TYPE,
-                        id: getVirtualID(),
-                        name: EVENT_TITLE_ITEM_PREFIX + query,
-                    });
-                }
-                return options;
-            },
-            onSelect: (option) => {
-                if (option && option.getItem) {
-                    return option.getItem(option);
-                }
-                return undefined;
-            },
-        });
+        return LogEventOptions.get(logMode, [
+            INCOMPLETE_ITEM,
+            ALL_EVENTS_ITEM,
+        ]);
     }
 
     componentDidMount() {
@@ -239,41 +213,10 @@ class LogEventSearch extends React.Component {
     }
 
     render() {
-        // Filters for the default view.
-        const where = {
-            logMode: this.props.logMode || undefined,
-            isComplete: true,
-            logLevel: [2, 3],
-        };
-        let searchResultMode = false;
-        let incompleteMode = false;
-        this.props.search.forEach((item) => {
-            if (item.__type__ === 'log-structure') {
-                assert(!where.logStructure);
-                where.logStructure = item;
-                searchResultMode = true;
-            } else if (item.__type__ === NO_STRUCTURE_ITEM.__type__) {
-                assert(!where.logStructure);
-                where.logStructure = null;
-                searchResultMode = true;
-            } else if (item.__type__ === 'log-topic') {
-                if (!where.logTopics) {
-                    where.logTopics = [];
-                }
-                where.logTopics.push(item);
-                searchResultMode = true;
-            } else if (item.__type__ === EVENT_TITLE_ITEM_TYPE) {
-                where.title = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
-                searchResultMode = true;
-            } else if (item.__type__ === INCOMPLETE_ITEM.__type__) {
-                where.isComplete = false;
-                incompleteMode = true;
-            } else if (item.__type__ === ALL_EVENTS_ITEM.__type__) {
-                delete where.logLevel;
-            } else {
-                assert(false, item);
-            }
-        });
+        const { where, searchResultMode, incompleteMode } = LogEventOptions.getEventsQuery(
+            this.props.logMode,
+            this.props.search,
+        );
 
         const moreProps = { viewerComponentProps: {} };
         moreProps.prefixActions = [];
@@ -282,7 +225,6 @@ class LogEventSearch extends React.Component {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps.displayLogLevel = true;
         }
-
 
         if (incompleteMode) {
             return this.renderIncomplete(where, moreProps);
