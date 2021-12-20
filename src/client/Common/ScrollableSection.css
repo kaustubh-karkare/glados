@@ -1,3 +1,18 @@
 .scrollable-section {
-    overflow: auto;
+    padding-right: 4px;
+    overflow-y: scroll;
+}
+
+.scrollable-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable-section::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 4px;
+}
+
+.scrollable-section::-webkit-scrollbar-thumb {
+    background-color: var(--component-color);
+    border-radius: 4px;
 }
