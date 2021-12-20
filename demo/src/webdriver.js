@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 
+const assert = require('assert');
 const { Builder, By } = require('selenium-webdriver');
-const { awaitSequence } = require('./utils');
+const { awaitSequence } = require('./Utils');
 
 class Webdriver {
     constructor() {
@@ -14,7 +15,7 @@ class Webdriver {
     async typeSlowly(element, text) {
         await awaitSequence(Array.from(text), async (char) => {
             await element.sendKeys(char);
-            await this.wait(50);
+            // await this.wait(50); // TODO: Re-enable.
         });
     }
 
@@ -28,12 +29,17 @@ class Webdriver {
         await this.wait();
     }
 
+    async getActiveElement() {
+        return this.webdriver.switchTo().activeElement();
+    }
+
     /*
     async sendKey(element, key) {
         await this.actions.keyDown(key).keyUp(key).perform();
         await this.wait();
     }
     */
+
     async click(element) {
         await this.actions.click(element).perform();
         await this.wait();
@@ -85,11 +91,43 @@ class Webdriver {
         return items[items.length - 1];
     }
 
-    async performAction(bulletListItem, actionName) {
+    async getIcon(bulletListItem, title) {
         await this.moveTo(bulletListItem);
-        const buttons = await bulletListItem.findElements(By.className('icon'));
-        const actionButton = buttons[buttons.length - 1];
-        await this.moveTo(actionButton);
+        const icon = await bulletListItem.findElement(By.xpath(
+            `.//div[contains(@class, 'icon') and @title='${title}']`,
+        ));
+        await this.moveTo(icon);
+        return icon;
+    }
+
+    async performEdit(bulletListItem) {
+        const editButton = await this.getIcon(bulletListItem, 'Edit');
+        await this.click(editButton);
+    }
+
+    async getModalDialogs() {
+        return this.webdriver.findElements(By.className('modal-dialog'));
+    }
+
+    async getInput(modalDialog, name) {
+        const modalBody = await modalDialog.findElement(By.className('modal-body'));
+        // Note: there might be multiple modal-body elements, we want the first.
+        return modalBody.findElement(By.xpath(
+            './/div[contains(@class, \'input-group\')]'
+            + `/span[contains(@class, 'input-group-text') and text() = '${name}']`
+            + '/../*[2]', // get sibling, which is the actual input element
+        ));
+    }
+
+    async saveModalDialog(modalDialog) {
+        const modalBodys = await modalDialog.findElements(By.className('modal-body'));
+        const saveButton = modalBodys[modalBodys.length - 1].findElement(By.className('btn'));
+        assert(await saveButton.getText() === 'Save', await saveButton.getText());
+        await this.click(saveButton);
+    }
+
+    async performAction(bulletListItem, actionName) {
+        const actionButton = await this.getIcon(bulletListItem, 'Actions');
         const dropdownItems = await actionButton.findElements(By.className('dropdown-item'));
         const actionNames = await Promise.all(
             dropdownItems.map((dropdownItem) => dropdownItem.getText()),

@@ -3,9 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const Actions = require('./actions');
-const Server = require('./server');
-const Webdriver = require('./webdriver');
+const Actions = require('./Actions');
+const Server = require('./Server');
+const Webdriver = require('./Webdriver');
 
 // TODO: Take this an CLI input.
 const CONFIG_PATH = './demo/config.json';

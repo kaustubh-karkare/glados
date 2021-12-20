@@ -15,7 +15,7 @@ import Dropdown from '../Dropdown';
 
 
 const SortableDragHandle = SortableHandle(() => (
-    <Icon className="sortableDragHandle">
+    <Icon className="sortableDragHandle" title="Reorder">
         <MdFormatLineSpacing />
     </Icon>
 ));
@@ -112,11 +112,12 @@ class BulletListItem extends React.Component {
     }
 
     renderBullet() {
+        const isExpanded = this.getIsExpanded();
         const iconProps = {
             alwaysHighlighted: true,
             className: 'mr-1',
+            title: isExpanded ? 'Collapse' : 'Expand',
         };
-        const isExpanded = this.getIsExpanded();
         if (this.state.isHighlighted) {
             return (
                 <Icon {...iconProps} onClick={() => this.setIsExpanded(!isExpanded)}>
