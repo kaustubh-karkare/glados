@@ -1,4 +1,3 @@
-
 function awaitSequence(items, method) {
     if (!items) {
         return Promise.resolve();
