@@ -64,6 +64,13 @@ module.exports = async (app) => {
         await app.switchToTab('Manage Events');
         await app.waitForTitle('Done (Today)');
 
+        const bulletList = await app.getBulletList(0);
+        const adder = await bulletList.getAdder();
+
+        await adder.typeSlowly('Reminders appear on the left sidebar.');
+        await adder.sendKeys('ENTER');
+        await app.waitUntil(async () => await bulletList.getItemCount() === 2);
+
         const sidebarSection = await app.getSidebarSection('Daily Routine');
 
         let reminderItems = await sidebarSection.getReminderItems();

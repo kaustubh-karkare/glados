@@ -4,6 +4,7 @@ import assert from 'assert';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import toposort from 'toposort';
 
 // import TextEditorUtils from '../common/TextEditorUtils';
 import { awaitSequence, callbackToPromise } from '../data';
@@ -170,4 +171,36 @@ ActionsRegistry['database-reset'] = async function () {
     await this.database.reset();
     // eslint-disable-next-line no-console
     console.info('Reset database!');
+};
+
+ActionsRegistry['database-clear'] = async function () {
+    // For some reason, calling "database-reset" causes SQLITE_READONLY error.
+    // So this method is specifically designed for the demo video.
+    const models = this.database.getModelSequence().slice().reverse();
+    await awaitSequence(models, async (model) => {
+        if (model.name === 'log_topics') {
+            // Since topics can reference other topics, the order of deletion matters.
+            // Using topological sort to avoid violating foreign key constraints.
+            const logTopics = await model.findAll();
+            const logTopicMap = {};
+            const nodes = [];
+            const edges = [];
+            logTopics.forEach((logTopic) => {
+                logTopicMap[logTopic.id] = logTopic;
+                nodes.push(logTopic.id);
+                if (logTopic.parent_topic_id) {
+                    edges.push([logTopic.parent_topic_id, logTopic.id]);
+                }
+            });
+            const result = toposort.array(nodes, edges).reverse();
+            await awaitSequence(result, async (id) => {
+                await logTopicMap[id].destroy();
+            });
+        }
+        try {
+            await model.sync({ force: true });
+        } catch (error) {
+            throw new Error(`${model.name} // ${error.message}`);
+        }
+    });
 };

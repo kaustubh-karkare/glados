@@ -3,6 +3,7 @@
 const { By } = require('selenium-webdriver');
 const BaseWrapper = require('./BaseWrapper');
 const { TextEditor } = require('./Inputs');
+const { waitUntil } = require('../utils');
 
 class BulletList extends BaseWrapper {
     static async get(webdriver, index) {
@@ -55,6 +56,7 @@ class BulletListItem extends BaseWrapper {
         await this.moveTo(this.element);
         const actionButton = await this._getButton('Actions');
         await this.moveTo(actionButton);
+        await waitUntil(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);
         const actionElement = await actionButton.findElement(
             By.xpath(`.//a[contains(@class, 'dropdown-item') and text() = '${name}']`),
         );

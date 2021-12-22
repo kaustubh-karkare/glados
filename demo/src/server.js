@@ -43,10 +43,10 @@ class Server {
         console.info('Initializing ...');
         const [command, ...args] = 'yarn run server -c'.split(' ').concat(this.configPath);
         const resetProcess = await this._spawn(command, args.concat('-a', 'database-reset'));
-        await this._wait(resetProcess, 'Released lock!');
+        await this._waitUntilExit(resetProcess);
         console.info('Test database reset!');
         const serverProcess = await this._spawn(command, args);
-        await this._wait(serverProcess, 'Server ready!');
+        await this._waitUntilOutput(serverProcess, 'Server ready!');
         console.info('Test server started!');
         this.process = serverProcess;
     }
@@ -67,10 +67,17 @@ class Server {
             error = error.toString();
             currentProcessStdout.write(error);
         });
+        serverProcess.stderr.pipe(process.stderr);
         return serverProcess;
     }
 
-    async _wait(serverProcess, phrase) {
+    async _waitUntilExit(serverProcess) {
+        return new Promise((resolve) => {
+            serverProcess.on('exit', resolve);
+        });
+    }
+
+    async _waitUntilOutput(serverProcess, phrase) {
         return new Promise((resolve) => {
             serverProcess.update = (stdout) => {
                 if (stdout.includes(phrase)) {
@@ -81,9 +88,17 @@ class Server {
     }
 
     async _terminate(serverProcess) {
-        return new Promise((resolve, reject) => {
+        console.info('Cleaning up ...');
+        return new Promise((resolve) => {
+            // https://stackoverflow.com/q/37522010/903585
+            serverProcess.on('exit', () => {
+                serverProcess.stdin.end();
+                serverProcess.stdout.destroy();
+                serverProcess.stderr.destroy();
+            });
             serverProcess.on('close', (code) => {
-                (code ? reject : resolve)(code);
+                console.info(`Test Server closed with exit-code = ${code}`);
+                resolve();
             });
             serverProcess.kill();
         });

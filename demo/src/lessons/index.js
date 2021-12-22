@@ -1,34 +1,28 @@
 /* eslint-disable no-console */
 
 const fs = require('fs');
-const util = require('util');
 
 const { Application } = require('../components');
 const { awaitSequence } = require('../utils');
 
-const fsReadDir = util.promisify(fs.readdir);
-
 async function runLessons(webdriver) {
+    const originalUrl = await webdriver.getCurrentUrl();
     const app = new Application(webdriver);
-    let lessonNames = await fsReadDir(__dirname);
-    // TODO: Remove!
-    // lessonNames = ['001-events'];
-    // lessonNames = ['002-topics'];
-    // lessonNames = ['003-structures'];
-    lessonNames = ['004-reminders'];
-    await awaitSequence(lessonNames, async (lessonName) => {
-        const name = lessonName.replace(/.js$/, '');
-        if (name === 'index') {
-            return;
-        }
+    const lessonNames = fs.readdirSync(__dirname)
+        .filter((name) => name !== 'index.js')
+        // .filter((name) => name.startsWith('001'))
+        .map((name) => name.replace(/.js$/, ''));
+    await awaitSequence(lessonNames, async (name, index) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         const lessonMethod = require(`./${name}`);
         console.info('Lesson:', name);
         try {
+            await app.clearDatabase();
+            await webdriver.get(originalUrl);
             await lessonMethod(app);
         } catch (error) {
             console.error(error);
-            await app.wait(3600 * 1000); // TODO: Remove!
+            await app.wait(3600 * 1000); // Use this time to debug.
             throw error;
         }
     });

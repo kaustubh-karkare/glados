@@ -76,7 +76,11 @@ export default class {
             return response;
         } catch (error) {
             // console.error(error.toString());
-            await context.database.transaction.rollback();
+            try {
+                await context.database.transaction.rollback();
+            } catch (anotherError) {
+                throw error;
+            }
             throw error;
         }
     }

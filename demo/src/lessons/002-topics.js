@@ -113,7 +113,7 @@ module.exports = async (app) => {
         const favoriteTopics = await app.getSidebarSection('Favorite Topics');
         await app.waitUntil(async () => (await favoriteTopics.getItems()).length === 1);
 
-        await detailsSection.typeSlowly('It now appears in the right sidebar.');
+        await detailsSection.typeSlowly('It now appears on the right sidebar.');
         await detailsSection.sendKeys('ENTER');
 
         await detailsSection.perform('Close');

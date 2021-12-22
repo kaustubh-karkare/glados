@@ -74,6 +74,10 @@ class Application extends BaseWrapper {
         await modalDialog.performSave();
     }
 
+    async clearDatabase() {
+        await this.webdriver.executeScript("return window.api.send('database-clear')");
+    }
+
     // General Utility
 
     async waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {
