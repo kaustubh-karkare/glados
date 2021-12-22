@@ -1,6 +1,8 @@
+const assert = require('assert');
 const { By } = require('selenium-webdriver');
 const BaseWrapper = require('./BaseWrapper');
-const { getInputComponent } = require('./Inputs');
+const { getInputComponent, LogStructureKey } = require('./Inputs');
+const { waitUntil } = require('../utils');
 
 class ModalDialog extends BaseWrapper {
     static async get(webdriver, index) {
@@ -24,8 +26,32 @@ class ModalDialog extends BaseWrapper {
             '//div[contains(@class, \'modal-content\')]/div[3]'
             + '//button[text() = \'Save\']',
         ));
-        // TODO: Verify that this is not disabled?
+        await waitUntil(async () => buttonElement.isEnabled());
         await this.click(buttonElement);
+        await waitUntil(async () => {
+            try {
+                await this.element.isDisplayed();
+                return false;
+            } catch (error) {
+                assert(error.name === 'StaleElementReferenceError');
+                return true;
+            }
+        });
+        await this.wait();
+    }
+
+    // Methods specific to Log Structures.
+
+    async addLogStructureKey() {
+        const button = await this.element.findElement(By.xpath(
+            ".//button[contains(@class, 'log-structure-add-key')]",
+        ));
+        await this.moveToAndClick(button);
+        return this.getLogStructureKey(-1);
+    }
+
+    async getLogStructureKey(index) {
+        return LogStructureKey.get(this.webdriver, this.element, index);
     }
 }
 

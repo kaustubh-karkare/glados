@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 
-module.exports = async function events(app) {
+module.exports = async (app) => {
     if (true) {
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();
@@ -62,7 +62,6 @@ module.exports = async function events(app) {
         await detailsInput.sendKeys('ENTER');
         await detailsInput.typeSlowly('This is where you can add a lot more context about what happened.');
         await modalDialog.performSave();
-        await app.waitUntil(async () => !(await app.getModalDialog(0)));
 
         await bulletItem.perform('Expand');
     }

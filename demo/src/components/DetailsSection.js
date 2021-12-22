@@ -14,18 +14,8 @@ class DetailsSection extends BaseWrapper {
         return elements.length === 0;
     }
 
-    async _getInput() {
+    async getInput() {
         return TextEditor.get(this.webdriver, this.element);
-    }
-
-    async sendKeys(...args) {
-        const element = await this._getInput();
-        await element.sendKeys(...args);
-    }
-
-    async typeSlowly(...args) {
-        const element = await this._getInput();
-        await element.typeSlowly(...args);
     }
 
     async perform(name) {

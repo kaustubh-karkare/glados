@@ -3,12 +3,12 @@
 const assert = require('assert');
 const { By } = require('selenium-webdriver');
 const BaseWrapper = require('./BaseWrapper');
+const { waitUntil } = require('../utils');
 
 class TypeaheadSelector extends BaseWrapper {
     static async get(webdriver, element) {
-        const elements = await element.findElements(By.className('rbt'));
-        assert(elements.length <= 1);
-        return elements.length ? new this(webdriver, elements[0]) : null;
+        const actual = await BaseWrapper.getElementByClassName(element, 'rbt');
+        return actual ? new this(webdriver, actual) : null;
     }
 
     async getTokens() {
@@ -25,7 +25,14 @@ class TypeaheadSelector extends BaseWrapper {
     }
 
     async getInput() {
-        const inputElement = await this.element.findElement(By.xpath('./div[last()]/input[1]'));
+        const wrappers = await this.element.findElements(By.xpath(".//div[contains(@class, 'rbt-input-wrapper')]"));
+        if (wrappers.length) {
+            // multi-selector
+            const inputElement = await wrappers[0].findElement(By.xpath('./input[1]'));
+            return new BaseWrapper(this.webdriver, inputElement);
+        }
+        // single-selector
+        const inputElement = await this.element.findElement(By.xpath('./div[1]/input[1]'));
         return new BaseWrapper(this.webdriver, inputElement);
     }
 
@@ -39,29 +46,14 @@ class TypeaheadSelector extends BaseWrapper {
 
 class TextEditor extends BaseWrapper {
     static async get(webdriver, element) {
-        const classAttribute = await element.getAttribute('class');
-        if (classAttribute.includes('text-editor')) {
-            return new this(webdriver, element);
-        }
-        const elements = await element.findElements(By.className('text-editor'));
-        assert(elements.length <= 1);
-        return elements.length ? new this(webdriver, elements[0]) : null;
+        const actual = await BaseWrapper.getElementByClassName(element, 'text-editor');
+        return actual ? new this(webdriver, actual) : null;
     }
 
-    async _getInput() {
+    async getInput() {
         return new BaseWrapper(this.webdriver, this.element.findElement(
             By.xpath(".//div[contains(@class, 'public-DraftEditor-content')]"),
         ));
-    }
-
-    async sendKeys(...args) {
-        const element = await this._getInput();
-        await element.sendKeys(...args);
-    }
-
-    async typeSlowly(...args) {
-        const element = await this._getInput();
-        await element.typeSlowly(...args);
     }
 
     async getSuggestions() {
@@ -69,6 +61,36 @@ class TextEditor extends BaseWrapper {
             By.xpath(".//div[contains(@class, 'mention-suggestions')]/div/div"),
         );
         return Promise.all(tokens.map((token) => token.getText()));
+    }
+
+    async pickSuggestion(indexOrLabel) {
+        await waitUntil(async () => (await this.getSuggestions()).length > 0);
+        await this.wait();
+        const offset = typeof indexOrLabel === 'number'
+            ? indexOrLabel
+            : (await this.getSuggestions()).indexOf(indexOrLabel);
+        assert(offset !== -1);
+        for (let ii = 1; ii < offset; ii += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await this.sendKeys('DOWN');
+        }
+        await this.sendKeys('ENTER');
+    }
+}
+
+class LogStructureKey extends BaseWrapper {
+    static async get(webdriver, element, index) {
+        const containers = await element.findElements(By.xpath('.//div[contains(@class, \'log-structure-key\')]'));
+        const container = BaseWrapper.getItemByIndex(containers, index);
+        return new this(webdriver, container);
+    }
+
+    async getNameInput() {
+        return new BaseWrapper(this.webdriver, this.element.findElement(By.tagName('input')));
+    }
+
+    async getTemplateInput() {
+        return new TextEditor(this.webdriver, this.element);
     }
 }
 
@@ -81,4 +103,6 @@ async function getInputComponent(webdriver, element) {
     return new BaseWrapper(webdriver, element);
 }
 
-module.exports = { getInputComponent, TextEditor, TypeaheadSelector };
+module.exports = {
+    getInputComponent, LogStructureKey, TextEditor, TypeaheadSelector,
+};

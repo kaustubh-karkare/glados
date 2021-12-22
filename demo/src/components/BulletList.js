@@ -4,31 +4,6 @@ const { By } = require('selenium-webdriver');
 const BaseWrapper = require('./BaseWrapper');
 const { TextEditor } = require('./Inputs');
 
-class BulletListItem extends BaseWrapper {
-    async _getIcon(title) {
-        await this.moveTo(this.element);
-        return this.element.findElement(By.xpath(
-            `.//div[contains(@class, 'icon') and @title='${title}']`,
-        ));
-    }
-
-    async perform(name) {
-        await this.moveTo(this.element);
-        const button = await this._getIcon(name);
-        await this.moveToAndClick(button);
-    }
-
-    async performAction(name) {
-        await this.moveTo(this.element);
-        const actionButton = await this._getIcon('Actions');
-        await this.moveTo(actionButton);
-        const actionElement = await actionButton.findElement(
-            By.xpath(`.//a[contains(@class, 'dropdown-item') and text() = '${name}']`),
-        );
-        await this.moveToAndClick(actionElement);
-    }
-}
-
 class BulletList extends BaseWrapper {
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('bullet-list'));
@@ -38,6 +13,7 @@ class BulletList extends BaseWrapper {
 
     async getHeader() {
         const element = await this.element.findElement(By.xpath('./div[1]'));
+        // eslint-disable-next-line no-use-before-define
         return new BulletListItem(this.webdriver, element);
     }
 
@@ -47,6 +23,7 @@ class BulletList extends BaseWrapper {
 
     async getItem(index) {
         const elements = await this._getItems();
+        // eslint-disable-next-line no-use-before-define
         return new BulletListItem(this.webdriver, BaseWrapper.getItemByIndex(elements, index));
     }
 
@@ -57,6 +34,39 @@ class BulletList extends BaseWrapper {
 
     async getAdder() {
         return TextEditor.get(this.webdriver, this.element);
+    }
+}
+
+class BulletListItem extends BaseWrapper {
+    async _getButton(title) {
+        await this.moveTo(this.element);
+        return this.element.findElement(By.xpath(
+            `.//div[contains(@class, 'icon') and @title='${title}']`,
+        ));
+    }
+
+    async perform(name) {
+        await this.moveTo(this.element);
+        const button = await this._getButton(name);
+        await this.moveToAndClick(button);
+    }
+
+    async performAction(name) {
+        await this.moveTo(this.element);
+        const actionButton = await this._getButton('Actions');
+        await this.moveTo(actionButton);
+        const actionElement = await actionButton.findElement(
+            By.xpath(`.//a[contains(@class, 'dropdown-item') and text() = '${name}']`),
+        );
+        await this.moveToAndClick(actionElement);
+    }
+
+    async getSubList() {
+        const items = await this.element.findElements(By.xpath(
+            './following-sibling::*[1]'
+            + "//div[contains(@class, 'bullet-list')]",
+        ));
+        return items.length ? new BulletList(this.webdriver, items[0]) : null;
     }
 }
 

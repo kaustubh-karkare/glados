@@ -22,4 +22,23 @@ function awaitSequence(items, method) {
     });
 }
 
-module.exports = { awaitSequence };
+function waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {
+    let elapsedMs = -intervalMs;
+    return new Promise((resolve, reject) => {
+        const timeout = setInterval(() => {
+            Promise.resolve(conditionMethod()).then((isDone) => {
+                if (isDone) {
+                    clearInterval(timeout);
+                    resolve();
+                } else if (elapsedMs === timeoutMs) {
+                    clearInterval(timeout);
+                    reject(new Error(`[timeout] ${conditionMethod.toString()}`));
+                } else {
+                    elapsedMs += intervalMs;
+                }
+            }).catch((error) => reject(error));
+        }, intervalMs);
+    });
+}
+
+module.exports = { awaitSequence, waitUntil };

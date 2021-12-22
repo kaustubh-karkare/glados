@@ -1,14 +1,6 @@
 /* eslint-disable no-constant-condition */
 
-module.exports = async function topics(app) {
-    async function waitForTitle(title) {
-        await app.waitUntil(async () => {
-            const bulletList = await app.getBulletList(0);
-            const headerItem = await bulletList.getHeader();
-            return title === await headerItem.element.getText();
-        });
-    }
-
+module.exports = async (app) => {
     if (true) {
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();
@@ -18,13 +10,7 @@ module.exports = async function topics(app) {
         await app.waitUntil(async () => await bulletList.getItemCount() === 1);
 
         await app.switchToTab('Manage Topics');
-        await waitForTitle('Topics');
-    }
-
-    async function createNewTopic(bulletList) {
-        const headerItem = await bulletList.getHeader();
-        await headerItem.perform('Create New');
-        await app.waitUntil(async () => !!(await app.getModalDialog(0)));
+        await app.waitForTitle('Topics');
     }
 
     async function enterTopicName(name) {
@@ -32,12 +18,11 @@ module.exports = async function topics(app) {
         const nameInput = await modalDialog.getInput('Name');
         await nameInput.typeSlowly(name);
         await modalDialog.performSave();
-        await app.waitUntil(async () => !(await app.getModalDialog(0)));
     }
 
     if (true) {
         const bulletList0 = await app.getBulletList(0);
-        await createNewTopic(bulletList0);
+        await app.performCreateNew(bulletList0);
         await enterTopicName('Personal Projects');
         await app.waitUntil(async () => await bulletList0.getItemCount() === 1);
 
@@ -46,11 +31,11 @@ module.exports = async function topics(app) {
         await app.waitUntil(async () => !!(await app.getBulletList(1)));
 
         const bulletList1 = await app.getBulletList(1);
-        await createNewTopic(bulletList1);
+        await app.performCreateNew(bulletList1);
         await enterTopicName('GLADOS');
         await app.waitUntil(async () => await bulletList1.getItemCount() === 1);
 
-        await createNewTopic(bulletList0);
+        await app.performCreateNew(bulletList0);
         await enterTopicName('People');
         await app.waitUntil(async () => await bulletList0.getItemCount() === 2);
 
@@ -59,12 +44,12 @@ module.exports = async function topics(app) {
         await app.waitUntil(async () => !!(await app.getBulletList(2)));
 
         const bulletList2 = await app.getBulletList(2);
-        await createNewTopic(bulletList2);
+        await app.performCreateNew(bulletList2);
         await enterTopicName('Sayee Basole');
         await app.waitUntil(async () => await bulletList2.getItemCount() === 1);
 
         await app.switchToTab('Manage Events');
-        await waitForTitle('Done (Today)');
+        await app.waitForTitle('Done (Today)');
     }
 
     if (true) {
@@ -76,18 +61,15 @@ module.exports = async function topics(app) {
         await app.waitUntil(async () => await bulletList.getItemCount() === 2);
 
         await adder.typeSlowly('Created demo video for @G');
-        await app.waitUntil(async () => (await adder.getSuggestions()).length === 1);
-        await adder.sendKeys('DOWN', 'ENTER');
+        await adder.pickSuggestion(0);
         await adder.typeSlowly('using Selenium.');
         await adder.sendKeys('ENTER');
         await app.waitUntil(async () => await bulletList.getItemCount() === 3);
 
         await adder.typeSlowly('Conversation with @S');
-        await app.waitUntil(async () => (await adder.getSuggestions()).length === 1);
-        await adder.sendKeys('DOWN', 'ENTER');
+        await adder.pickSuggestion(0);
         await adder.typeSlowly('about @G');
-        await app.waitUntil(async () => (await adder.getSuggestions()).length === 1);
-        await adder.sendKeys('DOWN', 'ENTER');
+        await adder.pickSuggestion(0);
         await adder.sendKeys('BACK_SPACE');
         await adder.typeSlowly('.');
         await adder.sendKeys('ENTER');
@@ -104,9 +86,8 @@ module.exports = async function topics(app) {
         await app.waitUntil(async () => await bulletList.getItemCount() === count + 1);
 
         let topicElement = await app.getTopic('GLADOS', 0);
-        topicElement.moveTo();
-        topicElement.click();
-        await app.waitUntil(async () => !!(await app.getDetailsSection(0)));
+        await topicElement.moveToAndClick();
+        await app.waitUntil(async () => app.isDetailsSectionActive());
 
         const detailsSection = await app.getDetailsSection(0);
         await detailsSection.typeSlowly('You can add details about a particular topic.');

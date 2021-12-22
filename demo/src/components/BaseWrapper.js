@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { Key } = require('selenium-webdriver');
+const { By, Key } = require('selenium-webdriver');
 const { awaitSequence } = require('../utils');
 
 class BaseWrapper {
@@ -9,7 +9,18 @@ class BaseWrapper {
         this.element = element;
     }
 
+    // eslint-disable-next-line class-methods-use-this
+    async getInput() {
+        // Override this method to forward actions to the returned element.
+        return null;
+    }
+
     async sendKeys(...items) {
+        const redirectInput = await this.getInput();
+        if (redirectInput) {
+            await redirectInput.sendKeys(...items);
+            return;
+        }
         await awaitSequence(items, async (item) => {
             let keys;
             // Do not require application logic to use Selenium API.
@@ -26,6 +37,11 @@ class BaseWrapper {
     }
 
     async typeSlowly(text) {
+        const redirectInput = await this.getInput();
+        if (redirectInput) {
+            await redirectInput.typeSlowly(text);
+            return;
+        }
         await awaitSequence(Array.from(text), async (char) => {
             await this.element.sendKeys(char);
             // await wait(50); // TODO: Re-enable.
@@ -59,6 +75,16 @@ class BaseWrapper {
 
     static getItemByIndex(items, index) {
         return items[index < 0 ? items.length + index : index];
+    }
+
+    static async getElementByClassName(element, className) {
+        const classAttribute = await element.getAttribute('class');
+        if (classAttribute.includes(className)) {
+            return element;
+        }
+        const elements = await element.findElements(By.className('text-editor'));
+        assert(elements.length <= 1);
+        return elements[0] || null;
     }
 }
 

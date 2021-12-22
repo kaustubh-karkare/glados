@@ -19,6 +19,14 @@ class Application extends BaseWrapper {
         await this.moveToAndClick(element);
     }
 
+    async waitForTitle(title) {
+        await this.waitUntil(async () => {
+            const bulletList = await this.getBulletList(0);
+            const headerItem = await bulletList.getHeader();
+            return title === await headerItem.element.getText();
+        });
+    }
+
     async getSidebarSection(...args) {
         return SidebarSection.get(this.webdriver, ...args);
     }
@@ -43,6 +51,20 @@ class Application extends BaseWrapper {
         const elements = await this.webdriver.findElements(By.xpath(`//a[contains(@class, 'topic') and text() = '${name}']`));
         const element = BaseWrapper.getItemByIndex(elements, index);
         return new BaseWrapper(this.webdriver, element);
+    }
+
+    // Random Specific Items
+
+    async isDetailsSectionActive() {
+        const detailSection = await this.getDetailsSection(0);
+        return detailSection.isActive();
+    }
+
+    async performCreateNew(bulletList) {
+        const headerItem = await bulletList.getHeader();
+        await headerItem.perform('Create New');
+        await this.waitUntil(async () => !!(await this.getModalDialog(0)));
+        return this.getModalDialog(0);
     }
 
     // General Utility
