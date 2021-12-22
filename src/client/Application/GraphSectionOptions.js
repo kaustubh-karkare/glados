@@ -43,7 +43,6 @@ const GRANULARITY_OPTIONS = Granularity.Options.map((option, index) => ({
     },
 }));
 
-
 class GraphSectionOptions {
     static get() {
         return LogEventOptions.get(null, GRANULARITY_OPTIONS);

@@ -1,4 +1,3 @@
-
 let virtualID = 0;
 
 export function getVirtualID() {

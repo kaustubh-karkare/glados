@@ -7,7 +7,6 @@ import {
 import { LogEvent } from '../../data';
 import { LogStructureValueEditor } from '../LogStructure';
 
-
 const { LogLevel } = LogEvent;
 
 class LogEventEditor extends React.Component {

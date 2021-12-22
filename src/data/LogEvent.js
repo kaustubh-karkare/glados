@@ -5,9 +5,7 @@ import LogStructure from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
 
-
 const { LogLevel } = LogStructure;
-
 
 class LogEvent extends Base {
     static createVirtual({

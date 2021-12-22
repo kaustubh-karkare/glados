@@ -22,7 +22,6 @@ import TabSection from './TabSection';
 import URLState from './URLState';
 import Enum from '../../common/Enum';
 
-
 const Layout = Enum([
     {
         label: 'Split',
@@ -38,7 +37,6 @@ const Layout = Enum([
     },
 ]);
 
-
 const Widgets = Enum([
     {
         label: 'Show',
@@ -49,7 +47,6 @@ const Widgets = Enum([
         value: 'hide',
     },
 ]);
-
 
 class Applicaton extends React.Component {
     constructor(props) {

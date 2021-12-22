@@ -28,7 +28,6 @@ MentionComponent.propTypes = {
     children: PropTypes.any,
 };
 
-
 function OptionComponent(props) {
     const {
         isFocused: _isFocused, // eslint-disable-line react/prop-types
@@ -44,7 +43,6 @@ OptionComponent.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     mention: PropTypes.any.isRequired,
 };
-
 
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
@@ -88,6 +86,18 @@ class TextEditor extends React.Component {
         this.state.plugins.push(this.mentionPlugin);
 
         this.ref = React.createRef();
+    }
+
+    handleKeyCommand(command, editorState) {
+        const newState = RichUtils.handleKeyCommand(editorState, command);
+        if (newState) {
+            this.onChange(newState);
+            return 'handled';
+        }
+        if (this.props.isSingleLine && command === 'split-block') {
+            return 'handled';
+        }
+        return 'not-handled';
     }
 
     onSearchChange({ value: query }) {
@@ -147,18 +157,6 @@ class TextEditor extends React.Component {
         }
         // https://github.com/draft-js-plugins/draft-js-plugins/issues/1117
         // Do not invoke getDefaultKeyBinding here!
-    }
-
-    handleKeyCommand(command, editorState) {
-        const newState = RichUtils.handleKeyCommand(editorState, command);
-        if (newState) {
-            this.onChange(newState);
-            return 'handled';
-        }
-        if (this.props.isSingleLine && command === 'split-block') {
-            return 'handled';
-        }
-        return 'not-handled';
     }
 
     renderSuggestions() {

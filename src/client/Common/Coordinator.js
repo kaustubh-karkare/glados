@@ -1,4 +1,3 @@
-
 const callbacks = {};
 
 class Coordinator {

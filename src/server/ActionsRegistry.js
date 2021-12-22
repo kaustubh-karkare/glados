@@ -5,7 +5,6 @@ import assert from 'assert';
 const ActionsRegistry = {};
 export default ActionsRegistry;
 
-
 export function enableCache(name) {
     const actualName = `${name}-actual`;
     ActionsRegistry[actualName] = ActionsRegistry[name];

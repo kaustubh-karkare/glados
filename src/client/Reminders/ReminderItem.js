@@ -11,7 +11,6 @@ import { LogEvent } from '../../data';
 import { LogEventEditor } from '../LogEvent';
 import { LogStructureEditor } from '../LogStructure';
 
-
 class ReminderItem extends React.Component {
     constructor(props) {
         super(props);

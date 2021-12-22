@@ -13,7 +13,6 @@ const SingleInstance = require('single-instance');
 const SocketIO = require('socket.io');
 const yargs = require('yargs');
 
-
 async function init() {
     // This method should return true if cleanup should be called immediately, false if not.
 

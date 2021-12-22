@@ -6,7 +6,6 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-
 import './SortableList.css';
 
 const SortableDragHandle = SortableHandle((props) => (
@@ -18,9 +17,7 @@ const SortableDragHandle = SortableHandle((props) => (
     </Button>
 ));
 
-
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
-
 
 const WrappedRow = SortableElement((props) => {
     const disabled = props.wrappedRowDisabled;
@@ -46,7 +43,6 @@ const WrappedRow = SortableElement((props) => {
         ],
     );
 });
-
 
 class SortableList extends React.Component {
     constructor(props) {

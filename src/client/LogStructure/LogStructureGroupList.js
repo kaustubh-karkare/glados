@@ -4,7 +4,6 @@ import { BulletList } from '../Common';
 import LogStructureList from './LogStructureList';
 import LogStructureGroupEditor from './LogStructureGroupEditor';
 
-
 function LogStructureGroupViewer(props) {
     const { logStructureGroup } = props;
     return (

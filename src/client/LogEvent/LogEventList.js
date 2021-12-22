@@ -5,7 +5,6 @@ import { BulletList, DetailsIcon, TextEditor } from '../Common';
 import LogEventAdder from './LogEventAdder';
 import LogEventEditor from './LogEventEditor';
 
-
 function LogEventViewer(props) {
     const { logEvent } = props;
     let datePrefix;

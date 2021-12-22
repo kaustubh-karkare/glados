@@ -13,13 +13,11 @@ import Icon from '../Icon';
 import InputLine from '../InputLine';
 import Dropdown from '../Dropdown';
 
-
 const SortableDragHandle = SortableHandle(() => (
     <Icon className="sortableDragHandle" title="Reorder">
         <MdFormatLineSpacing />
     </Icon>
 ));
-
 
 class BulletListItem extends React.Component {
     constructor(props) {

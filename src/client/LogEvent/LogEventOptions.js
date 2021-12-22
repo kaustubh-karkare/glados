@@ -2,7 +2,6 @@ import assert from 'assert';
 import { TypeaheadOptions } from '../Common';
 import { getVirtualID } from '../../data';
 
-
 const NO_STRUCTURE_ITEM = {
     __type__: 'no-structure',
     id: getVirtualID(),

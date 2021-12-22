@@ -1,4 +1,3 @@
-
 import TextEditorUtils from '../TextEditorUtils';
 
 const { StorageType } = TextEditorUtils;

@@ -1,4 +1,3 @@
-
 export function suppressUnlessShiftKey(event) {
     if (!event.shiftKey) {
         event.preventDefault();

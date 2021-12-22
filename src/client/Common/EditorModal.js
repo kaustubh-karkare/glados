@@ -6,7 +6,6 @@ import React from 'react';
 import LeftRight from './LeftRight';
 import { KeyCodes, debounce, suppressUnlessShiftKey } from './Utils';
 
-
 class EditorModal extends React.Component {
     constructor(props) {
         super(props);
@@ -126,7 +125,6 @@ class EditorModal extends React.Component {
     }
 }
 
-
 EditorModal.propTypes = {
     dataType: PropTypes.string.isRequired,
     EditorComponent: PropTypes.func.isRequired,
@@ -144,6 +142,5 @@ EditorModal.propTypes = {
 EditorModal.defaultProps = {
     editorProps: {},
 };
-
 
 export default EditorModal;

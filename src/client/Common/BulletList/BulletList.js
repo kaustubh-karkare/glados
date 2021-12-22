@@ -10,16 +10,12 @@ import BulletListTitle from './BulletListTitle';
 import DataLoader from '../DataLoader';
 import { getDataTypeMapping } from '../../../data';
 
-
 import './BulletList.css';
-
 
 const BATCH_SIZE = 25;
 
-
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
 const SortableBulletListItem = SortableElement(BulletListItem);
-
 
 class BulletList extends React.Component {
     static getDerivedStateFromProps(props, state) {

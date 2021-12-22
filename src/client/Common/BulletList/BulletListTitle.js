@@ -7,7 +7,6 @@ import Highlightable from '../Highlightable';
 import BulletListIcon from './BulletListIcon';
 import { KeyCodes } from '../Utils';
 
-
 class BulletListTitle extends React.Component {
     constructor(props) {
         super(props);

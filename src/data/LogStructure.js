@@ -7,7 +7,6 @@ import Frequency from './Frequency';
 import TextEditorUtils from '../common/TextEditorUtils';
 import LogStructureGroup from './LogStructureGroup';
 
-
 const LogStructureKey = Enum([
     {
         value: 'string',
@@ -88,7 +87,6 @@ const LogLevel = Enum([
 
 LogLevel.getIndex = (value) => LogLevel[value].index;
 LogLevel.getValue = (index) => LogLevel.Options[index - 1].value;
-
 
 class LogStructure extends Base {
     static createVirtual({ logStructureGroup, name = '' }) {

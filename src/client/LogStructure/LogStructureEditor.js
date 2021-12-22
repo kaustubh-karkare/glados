@@ -10,7 +10,6 @@ import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
 import { LogStructure, getPartialItem } from '../../data';
 
-
 const { LogLevel } = LogStructure;
 
 class LogStructureEditor extends React.Component {

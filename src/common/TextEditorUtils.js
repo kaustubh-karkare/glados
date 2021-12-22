@@ -1,4 +1,3 @@
-
 import {
     EditorState, Modifier, SelectionState, convertFromRaw, convertToRaw,
 } from 'draft-js';
@@ -214,7 +213,6 @@ class TextEditorUtils {
         postProcessDraftRawContent(content);
         return content;
     }
-
 
     static convertDraftContentToPlainText(value, symbolToItems) {
         const markdown = TextEditorUtils.deserialize(

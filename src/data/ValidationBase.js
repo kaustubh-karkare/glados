@@ -1,4 +1,3 @@
-
 class ValidationBase {
     static validateNonEmptyString(name, value) {
         if (typeof value !== 'string') {
