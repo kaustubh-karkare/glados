@@ -14,7 +14,8 @@ async function runLessons(webdriver) {
     // TODO: Remove!
     // lessonNames = ['001-events'];
     // lessonNames = ['002-topics'];
-    lessonNames = ['003-structures'];
+    // lessonNames = ['003-structures'];
+    lessonNames = ['004-reminders'];
     await awaitSequence(lessonNames, async (lessonName) => {
         const name = lessonName.replace(/.js$/, '');
         if (name === 'index') {

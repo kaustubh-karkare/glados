@@ -94,6 +94,7 @@ class LogStructureEditor extends React.Component {
                     onChange={(titleTemplate) => this.updateLogStructure('titleTemplate', titleTemplate)}
                 />
                 <Button
+                    className="log-structure-add-key"
                     disabled={this.props.disabled}
                     onClick={() => {
                         this.updateLogStructure((updatedLogStructure) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from '../prop-types';
-import ReminderCheckList from './ReminderCheckList';
+import ReminderList from './ReminderList';
 import { DataLoader } from '../Common';
 
 class ReminderSidebar extends React.Component {
@@ -36,7 +36,7 @@ class ReminderSidebar extends React.Component {
             return 'Loading ...';
         }
         return this.state.logStructureGroups.map((reminderGroup) => (
-            <ReminderCheckList
+            <ReminderList
                 key={reminderGroup.id}
                 name={reminderGroup.name}
                 logStructures={reminderGroup.logStructures}

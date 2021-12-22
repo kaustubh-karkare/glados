@@ -86,11 +86,17 @@ class LogStructureKey extends BaseWrapper {
     }
 
     async getNameInput() {
-        return new BaseWrapper(this.webdriver, this.element.findElement(By.tagName('input')));
+        return new BaseWrapper(this.webdriver, await this.element.findElement(By.tagName('input')));
     }
 
     async getTemplateInput() {
         return new TextEditor(this.webdriver, this.element);
+    }
+
+    async setType(name) {
+        const selectors = await this.element.findElements(By.xpath('.//select'));
+        const selector = new BaseWrapper(this.webdriver, selectors[0]);
+        await selector.typeSlowly(name);
     }
 }
 

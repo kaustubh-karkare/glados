@@ -67,6 +67,13 @@ class Application extends BaseWrapper {
         return this.getModalDialog(0);
     }
 
+    async performInputName(name) {
+        const modalDialog = await this.getModalDialog(0);
+        const nameInput = await modalDialog.getInput('Name');
+        await nameInput.typeSlowly(name);
+        await modalDialog.performSave();
+    }
+
     // General Utility
 
     async waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {

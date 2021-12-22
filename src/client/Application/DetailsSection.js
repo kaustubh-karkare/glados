@@ -155,7 +155,7 @@ class DetailsSection extends React.Component {
                 <Button
                     key="favorite"
                     onClick={() => this.onChange({ ...item, isFavorite: !item.isFavorite })}
-                    title="Favorite?"
+                    title="Favorite"
                 >
                     {item.isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
                 </Button>,

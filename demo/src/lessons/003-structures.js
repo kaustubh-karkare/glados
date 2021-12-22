@@ -10,20 +10,13 @@ module.exports = async (app) => {
         await app.waitUntil(async () => await bulletList.getItemCount() === 1);
     }
 
-    async function enterStructureGroupName(name) {
-        const modalDialog = await app.getModalDialog(0);
-        const nameInput = await modalDialog.getInput('Name');
-        await nameInput.typeSlowly(name);
-        await modalDialog.performSave();
-    }
-
     if (true) {
         await app.switchToTab('Manage Structures');
         await app.waitForTitle('Structures');
 
         const bulletList0 = await app.getBulletList(0);
         await app.performCreateNew(bulletList0);
-        await enterStructureGroupName('Exercise');
+        await app.performInputName('Exercise');
 
         const bulletItem1 = await bulletList0.getItem(0);
         await bulletItem1.perform('Expand');
@@ -125,6 +118,4 @@ module.exports = async (app) => {
 
         await modalDialog.performSave();
     }
-
-    await app.wait(5 * 1000);
 };

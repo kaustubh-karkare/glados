@@ -134,7 +134,7 @@ class LogStructureKeyEditor extends React.Component {
         // eslint-disable-next-line react/prop-types
         const children = this.props.children || [];
         return (
-            <div className="my-2">
+            <div className="log-structure-key my-2">
                 <InputGroup className="my-1">
                     {children.shift()}
                     <InputGroup.Text style={{ width: 80 }}>

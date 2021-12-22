@@ -13,17 +13,10 @@ module.exports = async (app) => {
         await app.waitForTitle('Topics');
     }
 
-    async function enterTopicName(name) {
-        const modalDialog = await app.getModalDialog(0);
-        const nameInput = await modalDialog.getInput('Name');
-        await nameInput.typeSlowly(name);
-        await modalDialog.performSave();
-    }
-
     if (true) {
         const bulletList0 = await app.getBulletList(0);
         await app.performCreateNew(bulletList0);
-        await enterTopicName('Personal Projects');
+        await app.performInputName('Personal Projects');
         await app.waitUntil(async () => await bulletList0.getItemCount() === 1);
 
         const bulletItem1 = await bulletList0.getItem(0);
@@ -32,11 +25,11 @@ module.exports = async (app) => {
 
         const bulletList1 = await app.getBulletList(1);
         await app.performCreateNew(bulletList1);
-        await enterTopicName('GLADOS');
+        await app.performInputName('GLADOS');
         await app.waitUntil(async () => await bulletList1.getItemCount() === 1);
 
         await app.performCreateNew(bulletList0);
-        await enterTopicName('People');
+        await app.performInputName('People');
         await app.waitUntil(async () => await bulletList0.getItemCount() === 2);
 
         const bulletItem2 = await bulletList0.getItem(1);
@@ -45,7 +38,7 @@ module.exports = async (app) => {
 
         const bulletList2 = await app.getBulletList(2);
         await app.performCreateNew(bulletList2);
-        await enterTopicName('Sayee Basole');
+        await app.performInputName('Sayee Basole');
         await app.waitUntil(async () => await bulletList2.getItemCount() === 1);
 
         await app.switchToTab('Manage Events');
