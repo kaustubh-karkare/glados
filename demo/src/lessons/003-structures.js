@@ -12,7 +12,6 @@ module.exports = async (app) => {
 
     if (true) {
         await app.switchToTab('Manage Structures');
-        await app.waitForTitle('Structures');
 
         const bulletList0 = await app.getBulletList(0);
         await app.performCreateNew(bulletList0);
@@ -50,7 +49,6 @@ module.exports = async (app) => {
 
     if (true) {
         await app.switchToTab('Manage Events');
-        await app.waitForTitle('Done (Today)');
 
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();

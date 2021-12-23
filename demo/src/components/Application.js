@@ -19,14 +19,6 @@ class Application extends BaseWrapper {
         await this.moveToAndClick(element);
     }
 
-    async waitForTitle(title) {
-        await this.waitUntil(async () => {
-            const bulletList = await this.getBulletList(0);
-            const headerItem = await bulletList.getHeader();
-            return title === await headerItem.element.getText();
-        });
-    }
-
     async getSidebarSection(...args) {
         return SidebarSection.get(this.webdriver, ...args);
     }

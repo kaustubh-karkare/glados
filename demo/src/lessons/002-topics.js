@@ -10,7 +10,6 @@ module.exports = async (app) => {
         await app.waitUntil(async () => await bulletList.getItemCount() === 1);
 
         await app.switchToTab('Manage Topics');
-        await app.waitForTitle('Topics');
     }
 
     if (true) {
@@ -42,7 +41,6 @@ module.exports = async (app) => {
         await app.waitUntil(async () => await bulletList2.getItemCount() === 1);
 
         await app.switchToTab('Manage Events');
-        await app.waitForTitle('Done (Today)');
     }
 
     if (true) {

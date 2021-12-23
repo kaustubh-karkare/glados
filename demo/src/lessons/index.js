@@ -5,12 +5,12 @@ const fs = require('fs');
 const { Application } = require('../components');
 const { awaitSequence } = require('../utils');
 
-async function runLessons(webdriver) {
+async function runLessons(webdriver, filter) {
     const originalUrl = await webdriver.getCurrentUrl();
     const app = new Application(webdriver);
     const lessonNames = fs.readdirSync(__dirname)
         .filter((name) => name !== 'index.js')
-        // .filter((name) => name.startsWith('001'))
+        .filter((name) => !filter || name.includes(filter))
         .map((name) => name.replace(/.js$/, ''));
     await awaitSequence(lessonNames, async (name, index) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require

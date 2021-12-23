@@ -3,15 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 const { Builder } = require('selenium-webdriver');
+const yargs = require('yargs');
 
 const { runLessons } = require('./lessons');
 const Server = require('./server');
 
-// TODO: Take this an CLI input?
-const CONFIG_PATH = './demo/config.json';
-
-async function main() {
-    const config = JSON.parse(fs.readFileSync(CONFIG_PATH));
+async function main(argv) {
+    const config = JSON.parse(fs.readFileSync(argv.configPath));
     const dataDir = path.dirname(config.database.storage);
     // TODO: rm -rf the data directory.
     try {
@@ -20,7 +18,7 @@ async function main() {
         fs.mkdirSync(dataDir);
     }
 
-    const server = new Server(CONFIG_PATH);
+    const server = new Server(argv.configPath);
     const webdriver = new Builder().forBrowser('chrome').build();
 
     // Set window to bottom left quadrant of screen.
@@ -36,7 +34,7 @@ async function main() {
     try {
         await server.start();
         await webdriver.get(`http://${config.server.host}:${config.server.port}`);
-        await runLessons(webdriver);
+        await runLessons(webdriver, argv.filter);
     } catch (error) {
         console.error(error);
     } finally {
@@ -45,4 +43,9 @@ async function main() {
     }
 }
 
-main().catch((error) => console.error(error));
+const { argv } = yargs
+    .option('configPath', { alias: 'c', default: './demo/config.json' })
+    .demandOption('configPath')
+    .option('filter', { alias: 'f' });
+
+main(argv).catch((error) => console.error(error));
