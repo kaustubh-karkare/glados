@@ -5,28 +5,29 @@ const fs = require('fs');
 const { Application } = require('../components');
 const { awaitSequence } = require('../utils');
 
-async function runLessons(webdriver, filter) {
-    const originalUrl = await webdriver.getCurrentUrl();
+async function runLessons(webdriver, argv) {
+    const resetUrl = await webdriver.getCurrentUrl();
     const app = new Application(webdriver);
     const lessonNames = fs.readdirSync(__dirname)
         .filter((name) => name !== 'index.js')
-        .filter((name) => !filter || name.includes(filter))
-        .map((name) => name.replace(/.js$/, ''));
+        .map((name) => name.replace(/.js$/, ''))
+        .filter((name) => !argv.filter || name.includes(argv.filter));
+
     await awaitSequence(lessonNames, async (name, index) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         const lessonMethod = require(`./${name}`);
-        console.info('Lesson:', name);
+        console.info(`${argv.indent}Lesson: ${name}`);
         try {
             await app.clearDatabase();
-            await webdriver.get(originalUrl);
+            await webdriver.get(resetUrl);
             await lessonMethod(app);
         } catch (error) {
             console.error(error);
-            await app.wait(3600 * 1000); // Use this time to debug.
+            await app.wait(argv.wait * 1000); // Use this time to debug.
             throw error;
         }
     });
-    console.info('Lessons complete!');
+    await app.wait(argv.wait * 1000); // Use this time to debug.
 }
 
 module.exports = { runLessons };

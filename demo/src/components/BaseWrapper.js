@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { By, Key } = require('selenium-webdriver');
-const { awaitSequence } = require('../utils');
+const { awaitSequence, wait } = require('../utils');
 
 class BaseWrapper {
     constructor(webdriver, element) {
@@ -44,7 +44,7 @@ class BaseWrapper {
         }
         await awaitSequence(Array.from(text), async (char) => {
             await this.element.sendKeys(char);
-            // await wait(50); // TODO: Re-enable.
+            // await wait(50ms); // TODO: Re-enable.
         });
         await this.wait();
     }
@@ -67,10 +67,8 @@ class BaseWrapper {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    wait(milliseconds = 250) {
-        return new Promise((resolve) => {
-            setTimeout(resolve, milliseconds);
-        });
+    wait(...args) {
+        return wait(...args);
     }
 
     static getItemByIndex(items, index) {

@@ -22,6 +22,12 @@ function awaitSequence(items, method) {
     });
 }
 
+function wait(milliseconds = 250) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, milliseconds);
+    });
+}
+
 function waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {
     let elapsedMs = -intervalMs;
     return new Promise((resolve, reject) => {
@@ -41,4 +47,4 @@ function waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {
     });
 }
 
-module.exports = { awaitSequence, waitUntil };
+module.exports = { awaitSequence, wait, waitUntil };

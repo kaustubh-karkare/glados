@@ -1,35 +1,9 @@
-/* eslint-disable max-classes-per-file */
 /* eslint-disable no-console */
 /* eslint-disable class-methods-use-this */
 
 const childProcess = require('child_process');
 const { assert } = require('console');
-
-class StreamIntender {
-    constructor(stream, prefix) {
-        this.stream = stream;
-        this.prefix = prefix;
-        this.pending = true;
-    }
-
-    write(data) {
-        let prefix = '';
-        if (this.pending) {
-            prefix += this.prefix;
-            this.pending = false;
-        }
-        data.split('\n').forEach((line, index, lines) => {
-            if (index < lines.length - 1) {
-                this.stream.write(`${prefix + line}\n`);
-                prefix = this.prefix;
-            } else if (line) {
-                this.stream.write(prefix + line);
-            } else {
-                this.pending = true;
-            }
-        });
-    }
-}
+const { StreamIntender } = require('./process');
 
 class Server {
     constructor(configPath) {
