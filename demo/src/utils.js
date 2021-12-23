@@ -1,4 +1,5 @@
-function awaitSequence(items, method) {
+// eslint-disable-next-line import/prefer-default-export
+export function awaitSequence(items, method) {
     if (!items) {
         return Promise.resolve();
     }
@@ -21,30 +22,3 @@ function awaitSequence(items, method) {
         next();
     });
 }
-
-function wait(milliseconds = 250) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
-
-function waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {
-    let elapsedMs = -intervalMs;
-    return new Promise((resolve, reject) => {
-        const timeout = setInterval(() => {
-            Promise.resolve(conditionMethod()).then((isDone) => {
-                if (isDone) {
-                    clearInterval(timeout);
-                    resolve();
-                } else if (elapsedMs === timeoutMs) {
-                    clearInterval(timeout);
-                    reject(new Error(`[timeout] ${conditionMethod.toString()}`));
-                } else {
-                    elapsedMs += intervalMs;
-                }
-            }).catch((error) => reject(error));
-        }, intervalMs);
-    });
-}
-
-module.exports = { awaitSequence, wait, waitUntil };

@@ -1,11 +1,10 @@
 /* eslint-disable max-classes-per-file */
 
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const { TextEditor } = require('./Inputs');
-const { waitUntil } = require('../utils');
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
+import { TextEditor } from './Inputs';
 
-class BulletList extends BaseWrapper {
+export default class BulletList extends BaseWrapper {
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('bullet-list'));
         const element = BaseWrapper.getItemByIndex(elements, index);
@@ -56,7 +55,7 @@ class BulletListItem extends BaseWrapper {
         await this.moveTo(this.element);
         const actionButton = await this._getButton('Actions');
         await this.moveTo(actionButton);
-        await waitUntil(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);
+        await this.webdriver.wait(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);
         const actionElement = await actionButton.findElement(
             By.xpath(`.//a[contains(@class, 'dropdown-item') and text() = '${name}']`),
         );
@@ -71,5 +70,3 @@ class BulletListItem extends BaseWrapper {
         return items.length ? new BulletList(this.webdriver, items[0]) : null;
     }
 }
-
-module.exports = BulletList;

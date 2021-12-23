@@ -6,6 +6,11 @@
 * I have been using Evernote to manage these notes/lists for a few years, and now that I have a good understanding of how I like to use the tool, I find myself wishing for the ability to add more structure to the data being generated, so that I can do some interesting things with it.
 * Looking at the options available online, I did not find anything that did everything I was hoping for, and more importantly, it hurts my pride as a [Software Engineer](https://www.linkedin.com/in/kaustubh-karkare/) to pay for something I know I can build. As a result, this tool might not be suited to a larger audience, but it will work for me :)
 
+### Warning!
+
+* This tool is continuously being modified as I discover what works for me and what doesn't. This includes changes to not only the UI, but to the database schema too. And I do NOT plan to support automatic data migrations when these database modifications happen.
+* I do not recommend using this tool, unless you are able to write the code necessary to update your data according to the new schema. For what it is worth, this should not be particularly difficult using the "Backup" files described later.
+
 ### Installation
 
 ```
@@ -38,11 +43,19 @@ yarn run backup-load  # This involves a database reset, so be careful!
 * These are also useful if data needs to be moved from one storage to another.
 
 Backup File Size Estimation?
-* (50 events / day) * (365 days / year) * (10 years) * (1 kilobyte / event) = 182,500,000 bytes < 200 MB for 10 years.
+
+* (1 kilobyte / event) * (50 events / day) * (365 days / year) * (10 years) = 182,500,000 bytes < 200 MB for 10 years.
 * Note that the above estimation does not include other data types, but those are infrequently created, and not separately counted.
 * The total size can reduced significantly by compressing the backup file if needed. JSON was picked for human readability, not for space efficiency.
 
-### Warning!
+### Demo
 
-* This tool is continuously being modified as I discover what works for me and what doesn't. This includes changes to not only the UI, but to the database schema too. I do NOT plan to support automatic data migrations when these database modifications happen.
-* You will need to write code to update your backup to make it compatible with the new version of code as needed. If you are unable to do so, I do not recommend using this tool.
+* In order to show off what I have built, I used to manually create videos by recording my screen as I performed a predetermined set of actions. This was obviously very fragile and involved multiple attempts until I finally made no mistakes.
+* I got annoyed at this process, and so automated the whole thing using [Selenium Webdriver](https://www.selenium.dev/selenium/docs/api/javascript/index.html) and [ffmpeg](https://www.ffmpeg.org/).
+
+```
+yarn run demo
+yarn run demo --skip-build-client --record-video --verbose
+```
+
+* An auxiliary benefit here is that this functionality can be used as an E2E test for this codebase.

@@ -1,12 +1,12 @@
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const BulletList = require('./BulletList');
-const DetailsSection = require('./DetailsSection');
-const IndexSection = require('./IndexSection');
-const ModalDialog = require('./ModalDialog');
-const SidebarSection = require('./SidebarSection');
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
+import BulletList from './BulletList';
+import DetailsSection from './DetailsSection';
+import IndexSection from './IndexSection';
+import ModalDialog from './ModalDialog';
+import SidebarSection from './SidebarSection';
 
-class Application extends BaseWrapper {
+export default class Application extends BaseWrapper {
     constructor(webdriver) {
         super(webdriver, true);
         this.webdriver = webdriver;
@@ -72,24 +72,8 @@ class Application extends BaseWrapper {
 
     // General Utility
 
-    async waitUntil(conditionMethod, intervalMs = 50, timeoutMs = 5000) {
-        let elapsedMs = -intervalMs;
-        return new Promise((resolve, reject) => {
-            const timeout = setInterval(() => {
-                Promise.resolve(conditionMethod()).then((isDone) => {
-                    if (isDone) {
-                        clearInterval(timeout);
-                        this.wait().then(resolve);
-                    } else if (elapsedMs === timeoutMs) {
-                        clearInterval(timeout);
-                        reject(new Error(`[timeout] ${conditionMethod.toString()}`));
-                    } else {
-                        elapsedMs += intervalMs;
-                    }
-                }).catch((error) => reject(error));
-            }, intervalMs);
-        });
+    async waitUntil(conditionMethod) {
+        await this.webdriver.wait(conditionMethod);
+        await this.wait();
     }
 }
-
-module.exports = Application;

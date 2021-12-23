@@ -1,11 +1,10 @@
 /* eslint-disable max-classes-per-file */
 
-const assert = require('assert');
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const { waitUntil } = require('../utils');
+import assert from 'assert';
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
 
-class TypeaheadSelector extends BaseWrapper {
+export class TypeaheadSelector extends BaseWrapper {
     static async get(webdriver, element) {
         const actual = await BaseWrapper.getElementByClassName(element, 'rbt');
         return actual ? new this(webdriver, actual) : null;
@@ -44,7 +43,7 @@ class TypeaheadSelector extends BaseWrapper {
     }
 }
 
-class TextEditor extends BaseWrapper {
+export class TextEditor extends BaseWrapper {
     static async get(webdriver, element) {
         const actual = await BaseWrapper.getElementByClassName(element, 'text-editor');
         return actual ? new this(webdriver, actual) : null;
@@ -64,7 +63,7 @@ class TextEditor extends BaseWrapper {
     }
 
     async pickSuggestion(indexOrLabel) {
-        await waitUntil(async () => (await this.getSuggestions()).length > 0);
+        await this.webdriver.wait(async () => (await this.getSuggestions()).length > 0);
         await this.wait();
         const offset = typeof indexOrLabel === 'number'
             ? indexOrLabel
@@ -78,7 +77,7 @@ class TextEditor extends BaseWrapper {
     }
 }
 
-class LogStructureKey extends BaseWrapper {
+export class LogStructureKey extends BaseWrapper {
     static async get(webdriver, element, index) {
         const containers = await element.findElements(By.xpath('.//div[contains(@class, \'log-structure-key\')]'));
         const container = BaseWrapper.getItemByIndex(containers, index);
@@ -100,7 +99,7 @@ class LogStructureKey extends BaseWrapper {
     }
 }
 
-async function getInputComponent(webdriver, element) {
+export async function getInputComponent(webdriver, element) {
     let item;
     item = await TextEditor.get(webdriver, element);
     if (item) return item;
@@ -108,7 +107,3 @@ async function getInputComponent(webdriver, element) {
     if (item) return item;
     return new BaseWrapper(webdriver, element);
 }
-
-module.exports = {
-    getInputComponent, LogStructureKey, TextEditor, TypeaheadSelector,
-};

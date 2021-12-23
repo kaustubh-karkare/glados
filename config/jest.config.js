@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    rootDir: '../..',
+    rootDir: '..',
     roots: ['src'],
     testRegex: 'test.js',
     transform: {

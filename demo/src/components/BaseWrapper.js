@@ -1,8 +1,8 @@
-const assert = require('assert');
-const { By, Key } = require('selenium-webdriver');
-const { awaitSequence, wait } = require('../utils');
+import assert from 'assert';
+import { By, Key } from 'selenium-webdriver';
+import { awaitSequence } from '../utils';
 
-class BaseWrapper {
+export default class BaseWrapper {
     constructor(webdriver, element) {
         assert(element, 'missing element');
         this.webdriver = webdriver;
@@ -67,8 +67,10 @@ class BaseWrapper {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    wait(...args) {
-        return wait(...args);
+    wait(milliseconds = 250) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, milliseconds);
+        });
     }
 
     static getItemByIndex(items, index) {
@@ -85,5 +87,3 @@ class BaseWrapper {
         return elements[0] || null;
     }
 }
-
-module.exports = BaseWrapper;

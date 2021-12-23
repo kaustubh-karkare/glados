@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 
-module.exports = async (app) => {
+export default async (app) => {
     if (true) {
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();

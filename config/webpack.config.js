@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 
 function fromProjectRoot(relativePath) {
-    return path.resolve(__dirname, '../..', relativePath);
+    return path.resolve(__dirname, '..', relativePath);
 }
 
 module.exports = {

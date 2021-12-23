@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 
-const fs = require('fs');
-const path = require('path');
-const { Builder } = require('selenium-webdriver');
-const yargs = require('yargs');
+import fs from 'fs';
+import path from 'path';
+import { Builder } from 'selenium-webdriver';
+import yargs from 'yargs';
 
-const { runLessons } = require('./lessons');
-const { ProcessWrapper, StreamIntender } = require('./process');
+import runLessons from './lessons';
+import { ProcessWrapper, StreamIntender } from './process';
 
 async function main(argv) {
     console.info('Initializing ...');
@@ -18,7 +18,22 @@ async function main(argv) {
     } catch (_e) {
         fs.mkdirSync(dataDir);
     }
-    console.info(`${argv.indent}Ensured existance of data directory!`);
+    console.info(`${argv.indent}Prepared data directory!`);
+
+    if (argv.skipBuildClient) {
+        console.info(`${argv.indent}Skipped Build Client!`);
+    } else {
+        const [clientCommand, ...clientArgs] = 'yarn run build-client'.split(' ');
+        const buildClientProcess = new ProcessWrapper({
+            command: clientCommand,
+            argv: clientArgs,
+            stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[build-client] `),
+            verbose: argv.verbose,
+        });
+        await buildClientProcess.start();
+        await buildClientProcess.waitUntilExit();
+        console.info(`${argv.indent}Built Client! (hint: --skip-build-client)`);
+    }
 
     const [serverCommand, ...serverArgs] = 'yarn run server -c'.split(' ').concat(argv.configPath);
     const databaseResetProcess = new ProcessWrapper({
@@ -29,7 +44,7 @@ async function main(argv) {
     });
     await databaseResetProcess.start();
     await databaseResetProcess.waitUntilExit();
-    console.info(`${argv.indent}Database reset!`);
+    console.info(`${argv.indent}Reset Database!`);
 
     const serverProcess = new ProcessWrapper({
         command: serverCommand,
@@ -41,16 +56,16 @@ async function main(argv) {
     await serverProcess.waitUntilOutput('Server ready!');
     console.info(`${argv.indent}Test server started!`);
 
-    const rect = {
-        width: 1920, height: 1080, x: 0, y: 0,
-    };
     const webdriver = new Builder().forBrowser('chrome').build();
-    await webdriver.manage().window().setRect(rect);
+    await webdriver.manage().window().setRect({
+        width: 1920, height: 1080, x: 0, y: 0,
+    });
     await webdriver.get(`http://${config.server.host}:${config.server.port}`);
     console.info(`${argv.indent}Webdriver started!`);
 
     let recordingProcess;
-    if (argv.record) {
+    if (argv.recordVideo) {
+        const rect = await webdriver.manage().window().getRect();
         recordingProcess = new ProcessWrapper({
             command: 'ffmpeg',
             argv: (
@@ -58,20 +73,21 @@ async function main(argv) {
                 + '-i 1: ' // ffmpeg -f avfoundation -list_devices true -i ""
                 + '-pix_fmt yuv420p '
                 + `-vf crop=${rect.width}:${rect.height}:${rect.x}:${rect.y} `
-                + `-y ${argv.recordingPath}`
+                + `-y ${argv.videoPath}`
             ).split(' '),
             stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[screen-recording] `),
             verbose: argv.verbose,
         });
         await recordingProcess.start();
-        await recordingProcess.waitUntilOutput(argv.recordingPath);
+        await recordingProcess.waitUntilOutput(argv.videoPath);
         console.info(`${argv.indent}Screen recording started!`);
+    } else {
+        console.info(`${argv.indent}Skipped screen recording! (hint: --record-video)`);
     }
 
     console.info('Initialized!');
 
     try {
-        await webdriver.executeScript('window.onmousedown = (event) => { if (event.button === 2) debugger; };');
         await runLessons(webdriver, argv);
     } catch (error) {
         console.error(error);
@@ -79,21 +95,21 @@ async function main(argv) {
 
     console.info('Terminating ...');
 
-    if (argv.record) {
+    if (argv.recordVideo) {
         await recordingProcess.stop();
     }
     await webdriver.quit();
     await serverProcess.stop();
 
-    if (argv.record && argv.recordingPath.endsWith('.mkv')) {
+    if (argv.recordVideo && argv.videoPath.endsWith('.mkv')) {
         // Directly generating an MP4 file does not work for some reason.
         console.info(`${argv.indent}Converting to mp4 format ...`);
         const formatConversionProcess = new ProcessWrapper({
             command: 'ffmpeg',
             argv: (
-                `-i ${argv.recordingPath} `
+                `-i ${argv.videoPath} `
                 + '-codec copy '
-                + `-y ${argv.recordingPath.replace('mkv', 'mp4')}`
+                + `-y ${argv.videoPath.replace('mkv', 'mp4')}`
             ).split(' '),
             stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[format-conversion] `),
             verbose: argv.verbose,
@@ -107,13 +123,14 @@ async function main(argv) {
 
 const { argv } = yargs
     // General
-    .option('configPath', { alias: 'c', default: './demo/config.json' })
-    .demandOption('configPath')
+    .option('config-path', { alias: 'c', default: './demo/config.json' })
+    .demandOption('config-path')
     .option('verbose')
     .option('indent', { default: '\t' })
+    .option('skip-build-client', { alias: 'sbc' })
     // Screen Recording
-    .option('record')
-    .option('recordingPath', { default: './demo/data/demo.mkv' })
+    .option('record-video')
+    .option('videoPath', { default: './demo/data/demo.mkv' })
     // Lessons
     .option('filter')
     .option('wait', { default: 0 });

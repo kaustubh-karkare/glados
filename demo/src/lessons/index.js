@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
-const fs = require('fs');
+import fs from 'fs';
 
-const { Application } = require('../components');
-const { awaitSequence } = require('../utils');
+import Application from '../components';
+import { awaitSequence } from '../utils';
 
-async function runLessons(webdriver, argv) {
+export default async (webdriver, argv) => {
     const resetUrl = await webdriver.getCurrentUrl();
     const app = new Application(webdriver);
     const lessonNames = fs.readdirSync(__dirname)
@@ -15,7 +15,7 @@ async function runLessons(webdriver, argv) {
 
     await awaitSequence(lessonNames, async (name, index) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
-        const lessonMethod = require(`./${name}`);
+        const { default: lessonMethod } = require(`./${name}`);
         console.info(`${argv.indent}Lesson: ${name}`);
         try {
             await app.clearDatabase();
@@ -28,6 +28,4 @@ async function runLessons(webdriver, argv) {
         }
     });
     await app.wait(argv.wait * 1000); // Use this time to debug.
-}
-
-module.exports = { runLessons };
+};

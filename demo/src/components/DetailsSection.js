@@ -1,8 +1,8 @@
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const { TextEditor } = require('./Inputs');
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
+import { TextEditor } from './Inputs';
 
-class DetailsSection extends BaseWrapper {
+export default class DetailsSection extends BaseWrapper {
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('details-section'));
         const element = BaseWrapper.getItemByIndex(elements, index);
@@ -23,5 +23,3 @@ class DetailsSection extends BaseWrapper {
         await this.moveToAndClick(button);
     }
 }
-
-module.exports = DetailsSection;

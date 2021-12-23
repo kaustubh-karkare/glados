@@ -1,8 +1,8 @@
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const { TypeaheadSelector } = require('./Inputs');
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
+import { TypeaheadSelector } from './Inputs';
 
-class IndexSection extends BaseWrapper {
+export default class IndexSection extends BaseWrapper {
     static async get(webdriver) {
         const elements = await webdriver.findElements(By.className('index-section'));
         return elements.length ? new this(webdriver, elements[0]) : null;
@@ -15,5 +15,3 @@ class IndexSection extends BaseWrapper {
         return new TypeaheadSelector(this.webdriver, inputElement);
     }
 }
-
-module.exports = IndexSection;

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
-const assert = require('assert');
-const childProcess = require('child_process');
+import assert from 'assert';
+import childProcess from 'child_process';
 
 class ProcessWrapper {
     constructor(args) {
@@ -116,4 +116,4 @@ class StreamIntender {
     }
 }
 
-module.exports = { ProcessWrapper, StreamIntender };
+export { ProcessWrapper, StreamIntender };

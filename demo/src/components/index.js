@@ -1,3 +1,3 @@
-const Application = require('./Application');
+import Application from './Application';
 
-module.exports = { Application };
+export default Application;

@@ -1,8 +1,8 @@
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const ReminderItem = require('./ReminderItem');
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
+import ReminderItem from './ReminderItem';
 
-class SidebarSection extends BaseWrapper {
+export default class SidebarSection extends BaseWrapper {
     static async get(webdriver, name) {
         const element = await webdriver.findElement(By.xpath(
             '//div[contains(@class, \'sidebar-section\')]'
@@ -25,5 +25,3 @@ class SidebarSection extends BaseWrapper {
         return items.map((item) => new ReminderItem(this.webdriver, item));
     }
 }
-
-module.exports = SidebarSection;

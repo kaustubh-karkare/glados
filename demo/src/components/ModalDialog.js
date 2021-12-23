@@ -1,10 +1,9 @@
-const assert = require('assert');
-const { By } = require('selenium-webdriver');
-const BaseWrapper = require('./BaseWrapper');
-const { getInputComponent, LogStructureKey } = require('./Inputs');
-const { waitUntil } = require('../utils');
+import assert from 'assert';
+import { By } from 'selenium-webdriver';
+import BaseWrapper from './BaseWrapper';
+import { getInputComponent, LogStructureKey } from './Inputs';
 
-class ModalDialog extends BaseWrapper {
+export default class ModalDialog extends BaseWrapper {
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('modal-dialog'));
         const element = BaseWrapper.getItemByIndex(elements, index);
@@ -26,9 +25,9 @@ class ModalDialog extends BaseWrapper {
             '//div[contains(@class, \'modal-content\')]/div[3]'
             + '//button[text() = \'Save\']',
         ));
-        await waitUntil(async () => buttonElement.isEnabled());
+        await this.webdriver.wait(async () => buttonElement.isEnabled());
         await this.click(buttonElement);
-        await waitUntil(async () => {
+        await this.webdriver.wait(async () => {
             try {
                 await this.element.isDisplayed();
                 return false;
@@ -54,5 +53,3 @@ class ModalDialog extends BaseWrapper {
         return LogStructureKey.get(this.webdriver, this.element, index);
     }
 }
-
-module.exports = ModalDialog;
