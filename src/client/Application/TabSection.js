@@ -5,7 +5,7 @@ import { LogEventSearch } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
 import { LogTopicSearch } from '../LogTopic';
 import { LogModeSearch } from '../LogMode';
-import GraphSection from './GraphSection';
+import { GraphSection } from '../GraphSection';
 import Enum from '../../common/Enum';
 
 const Tab = Enum([
