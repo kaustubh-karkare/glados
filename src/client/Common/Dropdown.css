@@ -1,3 +1,13 @@
 .dropdown-toggle::after {
     display: none;
 }
+
+/**
+ * There are multiple reports of this problem.
+ * https://stackoverflow.com/q/42046287/903585
+ * https://stackoverflow.com/q/18892351/903585
+ * None of those solutions worked, so this is what I came up with.
+ */
+.dropdown-menu {
+    inset: 0px 0px auto auto !important;
+}
