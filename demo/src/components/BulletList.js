@@ -52,7 +52,7 @@ class BulletListItem extends BaseWrapper {
     }
 
     async performAction(name) {
-        await this.moveTo(this.element);
+        await this.moveToAndClick(this.element);
         const actionButton = await this._getButton('Actions');
         await this.moveTo(actionButton);
         await this.webdriver.wait(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);

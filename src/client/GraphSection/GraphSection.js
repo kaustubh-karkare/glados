@@ -64,13 +64,15 @@ class GraphSection extends React.Component {
 
     static getDerivedStateFromProps(props, state) {
         const result = GraphSectionOptions.getEventsQuery(props.search);
-        result.granularity = result.granularity || Granularity.MONTH;
+        result.granularity = result.granularity || Granularity.DAY;
         if (!deepEqual(state.where, result.where)) {
             state.reload = true;
         }
         state.where = result.where;
+        state.hasAnyFilters = Object.keys(state.where).length > 2; // exclude isComplete & logMode
         if (state.granularity !== result.granularity && state.logEvents) {
             state.graphData = getGraphData(
+                state.where.logStructure,
                 state.logEvents,
                 props.dateRange,
                 result.granularity,
@@ -88,8 +90,8 @@ class GraphSection extends React.Component {
     componentDidMount() {
         this.dataLoader = new DataLoader({
             getInput: () => {
-                const { where } = this.state;
-                if (!where.logStructure) {
+                const { hasAnyFilters, where } = this.state;
+                if (!hasAnyFilters) {
                     return null;
                 }
                 return {
@@ -104,11 +106,14 @@ class GraphSection extends React.Component {
             },
             onData: (logEvents) => {
                 const { dateRange } = this.props;
-                const { granularity } = this.state;
-                this.setState({
+                const { where, granularity } = this.state;
+                const graphData = getGraphData(
+                    where.logStructure,
                     logEvents,
-                    graphData: getGraphData(logEvents, dateRange, granularity),
-                });
+                    dateRange,
+                    granularity,
+                );
+                this.setState({ logEvents, graphData });
             },
         });
     }
@@ -126,9 +131,9 @@ class GraphSection extends React.Component {
     }
 
     render() {
-        const { where, graphData } = this.state;
-        if (!where.logStructure) {
-            return null;
+        const { hasAnyFilters, graphData } = this.state;
+        if (!hasAnyFilters) {
+            return 'Please add some filters!';
         } if (!graphData) {
             return 'Loading ...';
         } if (graphData.isEmpty) {

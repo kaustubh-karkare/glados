@@ -11,8 +11,11 @@ export class TypeaheadSelector extends BaseWrapper {
     }
 
     async getTokens() {
-        const tokens = await this.element.findElements(By.xpath(".//div[contains(@class, 'rbt-token')]"));
-        return Promise.all(tokens.map((token) => token.getText()));
+        const items = await this.element.findElements(By.xpath(".//div[contains(@class, 'rbt-token')]"));
+        return Promise.all(items.map(async (token) => {
+            const names = await token.getText();
+            return names.split('\n')[0];
+        }));
     }
 
     async removeToken(name) {
@@ -27,7 +30,7 @@ export class TypeaheadSelector extends BaseWrapper {
         const wrappers = await this.element.findElements(By.xpath(".//div[contains(@class, 'rbt-input-wrapper')]"));
         if (wrappers.length) {
             // multi-selector
-            const inputElement = await wrappers[0].findElement(By.xpath('./input[1]'));
+            const inputElement = await wrappers[0].findElement(By.xpath('.//input[1]'));
             return new BaseWrapper(this.webdriver, inputElement);
         }
         // single-selector
@@ -35,11 +38,23 @@ export class TypeaheadSelector extends BaseWrapper {
         return new BaseWrapper(this.webdriver, inputElement);
     }
 
-    async getSuggestions() {
-        const tokens = await this.element.findElements(
-            By.xpath(".//div[contains(@class, 'menu-options')]/a[contains(@class, 'dropdown-item')]"),
-        );
-        return Promise.all(tokens.map((token) => token.getText()));
+    async _getSuggestions() {
+        const elements = await this.element.findElements(By.xpath(
+            ".//div[contains(@class, 'menu-options') or contains(@class, 'rbt-menu')]"
+            + "/a[contains(@class, 'dropdown-item')]",
+        ));
+        const names = await Promise.all(elements.map((token) => token.getText()));
+        return { elements, names };
+    }
+
+    async pickSuggestion(label) {
+        await this.webdriver.wait(async () => {
+            const { names } = await this._getSuggestions();
+            return names.some((item) => item.startsWith(label));
+        });
+        const { elements, names } = await this._getSuggestions();
+        const index = names.findIndex((item) => item.startsWith(label));
+        await this.moveToAndClick(elements[index]);
     }
 }
 

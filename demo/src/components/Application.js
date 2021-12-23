@@ -45,6 +45,12 @@ export default class Application extends BaseWrapper {
         return new BaseWrapper(this.webdriver, element);
     }
 
+    async getLink(name, index = 0) {
+        const elements = await this.webdriver.findElements(By.xpath(`//a[text() = '${name}']`));
+        const element = BaseWrapper.getItemByIndex(elements, index);
+        return new BaseWrapper(this.webdriver, element);
+    }
+
     // Random Specific Items
 
     async isDetailsSectionActive() {

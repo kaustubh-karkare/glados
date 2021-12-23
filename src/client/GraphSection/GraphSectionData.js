@@ -18,28 +18,30 @@ function getLogKeySample(keyIndex, valueParser, logEvents) {
     return valueParser(logKey.value);
 }
 
-function getLines(logEvent) {
+function getLines(logStructure, logEvent) {
     const lines = [];
     lines.push({
-        name: 'Count',
+        name: 'Event Count',
         getSample: (logEvents) => logEvents.length,
     });
-    logEvent.logStructure.logKeys.forEach((logKey, index) => {
-        let valueParser;
-        if (logKey.type === LogStructure.Key.INTEGER) {
-            valueParser = parseInt;
-        } else if (logKey.type === LogStructure.Key.NUMBER) {
-            valueParser = parseFloat;
-        } else if (logKey.type === LogStructure.Key.TIME) {
-            valueParser = (value) => parseInt(value.replace(':', ''), 10);
-        } else {
-            return;
-        }
-        lines.push({
-            name: logKey.name,
-            getSample: getLogKeySample.bind(null, index, valueParser),
+    if (logStructure) {
+        logEvent.logStructure.logKeys.forEach((logKey, index) => {
+            let valueParser;
+            if (logKey.type === LogStructure.Key.INTEGER) {
+                valueParser = parseInt;
+            } else if (logKey.type === LogStructure.Key.NUMBER) {
+                valueParser = parseFloat;
+            } else if (logKey.type === LogStructure.Key.TIME) {
+                valueParser = (value) => parseInt(value.replace(':', ''), 10);
+            } else {
+                return;
+            }
+            lines.push({
+                name: `Key: ${logKey.name}`,
+                getSample: getLogKeySample.bind(null, index, valueParser),
+            });
         });
-    });
+    }
     // TODO: Add support for custom graphs?
     return lines;
 }
@@ -103,10 +105,10 @@ function getTimeSeries(logEvents, lines, dateRange, granularity) {
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export function getGraphData(logEvents, dateRange, granularity) {
+export function getGraphData(logStructure, logEvents, dateRange, granularity) {
     if (!logEvents || !logEvents.length) return { isEmpty: true };
     try {
-        const lines = getLines(logEvents[0]);
+        const lines = getLines(logStructure, logEvents[0]);
         const samples = getTimeSeries(logEvents, lines, dateRange, granularity);
         const ticks = null;
         return { lines, samples, ticks };

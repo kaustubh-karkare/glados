@@ -10,21 +10,7 @@ export default class ModalDialog extends BaseWrapper {
         return element ? new this(webdriver, element) : null;
     }
 
-    async getInput(name) {
-        const inputElement = await this.element.findElement(By.xpath(
-            '//div[contains(@class, \'modal-content\')]/div[2]'
-            + '//div[contains(@class, \'input-group\')]'
-            + `/span[contains(@class, 'input-group-text') and text() = '${name}']`
-            + '/../*[2]',
-        ));
-        return getInputComponent(this.webdriver, inputElement);
-    }
-
-    async performSave() {
-        const buttonElement = this.element.findElement(By.xpath(
-            '//div[contains(@class, \'modal-content\')]/div[3]'
-            + '//button[text() = \'Save\']',
-        ));
+    async _clickAndWaitForClose(buttonElement) {
         await this.webdriver.wait(async () => buttonElement.isEnabled());
         await this.click(buttonElement);
         await this.webdriver.wait(async () => {
@@ -39,6 +25,32 @@ export default class ModalDialog extends BaseWrapper {
         await this.wait();
     }
 
+    async performClose() {
+        const buttonElement = await this.element.findElement(By.xpath(
+            '//div[contains(@class, \'modal-content\')]/div[1]'
+            + '//button',
+        ));
+        await this._clickAndWaitForClose(buttonElement);
+    }
+
+    async getInput(name) {
+        const inputElement = await this.element.findElement(By.xpath(
+            '//div[contains(@class, \'modal-content\')]/div[2]'
+            + '//div[contains(@class, \'input-group\')]'
+            + `/span[contains(@class, 'input-group-text') and text() = '${name}']`
+            + '/../*[2]',
+        ));
+        return getInputComponent(this.webdriver, inputElement);
+    }
+
+    async performSave() {
+        const buttonElement = await this.element.findElement(By.xpath(
+            '//div[contains(@class, \'modal-content\')]/div[3]'
+            + '//button[text() = \'Save\']',
+        ));
+        await this._clickAndWaitForClose(buttonElement);
+    }
+
     // Methods specific to Log Structures.
 
     async addLogStructureKey() {
@@ -51,5 +63,12 @@ export default class ModalDialog extends BaseWrapper {
 
     async getLogStructureKey(index) {
         return LogStructureKey.get(this.webdriver, this.element, index);
+    }
+
+    // Methods specific to Debug Info
+
+    async getDebugInfo() {
+        const element = await this.element.findElement(By.tagName('pre'));
+        return element.getText();
     }
 }

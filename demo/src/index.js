@@ -36,15 +36,19 @@ async function main(argv) {
     }
 
     const [serverCommand, ...serverArgs] = 'yarn run server -c'.split(' ').concat(argv.configPath);
-    const databaseResetProcess = new ProcessWrapper({
-        command: serverCommand,
-        argv: serverArgs.concat('-a', 'database-reset'),
-        stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[database-reset] `),
-        verbose: argv.verbose,
-    });
-    await databaseResetProcess.start();
-    await databaseResetProcess.waitUntilExit();
-    console.info(`${argv.indent}Reset Database!`);
+    if (argv.skipResetDatabase) {
+        console.info(`${argv.indent}Skipped Reset Database!`);
+    } else {
+        const databaseResetProcess = new ProcessWrapper({
+            command: serverCommand,
+            argv: serverArgs.concat('-a', 'database-reset'),
+            stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[database-reset] `),
+            verbose: argv.verbose,
+        });
+        await databaseResetProcess.start();
+        await databaseResetProcess.waitUntilExit();
+        console.info(`${argv.indent}Reset Database! (hint: --skip-reset-database)`);
+    }
 
     const serverProcess = new ProcessWrapper({
         command: serverCommand,
@@ -127,7 +131,9 @@ const { argv } = yargs
     .demandOption('config-path')
     .option('verbose')
     .option('indent', { default: '\t' })
+    // Optimize
     .option('skip-build-client', { alias: 'sbc' })
+    .option('skip-reset-database', { alias: 'srd' })
     // Screen Recording
     .option('record-video')
     .option('videoPath', { default: './demo/data/demo.mkv' })
