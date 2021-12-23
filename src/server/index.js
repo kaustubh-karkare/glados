@@ -31,7 +31,6 @@ async function init() {
     app.get('/', (req, res) => {
         res.cookie('host', this.config.server.host);
         res.cookie('port', this.config.server.port);
-        res.cookie('client', JSON.stringify(this.config.client));
         res.sendFile('index.html', { root: 'dist' });
     });
     app.use(express.static('dist'));

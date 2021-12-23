@@ -1,10 +1,9 @@
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import PropTypes from 'prop-types';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
 import {
-    Coordinator, EnumSelectorSection, ModalStack, ScrollableSection,
+    Coordinator, DataLoader, EnumSelectorSection, ModalStack, ScrollableSection,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
@@ -16,6 +15,7 @@ import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import FavoritesSection from './FavoritesSection';
 import ModeSection from './ModeSection';
+import { SettingsSection } from '../SettingsSection';
 import TimeSection from './TimeSection';
 import TopicSection from './TopicSection';
 import TabSection from './TabSection';
@@ -51,6 +51,11 @@ const Widgets = Enum([
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
+        this.state = { urlParams: null, disabled: false };
+        this.tabRef = React.createRef();
+    }
+
+    componentDidMount() {
         this.deregisterCallbacks = [
             URLState.init(),
             Coordinator.subscribe('url-change', (urlParams) => this.setState({ urlParams })),
@@ -59,11 +64,20 @@ class Applicaton extends React.Component {
         urlParams.tab = urlParams.tab || TabSection.Enum.LOG_EVENT;
         urlParams.layout = urlParams.layout || Layout.SPLIT;
         urlParams.widgets = urlParams.widgets || Widgets.SHOW;
-        this.state = { urlParams, disabled: false };
-        this.tabRef = React.createRef();
+        this.setState({ urlParams });
+
+        this.dataLoader = new DataLoader({
+            getInput: () => ({ name: 'settings-get' }),
+            onData: (settings) => this.setState({ settings }),
+        });
+    }
+
+    componentDidUpdate() {
+        this.dataLoader.reload();
     }
 
     componentWillUnmount() {
+        this.dataLoader.stop();
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
@@ -129,13 +143,19 @@ class Applicaton extends React.Component {
     }
 
     renderRightSidebar() {
+        const { settings } = this.state;
         return (
             <Col md={2} className="my-3">
                 <ScrollableSection>
-                    <TimeSection
-                        label="Time in India"
-                        timezone="Asia/Kolkata"
-                    />
+                    {
+                        ((settings && settings.timezones) || []).map((item, index) => (
+                            <TimeSection
+                                key={item.id}
+                                label={item.label}
+                                timezone={item.timezone}
+                            />
+                        ))
+                    }
                     <ModeSection
                         logMode={this.state.urlParams.mode}
                         disabled={this.state.disabled}
@@ -154,6 +174,9 @@ class Applicaton extends React.Component {
                         onChange={(widgets) => Coordinator.invoke('url-update', { widgets })}
                     />
                     <BackupSection />
+                    {settings
+                        ? <SettingsSection settings={settings} />
+                        : null}
                     {this.state.urlParams.widgets === Widgets.SHOW
                         ? this.renderRightSidebarWidgets()
                         : null}
@@ -164,14 +187,18 @@ class Applicaton extends React.Component {
     }
 
     renderRightSidebarWidgets() {
+        const { settings } = this.state;
+        if (!settings) {
+            return null;
+        }
         const nameSortComparator = (left, right) => left.name.localeCompare(right.name);
         return (
             <>
-                {this.props.clientConfig.right_sidebar_topic_sections
-                    .map((section) => (
+                {(settings.topic_sections || [])
+                    .map((item) => (
                         <TopicSection
-                            key={section.topic_id}
-                            logTopicId={section.topic_id}
+                            key={item.id}
+                            logTopicId={item.logTopic.id}
                         />
                     ))}
                 <FavoritesSection
@@ -195,12 +222,12 @@ class Applicaton extends React.Component {
                     ViewerComponent={LogStructureList.Single}
                     valueKey="logStructure"
                 />
-                {this.props.clientConfig.right_sidebar_topic_reminder_sections
-                    .map((section) => (
+                {(settings.reminder_sections || [])
+                    .map((item) => (
                         <TopicRemindersSection
-                            key={section.structure_id}
-                            logStructureId={section.structure_id}
-                            thresholdDays={section.threshold_days}
+                            key={item.id}
+                            logStructureId={item.logStructure.id}
+                            thresholdDays={parseInt(item.thresholdDays, 10)}
                         />
                     ))}
             </>
@@ -208,6 +235,9 @@ class Applicaton extends React.Component {
     }
 
     render() {
+        if (!this.state.urlParams) {
+            return null;
+        }
         return (
             <Container fluid>
                 <Row>
@@ -220,10 +250,5 @@ class Applicaton extends React.Component {
         );
     }
 }
-
-Applicaton.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    clientConfig: PropTypes.any,
-};
 
 export default Applicaton;

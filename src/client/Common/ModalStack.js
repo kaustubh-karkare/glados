@@ -2,7 +2,6 @@ import React from 'react';
 import assert from 'assert';
 import Coordinator from './Coordinator';
 import ConfirmModal from './ConfirmModal';
-import DateRangeModal from './DateRangeModal';
 import EditorModal from './EditorModal';
 import ErrorModal from './ErrorModal';
 
@@ -22,7 +21,6 @@ class ModalStack extends React.Component {
                 (componentProps) => this.push(EditorModal, componentProps),
             ),
             Coordinator.register('modal-confirm', this.push.bind(this, ConfirmModal)),
-            Coordinator.register('modal-date-range', this.push.bind(this, DateRangeModal)),
             Coordinator.register('modal-error', (error) => this.push(ErrorModal, { error })),
         ];
     }

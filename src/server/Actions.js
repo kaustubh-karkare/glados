@@ -3,6 +3,7 @@ import './Standard';
 import './Reminders';
 import './Custom';
 import './Backup';
+import './Settings';
 import './Suggestions';
 
 export default class {

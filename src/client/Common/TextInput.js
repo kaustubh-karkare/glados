@@ -13,12 +13,16 @@ class TextInput extends React.Component {
     }
 
     render() {
+        const {
+            value, disabled, onChange, ...moreProps
+        } = this.props;
         return (
             <Form.Control
-                value={this.props.value}
-                disabled={this.props.disabled}
-                onChange={(event) => this.props.onChange(event.target.value)}
+                value={value}
+                disabled={disabled}
+                onChange={(event) => onChange(event.target.value)}
                 ref={this.ref}
+                {...moreProps}
             />
         );
     }

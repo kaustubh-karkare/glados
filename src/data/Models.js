@@ -7,6 +7,31 @@ export default function (sequelize) {
         underscored: true,
     };
 
+    const Settings = sequelize.define(
+        'settings',
+        {
+            id: {
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
+                primaryKey: true,
+            },
+            key: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            value: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+        },
+        {
+            ...options,
+            indexes: [
+                { unique: true, fields: ['key'] },
+            ],
+        },
+    );
+
     const LogMode = sequelize.define(
         'log_modes',
         {
@@ -404,6 +429,7 @@ export default function (sequelize) {
     // The following sequence of models is used to load data from backups
     // while respecting foreign key constraints.
     return [
+        ['Settings', Settings],
         ['LogMode', LogMode],
         ['LogTopic', LogTopic],
         ['LogTopicToLogTopic', LogTopicToLogTopic],

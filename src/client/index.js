@@ -34,9 +34,5 @@ window.main = function main() {
         (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 
-    const clientConfig = JSON.parse(cookies.client);
-    ReactDOM.render(
-        <Application clientConfig={clientConfig} />,
-        document.getElementById('root'),
-    );
+    ReactDOM.render(<Application />, document.getElementById('root'));
 };

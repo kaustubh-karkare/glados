@@ -238,6 +238,7 @@ class DetailsSection extends React.Component {
                     value={item.details}
                     onChange={(details) => this.onChange({ ...item, details })}
                     options={LogTopicOptions.get({
+                        allowCreation: true,
                         parentLogTopic,
                         beforeSelect: () => this.setState({ isSaveDisabled: true }),
                         afterSelect: () => this.setState({ isSaveDisabled: false }),
