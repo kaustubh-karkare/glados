@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { LeftRight, SidebarSection } from '../Common';
+import SettingsContext from './SettingsContext';
 import SettingsModal from './SettingsModal';
 
 class SettingsSection extends React.Component {
@@ -11,19 +12,37 @@ class SettingsSection extends React.Component {
         };
     }
 
+    componentDidMount() {
+        window.onkeydown = (event) => {
+            if (event.shiftKey && event.metaKey && event.key === 's') {
+                this.setState({ isShown: true });
+            }
+        };
+    }
+
+    componentWillUnmount() {
+        delete window.onkeydown;
+    }
+
     render() {
-        return (
+        const settings = this.context;
+        const settingsSection = settings.display_settings_section ? (
             <SidebarSection>
                 <LeftRight>
                     <a href="#" onClick={() => this.setState({ isShown: true })}>Settings</a>
                     <span />
                 </LeftRight>
+            </SidebarSection>
+        ) : null;
+        return (
+            <>
                 <SettingsModal
                     settings={this.props.settings}
                     isShown={this.state.isShown}
                     onClose={() => this.setState({ isShown: false })}
                 />
-            </SidebarSection>
+                {settingsSection}
+            </>
         );
     }
 }
@@ -32,5 +51,7 @@ SettingsSection.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     settings: PropTypes.objectOf(PropTypes.any.isRequired).isRequired,
 };
+
+SettingsSection.contextType = SettingsContext;
 
 export default SettingsSection;

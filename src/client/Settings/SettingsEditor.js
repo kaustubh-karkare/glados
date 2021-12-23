@@ -81,10 +81,12 @@ function renderReminderRow(props) {
 }
 
 function getNextID(items) {
-    if (items.length === 0) {
-        return -1;
+    let nextId = -1;
+    // eslint-disable-next-line no-loop-func
+    while (items.some((item) => item.id === nextId)) {
+        nextId -= 1;
     }
-    return Math.min(...items.map((item) => item.id)) - 1;
+    return nextId;
 }
 
 class SettingsEditor extends React.Component {
@@ -98,7 +100,39 @@ class SettingsEditor extends React.Component {
         this.props.onChange(settings);
     }
 
-    renderDisplayTimeInTimezone() {
+    renderDisplaySettingsSection() {
+        const key = 'display_settings_section';
+        return (
+            <div className="my-3">
+                <div>Display Settings Section</div>
+                <InputGroup className="my-1">
+                    <Selector.Binary
+                        disabled={this.props.disabled}
+                        value={this.getSetting(key, false)}
+                        onChange={(value) => this.setSetting(key, value)}
+                    />
+                </InputGroup>
+            </div>
+        );
+    }
+
+    renderTwoDetailsSections() {
+        const key = 'display_two_details_sections';
+        return (
+            <div className="my-3">
+                <div>Display Two Details Sections</div>
+                <InputGroup className="my-1">
+                    <Selector.Binary
+                        disabled={this.props.disabled}
+                        value={this.getSetting(key, false)}
+                        onChange={(value) => this.setSetting(key, value)}
+                    />
+                </InputGroup>
+            </div>
+        );
+    }
+
+    renderTimezones() {
         const key = 'timezones';
         const items = this.getSetting(key, []);
         return (
@@ -127,7 +161,7 @@ class SettingsEditor extends React.Component {
         );
     }
 
-    renderRightSidebarTopicSections() {
+    renderTopicSections() {
         const key = 'topic_sections';
         const items = this.getSetting(key, []);
         return (
@@ -155,7 +189,7 @@ class SettingsEditor extends React.Component {
         );
     }
 
-    renderRightSidebarTopicReminderSections() {
+    renderReminderSections() {
         const key = 'reminder_sections';
         const items = this.getSetting(key, []);
         return (
@@ -187,9 +221,11 @@ class SettingsEditor extends React.Component {
     render() {
         return (
             <>
-                {this.renderDisplayTimeInTimezone()}
-                {this.renderRightSidebarTopicSections()}
-                {this.renderRightSidebarTopicReminderSections()}
+                {this.renderDisplaySettingsSection()}
+                {this.renderTwoDetailsSections()}
+                {this.renderTimezones()}
+                {this.renderTopicSections()}
+                {this.renderReminderSections()}
             </>
         );
     }

@@ -15,7 +15,7 @@ import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import FavoritesSection from './FavoritesSection';
 import ModeSection from './ModeSection';
-import { SettingsSection } from '../SettingsSection';
+import { SettingsContext, SettingsSection } from '../Settings';
 import TimeSection from './TimeSection';
 import TopicSection from './TopicSection';
 import TabSection from './TabSection';
@@ -51,7 +51,7 @@ const Widgets = Enum([
 class Applicaton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { urlParams: null, disabled: false };
+        this.state = { urlParams: null, settings: null, disabled: false };
         this.tabRef = React.createRef();
     }
 
@@ -104,6 +104,7 @@ class Applicaton extends React.Component {
     }
 
     renderCenterSection() {
+        const { settings } = this.state;
         const { layout } = this.state.urlParams;
         const indexSection = (
             <IndexSection
@@ -115,7 +116,7 @@ class Applicaton extends React.Component {
                 onChange={(params) => Coordinator.invoke('url-update', params)}
             />
         );
-        const detailsSection = (
+        let detailsSection = (
             <DetailsSection
                 logMode={this.state.urlParams.mode}
                 item={this.state.urlParams.details}
@@ -123,6 +124,25 @@ class Applicaton extends React.Component {
                 onChange={(details) => Coordinator.invoke('url-update', { details })}
             />
         );
+        if (settings.display_two_details_sections) {
+            detailsSection = (
+                <ScrollableSection>
+                    <DetailsSection
+                        logMode={this.state.urlParams.mode}
+                        item={this.state.urlParams.details}
+                        disabled={this.state.disabled}
+                        onChange={(details) => Coordinator.invoke('url-update', { details })}
+                    />
+                    <div className="py-4" />
+                    <DetailsSection
+                        logMode={this.state.urlParams.mode}
+                        item={this.state.urlParams.details2}
+                        disabled={this.state.disabled}
+                        onChange={(details2) => Coordinator.invoke('url-update', { details2 })}
+                    />
+                </ScrollableSection>
+            );
+        }
         if (layout === Layout.SPLIT) {
             return (
                 <>
@@ -148,7 +168,7 @@ class Applicaton extends React.Component {
             <Col md={2} className="my-3">
                 <ScrollableSection>
                     {
-                        ((settings && settings.timezones) || []).map((item, index) => (
+                        (settings.timezones || []).map((item, index) => (
                             <TimeSection
                                 key={item.id}
                                 label={item.label}
@@ -188,9 +208,6 @@ class Applicaton extends React.Component {
 
     renderRightSidebarWidgets() {
         const { settings } = this.state;
-        if (!settings) {
-            return null;
-        }
         const nameSortComparator = (left, right) => left.name.localeCompare(right.name);
         return (
             <>
@@ -237,16 +254,20 @@ class Applicaton extends React.Component {
     render() {
         if (!this.state.urlParams) {
             return null;
+        } if (!this.state.settings) {
+            return null;
         }
         return (
-            <Container fluid>
-                <Row>
-                    {this.renderLeftSidebar()}
-                    {this.renderCenterSection(this.state.urlParams.layout)}
-                    {this.renderRightSidebar()}
-                </Row>
-                <ModalStack />
-            </Container>
+            <SettingsContext.Provider value={this.state.settings}>
+                <Container fluid>
+                    <Row>
+                        {this.renderLeftSidebar()}
+                        {this.renderCenterSection(this.state.urlParams.layout)}
+                        {this.renderRightSidebar()}
+                    </Row>
+                    <ModalStack />
+                </Container>
+            </SettingsContext.Provider>
         );
     }
 }

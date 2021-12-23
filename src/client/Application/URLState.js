@@ -28,6 +28,8 @@ class URLState {
             dateRange: DateRangePicker.deserialize(params.date_range),
             search: params.search ? params.search.map(deserializeItem) : [],
             details: params.details ? deserializeItem(params.details) : null,
+            // settings.display_two_details_sections
+            details2: params.details2 ? deserializeItem(params.details2) : null,
             mode: params.mode ? deserializeItem(params.mode) : null,
         };
     }
@@ -40,6 +42,8 @@ class URLState {
             date_range: DateRangePicker.serialize(state.dateRange),
             search: state.search ? state.search.map(serializeItem) : undefined,
             details: state.details ? serializeItem(state.details) : undefined,
+            // settings.display_two_details_sections
+            details2: state.details2 ? serializeItem(state.details2) : undefined,
             mode: state.mode ? serializeItem(state.mode) : undefined,
         };
         return URLManager.getLink(params);

@@ -13,6 +13,7 @@ import {
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicOptions, LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
+import { SettingsContext } from '../Settings';
 import TextEditorUtils from '../../common/TextEditorUtils';
 
 import './DetailsSection.css';
@@ -249,6 +250,17 @@ class DetailsSection extends React.Component {
     }
 
     render() {
+        const settings = this.context;
+        if (settings.display_two_details_sections) {
+            return (
+                <div className="details-section">
+                    <div className="mb-1">
+                        {this.renderHeader()}
+                    </div>
+                    {this.renderDetails()}
+                </div>
+            );
+        }
         return (
             <div className="details-section">
                 <div className="mb-1">
@@ -268,5 +280,7 @@ DetailsSection.propTypes = {
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
+
+DetailsSection.contextType = SettingsContext;
 
 export default DetailsSection;

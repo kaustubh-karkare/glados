@@ -1,3 +1,4 @@
+import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -25,7 +26,10 @@ class SettingsModal extends React.Component {
         return (
             <Modal
                 show={this.props.isShown}
-                onHide={this.props.onClose}
+                onHide={() => {
+                    this.setState({ settings: this.props.settings });
+                    this.props.onClose();
+                }}
                 onEscapeKeyDown={suppressUnlessShiftKey}
             >
                 <Modal.Header closeButton>
@@ -41,13 +45,15 @@ class SettingsModal extends React.Component {
                 <Modal.Body>
                     <LeftRight>
                         <div />
-                        <Button
-                            disabled={this.state.isSaving}
-                            onClick={() => this.onSave()}
-                            style={{ width: '50px' }}
-                        >
-                            Save
-                        </Button>
+                        <InputGroup>
+                            <Button
+                                disabled={this.state.isSaving}
+                                onClick={() => this.onSave()}
+                                style={{ width: '50px' }}
+                            >
+                                Save
+                            </Button>
+                        </InputGroup>
                     </LeftRight>
                 </Modal.Body>
             </Modal>
