@@ -69,7 +69,10 @@ class LogStructureValueEditor extends React.Component {
             return (
                 <TypeaheadSelector
                     id={uniqueId}
-                    options={LogTopicOptions.get({ parentLogTopic: logKey.parentLogTopic })}
+                    options={LogTopicOptions.get({
+                        allowCreation: true,
+                        parentLogTopic: logKey.parentLogTopic,
+                    })}
                     value={value}
                     disabled={disabled}
                     onChange={(newValue) => this.update(newValue)}

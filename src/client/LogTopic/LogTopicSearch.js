@@ -1,8 +1,8 @@
-import assert from 'assert';
 import React from 'react';
 import PropTypes from '../prop-types';
 import { TypeaheadOptions } from '../Common';
 import LogTopicList from './LogTopicList';
+import LogTopicOptions from './LogTopicOptions';
 
 class LogTopicSearch extends React.Component {
     static getTypeaheadOptions(logMode) {
@@ -14,25 +14,12 @@ class LogTopicSearch extends React.Component {
         });
     }
 
-    static getDerivedStateFromProps(props, state) {
-        const where = {
-            logMode: props.logMode || undefined,
-        };
-        let defaultDisplay = true;
-        props.search.forEach((item) => {
-            if (item.__type__ === 'log-topic') {
-                if (!where.logTopics) {
-                    where.logTopics = [];
-                }
-                where.logTopics.push(item);
-                defaultDisplay = false;
-            } else {
-                assert(false, item);
-            }
-        });
-        state.where = where;
-        state.defaultDisplay = defaultDisplay;
-        return state;
+    static getDerivedStateFromProps(props, _state) {
+        return LogTopicOptions.extractData(
+            props.logMode,
+            props.search,
+            LogTopicOptions.getTypeToActionMap(),
+        );
     }
 
     constructor(props) {
@@ -40,14 +27,7 @@ class LogTopicSearch extends React.Component {
         this.state = {};
     }
 
-    render() {
-        if (this.state.defaultDisplay) {
-            const where = {
-                logMode: this.props.logMode || undefined,
-                parentLogTopic: null,
-            };
-            return <LogTopicList where={where} />;
-        }
+    renderSearchView() {
         return (
             <>
                 <LogTopicList
@@ -64,6 +44,21 @@ class LogTopicSearch extends React.Component {
                 />
             </>
         );
+    }
+
+    renderDefaultView() {
+        const where = {
+            logMode: this.props.logMode || undefined,
+            parentLogTopic: null,
+        };
+        return <LogTopicList where={where} />;
+    }
+
+    render() {
+        if (this.state.extra.searchView) {
+            return this.renderSearchView();
+        }
+        return this.renderDefaultView();
     }
 }
 

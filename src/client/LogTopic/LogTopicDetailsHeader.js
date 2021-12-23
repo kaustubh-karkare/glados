@@ -35,7 +35,7 @@ class LogTopicDetailsHeader extends React.Component {
                 {' / '}
                 <Dropdown
                     disabled={false}
-                    options={LogTopicOptions.get({ parentLogTopic: logTopic })}
+                    options={LogTopicOptions.get({ allowCreation: true, parentLogTopic: logTopic })}
                     onChange={(childLogTopic) => Coordinator.invoke(
                         'url-update',
                         { details: childLogTopic },

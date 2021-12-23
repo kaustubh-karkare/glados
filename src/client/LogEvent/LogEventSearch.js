@@ -17,7 +17,7 @@ const INCOMPLETE_ITEM = {
     name: 'Incomplete Events',
     apply: (_item, where, extra) => {
         where.isComplete = false;
-        extra.incompleteMode = true;
+        extra.logEventsIncompleteView = true;
     },
 };
 const ALL_EVENTS_ITEM = {
@@ -71,6 +71,19 @@ class LogEventSearch extends React.Component {
         ]);
     }
 
+    static getDerivedStateFromProps(props, _state) {
+        return LogEventOptions.extractData(
+            props.logMode,
+            props.search,
+            LogEventOptions.getTypeToActionMap([INCOMPLETE_ITEM, ALL_EVENTS_ITEM]),
+        );
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
     componentDidMount() {
         this.deregisterCallbacks = [
             Coordinator.subscribe('log-event-created', (logEvent) => {
@@ -86,7 +99,7 @@ class LogEventSearch extends React.Component {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    renderDefault(where, moreProps) {
+    renderDefaultView(where, moreProps) {
         const today = DateUtils.getTodayLabel();
         const todoMoreProps = {
             ...moreProps,
@@ -136,7 +149,7 @@ class LogEventSearch extends React.Component {
         );
     }
 
-    renderMultipleDays(where, moreProps) {
+    renderMultipleDaysView(where, moreProps) {
         return eachDayOfInterval({
             start: DateUtils.getDate(this.props.dateRange.startDate),
             end: DateUtils.getDate(this.props.dateRange.endDate),
@@ -154,7 +167,7 @@ class LogEventSearch extends React.Component {
         });
     }
 
-    renderSearchResults(where, moreProps) {
+    renderSearchView(where, moreProps) {
         assert(where.isComplete);
         const displayDateMoreProps = {
             ...moreProps,
@@ -174,12 +187,12 @@ class LogEventSearch extends React.Component {
                     {...displayDateMoreProps}
                 />
                 <LogEventList
-                    name="Incomplete (with dates)"
+                    name="Incomplete (with deadlines)"
                     where={{ ...where, isComplete: false, date: 'ne(null)' }}
                     {...displayDateMoreProps}
                 />
                 <LogEventList
-                    name="Incomplete (without dates)"
+                    name="Incomplete (without deadlines)"
                     where={{ ...where, isComplete: false, date: null }}
                     {...moreProps}
                 />
@@ -188,7 +201,7 @@ class LogEventSearch extends React.Component {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    renderIncomplete(where, moreProps) {
+    renderIncompleteView(where, moreProps) {
         const displayDateMoreProps = {
             ...moreProps,
             viewerComponentProps: {
@@ -199,12 +212,12 @@ class LogEventSearch extends React.Component {
         return (
             <>
                 <LogEventList
-                    name="With Dates"
+                    name="With Deadlines"
                     where={{ ...where, date: 'ne(null)' }}
                     {...displayDateMoreProps}
                 />
                 <LogEventList
-                    name="Without Dates"
+                    name="Without Deadlines"
                     where={{ ...where, date: null }}
                     {...moreProps}
                 />
@@ -213,10 +226,7 @@ class LogEventSearch extends React.Component {
     }
 
     render() {
-        const { where, searchResultMode, incompleteMode } = LogEventOptions.getEventsQuery(
-            this.props.logMode,
-            this.props.search,
-        );
+        const { where, extra } = this.state;
 
         const moreProps = { viewerComponentProps: {} };
         moreProps.prefixActions = [];
@@ -226,14 +236,14 @@ class LogEventSearch extends React.Component {
             moreProps.viewerComponentProps.displayLogLevel = true;
         }
 
-        if (incompleteMode) {
-            return this.renderIncomplete(where, moreProps);
-        } if (searchResultMode) {
-            return this.renderSearchResults(where, moreProps);
+        if (where.isComplete === false) {
+            return this.renderIncompleteView(where, moreProps);
+        } if (extra.searchView) {
+            return this.renderSearchView(where, moreProps);
         } if (this.props.dateRange) {
-            return this.renderMultipleDays(where, moreProps);
+            return this.renderMultipleDaysView(where, moreProps);
         }
-        return this.renderDefault(where, moreProps);
+        return this.renderDefaultView(where, moreProps);
     }
 }
 

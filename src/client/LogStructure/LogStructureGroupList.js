@@ -34,7 +34,7 @@ function LogStructureGroupList(props) {
     return (
         <BulletList
             {...props}
-            name="Structures"
+            name="Structure Groups"
             dataType="log-structure-group"
             valueKey="logStructureGroup"
             ViewerComponent={LogStructureGroupViewer}

@@ -63,22 +63,22 @@ class GraphSection extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        const result = GraphSectionOptions.getEventsQuery(props.search);
-        result.granularity = result.granularity || Granularity.DAY;
+        const result = GraphSectionOptions.extractData(props.search);
+        const newGranularity = result.extra.granularity || Granularity.WEEK;
         if (!deepEqual(state.where, result.where)) {
             state.reload = true;
         }
         state.where = result.where;
         state.hasAnyFilters = Object.keys(state.where).length > 2; // exclude isComplete & logMode
-        if (state.granularity !== result.granularity && state.logEvents) {
+        if (state.granularity !== newGranularity && state.logEvents) {
             state.graphData = getGraphData(
                 state.where.logStructure,
                 state.logEvents,
                 props.dateRange,
-                result.granularity,
+                newGranularity,
             );
         }
-        state.granularity = result.granularity;
+        state.granularity = newGranularity;
         return state;
     }
 

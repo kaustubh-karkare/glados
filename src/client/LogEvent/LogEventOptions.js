@@ -42,44 +42,55 @@ class LogEventOptions {
         });
     }
 
-    static getEventsQuery(logMode, items) {
+    static getTypeToActionMap(extraOptions) {
+        const result = {
+            'log-structure': (item, where, extra) => {
+                assert(!where.logStructure);
+                where.logStructure = item;
+                extra.searchView = true;
+            },
+            'log-topic': (item, where, extra) => {
+                if (!where.logTopics) {
+                    where.logTopics = [];
+                }
+                where.logTopics.push(item);
+                extra.searchView = true;
+            },
+            [NO_STRUCTURE_ITEM.__type__]: (_item, where, extra) => {
+                assert(!where.logStructure);
+                where.logStructure = null;
+                extra.searchView = true;
+            },
+            [EVENT_TITLE_ITEM_TYPE]: (item, where, extra) => {
+                where.title = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
+                extra.searchView = true;
+            },
+        };
+        if (extraOptions) {
+            extraOptions.forEach((item) => {
+                assert(typeof item.apply === 'function', `Missing apply method on ${item}`);
+                result[item.__type__] = item.apply;
+            });
+        }
+        return result;
+    }
+
+    static extractData(logMode, items, typeToActionMap) {
         const where = {
             logMode: logMode || undefined,
             isComplete: true,
             logLevel: [2, 3],
         };
-
-        const extra = {
-            // This flags determine which view to use in LogEventSearch.
-            searchResultMode: false,
-            incompleteMode: false,
-        };
-
+        const extra = {};
         items.forEach((item) => {
-            if (item.__type__ === 'log-structure') {
-                assert(!where.logStructure);
-                where.logStructure = item;
-                extra.searchResultMode = true;
-            } else if (item.__type__ === NO_STRUCTURE_ITEM.__type__) {
-                assert(!where.logStructure);
-                where.logStructure = null;
-                extra.searchResultMode = true;
-            } else if (item.__type__ === 'log-topic') {
-                if (!where.logTopics) {
-                    where.logTopics = [];
-                }
-                where.logTopics.push(item);
-                extra.searchResultMode = true;
-            } else if (item.__type__ === EVENT_TITLE_ITEM_TYPE) {
-                where.title = item.name.substring(EVENT_TITLE_ITEM_PREFIX.length);
-                extra.searchResultMode = true;
-            } else if (typeof item.apply === 'function') {
-                item.apply(item, where, extra);
+            const action = typeToActionMap[item.__type__];
+            if (action) {
+                action(item, where, extra);
             } else {
-                assert(false, item);
+                assert(false, `Unable to process ${JSON.stringify(item)}`);
             }
         });
-        return { where, ...extra };
+        return { where, extra };
     }
 }
 
