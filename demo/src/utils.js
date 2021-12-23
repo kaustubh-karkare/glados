@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/prefer-default-export
-export function awaitSequence(items, method) {
+export function asyncSequence(items, method) {
     if (!items) {
         return Promise.resolve();
     }

@@ -3,7 +3,7 @@
 import fs from 'fs';
 
 import Application from '../components';
-import { awaitSequence } from '../utils';
+import { asyncSequence } from '../utils';
 
 export default async (webdriver, argv) => {
     const resetUrl = await webdriver.getCurrentUrl();
@@ -13,7 +13,7 @@ export default async (webdriver, argv) => {
         .map((name) => name.replace(/.js$/, ''))
         .filter((name) => !argv.filter || name.includes(argv.filter));
 
-    await awaitSequence(lessonNames, async (name, index) => {
+    await asyncSequence(lessonNames, async (name, index) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         const { default: lessonMethod } = require(`./${name}`);
         console.info(`${argv.indent}Lesson: ${name}`);

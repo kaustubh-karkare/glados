@@ -21,7 +21,7 @@ export function getPartialItem(item) {
     return item ? { __type__: item.__type__, id: item.id, name: item.name } : null;
 }
 
-export function awaitSequence(items, method) {
+export function asyncSequence(items, method) {
     if (!items) {
         return Promise.resolve();
     }

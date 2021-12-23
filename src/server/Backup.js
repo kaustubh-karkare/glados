@@ -7,7 +7,7 @@ import path from 'path';
 import toposort from 'toposort';
 
 // import TextEditorUtils from '../common/TextEditorUtils';
-import { awaitSequence, callbackToPromise } from '../data';
+import { asyncSequence, callbackToPromise } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 
 function getDateAndTime() {
@@ -86,7 +86,7 @@ ActionsRegistry['backup-data-load'] = async function () {
     const api = sequelize.getQueryInterface();
     const tableNames = await api.showAllTables();
     const data = {};
-    await awaitSequence(tableNames, async (tableName) => {
+    await asyncSequence(tableNames, async (tableName) => {
         data[tableName] = await sequelize.query(
             `SELECT * FROM ${tableName}`,
             { type: sequelize.QueryTypes.SELECT },
@@ -97,10 +97,10 @@ ActionsRegistry['backup-data-load'] = async function () {
 
 ActionsRegistry['backup-data-save'] = async function ({ data }) {
     await this.database.reset();
-    await awaitSequence(this.database.getModelSequence(), async (model) => {
+    await asyncSequence(this.database.getModelSequence(), async (model) => {
         const items = data[model.name] || [];
         if (model.name !== 'log_topics') {
-            await awaitSequence(items, async (item) => {
+            await asyncSequence(items, async (item) => {
                 try {
                     await model.create(item, { transaction: this.database.transaction });
                 } catch (error) {
@@ -177,7 +177,7 @@ ActionsRegistry['database-clear'] = async function () {
     // For some reason, calling "database-reset" causes SQLITE_READONLY error.
     // So this method is specifically designed for the demo video.
     const models = this.database.getModelSequence().slice().reverse();
-    await awaitSequence(models, async (model) => {
+    await asyncSequence(models, async (model) => {
         if (model.name === 'log_topics') {
             // Since topics can reference other topics, the order of deletion matters.
             // Using topological sort to avoid violating foreign key constraints.
@@ -193,7 +193,7 @@ ActionsRegistry['database-clear'] = async function () {
                 }
             });
             const result = toposort.array(nodes, edges).reverse();
-            await awaitSequence(result, async (id) => {
+            await asyncSequence(result, async (id) => {
                 await logTopicMap[id].destroy();
             });
         }

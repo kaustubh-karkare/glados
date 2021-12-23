@@ -1,5 +1,5 @@
 import {
-    awaitSequence, getVirtualID, getPartialItem, isVirtualItem,
+    asyncSequence, getVirtualID, getPartialItem, isVirtualItem,
 } from './Utils';
 import Base from './Base';
 import Enum from '../common/Enum';
@@ -393,7 +393,7 @@ class LogStructure extends Base {
         }
 
         if (originalLogStructure && inputLogEvents) {
-            await awaitSequence(inputLogEvents, async (inputLogEvent) => {
+            await asyncSequence(inputLogEvents, async (inputLogEvent) => {
                 // Update the logEvent to support logKey addition, reorder, deletion.
                 const mapping = {};
                 inputLogEvent.logStructure.logKeys.forEach((logKey) => {

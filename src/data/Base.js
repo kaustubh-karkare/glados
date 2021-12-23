@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import assert from 'assert';
-import { awaitSequence, isItem } from './Utils';
+import { asyncSequence, isItem } from './Utils';
 import ValidationBase from './ValidationBase';
 
 function getDataType(name) {
@@ -49,7 +49,7 @@ class Base extends ValidationBase {
     }
 
     static async updateWhere(where, mapping) {
-        await awaitSequence(Object.keys(where), async (fieldName) => {
+        await asyncSequence(Object.keys(where), async (fieldName) => {
             if (fieldName === 'logTopics') {
                 await Base.updateLogTopicsWhere.call(this, where);
             } else if (fieldName in mapping) {

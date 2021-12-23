@@ -7,7 +7,7 @@
 
 import assert from 'assert';
 
-import { awaitSequence, getPartialItem } from '../data';
+import { asyncSequence, getPartialItem } from '../data';
 import ActionsRegistry from './ActionsRegistry';
 import TextEditorUtils from '../common/TextEditorUtils';
 
@@ -18,7 +18,7 @@ ActionsRegistry.consistency = async function () {
 
     // Update logTopics using latest topic-names
     const logTopics = await this.invoke.call(this, 'log-topic-list');
-    await awaitSequence(logTopics, async (logTopic) => {
+    await asyncSequence(logTopics, async (logTopic) => {
         try {
             logTopic.details = TextEditorUtils.updateDraftContent(
                 logTopic.details, logTopicItems,
@@ -33,7 +33,7 @@ ActionsRegistry.consistency = async function () {
 
     // Update logStructures using latest topic-names
     const logStructures = await this.invoke.call(this, 'log-structure-list');
-    await awaitSequence(logStructures, async (logStructure) => {
+    await asyncSequence(logStructures, async (logStructure) => {
         try {
             logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
                 logStructure.titleTemplate, logTopicItems,
@@ -46,7 +46,7 @@ ActionsRegistry.consistency = async function () {
 
     // Update logEvents using latest topic-names & structure-title-template.
     const logEvents = await this.invoke.call(this, 'log-event-list');
-    await awaitSequence(logEvents, async (logEvent) => {
+    await asyncSequence(logEvents, async (logEvent) => {
         try {
             logEvent.title = TextEditorUtils.updateDraftContent(
                 logEvent.title, logTopicItems,
@@ -69,7 +69,7 @@ ActionsRegistry['validate-log-topic-modes'] = async function ({ logMode, targetL
     const results = [];
     /*
     // TODO: Enable this feature again!
-    await awaitSequence(Object.values(targetLogTopics), async (targetLogTopic) => {
+    await asyncSequence(Object.values(targetLogTopics), async (targetLogTopic) => {
         if (!targetLogTopic.logMode) {
             targetLogTopic = await this.invoke.call(this, 'log-topic-load', targetLogTopic);
         }

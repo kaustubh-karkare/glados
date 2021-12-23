@@ -1,6 +1,6 @@
 import TextEditorUtils from '../../common/TextEditorUtils';
 import Utils from './Utils';
-import { awaitSequence } from '../../data';
+import { asyncSequence } from '../../data';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
@@ -83,7 +83,7 @@ test('test_counts', async () => {
 
     const parentLogTopicIds = [1, 2];
     const expectChildCounts = async (counts) => {
-        await awaitSequence(
+        await asyncSequence(
             parentLogTopicIds,
             async (id, index) => {
                 const parentLogTopic = await actions.invoke('log-topic-load', { id });

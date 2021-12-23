@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { By, Key } from 'selenium-webdriver';
-import { awaitSequence } from '../utils';
+import { asyncSequence } from '../utils';
 
 export default class BaseWrapper {
     constructor(webdriver, element) {
@@ -21,7 +21,7 @@ export default class BaseWrapper {
             await redirectInput.sendKeys(...items);
             return;
         }
-        await awaitSequence(items, async (item) => {
+        await asyncSequence(items, async (item) => {
             let keys;
             // Do not require application logic to use Selenium API.
             if (typeof item === 'string') {
@@ -42,7 +42,7 @@ export default class BaseWrapper {
             await redirectInput.typeSlowly(text);
             return;
         }
-        await awaitSequence(Array.from(text), async (char) => {
+        await asyncSequence(Array.from(text), async (char) => {
             await this.element.sendKeys(char);
             // await wait(50ms); // TODO: Re-enable.
         });
