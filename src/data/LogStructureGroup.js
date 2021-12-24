@@ -8,7 +8,7 @@ class LogStructureGroup extends Base {
     }) {
         return {
             __type__: 'log-structure-group',
-            id: getVirtualID(),
+            __id__: getVirtualID(),
             logMode,
             name: '',
         };
@@ -16,7 +16,7 @@ class LogStructureGroup extends Base {
 
     static async updateWhere(where) {
         await Base.updateWhere.call(this, where, {
-            id: 'id',
+            __id__: 'id',
             logMode: 'mode_id',
         });
     }
@@ -40,11 +40,11 @@ class LogStructureGroup extends Base {
         const logStructureGroup = await this.database.findByPk('LogStructureGroup', id);
         let outputLogMode = null;
         if (logStructureGroup.mode_id) {
-            outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logStructureGroup.mode_id });
+            outputLogMode = await this.invoke.call(this, 'log-mode-load', { __id__: logStructureGroup.mode_id });
         }
         return {
             __type__: 'log-structure-group',
-            id: logStructureGroup.id,
+            __id__: logStructureGroup.id,
             name: logStructureGroup.name,
             logMode: outputLogMode,
         };
@@ -57,7 +57,7 @@ class LogStructureGroup extends Base {
         );
         const orderingIndex = await Base.getOrderingIndex.call(this, originalLogStructureGroup);
         const fields = {
-            mode_id: inputLogStructureGroup.logMode && inputLogStructureGroup.logMode.id,
+            mode_id: inputLogStructureGroup.logMode && inputLogStructureGroup.logMode.__id__,
             ordering_index: orderingIndex,
             name: inputLogStructureGroup.name,
         };
@@ -86,7 +86,7 @@ class LogStructureGroup extends Base {
     static async delete(id) {
         const logStructureGroup = await this.database.deleteByPk('LogStructureGroup', id);
         this.broadcast('log-structure-group-list');
-        return { id: logStructureGroup.id };
+        return { __id__: logStructureGroup.id };
     }
 }
 

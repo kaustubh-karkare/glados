@@ -64,7 +64,7 @@ class CustomDropdown extends React.Component {
         }
         return this.state.items.map((item) => (
             <Dropdown.Item
-                key={item.id}
+                key={item.__id__}
                 onMouseDown={(event) => this.onSelect(item, event)}
             >
                 {item[this.props.labelKey]}

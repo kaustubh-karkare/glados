@@ -4,7 +4,7 @@ import { getVirtualID } from '../../data';
 
 const NO_STRUCTURE_ITEM = {
     __type__: 'no-structure',
-    id: getVirtualID(),
+    __id__: getVirtualID(),
     name: 'No Structure',
 };
 
@@ -27,7 +27,7 @@ class LogEventOptions {
                 if (query) {
                     options.push({
                         __type__: EVENT_TITLE_ITEM_TYPE,
-                        id: getVirtualID(),
+                        __id__: getVirtualID(),
                         name: EVENT_TITLE_ITEM_PREFIX + query,
                     });
                 }

@@ -42,12 +42,12 @@ class AsyncSelector extends React.Component {
         return (
             <Form.Control
                 as="select"
-                value={this.props.value.id}
+                value={this.props.value.__id__}
                 disabled={this.props.disabled}
                 onChange={(event) => this.onChange(event.target.value)}
             >
                 {options.map((item) => {
-                    const optionProps = { key: item.id, value: item.id };
+                    const optionProps = { key: item.__id__, value: item.__id__ };
                     return <option {...optionProps}>{item[this.props.labelKey]}</option>;
                 })}
             </Form.Control>

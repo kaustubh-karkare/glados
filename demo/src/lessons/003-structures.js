@@ -2,6 +2,7 @@
 
 export default async (app) => {
     if (true) {
+        await app.waitUntil(async () => !!(await app.getBulletList(0)));
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();
 

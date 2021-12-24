@@ -45,7 +45,7 @@ class DataLoader {
     // eslint-disable-next-line class-methods-use-this
     compare(name, left, right) {
         if (name.endsWith('-load')) {
-            return left.id === right.id;
+            return left.__id__ === right.__id__;
         } if (name.endsWith('-list')) {
             left = left.where || {};
             right = right.where || {};

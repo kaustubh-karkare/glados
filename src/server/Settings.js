@@ -23,7 +23,7 @@ ActionsRegistry['settings-set'] = async function (input) {
             const fields = { key, value: JSON.stringify(value) };
             item = await this.database.createOrUpdateItem('Settings', item, fields);
         } else if (item) {
-            await this.database.deleteByPk('Settings', item.id);
+            await this.database.deleteByPk('Settings', item.__id__);
         }
     }));
     this.broadcast('settings-get');

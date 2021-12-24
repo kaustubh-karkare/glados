@@ -6,19 +6,19 @@ export function getVirtualID() {
 }
 
 export function isItem(item) {
-    return item && typeof item.id === 'number';
+    return item && typeof item.__id__ === 'number';
 }
 
 export function isVirtualItem(item) {
-    return item && item.id < 0;
+    return item && item.__id__ < 0;
 }
 
 export function isRealItem(item) {
-    return item && item.id > 0;
+    return item && item.__id__ > 0;
 }
 
 export function getPartialItem(item) {
-    return item ? { __type__: item.__type__, id: item.id, name: item.name } : null;
+    return item ? { __type__: item.__type__, __id__: item.__id__, name: item.name } : null;
 }
 
 export function asyncSequence(items, method) {

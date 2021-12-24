@@ -55,7 +55,7 @@ const LogStructureKey = Enum([
         label: 'Topic',
         validator: async (value, logKey, that) => {
             const logTopic = await that.invoke.call(that, 'log-topic-load', value);
-            return logTopic.parentLogTopic.id === logKey.parentLogTopic.id;
+            return logTopic.parentLogTopic.__id__ === logKey.parentLogTopic.__id__;
         },
         getDefault: () => null,
     },
@@ -92,7 +92,7 @@ class LogStructure extends Base {
     static createVirtual({ logStructureGroup, name = '' }) {
         return {
             __type__: 'log-structure',
-            id: getVirtualID(),
+            __id__: getVirtualID(),
             logStructureGroup,
             name,
             details: null,
@@ -114,7 +114,7 @@ class LogStructure extends Base {
 
     static async updateWhere(where) {
         await Base.updateWhere.call(this, where, {
-            id: 'id',
+            __id__: 'id',
             logStructureGroup: 'group_id',
             name: 'name',
             isPeriodic: 'is_periodic',
@@ -149,7 +149,7 @@ class LogStructure extends Base {
         };
         inputLogStructure.logKeys.forEach((logKey) => {
             if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.parentLogTopic) {
-                logTopics[logKey.parentLogTopic.id] = logKey.parentLogTopic;
+                logTopics[logKey.parentLogTopic.__id__] = logKey.parentLogTopic;
             }
         });
         return logTopics;
@@ -192,7 +192,7 @@ class LogStructure extends Base {
 
         results.push([
             '.titleTemplate',
-            inputLogStructure.id in TextEditorUtils.extractMentions(
+            inputLogStructure.__id__ in TextEditorUtils.extractMentions(
                 inputLogStructure.titleTemplate,
                 'log-structure',
             ),
@@ -233,7 +233,7 @@ class LogStructure extends Base {
         const outputLogStructureGroup = await this.invoke.call(
             this,
             'log-structure-group-load',
-            { id: logStructure.group_id },
+            { __id__: logStructure.group_id },
         );
         const logKeys = await Promise.all(
             JSON.parse(logStructure.keys).map(
@@ -242,7 +242,7 @@ class LogStructure extends Base {
         );
         return {
             __type__: 'log-structure',
-            id: logStructure.id,
+            __id__: logStructure.id,
             logStructureGroup: outputLogStructureGroup,
             name: logStructure.name,
             details: TextEditorUtils.deserialize(
@@ -276,7 +276,7 @@ class LogStructure extends Base {
             this,
             'log-structure-list',
             logStructure,
-            { group_id: inputLogStructure.logStructureGroup.id },
+            { group_id: inputLogStructure.logStructureGroup.__id__ },
         );
 
         // isVirtualItem
@@ -284,8 +284,8 @@ class LogStructure extends Base {
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
             mode_id: inputLogStructure.logStructureGroup.logMode
-                && inputLogStructure.logStructureGroup.logMode.id,
-            group_id: inputLogStructure.logStructureGroup.id,
+                && inputLogStructure.logStructureGroup.logMode.__id__,
+            group_id: inputLogStructure.logStructureGroup.__id__,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
             details: TextEditorUtils.serialize(
@@ -361,7 +361,7 @@ class LogStructure extends Base {
             'target_topic_id',
             Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
                 // eslint-disable-next-line no-param-reassign
-                result[targetLogTopic.id] = {};
+                result[targetLogTopic.__id__] = {};
                 return result;
             }, {}),
         );
@@ -375,7 +375,7 @@ class LogStructure extends Base {
             const originalItems = [inputLogStructure, ...inputLogStructure.logKeys];
             const updatedItems = originalItems.map((item, index) => ({
                 ...getPartialItem(item),
-                id: index || updatedLogStructure.id,
+                __id__: index || updatedLogStructure.id,
             }));
             const updatedTitleTemplate = TextEditorUtils.updateDraftContent(
                 inputLogStructure.titleTemplate,
@@ -397,13 +397,13 @@ class LogStructure extends Base {
                 // Update the logEvent to support logKey addition, reorder, deletion.
                 const mapping = {};
                 inputLogEvent.logStructure.logKeys.forEach((logKey) => {
-                    mapping[logKey.id] = logKey;
+                    mapping[logKey.__id__] = logKey;
                 });
                 inputLogEvent.logStructure = {
                     ...inputLogStructure,
                     logKeys: inputLogStructure.logKeys.map((logKey) => ({
                         ...logKey,
-                        value: (mapping[logKey.id] || logKey).value,
+                        value: (mapping[logKey.__id__] || logKey).value,
                     })),
                 };
                 return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
@@ -436,7 +436,7 @@ class LogStructure extends Base {
     static createNewKey() {
         return {
             __type__: 'log-structure-key',
-            id: getVirtualID(),
+            __id__: getVirtualID(),
             name: '',
             type: LogStructureKey.STRING,
             isOptional: false,
@@ -450,12 +450,12 @@ class LogStructure extends Base {
         let parentLogTopic = null;
         if (rawLogKey.parent_topic_id) {
             parentLogTopic = await this.invoke.call(this, 'log-topic-load', {
-                id: rawLogKey.parent_topic_id,
+                __id__: rawLogKey.parent_topic_id,
             });
         }
         return {
             __type__: 'log-structure-key',
-            id: index,
+            __id__: index,
             name: rawLogKey.name,
             type: rawLogKey.type,
             template: rawLogKey.template,
@@ -472,7 +472,7 @@ class LogStructure extends Base {
             is_optional: inputLogKey.isOptional,
             template: inputLogKey.template,
             enum_values: inputLogKey.enumValues,
-            parent_topic_id: inputLogKey.parentLogTopic ? inputLogKey.parentLogTopic.id : null,
+            parent_topic_id: inputLogKey.parentLogTopic ? inputLogKey.parentLogTopic.__id__ : null,
         };
     }
 }

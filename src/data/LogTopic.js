@@ -8,7 +8,7 @@ class LogTopic extends Base {
         logMode = parentLogTopic ? parentLogTopic.logMode : logMode;
         return {
             __type__: 'log-topic',
-            id: getVirtualID(),
+            __id__: getVirtualID(),
             logMode,
             parentLogTopic,
             name,
@@ -21,7 +21,7 @@ class LogTopic extends Base {
 
     static async updateWhere(where) {
         await Base.updateWhere.call(this, where, {
-            id: 'id',
+            __id__: 'id',
             isFavorite: 'is_favorite',
             isDeprecated: 'is_deprecated',
             parentLogTopic: 'parent_topic_id',
@@ -65,7 +65,7 @@ class LogTopic extends Base {
         let outputParentLogTopic = null;
         let outputLogMode = null;
         if (logTopic.mode_id) {
-            outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logTopic.mode_id });
+            outputLogMode = await this.invoke.call(this, 'log-mode-load', { __id__: logTopic.mode_id });
         }
         if (logTopic.parent_topic_id) {
             // Intentionally loading only partial data.
@@ -75,14 +75,14 @@ class LogTopic extends Base {
             );
             outputParentLogTopic = {
                 __type__: 'log-topic',
-                id: parentLogTopic.id,
+                __id__: parentLogTopic.id,
                 name: parentLogTopic.name,
                 logMode: outputLogMode,
             };
         }
         return {
             __type__: 'log-topic',
-            id: logTopic.id,
+            __id__: logTopic.id,
             logMode: outputLogMode,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
@@ -101,7 +101,7 @@ class LogTopic extends Base {
 
         const oldParentTopicId = logTopic ? logTopic.parent_topic_id : null;
         const newParentTopicId = inputLogTopic.parentLogTopic
-            ? inputLogTopic.parentLogTopic.id
+            ? inputLogTopic.parentLogTopic.__id__
             : null;
         Base.broadcast.call(
             this,
@@ -112,9 +112,12 @@ class LogTopic extends Base {
 
         const originalName = logTopic ? logTopic.name : null;
         const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
-        const childCount = await LogTopic.count.call(this, { parent_topic_id: inputLogTopic.id });
+        const childCount = await LogTopic.count.call(
+            this,
+            { parent_topic_id: inputLogTopic.__id__ },
+        );
         const fields = {
-            mode_id: inputLogTopic.logMode && inputLogTopic.logMode.id,
+            mode_id: inputLogTopic.logMode && inputLogTopic.logMode.__id__,
             parent_topic_id: newParentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
@@ -136,7 +139,7 @@ class LogTopic extends Base {
             'target_topic_id',
             Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
                 // eslint-disable-next-line no-param-reassign
-                result[targetLogTopic.id] = {};
+                result[targetLogTopic.__id__] = {};
                 return result;
             }, {}),
         );
@@ -147,7 +150,7 @@ class LogTopic extends Base {
                 if (!id) {
                     return;
                 }
-                const parentLogTopic = await this.invoke.call(this, 'log-topic-load', { id });
+                const parentLogTopic = await this.invoke.call(this, 'log-topic-load', { __id__: id });
                 await this.invoke.call(this, 'log-topic-upsert', parentLogTopic);
             };
             await Promise.all([
@@ -199,13 +202,13 @@ class LogTopic extends Base {
         const edges = await this.database.getEdges(
             junctionTableName,
             'target_topic_id',
-            updatedLogTopic.id,
+            updatedLogTopic.__id__,
         );
         const inputItems = await Promise.all(
             edges.map((edge) => this.invoke.call(
                 this,
                 `${entityType}-load`,
-                { id: edge[junctionSourceName] },
+                { __id__: edge[junctionSourceName] },
             )),
         );
         await Promise.all(
@@ -226,12 +229,13 @@ class LogTopic extends Base {
             const parentLogTopic = await this.invoke.call(
                 this,
                 'log-topic-load',
-                { id: logTopic.parent_topic_id },
+                { __id__: logTopic.parent_topic_id },
             );
             await this.invoke.call(this, 'log-topic-upsert', parentLogTopic);
         }
+
         Base.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
-        return { id: logTopic.id };
+        return { __id__: logTopic.id };
     }
 }
 

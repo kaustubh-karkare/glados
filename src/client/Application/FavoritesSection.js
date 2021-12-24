@@ -35,7 +35,11 @@ class FavoritesSection extends React.Component {
         }
         const { ViewerComponent, viewerComponentProps, valueKey } = this.props;
         return this.state.items.map((item) => (
-            <ViewerComponent key={item.id} {...viewerComponentProps} {...{ [valueKey]: item }} />
+            <ViewerComponent
+                key={item.__id__}
+                {...viewerComponentProps}
+                {...{ [valueKey]: item }}
+            />
         ));
     }
 

@@ -67,7 +67,7 @@ test('test_event_update', async () => {
 
     const actions = Utils.getActions();
 
-    const logEvent = await actions.invoke('log-event-load', { id: 1 });
+    const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     logEvent.title = 'Dog';
     logEvent.logStructure.logKeys[0].value = 'medium';
     await actions.invoke('log-event-upsert', logEvent);
@@ -104,7 +104,7 @@ test('test_log_event_value_typeahead', async () => {
     const actions = Utils.getActions();
     let logValueSuggestions;
 
-    const logEvent = await actions.invoke('log-event-load', { id: 1 });
+    const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     const input = { logStructure: logEvent.logStructure, index: null, query: '' };
 
     logValueSuggestions = await actions.invoke('value-typeahead', { ...input, index: 0 });

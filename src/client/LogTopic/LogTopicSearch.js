@@ -32,7 +32,10 @@ class LogTopicSearch extends React.Component {
             <>
                 <LogTopicList
                     name="Selected Topic"
-                    where={{ id: this.state.where.logTopics.map((logTopic) => logTopic.id) }}
+                    where={{
+                        __id__: this.state.where.logTopics
+                            .map((logTopic) => logTopic.__id__),
+                    }}
                     allowCreation={false}
                     allowReordering={false}
                 />

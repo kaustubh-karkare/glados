@@ -2,6 +2,7 @@
 
 export default async (app) => {
     if (true) {
+        await app.waitUntil(async () => !!(await app.getBulletList(0)));
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();
 
@@ -103,7 +104,7 @@ export default async (app) => {
         let count = await bulletList.getItemCount();
         for (let index = 1; index < totalEvents; index += 1) {
             count += 1;
-            logEventTemplate.id = -count;
+            logEventTemplate.__id__ = -count;
 
             const newDate = new Date(timestamp - msInDay * index);
             // eslint-disable-next-line prefer-destructuring

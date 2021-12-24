@@ -51,7 +51,7 @@ class Database {
 
     async create(name, fields) {
         const transaction = this.getTransaction();
-        const { id: _id, ...remainingFields } = fields;
+        const { __id__: _id, ...remainingFields } = fields;
         const Model = this._models[name];
         return Model.create(
             remainingFields,
@@ -98,7 +98,7 @@ class Database {
 
     async findItem(name, item) {
         if (isRealItem(item)) {
-            return this.findByPk(name, item.id);
+            return this.findByPk(name, item.__id__);
         }
         return null;
     }

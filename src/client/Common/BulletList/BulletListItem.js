@@ -60,7 +60,7 @@ class BulletListItem extends React.Component {
             });
             return;
         }
-        window.api.send(`${this.props.dataType}-delete`, this.props.value.id);
+        window.api.send(`${this.props.dataType}-delete`, this.props.value.__id__);
     }
 
     onKeyDown(event) {
@@ -143,12 +143,12 @@ class BulletListItem extends React.Component {
         }
         const actions = [...this.props.prefixActions];
         actions.push({
-            id: 'delete',
+            __id__: 'delete',
             name: 'Delete',
             perform: (event) => this.onDelete(event),
         });
         actions.push({
-            id: 'info',
+            __id__: 'info',
             name: 'Debug Info',
             perform: (event) => Coordinator.invoke(
                 'modal-error',

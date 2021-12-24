@@ -7,7 +7,7 @@ import {
 import { getVirtualID } from '../../data';
 
 const NONE_OPTION = {
-    id: getVirtualID(),
+    __id__: getVirtualID(),
     name: '(none)',
 };
 
@@ -24,7 +24,7 @@ function ModeSection(props) {
                         })}
                         disabled={props.disabled}
                         onChange={(newLogMode) => {
-                            if (newLogMode.id === NONE_OPTION.id) {
+                            if (newLogMode.__id__ === NONE_OPTION.__id__) {
                                 props.onChange(null);
                             } else {
                                 props.onChange(newLogMode);

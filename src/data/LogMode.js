@@ -5,14 +5,14 @@ class LogMode extends Base {
     static createVirtual({ name = '' } = {}) {
         return {
             __type__: 'log-mode',
-            id: getVirtualID(),
+            __id__: getVirtualID(),
             name,
         };
     }
 
     static async updateWhere(where) {
         await Base.updateWhere.call(this, where, {
-            id: 'id',
+            __id__: 'id',
         });
     }
 
@@ -26,7 +26,7 @@ class LogMode extends Base {
         const logMode = await this.database.findByPk('LogMode', id);
         return {
             __type__: 'log-mode',
-            id: logMode.id,
+            __id__: logMode.id,
             name: logMode.name,
         };
     }
@@ -46,7 +46,7 @@ class LogMode extends Base {
     static async delete(id) {
         const logMode = await this.database.deleteByPk('LogMode', id);
         this.broadcast('log-mode-list');
-        return { id: logMode.id };
+        return { __id__: logMode.id };
     }
 }
 

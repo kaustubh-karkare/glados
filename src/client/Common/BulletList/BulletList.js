@@ -21,7 +21,7 @@ class BulletList extends React.Component {
     static getDerivedStateFromProps(props, state) {
         if (state.items) {
             state.areAllExpanded = state.items
-                .every((item) => state.isExpanded[item.id]);
+                .every((item) => state.isExpanded[item.__id__]);
         }
         return state;
     }
@@ -90,7 +90,7 @@ class BulletList extends React.Component {
         const input = {
             dataType: this.props.dataType,
             where: this.props.where,
-            ordering: orderedItems.map((item) => item.id),
+            ordering: orderedItems.map((item) => item.__id__),
         };
         window.api.send(`${this.props.dataType}-reorder`, input)
             .then(() => this.setState({ items: orderedItems }));
@@ -111,7 +111,7 @@ class BulletList extends React.Component {
         return this.state.items.map((item, index) => (
             <SortableBulletListItem
                 index={index}
-                key={item.id}
+                key={item.__id__}
                 dataType={this.props.dataType}
                 valueKey={this.props.valueKey}
                 ViewerComponent={this.props.ViewerComponent}
@@ -122,9 +122,9 @@ class BulletList extends React.Component {
                     .map((action) => ({ ...action, perform: action.perform.bind(null, item) }))}
                 onMoveUp={(event) => this.onMove(index, -1, event)}
                 onMoveDown={(event) => this.onMove(index, 1, event)}
-                isExpanded={this.state.isExpanded[item.id] || false}
+                isExpanded={this.state.isExpanded[item.__id__] || false}
                 setIsExpanded={(isExpanded) => this.setState((state) => {
-                    state.isExpanded[item.id] = isExpanded;
+                    state.isExpanded[item.__id__] = isExpanded;
                     return state;
                 })}
                 value={item}
@@ -157,7 +157,7 @@ class BulletList extends React.Component {
                         }
                         return {
                             isExpanded: Object.fromEntries(
-                                state.items.map((item) => [item.id, true]),
+                                state.items.map((item) => [item.__id__, true]),
                             ),
                         };
                     })}

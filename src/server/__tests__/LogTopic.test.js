@@ -47,12 +47,12 @@ test('test_update_propagation', async () => {
     });
 
     const actions = Utils.getActions();
-    let logEvent = await actions.invoke('log-event-load', { id: 1 });
+    let logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     expect(TextEditorUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Hacky');
-    let logTopic = await actions.invoke('log-topic-load', { id: 2 });
+    let logTopic = await actions.invoke('log-topic-load', { __id__: 2 });
     expect(TextEditorUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Hacky');
 
-    const person = await actions.invoke('log-topic-load', { id: 1 });
+    const person = await actions.invoke('log-topic-load', { __id__: 1 });
     person.name = 'Noob';
     await actions.invoke('log-topic-upsert', person);
 
@@ -61,10 +61,10 @@ test('test_update_propagation', async () => {
     logTopic = await actions.invoke('log-topic-load', logTopic);
     expect(TextEditorUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Noob');
 
-    await expect(() => actions.invoke('log-topic-delete', person.id)).rejects.toThrow();
-    await actions.invoke('log-event-delete', logEvent.id);
-    await actions.invoke('log-topic-delete', logTopic.id);
-    await actions.invoke('log-topic-delete', person.id);
+    await expect(() => actions.invoke('log-topic-delete', person.__id__)).rejects.toThrow();
+    await actions.invoke('log-event-delete', logEvent.__id__);
+    await actions.invoke('log-topic-delete', logTopic.__id__);
+    await actions.invoke('log-topic-delete', person.__id__);
 });
 
 test('test_counts', async () => {
@@ -86,20 +86,20 @@ test('test_counts', async () => {
         await asyncSequence(
             parentLogTopicIds,
             async (id, index) => {
-                const parentLogTopic = await actions.invoke('log-topic-load', { id });
+                const parentLogTopic = await actions.invoke('log-topic-load', { __id__: id });
                 expect(parentLogTopic.childCount).toEqual(counts[index]);
             },
         );
     };
     await expectChildCounts([1, 0]);
 
-    let childLogTopic = await actions.invoke('log-topic-load', { id: 3 });
-    expect(childLogTopic.parentLogTopic.id).toEqual(1);
-    childLogTopic.parentLogTopic.id = 2;
+    let childLogTopic = await actions.invoke('log-topic-load', { __id__: 3 });
+    expect(childLogTopic.parentLogTopic.__id__).toEqual(1);
+    childLogTopic.parentLogTopic.__id__ = 2;
     childLogTopic = await actions.invoke('log-topic-upsert', childLogTopic);
-    expect(childLogTopic.parentLogTopic.id).toEqual(2);
+    expect(childLogTopic.parentLogTopic.__id__).toEqual(2);
     await expectChildCounts([0, 1]);
 
-    await actions.invoke('log-topic-delete', childLogTopic.id);
+    await actions.invoke('log-topic-delete', childLogTopic.__id__);
     await expectChildCounts([0, 0]);
 });

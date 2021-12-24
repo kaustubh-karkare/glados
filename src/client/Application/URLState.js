@@ -10,12 +10,12 @@ import { Coordinator, DateRangePicker, URLManager } from '../Common';
 const SEPARATOR = '~';
 
 function serializeItem(item) {
-    return `${item.__type__}${SEPARATOR}${item.id}${SEPARATOR}${item.name}`;
+    return `${item.__type__}${SEPARATOR}${item.__id__}${SEPARATOR}${item.name}`;
 }
 
 function deserializeItem(token) {
-    const [__type__, id, name] = token.split(SEPARATOR);
-    return { __type__, id: parseInt(id, 10), name };
+    const [__type__, __id__, name] = token.split(SEPARATOR);
+    return { __type__, __id__: parseInt(__id__, 10), name };
 }
 
 class URLState {

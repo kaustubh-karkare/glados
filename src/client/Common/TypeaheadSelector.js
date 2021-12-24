@@ -71,7 +71,7 @@ class TypeaheadSelector extends React.Component {
     render() {
         const commonProps = {
             ...this.state,
-            id: this.props.id,
+            __id__: this.props.id,
             labelKey: 'name',
             minLength: 0,
             onFocus: () => this.onSearch(this.state.text),
@@ -129,7 +129,7 @@ TypeaheadSelector.defaultProps = {
 
 TypeaheadSelector.getStringItem = (value, index = -1) => ({
     __type__: 'string',
-    id: index + 1,
+    __id__: index + 1,
     name: value,
 });
 

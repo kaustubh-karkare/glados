@@ -13,7 +13,7 @@ import TextEditorUtils from '../common/TextEditorUtils';
 
 ActionsRegistry.consistency = async function () {
     const results = [];
-    // These items only contain the __type__, id & name.
+    // These items only contain the __type__, __id__ & name.
     const logTopicItems = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
 
     // Update logTopics using latest topic-names
@@ -75,7 +75,7 @@ ActionsRegistry['validate-log-topic-modes'] = async function ({ logMode, targetL
         }
         results.push([
             `.logTopic[${targetLogTopic.name}].logMode`,
-            targetLogTopic.logMode.id === logMode.id,
+            targetLogTopic.logMode.__id__ === logMode.__id__,
             'should match .logMode',
         ]);
     });
@@ -91,12 +91,12 @@ ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
     const logStructureGroups = await this.invoke.call(
         this,
         'log-structure-group-list',
-        { where: { id: Object.keys(ID_TO_NAME) } },
+        { where: { __id__: Object.keys(ID_TO_NAME) } },
     );
     return Promise.all(
         logStructureGroups.map(async (logStructureGroup) => {
             assert(
-                ID_TO_NAME[logStructureGroup.id] === logStructureGroup.name,
+                ID_TO_NAME[logStructureGroup.__id__] === logStructureGroup.name,
                 logStructureGroup.name,
             );
             const logStructures = await this.invoke.call(
@@ -184,7 +184,7 @@ ActionsRegistry['update-television-events'] = async function (data) {
             const topic_id = nameToTopicId[series_name];
             values[value_index] = {
                 __type__: 'log-topic',
-                id: topic_id,
+                __id__: topic_id,
                 name: series_name,
             };
             log_event.structure_values = JSON.stringify(values);
@@ -206,7 +206,7 @@ ActionsRegistry['update-television-events'] = async function (data) {
         if (multiple_topics.length) console.info(multiple_topics);
     }
     const validate = async () => {
-        const logStructure = await this.invoke.call(this, 'log-structure-load', { id: structure_id });
+        const logStructure = await this.invoke.call(this, 'log-structure-load', { __id__: structure_id });
         await this.invoke.call(this, 'log-structure-upsert', logStructure);
     };
     return { data, validate };
@@ -256,8 +256,8 @@ ActionsRegistry['update-hpff-events'] = async function (data) {
 };
 
 ActionsRegistry['add-structure-to-events'] = async function () {
-    const logTopic = await this.invoke.call(this, 'log-topic-load', { id: 4 });
-    const logStructure = await this.invoke.call(this, 'log-structure-load', { id: 120 });
+    const logTopic = await this.invoke.call(this, 'log-topic-load', { __id__: 4 });
+    const logStructure = await this.invoke.call(this, 'log-structure-load', { __id__: 120 });
     const logEvents = await this.invoke.call(
         this,
         'log-event-list',

@@ -23,7 +23,7 @@ class Base extends ValidationBase {
             LogEvent: 'source_event_id',
         }[this.DataType.name];
         assert(junctionSourceName);
-        const logTopicIds = where.logTopics.map((item) => item.id);
+        const logTopicIds = where.logTopics.map((item) => item.__id__);
         const edges = await this.database.getEdges(
             junctionTableName,
             'target_topic_id',
@@ -55,7 +55,7 @@ class Base extends ValidationBase {
             } else if (fieldName in mapping) {
                 const newFieldName = mapping[fieldName];
                 let value = where[fieldName];
-                value = isItem(value) ? value.id : value;
+                value = isItem(value) ? value.__id__ : value;
                 where[newFieldName] = value;
                 if (fieldName !== newFieldName) {
                     delete where[fieldName];
@@ -98,7 +98,7 @@ class Base extends ValidationBase {
         const dataType = getDataType(this.DataType.name);
         return options.map((option) => ({
             __type__: dataType,
-            id: option.id,
+            __id__: option.id,
             name: option.name,
         })).sort((left, right) => left.name.localeCompare(right.name));
     }

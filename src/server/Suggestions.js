@@ -18,12 +18,12 @@ ActionsRegistry['value-typeahead-index'] = async function (input) {
             return logKey.value;
         }
         if (logKey.type === LogStructure.Key.LOG_TOPIC) {
-            return [logKey.value.id];
+            return [logKey.value.__id__];
         }
         return [logKey.value];
     };
 
-    const where = { logStructure: { id: input.structure_id } };
+    const where = { logStructure: { __id__: input.structure_id } };
     const outputLogEvents = await this.invoke.call(this, 'log-event-list', { where });
     if (!outputLogEvents.length) {
         return null;
@@ -53,7 +53,7 @@ ActionsRegistry['value-typeahead'] = async function (input) {
     const structureIndexData = await this.invoke.call(
         this,
         'value-typeahead-index',
-        { structure_id: input.logStructure.id },
+        { structure_id: input.logStructure.__id__ },
     );
     if (!structureIndexData) return [];
     const keyIndexData = structureIndexData[input.index];

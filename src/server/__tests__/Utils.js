@@ -35,7 +35,7 @@ export default class Utils {
     static async loadData(data) {
         const logModeMap = {};
         await asyncSequence(data.logModes, async (inputLogMode) => {
-            inputLogMode.id = getVirtualID();
+            inputLogMode.__id__ = getVirtualID();
             const outputLogMode = await actions.invoke('log-mode-upsert', inputLogMode);
             logModeMap[outputLogMode.name] = outputLogMode;
         });
@@ -48,7 +48,7 @@ export default class Utils {
             logTopics.push(outputLogTopic);
         });
         await asyncSequence(data.logTopics, async (inputLogTopic) => {
-            inputLogTopic.id = getVirtualID();
+            inputLogTopic.__id__ = getVirtualID();
             inputLogTopic.logMode = logModeMap[inputLogTopic.modeName];
             if (inputLogTopic.parentTopicName) {
                 inputLogTopic.parentLogTopic = logTopicMap[inputLogTopic.parentTopicName];
@@ -72,7 +72,7 @@ export default class Utils {
             logStructureGroupMap[outputLogStructureGroup.name] = outputLogStructureGroup;
         });
         await asyncSequence(data.logStructureGroups, async (inputLogStructureGroup) => {
-            inputLogStructureGroup.id = getVirtualID();
+            inputLogStructureGroup.__id__ = getVirtualID();
             inputLogStructureGroup.logMode = logModeMap[inputLogStructureGroup.modeName];
             const outputLogStructureGroup = await actions.invoke(
                 'log-structure-group-upsert',
@@ -88,7 +88,7 @@ export default class Utils {
         });
         await asyncSequence(data.logStructures, async (inputLogStructure) => {
             inputLogStructure.__type__ = 'log-structure';
-            inputLogStructure.id = getVirtualID();
+            inputLogStructure.__id__ = getVirtualID();
             inputLogStructure.logStructureGroup = logStructureGroupMap[inputLogStructure.groupName];
             delete inputLogStructure.groupName;
             inputLogStructure.details = '';
@@ -96,7 +96,7 @@ export default class Utils {
             if (inputLogStructure.logKeys) {
                 inputLogStructure.logKeys.forEach((logKey, index) => {
                     logKey.__type__ = 'log-structure-key';
-                    logKey.id = index + 1;
+                    logKey.__id__ = index + 1;
                     if (logKey.parentTopicName) {
                         logKey.parentLogTopic = logTopicMap[logKey.parentTopicName];
                         delete logKey.parentTopicName;
@@ -129,7 +129,7 @@ export default class Utils {
         });
 
         await asyncSequence(data.logEvents, async (inputLogEvent) => {
-            inputLogEvent.id = getVirtualID();
+            inputLogEvent.__id__ = getVirtualID();
             inputLogEvent.logMode = logModeMap[inputLogEvent.modeName];
             DateUtils.maybeSubstitute(inputLogEvent, 'date');
             inputLogEvent.title = TextEditorUtils.convertPlainTextToDraftContent(

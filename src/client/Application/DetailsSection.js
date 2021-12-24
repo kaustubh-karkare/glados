@@ -56,7 +56,7 @@ class DetailsSection extends React.Component {
                 } if (item.__type__ in HEADER_MAPPING) {
                     return {
                         name: `${item.__type__}-load`,
-                        args: { id: item.id },
+                        args: { __id__: item.__id__ },
                     };
                 }
                 return null;
@@ -67,7 +67,7 @@ class DetailsSection extends React.Component {
                     oldItem
                     && newItem
                     && oldItem.__type__ === newItem.__type__
-                    && oldItem.id === newItem.id
+                    && oldItem.__id__ === newItem.__id__
                 ) {
                     this.setState((state) => {
                         const { details } = state.item; // copy local details
@@ -79,7 +79,7 @@ class DetailsSection extends React.Component {
                         this.props.logMode
                         && newItem
                         && newItem.logMode
-                        && this.props.logMode.id !== newItem.logMode.id
+                        && this.props.logMode.__id__ !== newItem.logMode.__id__
                     ) {
                         this.props.onChange(null);
                     }

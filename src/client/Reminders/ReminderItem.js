@@ -70,22 +70,22 @@ class ReminderItem extends React.Component {
         }
         const actions = [
             {
-                id: 'done',
+                __id__: 'done',
                 name: 'Mark as Complete',
                 perform: (event) => this.onCompleteReminder(),
             },
             {
-                id: 'dismiss',
+                __id__: 'dismiss',
                 name: 'Dismiss Reminder',
                 perform: (event) => this.onDismissReminder(),
             },
             {
-                id: 'edit',
+                __id__: 'edit',
                 name: 'Edit Structure',
                 perform: (event) => this.onEditButtonClick(),
             },
             {
-                id: 'info',
+                __id__: 'info',
                 name: 'Debug Info',
                 perform: (event) => Coordinator.invoke(
                     'modal-error',
@@ -117,7 +117,7 @@ class ReminderItem extends React.Component {
         const { logStructure } = this.props;
         return (
             <Highlightable
-                key={logStructure.id}
+                key={logStructure.__id__}
                 isHighlighted={this.state.isHighlighted}
                 onChange={(isHighlighted) => this.setState({ isHighlighted })}
             >

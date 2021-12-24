@@ -35,7 +35,7 @@ class LogEvent extends Base {
             logMode,
             date,
             orderingIndex: null,
-            id: getVirtualID(),
+            __id__: getVirtualID(),
             title,
             details,
             logLevel,
@@ -119,7 +119,7 @@ class LogEvent extends Base {
         if (inputLogEvent.logStructure) {
             inputLogEvent.logStructure.logKeys.forEach((logKey) => {
                 if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.value) {
-                    logTopics[logKey.value.id] = logKey.value;
+                    logTopics[logKey.value.__id__] = logKey.value;
                 } else if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
                     logTopics = {
                         ...logTopics,
@@ -157,7 +157,7 @@ class LogEvent extends Base {
             const eventLogMode = inputLogEvent.logMode;
             results.push([
                 '.logStructure.logMode',
-                (groupLogMode && groupLogMode.id) === (eventLogMode && eventLogMode.id),
+                (groupLogMode && groupLogMode.__id__) === (eventLogMode && eventLogMode.__id__),
                 'should match .logMode',
             ]);
 
@@ -223,11 +223,11 @@ class LogEvent extends Base {
         }
         let outputLogMode = null;
         if (logEvent.mode_id) {
-            outputLogMode = await this.invoke.call(this, 'log-mode-load', { id: logEvent.mode_id });
+            outputLogMode = await this.invoke.call(this, 'log-mode-load', { __id__: logEvent.mode_id });
         }
         return {
             __type__: 'log-event',
-            id: logEvent.id,
+            __id__: logEvent.id,
             logMode: outputLogMode,
             date: logEvent.date,
             isComplete: logEvent.is_complete,
@@ -266,7 +266,7 @@ class LogEvent extends Base {
             logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value || null);
         }
         const fields = {
-            mode_id: inputLogEvent.logMode && inputLogEvent.logMode.id,
+            mode_id: inputLogEvent.logMode && inputLogEvent.logMode.__id__,
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
             title: TextEditorUtils.serialize(
@@ -280,7 +280,7 @@ class LogEvent extends Base {
             log_level: inputLogEvent.logLevel,
             is_favorite: inputLogEvent.isFavorite,
             is_complete: inputLogEvent.isComplete,
-            structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.id : null,
+            structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.__id__ : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,
         };
         logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
@@ -293,7 +293,7 @@ class LogEvent extends Base {
             'target_topic_id',
             Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
                 // eslint-disable-next-line no-param-reassign
-                result[targetLogTopic.id] = {};
+                result[targetLogTopic.__id__] = {};
                 return result;
             }, {}),
         );
@@ -315,7 +315,7 @@ class LogEvent extends Base {
             'value-typeahead-index-refresh',
             { structure_id: logEvent.structure_id },
         );
-        return { id: logEvent.id };
+        return { __id__: logEvent.id };
     }
 }
 

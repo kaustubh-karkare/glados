@@ -52,14 +52,14 @@ class TypeaheadOptions {
         ];
         if (this.config.serverSideOptions.length > 1) {
             const seenOptionIds = new Set();
-            // Since option.id is used as a React Array Key, adjust it.
+            // Since option.__id__ is used as a React Array Key, adjust it.
             // Do this only if needed to minimize later adjustment.
             options.forEach((option) => {
-                if (seenOptionIds.has(option.id)) {
-                    option.__original_id__ = option.id;
-                    option.id = `${option.__type__}:${option.id}`;
+                if (seenOptionIds.has(option.__id__)) {
+                    option.__original_id__ = option.__id__;
+                    option.__id__ = `${option.__type__}:${option.__id__}`;
                 } else {
-                    seenOptionIds.add(option.id);
+                    seenOptionIds.add(option.__id__);
                 }
             });
         }
@@ -72,7 +72,7 @@ class TypeaheadOptions {
     async select(option) {
         let adjusted = false;
         if (option.__original_id__) {
-            option.id = option.__original_id__;
+            option.__id__ = option.__original_id__;
             delete option.__original_id__;
             adjusted = true;
         }

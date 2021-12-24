@@ -31,7 +31,7 @@ class TopicRemindersSection extends React.Component {
             return 'Loading ...';
         }
         return logTopicAndDayCounts.map(({ logTopic, dayCount }) => (
-            <SidebarSection.Item key={logTopic.id}>
+            <SidebarSection.Item key={logTopic.__id__}>
                 <Link logTopic={logTopic}>{logTopic.name}</Link>
                 {dayCount ? <span className="ml-1">{`(${dayCount} days)`}</span> : null}
             </SidebarSection.Item>

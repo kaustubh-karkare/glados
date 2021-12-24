@@ -84,7 +84,7 @@ test('test_reminder_with_warning', async () => {
 
 async function checkReminderScore(todayLabel, value, deadline) {
     const actions = Utils.getActions();
-    const logStructure = await actions.invoke('log-structure-load', { id: 1 }, { todayLabel });
+    const logStructure = await actions.invoke('log-structure-load', { __id__: 1 }, { todayLabel });
     const score = await actions.invoke('reminder-score', { logStructure }, { todayLabel });
     expect(score.value).toEqual(value);
     expect(score.deadline).toEqual(deadline);

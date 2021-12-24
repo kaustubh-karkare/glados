@@ -185,7 +185,7 @@ class LogEventEditor extends React.Component {
             return null;
         }
         return logEvent.logStructure.logKeys.map((logKey, index) => (
-            <InputGroup className="my-1" key={logKey.id}>
+            <InputGroup className="my-1" key={logKey.__id__}>
                 <InputGroup.Text>
                     {logKey.name}
                 </InputGroup.Text>

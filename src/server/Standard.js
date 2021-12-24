@@ -23,7 +23,7 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     };
     ActionsRegistry[`${name}-load`] = async function (input) {
         const context = { ...this, DataType };
-        return DataType.load.call(context, input.id);
+        return DataType.load.call(context, input.__id__);
     };
     ActionsRegistry[`${name}-reorder`] = async function (input) {
         const context = { ...this, DataType };
@@ -40,15 +40,15 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         }
         const id = await DataType.save.call(context, input);
         // This informs the client-side DataLoader.
-        this.broadcast(`${name}-load`, { id });
-        this.broadcast(`${name}-list`, { where: { id } });
+        this.broadcast(`${name}-load`, { __id__: id });
+        this.broadcast(`${name}-list`, { where: { __id__: id } });
         return DataType.load.call(context, id);
     };
     ActionsRegistry[`${name}-delete`] = async function (id) {
         const context = { ...this, DataType };
         // This informs the client-side DataLoader.
-        this.broadcast(`${name}-load`, { id });
-        this.broadcast(`${name}-list`, { where: { id } });
+        this.broadcast(`${name}-load`, { __id__: id });
+        this.broadcast(`${name}-list`, { where: { __id__: id } });
         return DataType.delete.call(context, id);
     };
 });

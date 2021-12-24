@@ -13,7 +13,7 @@ ActionsRegistry['latest-log-event'] = async function (input) {
     return this.database.findOne(
         'LogEvent',
         {
-            structure_id: input.logStructure.id,
+            structure_id: input.logStructure.__id__,
             date: { [this.database.Op.ne]: null },
         },
         [['date', 'DESC']],
@@ -59,7 +59,7 @@ ActionsRegistry['reminder-score'] = async function (input) {
     const logEvents = await this.database.findAll(
         'LogEvent',
         {
-            structure_id: logStructure.id,
+            structure_id: logStructure.__id__,
             date: { [this.database.Op.ne]: null },
         },
         [['date', 'DESC']],
@@ -142,7 +142,8 @@ ActionsRegistry['reminder-sidebar'] = async function (input = {}) {
         logStructureGroups.map(async (logStructureGroup) => {
             const logStructures = await filterAsync(
                 periodicLogStructures.filter(
-                    (logStructure) => logStructure.logStructureGroup.id === logStructureGroup.id,
+                    (logStructure) => logStructure.logStructureGroup.__id__
+                        === logStructureGroup.__id__,
                 ),
                 async (logStructure) => this.invoke.call(this, 'reminder-check', { logStructure }),
             );
@@ -205,7 +206,11 @@ ActionsRegistry['topic-reminders'] = async function ({
     logStructureId,
     thresholdDays,
 }) {
-    const logStructure = await this.invoke.call(this, 'log-structure-load', { id: logStructureId });
+    const logStructure = await this.invoke.call(
+        this,
+        'log-structure-load',
+        { __id__: logStructureId },
+    );
     const todayDate = DateUtils.getTodayDate();
     const logTopics = Object.values(
         TextEditorUtils.extractMentions(logStructure.details, 'log-topic'),

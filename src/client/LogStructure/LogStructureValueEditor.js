@@ -28,7 +28,7 @@ class LogStructureValueEditor extends React.Component {
     render() {
         const { logKey } = this.props;
         const disabled = this.props.disabled || !!logKey.template;
-        const uniqueId = `log-structure-value-editor-${logKey.id}`;
+        const uniqueId = `log-structure-value-editor-${logKey.__id__}`;
         let { value } = logKey;
         if (typeof value === 'undefined') {
             value = LogStructure.Key[logKey.type].default;
@@ -65,7 +65,9 @@ class LogStructureValueEditor extends React.Component {
                 />
             );
         } if (logKey.type === LogStructure.Key.LOG_TOPIC) {
-            const parentLogTopicId = logKey.parentLogTopic ? logKey.parentLogTopic.id : undefined;
+            const parentLogTopicId = logKey.parentLogTopic
+                ? logKey.parentLogTopic.__id__
+                : undefined;
             return (
                 <TypeaheadSelector
                     id={uniqueId}

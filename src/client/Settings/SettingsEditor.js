@@ -42,7 +42,7 @@ function renderTopicRow(props) {
             <InputGroup className="my-1">
                 {children.shift()}
                 <TypeaheadSelector
-                    id={`settings-topic-row-${item.id}`}
+                    id={`settings-topic-row-${item.__id__}`}
                     disabled={props.disabled}
                     options={TypeaheadOptions.get(['log-topic'])}
                     value={item.logTopic}
@@ -62,7 +62,7 @@ function renderReminderRow(props) {
             <InputGroup className="my-1">
                 {children.shift()}
                 <TypeaheadSelector
-                    id={`settings-reminder-row-${item.id}`}
+                    id={`settings-reminder-row-${item.__id__}`}
                     disabled={props.disabled}
                     options={TypeaheadOptions.get(['log-structure'])}
                     value={item.logStructure}
@@ -83,7 +83,7 @@ function renderReminderRow(props) {
 function getNextID(items) {
     let nextId = -1;
     // eslint-disable-next-line no-loop-func
-    while (items.some((item) => item.id === nextId)) {
+    while (items.some((item) => item.__id__ === nextId)) {
         nextId -= 1;
     }
     return nextId;
@@ -142,7 +142,7 @@ class SettingsEditor extends React.Component {
                     <a
                         href="#"
                         onClick={() => this.setSetting(key, items.concat({
-                            id: getNextID(items),
+                            __id__: getNextID(items),
                             label: '',
                             timezone: '',
                         }))}
@@ -171,7 +171,7 @@ class SettingsEditor extends React.Component {
                     <a
                         href="#"
                         onClick={() => this.setSetting(key, items.concat({
-                            id: getNextID(items),
+                            __id__: getNextID(items),
                             logTopic: null,
                         }))}
                     >
@@ -199,7 +199,7 @@ class SettingsEditor extends React.Component {
                     <a
                         href="#"
                         onClick={() => this.setSetting(key, items.concat({
-                            id: getNextID(items),
+                            __id__: getNextID(items),
                             logStructure: null,
                             thresholdDays: '',
                         }))}

@@ -170,7 +170,7 @@ class Applicaton extends React.Component {
                     {
                         (settings.timezones || []).map((item, index) => (
                             <TimeSection
-                                key={item.id}
+                                key={item.__id__}
                                 label={item.label}
                                 timezone={item.timezone}
                             />
@@ -214,8 +214,8 @@ class Applicaton extends React.Component {
                 {(settings.topic_sections || [])
                     .map((item) => (
                         <TopicSection
-                            key={item.id}
-                            logTopicId={item.logTopic.id}
+                            key={item.__id__}
+                            logTopicId={item.logTopic.__id__}
                         />
                     ))}
                 <FavoritesSection
@@ -242,8 +242,8 @@ class Applicaton extends React.Component {
                 {(settings.reminder_sections || [])
                     .map((item) => (
                         <TopicRemindersSection
-                            key={item.id}
-                            logStructureId={item.logStructure.id}
+                            key={item.__id__}
+                            logStructureId={item.logStructure.__id__}
                             thresholdDays={parseInt(item.thresholdDays, 10)}
                         />
                     ))}

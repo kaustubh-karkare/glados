@@ -16,8 +16,8 @@ class LogModeSearch extends React.Component {
         let defaultDisplay = true;
         props.search.forEach((item) => {
             if (item.__type__ === 'log-mode') {
-                if (!where.id) where.id = [];
-                where.id.push(item.id);
+                if (!where.__id__) where.__id__ = [];
+                where.__id__.push(item.__id__);
                 defaultDisplay = false;
             } else {
                 assert(false, item);

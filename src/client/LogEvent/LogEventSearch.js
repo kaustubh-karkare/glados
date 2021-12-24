@@ -13,7 +13,7 @@ import LogEventOptions from './LogEventOptions';
 
 const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
-    id: getVirtualID(),
+    __id__: getVirtualID(),
     name: 'Incomplete Events',
     apply: (_item, where, extra) => {
         where.isComplete = false;
@@ -22,7 +22,7 @@ const INCOMPLETE_ITEM = {
 };
 const ALL_EVENTS_ITEM = {
     __type__: 'all-events',
-    id: getVirtualID(),
+    __id__: getVirtualID(),
     name: 'All Events',
     apply: (_item, where, _extra) => {
         delete where.logLevel;
@@ -32,7 +32,7 @@ const ALL_EVENTS_ITEM = {
 // Extra Actions for Events
 
 const COMPLETE_ACTION = {
-    id: 'complete',
+    __id__: 'complete',
     name: 'Complete',
     perform: (logEvent) => {
         window.api.send('log-event-upsert', {
@@ -44,7 +44,7 @@ const COMPLETE_ACTION = {
 };
 
 const DUPLICATE_ACTION = {
-    id: 'duplicate',
+    __id__: 'duplicate',
     name: 'Duplicate',
     perform: (logEvent) => {
         Coordinator.invoke('modal-editor', {

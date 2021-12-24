@@ -14,17 +14,17 @@ const EnumOptions = PropTypes.arrayOf(
 
 const Item = PropTypes.shape({
     __type__: PropTypes.string.isRequired,
-    id: PropTypes.number.isRequired,
+    __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
 });
 
 const LogMode = PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
 });
 
 const LogTopic = PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
 });
 
@@ -36,18 +36,18 @@ const LogStructureKey = PropTypes.shape({
 });
 
 const LogStructureGroup = PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
 });
 
 const LogStructure = PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     logKeys: PropTypes.arrayOf(LogStructureKey.isRequired).isRequired,
 });
 
 const LogEvent = PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    __id__: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     title: PropTypes.object,
     logStructure: LogStructure,

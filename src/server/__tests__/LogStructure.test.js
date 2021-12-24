@@ -39,10 +39,10 @@ test('test_key_updates', async () => {
 
     const actions = Utils.getActions();
 
-    const oldLogEvent = await actions.invoke('log-event-load', { id: 1 });
+    const oldLogEvent = await actions.invoke('log-event-load', { __id__: 1 });
     const oldValues = oldLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
 
-    const logStructure = await actions.invoke('log-structure-load', { id: 1 });
+    const logStructure = await actions.invoke('log-structure-load', { __id__: 1 });
     const newLogKey = {
         ...LogStructure.createNewKey(),
         name: 'Worthwhile?',
@@ -56,7 +56,7 @@ test('test_key_updates', async () => {
     ];
     await actions.invoke('log-structure-upsert', logStructure);
 
-    const newLogEvent = await actions.invoke('log-event-load', { id: 1 });
+    const newLogEvent = await actions.invoke('log-event-load', { __id__: 1 });
     const newValues = newLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
     expect(newValues[0]).toEqual(oldValues[1]);
     expect(newValues[1]).toEqual(oldValues[0]);
@@ -221,8 +221,8 @@ test('test_structure_with_topic', async () => {
 
     const actions = Utils.getActions();
     await expect(() => actions.invoke('log-topic-delete', 2)).rejects.toThrow();
-    const logEvent = await actions.invoke('log-event-load', { id: 1 });
-    logEvent.logStructure.logKeys[0].value = await actions.invoke('log-topic-load', { id: 3 });
+    const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
+    logEvent.logStructure.logKeys[0].value = await actions.invoke('log-topic-load', { __id__: 3 });
     await actions.invoke('log-event-upsert', logEvent);
     await actions.invoke('log-topic-delete', 2);
 });

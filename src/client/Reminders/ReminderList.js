@@ -10,7 +10,7 @@ class ReminderList extends React.Component {
         }
         return this.props.logStructures.map((logStructure) => (
             <ReminderItem
-                key={logStructure.id}
+                key={logStructure.__id__}
                 logStructure={logStructure}
             />
         ));

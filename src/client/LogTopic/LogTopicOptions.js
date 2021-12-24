@@ -5,7 +5,7 @@ import LogTopicEditor from './LogTopicEditor';
 
 const CREATE_ITEM = {
     __type__: 'log-topic',
-    id: getVirtualID(),
+    __id__: getVirtualID(),
     name: 'Create New Topic ...',
     getItem(_option, parentLogTopic) {
         return new Promise((resolve) => {

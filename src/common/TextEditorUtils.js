@@ -31,7 +31,7 @@ const draftToMarkdownOptions = {
                 return '[';
             },
             close(entity) {
-                return `](${MARKDOWN_MENTION_PREFIX}:${entity.data.mention.__type__}:${entity.data.mention.id})`;
+                return `](${MARKDOWN_MENTION_PREFIX}:${entity.data.mention.__type__}:${entity.data.mention.__id__})`;
             },
         },
     },
@@ -46,7 +46,7 @@ function postProcessDraftRawContent(rawContent) {
                 entity.type = 'mention';
                 entity.mutability = 'SEGMENTED';
                 entity.data = {
-                    mention: { __type__: parts[1], id: parseInt(parts[2], 10) },
+                    mention: { __type__: parts[1], __id__: parseInt(parts[2], 10) },
                 };
             }
         }
@@ -204,7 +204,7 @@ class TextEditorUtils {
                 ii += 1;
                 const index = parseInt(value[ii], 10);
                 const item = symbolToItems[symbol][index];
-                markdown += `[${item.name}](mention:${item.__type__}:${item.id})`;
+                markdown += `[${item.name}](mention:${item.__type__}:${item.__id__})`;
             } else {
                 markdown += value[ii];
             }
@@ -224,7 +224,7 @@ class TextEditorUtils {
         Object.entries(symbolToItems).forEach(([symbol, items]) => {
             items.forEach((item, index) => {
                 if (item) {
-                    const key = `${item.__type__}:${item.id}`;
+                    const key = `${item.__type__}:${item.__id__}`;
                     if (!(key in mapping)) {
                         mapping[key] = symbol + index;
                     }
@@ -257,7 +257,7 @@ class TextEditorUtils {
             .forEach((entity) => {
                 const item = entity.data[DRAFTJS_MENTION_PLUGIN_NAME];
                 if (item.__type__ === type) {
-                    result[item.id] = item;
+                    result[item.__id__] = item;
                 }
             });
         return result;
@@ -274,7 +274,7 @@ class TextEditorUtils {
 
         const keyToIndex = {};
         oldItems.forEach((oldItem, index) => {
-            const key = `${oldItem.__type__}:${oldItem.id}`;
+            const key = `${oldItem.__type__}:${oldItem.__id__}`;
             keyToIndex[key] = index;
         });
 
@@ -293,13 +293,13 @@ class TextEditorUtils {
                 return false;
             }, (start, end) => {
                 const prevItem = currentEntity.getData()[DRAFTJS_MENTION_PLUGIN_NAME];
-                const key = `${prevItem.__type__}:${prevItem.id}`;
+                const key = `${prevItem.__type__}:${prevItem.__id__}`;
                 if (key in keyToIndex) {
                     let nextItem = newItems[keyToIndex[key]];
                     if (typeof nextItem === 'object') {
                         if (
                             nextItem.__type__
-                            && prevItem.id === nextItem.id
+                            && prevItem.__id__ === nextItem.__id__
                             && prevItem.name === nextItem.name
                         ) {
                             return; // no change

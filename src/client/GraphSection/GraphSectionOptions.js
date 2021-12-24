@@ -36,13 +36,13 @@ const GRANULARITY_TYPE = 'graph-granularity';
 const GRANULARITY_PREFIX = 'Granularity: ';
 const GRANULARITY_OPTIONS = Granularity.Options.map((option, index) => ({
     __type__: GRANULARITY_TYPE,
-    id: -index - 1,
+    __id__: -index - 1,
     name: GRANULARITY_PREFIX + option.label,
 }));
 
 const GRANULARITY_MOCK_OPTION = {
     __type__: GRANULARITY_TYPE,
-    id: 0,
+    __id__: 0,
     apply: (item, _where, extra) => {
         extra.granularity = item.name.substr(GRANULARITY_PREFIX.length).toLowerCase();
     },
