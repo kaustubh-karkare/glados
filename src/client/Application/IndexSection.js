@@ -6,7 +6,7 @@ import { DateRangePicker, ScrollableSection, TypeaheadSelector } from '../Common
 function IndexSection(props) {
     const { Component } = props;
     const typeaheadOptions = Component.getTypeaheadOptions();
-    const filteredSearch = typeaheadOptions.filter(props.search);
+    const filteredSearch = typeaheadOptions.filterToKnownTypes(props.search);
     if (filteredSearch.length !== props.search.length) {
         window.setTimeout(props.onChange.bind(filteredSearch), 0);
     }

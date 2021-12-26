@@ -44,7 +44,7 @@ function renderTopicRow(props) {
                 <TypeaheadSelector
                     id={`settings-topic-row-${item.__id__}`}
                     disabled={props.disabled}
-                    options={TypeaheadOptions.get(['log-topic'])}
+                    options={TypeaheadOptions.getFromTypes(['log-topic'])}
                     value={item.logTopic}
                     onChange={(logTopic) => props.onChange({ ...item, logTopic })}
                 />
@@ -64,7 +64,7 @@ function renderReminderRow(props) {
                 <TypeaheadSelector
                     id={`settings-reminder-row-${item.__id__}`}
                     disabled={props.disabled}
-                    options={TypeaheadOptions.get(['log-structure'])}
+                    options={TypeaheadOptions.getFromTypes(['log-structure'])}
                     value={item.logStructure}
                     onChange={(logStructure) => props.onChange({ ...item, logStructure })}
                 />

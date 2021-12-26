@@ -110,7 +110,7 @@ class LogEventEditor extends React.Component {
                 </InputGroup.Text>
                 <TextEditor
                     value={logEvent.details}
-                    serverSideTypes={['log-topic']}
+                    options={TypeaheadOptions.getFromTypes(['log-topic'])}
                     disabled={this.props.disabled || !allowEventDetails}
                     onChange={(details) => this.updateLogEvent('details', details)}
                     ref={this.detailsRef}

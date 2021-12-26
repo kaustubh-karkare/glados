@@ -1,14 +1,10 @@
 import assert from 'assert';
 
 class TypeaheadOptions {
-    static get(instanceOrData) {
-        if (Array.isArray(instanceOrData)) {
-            return new TypeaheadOptions({
-                serverSideOptions: instanceOrData.map((name) => ({ name })),
-            });
-        }
-        assert(instanceOrData instanceof TypeaheadOptions);
-        return instanceOrData;
+    static getFromTypes(names) {
+        return new TypeaheadOptions({
+            serverSideOptions: names.map((name) => ({ name })),
+        });
     }
 
     constructor(config) {
@@ -25,30 +21,50 @@ class TypeaheadOptions {
         if (!config.computedOptionTypes) {
             config.computedOptionTypes = [];
         }
+        if (!config.allowMultipleItems) {
+            config.allowMultipleItems = {};
+            config.allowMultipleItems['log-topic'] = true;
+        }
         this.config = config;
     }
 
-    async search(query) {
+    async search(query, existingItems) {
+        const skipTypes = {};
+        if (existingItems) {
+            // When existing items are provided, we can check to see which types
+            // have already been selected, and exclude them from the results.
+            existingItems.forEach((item) => {
+                if (!this.config.allowMultipleItems[item.__type__]) {
+                    skipTypes[item.__type__] = true;
+                }
+            });
+        }
         // Server-side filtering invokes case insensitive LIKE `${query}%`.
         let options = await Promise.all(
-            this.config.serverSideOptions.map((serverSideOption) => window.api.send(
-                `${serverSideOption.name}-typeahead`,
-                { query, where: serverSideOption.where },
-            )),
+            this.config.serverSideOptions
+                .filter((item) => !skipTypes[item.name])
+                .map((item) => window.api.send(
+                    `${item.name}-typeahead`,
+                    { query, where: item.where },
+                )),
         );
         options = options.flat();
 
-        const condition = (item) => item.name.toLowerCase().startsWith(query.toLowerCase());
+        const doesMatchQuery = (item) => item.name.toLowerCase().startsWith(query.toLowerCase());
         // Move up items that start with the query.
         options = options.sort((left, right) => {
-            const leftValue = (condition(left) ? 1 : 0);
-            const rightValue = (condition(right) ? 1 : 0);
+            const leftValue = (doesMatchQuery(left) ? 1 : 0);
+            const rightValue = (doesMatchQuery(right) ? 1 : 0);
             return leftValue - rightValue;
         });
         options = [
-            ...this.config.prefixOptions.filter(condition),
+            ...this.config.prefixOptions
+                .filter((item) => !skipTypes[item.__type__])
+                .filter(doesMatchQuery),
             ...options,
-            ...this.config.suffixOptions.filter(condition),
+            ...this.config.suffixOptions
+                .filter((item) => !skipTypes[item.__type__])
+                .filter(doesMatchQuery),
         ];
         if (this.config.serverSideOptions.length > 1) {
             const seenOptionIds = new Set();
@@ -88,7 +104,9 @@ class TypeaheadOptions {
         return adjusted ? option : undefined;
     }
 
-    filter(items) {
+    // This method is used while switching between different tabs,
+    // in an attempt to retain as many search filters as possible.
+    filterToKnownTypes(items) {
         const knownTypes = new Set([
             ...this.config.serverSideOptions.map((option) => option.name),
             ...this.config.prefixOptions.map((option) => option.__type__),

@@ -101,7 +101,7 @@ class TextEditor extends React.Component {
     }
 
     onSearchChange({ value: query }) {
-        TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
+        this.props.options
             .search(query)
             .then((suggestions) => this.setState(
                 { suggestions },
@@ -110,7 +110,7 @@ class TextEditor extends React.Component {
     }
 
     onAddMention(option) {
-        TypeaheadOptions.get(this.props.options || this.props.serverSideTypes)
+        this.props.options
             .select(option)
             .then((result) => {
                 if (typeof result === 'undefined') return;
@@ -216,7 +216,6 @@ TextEditor.propTypes = {
     isSingleLine: PropTypes.bool,
     onSpecialKeys: PropTypes.func,
 
-    serverSideTypes: PropTypes.arrayOf(PropTypes.string.isRequired),
     options: PropTypes.instanceOf(TypeaheadOptions),
 };
 

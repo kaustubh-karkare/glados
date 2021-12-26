@@ -3,8 +3,8 @@ import { TypeaheadOptions } from '../Common';
 import { getVirtualID } from '../../data';
 
 const NO_STRUCTURE_ITEM = {
-    __type__: 'no-structure',
-    __id__: getVirtualID(),
+    __type__: 'log-structure',
+    __id__: 0,
     name: 'No Structure',
 };
 
@@ -44,8 +44,9 @@ class LogEventOptions {
     static getTypeToActionMap(extraOptions) {
         const result = {
             'log-structure': (item, where, extra) => {
-                assert(!where.logStructure);
-                where.logStructure = item;
+                // This also handles NO_STRUCTURE_ITEM.
+                assert(!Object.prototype.hasOwnProperty.call(where, 'logStructure'));
+                where.logStructure = item.__id__ ? item : null;
                 extra.searchView = true;
             },
             'log-topic': (item, where, extra) => {
@@ -53,11 +54,6 @@ class LogEventOptions {
                     where.logTopics = [];
                 }
                 where.logTopics.push(item);
-                extra.searchView = true;
-            },
-            [NO_STRUCTURE_ITEM.__type__]: (_item, where, extra) => {
-                assert(!where.logStructure);
-                where.logStructure = null;
                 extra.searchView = true;
             },
             [EVENT_TITLE_ITEM_TYPE]: (item, where, extra) => {

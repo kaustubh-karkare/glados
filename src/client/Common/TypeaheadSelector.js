@@ -22,15 +22,21 @@ class TypeaheadSelector extends React.Component {
 
     onSearch(query) {
         this.setState({ isLoading: true });
-        this.getTypeaheadOptions()
-            .search(query)
+        let existingItems = [];
+        if (this.props.multiple) {
+            existingItems = this.props.value;
+        } else {
+            existingItems = (this.props.value ? [this.props.value] : []);
+        }
+        this.props.options
+            .search(query, existingItems)
             .then((options) => this.setState({ isLoading: false, options }, this.forceUpdate));
     }
 
     async onChange(selected) {
         if (selected.length) {
             const index = selected.length - 1;
-            const result = await this.getTypeaheadOptions().select(selected[index]);
+            const result = await this.props.options.select(selected[index]);
             if (result) {
                 selected[index] = result;
             } else if (result === null) {
@@ -42,12 +48,6 @@ class TypeaheadSelector extends React.Component {
         } else {
             this.props.onChange(selected[0] || null);
         }
-    }
-
-    getTypeaheadOptions() {
-        return TypeaheadOptions.get(
-            this.props.options || this.props.serverSideTypes,
-        );
     }
 
     focus() {
@@ -109,8 +109,7 @@ class TypeaheadSelector extends React.Component {
 TypeaheadSelector.propTypes = {
     id: PropTypes.string.isRequired,
     multiple: PropTypes.bool,
-    serverSideTypes: PropTypes.arrayOf(PropTypes.string.isRequired),
-    options: PropTypes.instanceOf(TypeaheadOptions),
+    options: PropTypes.instanceOf(TypeaheadOptions).isRequired,
 
     value: PropTypes.oneOfType([
         // eslint-disable-next-line react/no-typos
