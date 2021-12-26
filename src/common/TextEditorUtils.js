@@ -117,6 +117,17 @@ class TextEditorUtils {
                 postProcessDraftRawContent(value);
             }
             if (value) {
+                Object.values(value.entityMap).forEach((entity) => {
+                    if (entity.type === DRAFTJS_MENTION_ENTITY_TYPE) {
+                        // Do not save unnecessary fields.
+                        const original = entity.data[DRAFTJS_MENTION_PLUGIN_NAME];
+                        entity.data[DRAFTJS_MENTION_PLUGIN_NAME] = {
+                            __type__: original.__type__,
+                            __id__: original.__id__,
+                            name: original.name,
+                        };
+                    }
+                });
                 return StorageType.DRAFTJS + JSON.stringify(value);
             }
             return '';

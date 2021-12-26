@@ -137,6 +137,15 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Explore Graphs');
 
+        await app.wait(2000);
+
+        const indexSection = await app.getIndexSection();
+        const typeaheadSelector = await indexSection.getTypeaheadSelector();
+        await typeaheadSelector.typeSlowly('Gr');
+        await typeaheadSelector.pickSuggestion('Granularity: Day');
+
+        await app.wait(2000);
+
         const detailsSection = await app.getDetailsSection(0);
         await detailsSection.typeSlowly("The 'Event Count' graph is an indicator of your consistency.");
         await detailsSection.sendKeys('ENTER');

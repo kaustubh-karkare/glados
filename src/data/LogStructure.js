@@ -435,9 +435,13 @@ class LogStructure extends Base {
     static async loadKey(rawLogKey, index) {
         let parentLogTopic = null;
         if (rawLogKey.parent_topic_id) {
-            parentLogTopic = await this.invoke.call(this, 'log-topic-load', {
-                __id__: rawLogKey.parent_topic_id,
-            });
+            // Normally, we would use "log-topic-load" here, but it does a lot of extra work.
+            const logTopic = await this.database.findByPk('LogTopic', rawLogKey.parent_topic_id);
+            parentLogTopic = {
+                __type__: 'log-topic',
+                __id__: logTopic.id,
+                name: logTopic.name,
+            };
         }
         return {
             __type__: 'log-structure-key',

@@ -50,7 +50,7 @@ const GRANULARITY_MOCK_OPTION = {
 
 class GraphSectionOptions {
     static get() {
-        return LogEventOptions.get(null, GRANULARITY_OPTIONS);
+        return LogEventOptions.get(GRANULARITY_OPTIONS);
     }
 
     static extractData(items) {

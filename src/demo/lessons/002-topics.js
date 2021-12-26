@@ -9,11 +9,11 @@ export default async (app) => {
         await adder.typeSlowly('Let us now create some topics.');
         await adder.sendKeys('ENTER');
         await app.waitUntil(async () => await bulletList.getItemCount() === 1);
-
-        await app.switchToTab('Manage Topics');
     }
 
     if (true) {
+        await app.switchToTab('Manage Topics');
+
         const bulletList0 = await app.getBulletList(0);
         await app.performCreateNew(bulletList0);
         await app.performInputName('Personal Projects');
@@ -40,11 +40,11 @@ export default async (app) => {
         await app.performCreateNew(bulletList2);
         await app.performInputName('Sayee Basole');
         await app.waitUntil(async () => await bulletList2.getItemCount() === 1);
-
-        await app.switchToTab('Manage Events');
     }
 
     if (true) {
+        await app.switchToTab('Manage Events');
+
         const bulletList = await app.getBulletList(0);
         const adder = await bulletList.getAdder();
 

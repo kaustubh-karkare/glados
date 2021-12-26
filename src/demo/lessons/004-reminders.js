@@ -9,11 +9,11 @@ export default async (app) => {
         await adder.typeSlowly('You can add "structure" to your day using reminders.');
         await adder.sendKeys('ENTER');
         await app.waitUntil(async () => await bulletList.getItemCount() === 1);
-
-        await app.switchToTab('Manage Structures');
     }
 
     if (true) {
+        await app.switchToTab('Manage Structures');
+
         const bulletList0 = await app.getBulletList(0);
         await app.performCreateNew(bulletList0);
         await app.performInputName('Daily Routine');

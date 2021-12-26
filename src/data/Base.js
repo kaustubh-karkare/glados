@@ -66,6 +66,8 @@ class Base extends ValidationBase {
         });
     }
 
+    static trigger(item) {}
+
     static async list(where, limit) {
         const order = [['ordering_index', 'DESC']];
         if (this.DataType.name === 'LogEvent') {

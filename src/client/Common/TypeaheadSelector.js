@@ -71,7 +71,7 @@ class TypeaheadSelector extends React.Component {
     render() {
         const commonProps = {
             ...this.state,
-            __id__: this.props.id,
+            id: this.props.id,
             labelKey: 'name',
             minLength: 0,
             onFocus: () => this.onSearch(this.state.text),

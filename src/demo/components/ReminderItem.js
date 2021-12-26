@@ -8,7 +8,8 @@ export default class ReminderItem extends BaseWrapper {
     }
 
     async pickMenuItem(label) {
-        const rightElement = await this.element.findElement(By.xpath(".//span[contains(@class, 'float-right')]"));
+        await this.moveTo();
+        const rightElement = await this.element.findElement(By.xpath(".//div[contains(@class, 'icon')]"));
         await this.moveTo(rightElement);
         await this.wait();
         await this.webdriver.wait(async () => (await this.element.findElements(By.className('dropdown-item'))).length > 0);

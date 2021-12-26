@@ -52,7 +52,6 @@ class LogTopicEditor extends React.Component {
                 </InputGroup.Text>
                 <TextInput
                     allowUpdate
-                    dataType="log-topic"
                     value={this.props.logTopic.name}
                     disabled={this.props.disabled}
                     onChange={(name) => this.updateLogTopic('name', name)}

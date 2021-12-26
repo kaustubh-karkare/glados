@@ -123,10 +123,12 @@ class DetailsSection extends React.Component {
             return;
         }
         const { item } = this.state;
-        window.api.send(`${item.__type__}-upsert`, item)
-            .then((newItem) => this.setState({
-                isDirty: !TextEditorUtils.equals(item.details, newItem.details),
-            }));
+        if (item) {
+            window.api.send(`${item.__type__}-upsert`, item)
+                .then((newItem) => this.setState({
+                    isDirty: !TextEditorUtils.equals(item.details, newItem.details),
+                }));
+        }
     }
 
     renderPrefixButtons(item) {
