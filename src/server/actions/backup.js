@@ -6,9 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import toposort from 'toposort';
 
-// import TextEditorUtils from '../common/TextEditorUtils';
-import { asyncSequence, callbackToPromise } from '../data';
-import ActionsRegistry from './ActionsRegistry';
+import { asyncSequence, callbackToPromise } from '../../data';
 
 function getDateAndTime() {
     const date = new Date();
@@ -43,6 +41,8 @@ function parseFileName(filename) {
 }
 
 // Intermediate Operations.
+
+const ActionsRegistry = {};
 
 ActionsRegistry['backup-file-load'] = async function ({ filename }) {
     const filedata = await callbackToPromise(
@@ -204,3 +204,5 @@ ActionsRegistry['database-clear'] = async function () {
         }
     });
 };
+
+export default ActionsRegistry;

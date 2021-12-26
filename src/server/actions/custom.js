@@ -7,11 +7,12 @@
 
 import assert from 'assert';
 
-import { asyncSequence, getPartialItem } from '../data';
-import ActionsRegistry from './ActionsRegistry';
-import TextEditorUtils from '../common/TextEditorUtils';
+import { asyncSequence, getPartialItem } from '../../data';
+import TextEditorUtils from '../../common/TextEditorUtils';
 
-ActionsRegistry.consistency = async function () {
+const ActionsRegistry = {};
+
+ActionsRegistry['check-consistency'] = async function () {
     const results = [];
     // These items only contain the __type__, __id__ & name.
     const logTopicItems = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
@@ -286,3 +287,5 @@ ActionsRegistry['add-structure-to-events'] = async function () {
         console.info('New:', newTitleText);
     }));
 };
+
+export default ActionsRegistry;

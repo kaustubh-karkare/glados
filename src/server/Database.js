@@ -5,7 +5,7 @@ import { isRealItem } from '../data';
 
 const Sequelize = require('sequelize');
 
-class Database {
+export default class {
     constructor(config) {
         this.sequelize = new Sequelize(config);
         const nameAndModels = defineModels(this.sequelize);
@@ -192,5 +192,3 @@ class Database {
         return deletedEdges;
     }
 }
-
-export default Database;

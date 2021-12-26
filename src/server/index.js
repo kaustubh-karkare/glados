@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
 import '../common/polyfill';
-import Database from './Database';
-import Actions from './Actions';
+import Database from './database';
+import Actions from './actions';
 import SocketRPC from '../common/SocketRPC';
 
 const express = require('express');

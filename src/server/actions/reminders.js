@@ -4,10 +4,11 @@ import assert from 'assert';
 import {
     addDays, compareAsc, differenceInCalendarDays, subDays,
 } from 'date-fns';
-import { LogStructure, filterAsync } from '../data';
-import ActionsRegistry from './ActionsRegistry';
-import DateUtils from '../common/DateUtils';
-import TextEditorUtils from '../common/TextEditorUtils';
+import { LogStructure, filterAsync } from '../../data';
+import DateUtils from '../../common/DateUtils';
+import TextEditorUtils from '../../common/TextEditorUtils';
+
+const ActionsRegistry = {};
 
 ActionsRegistry['latest-log-event'] = async function (input) {
     return this.database.findOne(
@@ -237,3 +238,5 @@ ActionsRegistry['topic-reminders'] = async function ({
     }));
     return { logStructure, logTopicAndDayCounts: logTopicAndDayCounts.filter((item) => item) };
 };
+
+export default ActionsRegistry;

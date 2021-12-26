@@ -1,6 +1,6 @@
 /* eslint-disable func-names */
 
-import ActionsRegistry from './ActionsRegistry';
+const ActionsRegistry = {};
 
 ActionsRegistry['settings-get'] = async function () {
     const result = {};
@@ -28,3 +28,5 @@ ActionsRegistry['settings-set'] = async function (input) {
     }));
     this.broadcast('settings-get');
 };
+
+export default ActionsRegistry;

@@ -8,7 +8,7 @@
     "build": "webpack --config ./config/webpack.config.js",
     "server": "node ./dist/server.js",
     "demo": "node ./dist/demo.js",
-    "dev-server": "nodemon --watch node ./dist/server.js --exec node ./dist/server.js",
+    "dev-server": "nodemon --watch ./dist/server.js --exec node ./dist/server.js",
     "database-reset": "yarn run server -a database-reset",
     "backup-save": "yarn run server -a backup-save",
     "backup-load": "yarn run server -a backup-load",

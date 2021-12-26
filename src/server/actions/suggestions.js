@@ -1,10 +1,11 @@
 /* eslint-disable func-names */
 
 import assert from 'assert';
-import ActionsRegistry, { enableCache } from './ActionsRegistry';
-import { LogStructure } from '../data';
+import { LogStructure } from '../../data';
 
-ActionsRegistry['value-typeahead-index'] = async function (input) {
+const ActionsRegistry = {};
+
+ActionsRegistry['value-typeahead-index-$cached'] = async function (input) {
     const getOrDefault = (item, key, defaultValue) => {
         if (!(key in item)) item[key] = defaultValue;
         return item[key];
@@ -47,8 +48,6 @@ ActionsRegistry['value-typeahead-index'] = async function (input) {
     return structureIndexData;
 };
 
-enableCache('value-typeahead-index');
-
 ActionsRegistry['value-typeahead'] = async function (input) {
     const structureIndexData = await this.invoke.call(
         this,
@@ -60,3 +59,5 @@ ActionsRegistry['value-typeahead'] = async function (input) {
     if (!keyIndexData) return [];
     return keyIndexData.values.filter((value) => value.startsWith(input.query));
 };
+
+export default ActionsRegistry;

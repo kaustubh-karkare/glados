@@ -1,7 +1,8 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping } from '../data';
-import ActionsRegistry from './ActionsRegistry';
+import { getDataTypeMapping } from '../../data';
+
+const ActionsRegistry = {};
 
 Object.entries(getDataTypeMapping()).forEach((pair) => {
     const [name, DataType] = pair;
@@ -52,3 +53,5 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         return DataType.delete.call(context, id);
     };
 });
+
+export default ActionsRegistry;
