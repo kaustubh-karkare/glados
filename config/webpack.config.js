@@ -80,6 +80,7 @@ function getClientSideBundle(entryPoint, outputFileName) {
             }),
             new HtmlWebpackPlugin({
                 template: fromProjectRoot('src/client/index.html'),
+                favicon: 'src/client/index.ico',
             }),
         ],
         stats: getStats(),

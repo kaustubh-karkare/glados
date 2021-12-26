@@ -1,9 +1,10 @@
 /* eslint-disable no-constant-condition */
 
 export default async (app) => {
+    const indexSection = await app.getIndexSection();
+
     if (true) {
-        await app.waitUntil(async () => !!(await app.getBulletList(0)));
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('This is an event.');
@@ -16,7 +17,7 @@ export default async (app) => {
     }
 
     if (true) {
-        const bulletList = await app.getBulletList(1);
+        const bulletList = await indexSection.getBulletList(1);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('Or what you plan to do.');
@@ -28,7 +29,7 @@ export default async (app) => {
     }
 
     if (true) {
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('Events can be reordered.');
@@ -44,7 +45,7 @@ export default async (app) => {
     }
 
     if (true) {
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         const count = await bulletList.getItemCount();

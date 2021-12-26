@@ -1,6 +1,5 @@
 import { By } from 'selenium-webdriver';
 import BaseWrapper from './BaseWrapper';
-import BulletList from './BulletList';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import ModalDialog from './ModalDialog';
@@ -23,16 +22,13 @@ export default class Application extends BaseWrapper {
         return SidebarSection.get(this.webdriver, ...args);
     }
 
-    async getIndexSection(...args) {
-        return IndexSection.get(this.webdriver, ...args);
+    async getIndexSection() {
+        await this.waitUntil(async () => IndexSection.get(this.webdriver));
+        return IndexSection.get(this.webdriver);
     }
 
     async getDetailsSection(...args) {
         return DetailsSection.get(this.webdriver, ...args);
-    }
-
-    async getBulletList(...args) {
-        return BulletList.get(this.webdriver, ...args);
     }
 
     async getModalDialog(...args) {

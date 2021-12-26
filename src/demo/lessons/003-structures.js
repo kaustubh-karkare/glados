@@ -1,9 +1,10 @@
 /* eslint-disable no-constant-condition */
 
 export default async (app) => {
+    const indexSection = await app.getIndexSection();
+
     if (true) {
-        await app.waitUntil(async () => !!(await app.getBulletList(0)));
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('You can add structured data to your events.');
@@ -14,7 +15,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Structures');
 
-        const bulletList0 = await app.getBulletList(0);
+        const bulletList0 = await indexSection.getBulletList(0);
         await app.performCreateNew(bulletList0);
         await app.performInputName('Exercise');
 
@@ -51,7 +52,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Events');
 
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('@R');
@@ -68,7 +69,7 @@ export default async (app) => {
     }
 
     if (true) {
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('You can derive additional information from structured data.');
@@ -104,7 +105,7 @@ export default async (app) => {
     }
 
     if (true) {
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const bulletItem = await bulletList.getItem(1);
 
         await bulletItem.perform('Edit');

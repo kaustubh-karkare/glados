@@ -1,9 +1,10 @@
 /* eslint-disable no-constant-condition */
 
 export default async (app) => {
+    const indexSection = await app.getIndexSection();
+
     if (true) {
-        await app.waitUntil(async () => !!(await app.getBulletList(0)));
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('You can view graphs of your events.');
@@ -18,7 +19,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Structures');
 
-        const bulletList0 = await app.getBulletList(0);
+        const bulletList0 = await indexSection.getBulletList(0);
         await app.performCreateNew(bulletList0);
         await app.performInputName('Exercise');
 
@@ -52,7 +53,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Events');
 
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('@P');
@@ -65,7 +66,6 @@ export default async (app) => {
             await modalDialog.performSave();
         });
 
-        const indexSection = await app.getIndexSection();
         const typeaheadSelector = await indexSection.getTypeaheadSelector();
         await typeaheadSelector.typeSlowly('P');
         await typeaheadSelector.pickSuggestion('Push Ups');
@@ -81,7 +81,7 @@ export default async (app) => {
         await detailsSection.typeSlowly('Using RPCs to create similar events.');
         await detailsSection.sendKeys('ENTER');
 
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const bulletItem = await bulletList.getItem(0);
         await bulletItem.click();
         await bulletItem.performAction('Debug Info');
@@ -139,7 +139,6 @@ export default async (app) => {
 
         await app.wait(2000);
 
-        const indexSection = await app.getIndexSection();
         const typeaheadSelector = await indexSection.getTypeaheadSelector();
         await typeaheadSelector.typeSlowly('Gr');
         await typeaheadSelector.pickSuggestion('Granularity: Day');

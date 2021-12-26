@@ -1,9 +1,10 @@
 /* eslint-disable no-constant-condition */
 
 export default async (app) => {
+    const indexSection = await app.getIndexSection();
+
     if (true) {
-        await app.waitUntil(async () => !!(await app.getBulletList(0)));
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('You can add "structure" to your day using reminders.');
@@ -14,7 +15,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Structures');
 
-        const bulletList0 = await app.getBulletList(0);
+        const bulletList0 = await indexSection.getBulletList(0);
         await app.performCreateNew(bulletList0);
         await app.performInputName('Daily Routine');
 
@@ -63,7 +64,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Events');
 
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('Reminders appear on the left sidebar.');

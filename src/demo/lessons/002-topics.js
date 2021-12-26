@@ -1,9 +1,10 @@
 /* eslint-disable no-constant-condition */
 
 export default async (app) => {
+    const indexSection = await app.getIndexSection();
+
     if (true) {
-        await app.waitUntil(async () => !!(await app.getBulletList(0)));
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('Let us now create some topics.');
@@ -14,16 +15,15 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Topics');
 
-        const bulletList0 = await app.getBulletList(0);
+        const bulletList0 = await indexSection.getBulletList(0);
         await app.performCreateNew(bulletList0);
         await app.performInputName('Personal Projects');
         await app.waitUntil(async () => await bulletList0.getItemCount() === 1);
 
         const bulletItem1 = await bulletList0.getItem(0);
         await bulletItem1.perform('Expand');
-        await app.waitUntil(async () => !!(await app.getBulletList(1)));
 
-        const bulletList1 = await app.getBulletList(1);
+        const bulletList1 = await bulletItem1.getSubList();
         await app.performCreateNew(bulletList1);
         await app.performInputName('GLADOS');
         await app.waitUntil(async () => await bulletList1.getItemCount() === 1);
@@ -34,9 +34,8 @@ export default async (app) => {
 
         const bulletItem2 = await bulletList0.getItem(1);
         await bulletItem2.perform('Expand');
-        await app.waitUntil(async () => !!(await app.getBulletList(2)));
 
-        const bulletList2 = await app.getBulletList(2);
+        const bulletList2 = await bulletItem2.getSubList();
         await app.performCreateNew(bulletList2);
         await app.performInputName('Sayee Basole');
         await app.waitUntil(async () => await bulletList2.getItemCount() === 1);
@@ -45,7 +44,7 @@ export default async (app) => {
     if (true) {
         await app.switchToTab('Manage Events');
 
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
         await adder.typeSlowly('You can reference topics from events.');
@@ -69,7 +68,7 @@ export default async (app) => {
     }
 
     if (true) {
-        const bulletList = await app.getBulletList(0);
+        const bulletList = await indexSection.getBulletList(0);
         const count = await bulletList.getItemCount();
         const adder = await bulletList.getAdder();
 
@@ -93,7 +92,6 @@ export default async (app) => {
         await detailsSection.sendKeys('ENTER');
 
         await detailsSection.perform('Search');
-        const indexSection = await app.getIndexSection();
         const typeahead = await indexSection.getTypeaheadSelector();
         await app.waitUntil(async () => (await typeahead.getTokens()).length === 1);
 
