@@ -16,14 +16,6 @@ class LogEvent extends Base {
         isFavorite = false,
         isComplete = true,
     }) {
-        if (logStructure) {
-            logStructure.logKeys = logStructure.logKeys.map((logKey) => ({
-                ...logKey,
-                value: logKey.value
-                    || LogStructure.Key[logKey.type].getDefault(logKey)
-                    || null,
-            }));
-        }
         // Abstraction leak! The LogEventSearch component filters to logLevels = [2,3] by default.
         if (Array.isArray(logLevel)) {
             [logLevel] = logLevel;
@@ -40,8 +32,20 @@ class LogEvent extends Base {
             isFavorite,
             isComplete,
         };
+        LogEvent.addDefaultStructureValues(logEvent);
         LogEvent.trigger(logEvent);
         return logEvent;
+    }
+
+    static addDefaultStructureValues(logEvent) {
+        if (logEvent.logStructure) {
+            logEvent.logStructure.logKeys = logEvent.logStructure.logKeys.map((logKey) => ({
+                ...logKey,
+                value: logKey.value
+                    || LogStructure.Key[logKey.type].getDefault(logKey)
+                    || null,
+            }));
+        }
     }
 
     static async updateWhere(where) {

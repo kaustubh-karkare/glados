@@ -151,7 +151,11 @@ class LogEventEditor extends React.Component {
                     disabled={this.props.disabled}
                     onChange={(logStructure) => this.updateLogEvent((updatedLogEvent) => {
                         updatedLogEvent.logStructure = logStructure;
-                        if (!logStructure) updatedLogEvent.title = '';
+                        if (logStructure) {
+                            LogEvent.addDefaultStructureValues(updatedLogEvent);
+                        } else {
+                            updatedLogEvent.title = null;
+                        }
                     })}
                     allowDelete
                 />
