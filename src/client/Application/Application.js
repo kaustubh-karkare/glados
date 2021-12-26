@@ -14,7 +14,6 @@ import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import FavoritesSection from './FavoritesSection';
-import ModeSection from './ModeSection';
 import { SettingsContext, SettingsSection } from '../Settings';
 import TimeSection from './TimeSection';
 import TopicSection from './TopicSection';
@@ -92,10 +91,7 @@ class Applicaton extends React.Component {
                     />
                     {this.state.urlParams.widgets === Widgets.SHOW
                         ? (
-                            <ReminderSidebar
-                                logMode={this.state.urlParams.mode}
-                                disabled={this.state.disabled}
-                            />
+                            <ReminderSidebar disabled={this.state.disabled} />
                         )
                         : null}
                 </ScrollableSection>
@@ -109,7 +105,6 @@ class Applicaton extends React.Component {
         const indexSection = (
             <IndexSection
                 Component={TabSection.Enum[this.state.urlParams.tab].Component}
-                logMode={this.state.urlParams.mode}
                 dateRange={this.state.urlParams.dateRange}
                 search={this.state.urlParams.search}
                 disabled={this.state.disabled}
@@ -118,7 +113,6 @@ class Applicaton extends React.Component {
         );
         let detailsSection = (
             <DetailsSection
-                logMode={this.state.urlParams.mode}
                 item={this.state.urlParams.details}
                 disabled={this.state.disabled}
                 onChange={(details) => Coordinator.invoke('url-update', { details })}
@@ -128,14 +122,12 @@ class Applicaton extends React.Component {
             detailsSection = (
                 <ScrollableSection>
                     <DetailsSection
-                        logMode={this.state.urlParams.mode}
                         item={this.state.urlParams.details}
                         disabled={this.state.disabled}
                         onChange={(details) => Coordinator.invoke('url-update', { details })}
                     />
                     <div className="py-4" />
                     <DetailsSection
-                        logMode={this.state.urlParams.mode}
                         item={this.state.urlParams.details2}
                         disabled={this.state.disabled}
                         onChange={(details2) => Coordinator.invoke('url-update', { details2 })}
@@ -176,11 +168,6 @@ class Applicaton extends React.Component {
                             />
                         ))
                     }
-                    <ModeSection
-                        logMode={this.state.urlParams.mode}
-                        disabled={this.state.disabled}
-                        onChange={(mode) => Coordinator.invoke('url-update', { mode })}
-                    />
                     <EnumSelectorSection
                         label="Layout: "
                         options={Layout.Options}

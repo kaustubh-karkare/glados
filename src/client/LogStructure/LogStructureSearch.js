@@ -5,13 +5,12 @@ import LogStructureGroupList from './LogStructureGroupList';
 import LogStructureOptions from './LogStructureOptions';
 
 class LogStructureSearch extends React.Component {
-    static getTypeaheadOptions(logMode) {
-        return LogStructureOptions.get(logMode);
+    static getTypeaheadOptions() {
+        return LogStructureOptions.get();
     }
 
     static getDerivedStateFromProps(props, _state) {
         return LogStructureOptions.extractData(
-            props.logMode,
             props.search,
             LogStructureOptions.getTypeToActionMap(),
         );
@@ -34,11 +33,11 @@ class LogStructureSearch extends React.Component {
         );
     }
 
+    // eslint-disable-next-line class-methods-use-this
     renderDefaultView() {
-        const where = { logMode: this.props.logMode || undefined };
         return (
             <LogStructureGroupList
-                where={where}
+                where={{}}
                 viewerComponentProps={{ showDetails: true }}
             />
         );
@@ -53,7 +52,6 @@ class LogStructureSearch extends React.Component {
 }
 
 LogStructureSearch.propTypes = {
-    logMode: PropTypes.Custom.LogMode,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

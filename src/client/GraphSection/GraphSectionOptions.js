@@ -55,7 +55,6 @@ class GraphSectionOptions {
 
     static extractData(items) {
         const result = LogEventOptions.extractData(
-            null, // logMode
             items,
             LogEventOptions.getTypeToActionMap([GRANULARITY_MOCK_OPTION]),
         );

@@ -75,14 +75,6 @@ class DetailsSection extends React.Component {
                         return state;
                     });
                 } else {
-                    if (
-                        this.props.logMode
-                        && newItem
-                        && newItem.logMode
-                        && this.props.logMode.__id__ !== newItem.logMode.__id__
-                    ) {
-                        this.props.onChange(null);
-                    }
                     this.setState({ item: newItem });
                 }
             },
@@ -197,11 +189,10 @@ class DetailsSection extends React.Component {
             );
         }
 
-        const where = { logMode: this.props.logMode || undefined };
         const options = new TypeaheadOptions({
             serverSideOptions: [
-                { name: 'log-topic', where },
-                { name: 'log-structure', where },
+                { name: 'log-topic' },
+                { name: 'log-structure' },
             ],
         });
         return (
@@ -275,7 +266,6 @@ class DetailsSection extends React.Component {
 }
 
 DetailsSection.propTypes = {
-    logMode: PropTypes.Custom.LogMode,
     item: PropTypes.Custom.Item,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,

@@ -5,8 +5,8 @@ import LogTopicList from './LogTopicList';
 import LogTopicOptions from './LogTopicOptions';
 
 class LogTopicSearch extends React.Component {
-    static getTypeaheadOptions(logMode) {
-        const where = { logMode: logMode || undefined };
+    static getTypeaheadOptions() {
+        const where = {};
         return new TypeaheadOptions({
             serverSideOptions: [
                 { name: 'log-topic', args: { where } },
@@ -16,7 +16,6 @@ class LogTopicSearch extends React.Component {
 
     static getDerivedStateFromProps(props, _state) {
         return LogTopicOptions.extractData(
-            props.logMode,
             props.search,
             LogTopicOptions.getTypeToActionMap(),
         );
@@ -49,12 +48,9 @@ class LogTopicSearch extends React.Component {
         );
     }
 
+    // eslint-disable-next-line class-methods-use-this
     renderDefaultView() {
-        const where = {
-            logMode: this.props.logMode || undefined,
-            parentLogTopic: null,
-        };
-        return <LogTopicList where={where} />;
+        return <LogTopicList where={{ parentLogTopic: null }} />;
     }
 
     render() {
@@ -66,7 +62,6 @@ class LogTopicSearch extends React.Component {
 }
 
 LogTopicSearch.propTypes = {
-    logMode: PropTypes.Custom.LogMode,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 

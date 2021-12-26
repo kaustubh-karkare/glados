@@ -1,11 +1,9 @@
-import LogMode from './LogMode';
 import LogTopic from './LogTopic';
 import LogStructure from './LogStructure';
 import LogStructureGroup from './LogStructureGroup';
 import LogEvent from './LogEvent';
 
 export {
-    LogMode,
     LogTopic,
     LogStructureGroup,
     LogStructure,
@@ -13,7 +11,6 @@ export {
 };
 
 const Mapping = {
-    'log-mode': LogMode,
     'log-topic': LogTopic,
     'log-structure-group': LogStructureGroup,
     'log-structure': LogStructure,

@@ -4,7 +4,6 @@ import { SidebarSection } from '../Common';
 import { LogEventSearch } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
 import { LogTopicSearch } from '../LogTopic';
-import { LogModeSearch } from '../LogMode';
 import { GraphSection } from '../GraphSection';
 import Enum from '../../common/Enum';
 
@@ -23,11 +22,6 @@ const Tab = Enum([
         label: 'Manage Structures',
         value: 'log-structure',
         Component: LogStructureSearch,
-    },
-    {
-        label: 'Manage Modes',
-        value: 'log-mode',
-        Component: LogModeSearch,
     },
     {
         label: 'Explore Graphs',

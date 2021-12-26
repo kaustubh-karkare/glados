@@ -66,24 +66,6 @@ ActionsRegistry['check-consistency'] = async function () {
     return results;
 };
 
-ActionsRegistry['validate-log-topic-modes'] = async function ({ logMode, targetLogTopics }) {
-    const results = [];
-    /*
-    // TODO: Enable this feature again!
-    await asyncSequence(Object.values(targetLogTopics), async (targetLogTopic) => {
-        if (!targetLogTopic.logMode) {
-            targetLogTopic = await this.invoke.call(this, 'log-topic-load', targetLogTopic);
-        }
-        results.push([
-            `.logTopic[${targetLogTopic.name}].logMode`,
-            targetLogTopic.logMode.__id__ === logMode.__id__,
-            'should match .logMode',
-        ]);
-    });
-    */
-    return results;
-};
-
 ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
     const ID_TO_NAME = {
         9: 'Birthdays',

@@ -118,7 +118,6 @@ class LogStructure extends Base {
             logStructureGroup: 'group_id',
             name: 'name',
             isPeriodic: 'is_periodic',
-            logMode: 'mode_id',
             isFavorite: 'is_favorite',
             isDeprecated: 'is_deprecated',
         });
@@ -215,16 +214,6 @@ class LogStructure extends Base {
             ]);
         }
 
-        if (inputLogStructure.logStructureGroup && inputLogStructure.logStructureGroup.logMode) {
-            const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
-            const modeValidationResults = await this.invoke.call(
-                this,
-                'validate-log-topic-modes',
-                { logMode: inputLogStructure.logStructureGroup.logMode, targetLogTopics },
-            );
-            results.push(...modeValidationResults);
-        }
-
         return results;
     }
 
@@ -283,8 +272,6 @@ class LogStructure extends Base {
 
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
-            mode_id: inputLogStructure.logStructureGroup.logMode
-                && inputLogStructure.logStructureGroup.logMode.__id__,
             group_id: inputLogStructure.logStructureGroup.__id__,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
@@ -337,7 +324,6 @@ class LogStructure extends Base {
                 shouldRegenerateLogEvents = (
                     originalLogStructure.log_level !== fields.log_level
                     || originalLogStructure.allow_event_details !== fields.allow_event_details
-                    || originalLogStructure.mode_id !== fields.mode_id
                 );
             }
             if (shouldRegenerateLogEvents) {

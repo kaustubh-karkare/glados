@@ -5,11 +5,8 @@ afterEach(Utils.afterEach);
 
 test('test_structure_constraint', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'TestGroup' },
+            { name: 'TestGroup' },
         ],
         logStructures: [
             {
@@ -39,11 +36,8 @@ test('test_structure_constraint', async () => {
 
 test('test_event_update', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'TestGroup' },
+            { name: 'TestGroup' },
         ],
         logStructures: [
             {
@@ -75,11 +69,8 @@ test('test_event_update', async () => {
 
 test('test_log_event_value_typeahead', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'TestGroup' },
+            { name: 'TestGroup' },
         ],
         logStructures: [
             {

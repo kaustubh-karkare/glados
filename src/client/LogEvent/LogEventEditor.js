@@ -71,26 +71,6 @@ class LogEventEditor extends React.Component {
         );
     }
 
-    renderMode() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Mode
-                </InputGroup.Text>
-                <TypeaheadSelector
-                    id="log-event-editor-mode"
-                    serverSideTypes={['log-mode']}
-                    value={this.props.logEvent.logMode}
-                    disabled={this.props.logEvent.logStructure ? true : this.props.disabled}
-                    onChange={(logMode) => this.updateLogEvent(
-                        'logMode',
-                        logMode,
-                    )}
-                />
-            </InputGroup>
-        );
-    }
-
     renderTitle() {
         return (
             <InputGroup className="my-1">
@@ -214,7 +194,6 @@ class LogEventEditor extends React.Component {
                     {this.renderIsComplete()}
                 </div>
                 <div className="my-3">
-                    {this.renderMode()}
                     {this.renderTitle()}
                     {this.renderDetails()}
                 </div>

@@ -64,8 +64,8 @@ function getDayOfTheWeek(label) {
 }
 
 class LogEventSearch extends React.Component {
-    static getTypeaheadOptions(logMode) {
-        return LogEventOptions.get(logMode, [
+    static getTypeaheadOptions() {
+        return LogEventOptions.get([
             INCOMPLETE_ITEM,
             ALL_EVENTS_ITEM,
         ]);
@@ -73,7 +73,6 @@ class LogEventSearch extends React.Component {
 
     static getDerivedStateFromProps(props, _state) {
         return LogEventOptions.extractData(
-            props.logMode,
             props.search,
             LogEventOptions.getTypeToActionMap([INCOMPLETE_ITEM, ALL_EVENTS_ITEM]),
         );
@@ -231,7 +230,7 @@ class LogEventSearch extends React.Component {
         const moreProps = { viewerComponentProps: {} };
         moreProps.prefixActions = [];
         moreProps.prefixActions.push(DUPLICATE_ACTION);
-        if (!where.logLevel && !where.logMode) {
+        if (!where.logLevel) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps.displayLogLevel = true;
         }
@@ -248,7 +247,6 @@ class LogEventSearch extends React.Component {
 }
 
 LogEventSearch.propTypes = {
-    logMode: PropTypes.Custom.LogMode,
     dateRange: PropTypes.Custom.DateRange,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };

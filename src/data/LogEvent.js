@@ -1,6 +1,5 @@
 import assert from 'assert';
 import Base from './Base';
-import LogMode from './LogMode';
 import LogStructure from './LogStructure';
 import TextEditorUtils from '../common/TextEditorUtils';
 import { getVirtualID } from './Utils';
@@ -12,7 +11,6 @@ class LogEvent extends Base {
         date = null,
         title = null,
         details = null,
-        logMode = null,
         logLevel = LogLevel.getIndex(LogLevel.NORMAL),
         logStructure = null,
         isFavorite = false,
@@ -32,7 +30,6 @@ class LogEvent extends Base {
         }
         const logEvent = {
             __type__: 'log-event',
-            logMode,
             date,
             orderingIndex: null,
             __id__: getVirtualID(),
@@ -79,13 +76,11 @@ class LogEvent extends Base {
             isFavorite: 'is_favorite',
             isComplete: 'is_complete',
             logLevel: 'log_level',
-            logMode: 'mode_id',
         });
     }
 
     static trigger(logEvent) {
         if (logEvent.logStructure) {
-            logEvent.logMode = logEvent.logStructure.logStructureGroup.logMode;
             const getLogKeyValue = (logKey) => logKey.value || (logKey.isOptional ? '' : logKey);
             logEvent.logStructure.logKeys.forEach((logKey, index) => {
                 if (!logKey.template) {
@@ -134,13 +129,6 @@ class LogEvent extends Base {
     static async validateInternal(inputLogEvent) {
         const results = [];
 
-        if (inputLogEvent.logMode) {
-            const logModeResults = await Base.validateRecursive.call(
-                this, LogMode, '.logMode', inputLogEvent.logMode,
-            );
-            results.push(...logModeResults);
-        }
-
         results.push([
             '.title',
             !!inputLogEvent.title,
@@ -152,14 +140,6 @@ class LogEvent extends Base {
                 this, LogStructure, '.logStructure', inputLogEvent.logStructure,
             );
             results.push(...logStructureResults);
-
-            const groupLogMode = inputLogEvent.logStructure.logStructureGroup.logMode;
-            const eventLogMode = inputLogEvent.logMode;
-            results.push([
-                '.logStructure.logMode',
-                (groupLogMode && groupLogMode.__id__) === (eventLogMode && eventLogMode.__id__),
-                'should match .logMode',
-            ]);
 
             results.push([
                 '.logStructure.allowEventDetails',
@@ -189,16 +169,6 @@ class LogEvent extends Base {
             results.push(...logKeyResults.filter((result) => result));
         }
 
-        if (inputLogEvent.logMode) {
-            const targetLogTopics = LogEvent.extractLogTopics(inputLogEvent);
-            const modeValidationResults = await this.invoke.call(
-                this,
-                'validate-log-topic-modes',
-                { logMode: inputLogEvent.logMode, targetLogTopics },
-            );
-            results.push(...modeValidationResults);
-        }
-
         if (inputLogEvent.isComplete) {
             results.push([
                 '.date',
@@ -221,14 +191,9 @@ class LogEvent extends Base {
         } else {
             assert(logEvent.structure_values === null);
         }
-        let outputLogMode = null;
-        if (logEvent.mode_id) {
-            outputLogMode = await this.invoke.call(this, 'log-mode-load', { __id__: logEvent.mode_id });
-        }
         return {
             __type__: 'log-event',
             __id__: logEvent.id,
-            logMode: outputLogMode,
             date: logEvent.date,
             isComplete: logEvent.is_complete,
             orderingIndex: logEvent.ordering_index,
@@ -266,7 +231,6 @@ class LogEvent extends Base {
             logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value || null);
         }
         const fields = {
-            mode_id: inputLogEvent.logMode && inputLogEvent.logMode.__id__,
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
             title: TextEditorUtils.serialize(

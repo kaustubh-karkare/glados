@@ -11,14 +11,7 @@ class ReminderSidebar extends React.Component {
 
     componentDidMount() {
         this.dataLoader = new DataLoader({
-            getInput: () => ({
-                name: 'reminder-sidebar',
-                args: {
-                    where: {
-                        logMode: this.props.logMode || undefined,
-                    },
-                },
-            }),
+            getInput: () => ({ name: 'reminder-sidebar' }),
             onData: (logStructureGroups) => this.setState({ logStructureGroups }),
         });
     }
@@ -47,7 +40,6 @@ class ReminderSidebar extends React.Component {
 }
 
 ReminderSidebar.propTypes = {
-    logMode: PropTypes.Custom.LogMode,
     disabled: PropTypes.bool.isRequired,
 };
 

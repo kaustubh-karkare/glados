@@ -69,7 +69,7 @@ class GraphSection extends React.Component {
             state.reload = true;
         }
         state.where = result.where;
-        state.hasAnyFilters = Object.keys(state.where).length > 2; // exclude isComplete & logMode
+        state.hasAnyFilters = Object.keys(state.where).length > 1; // exclude isComplete
         if (state.granularity !== newGranularity && state.logEvents) {
             state.graphData = getGraphData(
                 state.where.logStructure,

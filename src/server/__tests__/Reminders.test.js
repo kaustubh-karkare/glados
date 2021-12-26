@@ -11,11 +11,8 @@ async function checkIfReminderIsShown(todayLabel, shown) {
 
 test('test_reminder_without_warning', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'Daily Routine' },
+            { name: 'Daily Routine' },
         ],
         logStructures: [
             {
@@ -42,11 +39,8 @@ test('test_reminder_without_warning', async () => {
 
 test('test_reminder_with_warning', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'Birthdays' },
+            { name: 'Birthdays' },
         ],
         logStructures: [
             {
@@ -92,11 +86,8 @@ async function checkReminderScore(todayLabel, value, deadline) {
 
 test('test_reminder_score', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'Weekly' },
+            { name: 'Weekly' },
         ],
         logStructures: [
             {

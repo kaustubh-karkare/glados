@@ -7,15 +7,12 @@ afterEach(Utils.afterEach);
 
 test('test_log_topic_typeahead', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logTopics: [
-            { modeName: 'Test', name: 'Anurag Dubey' },
-            { modeName: 'Test', name: 'Kaustubh Karkare' },
-            { modeName: 'Test', name: 'Vishnu Mohandas' },
-            { modeName: 'Test', name: 'philosophy' },
-            { modeName: 'Test', name: 'productivity' },
+            { name: 'Anurag Dubey' },
+            { name: 'Kaustubh Karkare' },
+            { name: 'Vishnu Mohandas' },
+            { name: 'philosophy' },
+            { name: 'productivity' },
         ],
     });
 
@@ -34,15 +31,12 @@ test('test_log_topic_typeahead', async () => {
 
 test('test_update_propagation', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logTopics: [
-            { modeName: 'Test', name: 'Hacky' },
-            { modeName: 'Test', name: 'Todo', details: 'Speak to a #1' },
+            { name: 'Hacky' },
+            { name: 'Todo', details: 'Speak to a #1' },
         ],
         logEvents: [
-            { modeName: 'Test', date: '{today}', title: 'Spoke to a #1' },
+            { date: '{today}', title: 'Spoke to a #1' },
         ],
     });
 
@@ -69,13 +63,10 @@ test('test_update_propagation', async () => {
 
 test('test_counts', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logTopics: [
-            { modeName: 'Test', name: 'Parent1' },
-            { modeName: 'Test', name: 'Parent2' },
-            { modeName: 'Test', name: 'Child', parentTopicName: 'Parent1' },
+            { name: 'Parent1' },
+            { name: 'Parent2' },
+            { name: 'Child', parentTopicName: 'Parent1' },
         ],
     });
 

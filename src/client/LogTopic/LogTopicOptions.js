@@ -57,10 +57,8 @@ class LogTopicOptions {
         };
     }
 
-    static extractData(logMode, items, typeToActionMap) {
-        const where = {
-            logMode: logMode || undefined,
-        };
+    static extractData(items, typeToActionMap) {
+        const where = {};
         const extra = {};
 
         items.forEach((item) => {

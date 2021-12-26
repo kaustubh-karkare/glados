@@ -23,26 +23,6 @@ class LogTopicEditor extends React.Component {
         this.props.onChange(updatedLogTopic);
     }
 
-    renderMode() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Mode
-                </InputGroup.Text>
-                <TypeaheadSelector
-                    id="log-topic-editor-mode"
-                    serverSideTypes={['log-mode']}
-                    value={this.props.logTopic.logMode}
-                    disabled={this.props.logTopic.parentLogTopic ? true : this.props.disabled}
-                    onChange={(logMode) => this.updateLogTopic(
-                        'logMode',
-                        logMode,
-                    )}
-                />
-            </InputGroup>
-        );
-    }
-
     renderParent() {
         const options = new TypeaheadOptions({
             serverSideOptions: [{ name: 'log-topic' }],
@@ -101,7 +81,6 @@ class LogTopicEditor extends React.Component {
         return (
             <>
                 <div className="my-3">
-                    {this.renderMode()}
                     {this.renderParent()}
                     {this.renderName()}
                 </div>

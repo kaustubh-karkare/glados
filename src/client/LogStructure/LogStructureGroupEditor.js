@@ -1,7 +1,7 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
-import { TextInput, TypeaheadSelector } from '../Common';
+import { TextInput } from '../Common';
 
 class LogStructureGroupEditor extends React.Component {
     constructor(props) {
@@ -23,26 +23,6 @@ class LogStructureGroupEditor extends React.Component {
         this.props.onChange(updatedLogStructureGroup);
     }
 
-    renderMode() {
-        return (
-            <InputGroup className="my-1">
-                <InputGroup.Text>
-                    Mode
-                </InputGroup.Text>
-                <TypeaheadSelector
-                    id="log-structure-editor-mode"
-                    serverSideTypes={['log-mode']}
-                    value={this.props.logStructureGroup.logMode}
-                    disabled={this.props.disabled}
-                    onChange={(logMode) => this.updateLogStructureGroup(
-                        'logMode',
-                        logMode,
-                    )}
-                />
-            </InputGroup>
-        );
-    }
-
     renderName() {
         return (
             <InputGroup className="my-1">
@@ -60,12 +40,7 @@ class LogStructureGroupEditor extends React.Component {
     }
 
     render() {
-        return (
-            <>
-                {this.renderMode()}
-                {this.renderName()}
-            </>
-        );
+        return this.renderName();
     }
 }
 

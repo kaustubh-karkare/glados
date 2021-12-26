@@ -12,13 +12,12 @@ const EVENT_TITLE_ITEM_TYPE = 'log-event-title';
 const EVENT_TITLE_ITEM_PREFIX = 'Title: ';
 
 class LogEventOptions {
-    static get(logMode, prefixOptions) {
-        const where = { logMode: logMode || undefined };
+    static get(prefixOptions) {
         prefixOptions = [...prefixOptions, NO_STRUCTURE_ITEM];
         return new TypeaheadOptions({
             serverSideOptions: [
-                { name: 'log-topic', args: { where } },
-                { name: 'log-structure', args: { where } },
+                { name: 'log-topic' },
+                { name: 'log-structure' },
             ],
             prefixOptions,
             computedOptionTypes: [EVENT_TITLE_ITEM_TYPE],
@@ -75,9 +74,8 @@ class LogEventOptions {
         return result;
     }
 
-    static extractData(logMode, items, typeToActionMap) {
+    static extractData(items, typeToActionMap) {
         const where = {
-            logMode: logMode || undefined,
             isComplete: true,
             logLevel: [2, 3],
         };

@@ -5,7 +5,7 @@ import { DateRangePicker, ScrollableSection, TypeaheadSelector } from '../Common
 
 function IndexSection(props) {
     const { Component } = props;
-    const typeaheadOptions = Component.getTypeaheadOptions(props.logMode);
+    const typeaheadOptions = Component.getTypeaheadOptions();
     const filteredSearch = typeaheadOptions.filter(props.search);
     if (filteredSearch.length !== props.search.length) {
         window.setTimeout(props.onChange.bind(filteredSearch), 0);
@@ -32,7 +32,6 @@ function IndexSection(props) {
             </div>
             <ScrollableSection padding={20 + 4}>
                 <Component
-                    logMode={props.logMode}
                     dateRange={dateRange}
                     search={filteredSearch}
                 />
@@ -43,7 +42,6 @@ function IndexSection(props) {
 
 IndexSection.propTypes = {
     Component: PropTypes.func.isRequired,
-    logMode: PropTypes.Custom.LogMode,
     dateRange: PropTypes.Custom.DateRange,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
     disabled: PropTypes.bool.isRequired,

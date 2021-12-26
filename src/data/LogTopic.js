@@ -1,15 +1,12 @@
 import { getVirtualID } from './Utils';
 import Base from './Base';
 import TextEditorUtils from '../common/TextEditorUtils';
-import LogMode from './LogMode';
 
 class LogTopic extends Base {
-    static createVirtual({ logMode = null, parentLogTopic = null, name = '' } = {}) {
-        logMode = parentLogTopic ? parentLogTopic.logMode : logMode;
+    static createVirtual({ parentLogTopic = null, name = '' } = {}) {
         return {
             __type__: 'log-topic',
             __id__: getVirtualID(),
-            logMode,
             parentLogTopic,
             name,
             details: null,
@@ -25,48 +22,18 @@ class LogTopic extends Base {
             isFavorite: 'is_favorite',
             isDeprecated: 'is_deprecated',
             parentLogTopic: 'parent_topic_id',
-            logMode: 'mode_id',
         });
-    }
-
-    static trigger(logTopic) {
-        if (logTopic.parentLogTopic) {
-            logTopic.logMode = logTopic.parentLogTopic.logMode;
-        }
     }
 
     static async validateInternal(inputLogTopic) {
         const results = [];
-
-        if (inputLogTopic.logMode) {
-            const logModeResults = await Base.validateRecursive.call(
-                this, LogMode, '.logMode', inputLogTopic.logMode,
-            );
-            results.push(...logModeResults);
-        }
-
         results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));
-
-        if (inputLogTopic.logMode) {
-            const targetLogTopics = TextEditorUtils.extractMentions(inputLogTopic.details, 'log-topic');
-            const modeValidationResults = await this.invoke.call(
-                this,
-                'validate-log-topic-modes',
-                { logMode: inputLogTopic.logMode, targetLogTopics },
-            );
-            results.push(...modeValidationResults);
-        }
-
         return results;
     }
 
     static async load(id) {
         const logTopic = await this.database.findByPk('LogTopic', id);
         let outputParentLogTopic = null;
-        let outputLogMode = null;
-        if (logTopic.mode_id) {
-            outputLogMode = await this.invoke.call(this, 'log-mode-load', { __id__: logTopic.mode_id });
-        }
         if (logTopic.parent_topic_id) {
             // Intentionally loading only partial data.
             const parentLogTopic = await this.database.findByPk(
@@ -77,13 +44,11 @@ class LogTopic extends Base {
                 __type__: 'log-topic',
                 __id__: parentLogTopic.id,
                 name: parentLogTopic.name,
-                logMode: outputLogMode,
             };
         }
         return {
             __type__: 'log-topic',
             __id__: logTopic.id,
-            logMode: outputLogMode,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
             details: TextEditorUtils.deserialize(
@@ -117,7 +82,6 @@ class LogTopic extends Base {
             { parent_topic_id: inputLogTopic.__id__ },
         );
         const fields = {
-            mode_id: inputLogTopic.logMode && inputLogTopic.logMode.__id__,
             parent_topic_id: newParentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,

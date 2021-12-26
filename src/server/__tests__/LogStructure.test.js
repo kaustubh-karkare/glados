@@ -7,14 +7,8 @@ afterEach(Utils.afterEach);
 
 test('test_key_updates', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            {
-                modeName: 'Test',
-                name: 'Entertainment',
-            },
+            { name: 'Entertainment' },
         ],
         logStructures: [
             {
@@ -65,11 +59,8 @@ test('test_key_updates', async () => {
 
 test('test_structure_deletion', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'Misc' },
+            { name: 'Misc' },
         ],
         logStructures: [
             {
@@ -88,14 +79,8 @@ test('test_structure_deletion', async () => {
 
 test('test_structure_title_template_expression', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            {
-                modeName: 'Test',
-                name: 'Exercise',
-            },
+            { name: 'Exercise' },
         ],
         logStructures: [
             {
@@ -152,14 +137,8 @@ test('test_structure_title_template_expression', async () => {
 
 test('test_structure_title_template_link', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logStructureGroups: [
-            {
-                modeName: 'Test',
-                name: 'Education',
-            },
+            { name: 'Education' },
         ],
         logStructures: [
             {
@@ -188,16 +167,13 @@ test('test_structure_title_template_link', async () => {
 
 test('test_structure_with_topic', async () => {
     await Utils.loadData({
-        logModes: [
-            { name: 'Test' },
-        ],
         logTopics: [
-            { modeName: 'Test', name: 'Books' },
-            { modeName: 'Test', name: 'Harry Potter', parentTopicName: 'Books' },
-            { modeName: 'Test', name: 'Foundation', parentTopicName: 'Books' },
+            { name: 'Books' },
+            { name: 'Harry Potter', parentTopicName: 'Books' },
+            { name: 'Foundation', parentTopicName: 'Books' },
         ],
         logStructureGroups: [
-            { modeName: 'Test', name: 'Education' },
+            { name: 'Education' },
         ],
         logStructures: [
             {

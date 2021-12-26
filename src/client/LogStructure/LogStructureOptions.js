@@ -2,12 +2,11 @@ import assert from 'assert';
 import { TypeaheadOptions } from '../Common';
 
 class LogStructureOptions {
-    static get(logMode) {
-        const where = { logMode: logMode || undefined };
+    static get() {
         return new TypeaheadOptions({
             serverSideOptions: [
-                { name: 'log-structure', args: { where } },
-                { name: 'log-topic', args: { where } },
+                { name: 'log-structure' },
+                { name: 'log-topic' },
             ],
         });
     }
@@ -29,10 +28,8 @@ class LogStructureOptions {
         };
     }
 
-    static extractData(logMode, items, typeToActionMap) {
-        const where = {
-            logMode: logMode || undefined,
-        };
+    static extractData(items, typeToActionMap) {
+        const where = {};
         const extra = {};
 
         items.forEach((item) => {
