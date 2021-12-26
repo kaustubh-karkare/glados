@@ -11,6 +11,10 @@ import { ProcessWrapper, StreamIntender } from './process';
 async function main(argv) {
     console.info('Initializing ...');
 
+    if (!argv.verbose) {
+        console.info(`${argv.indent}Note: Child process output hidden! (hint: --verbose)`);
+    }
+
     const config = JSON.parse(fs.readFileSync(argv.configPath));
     const dataDir = path.dirname(config.database.storage);
     try {
@@ -20,35 +24,16 @@ async function main(argv) {
     }
     console.info(`${argv.indent}Prepared data directory!`);
 
-    if (argv.skipBuildClient) {
-        console.info(`${argv.indent}Skipped Build Client!`);
-    } else {
-        const [clientCommand, ...clientArgs] = 'yarn run build-client'.split(' ');
-        const buildClientProcess = new ProcessWrapper({
-            command: clientCommand,
-            argv: clientArgs,
-            stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[build-client] `),
-            verbose: argv.verbose,
-        });
-        await buildClientProcess.start();
-        await buildClientProcess.waitUntilExit();
-        console.info(`${argv.indent}Built Client! (hint: --skip-build-client)`);
-    }
-
     const [serverCommand, ...serverArgs] = 'yarn run server -c'.split(' ').concat(argv.configPath);
-    if (argv.skipResetDatabase) {
-        console.info(`${argv.indent}Skipped Reset Database!`);
-    } else {
-        const databaseResetProcess = new ProcessWrapper({
-            command: serverCommand,
-            argv: serverArgs.concat('-a', 'database-reset'),
-            stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[database-reset] `),
-            verbose: argv.verbose,
-        });
-        await databaseResetProcess.start();
-        await databaseResetProcess.waitUntilExit();
-        console.info(`${argv.indent}Reset Database! (hint: --skip-reset-database)`);
-    }
+    const databaseResetProcess = new ProcessWrapper({
+        command: serverCommand,
+        argv: serverArgs.concat('-a', 'database-reset'),
+        stream: new StreamIntender(process.stdout, `${argv.indent + argv.indent}[database-reset] `),
+        verbose: argv.verbose,
+    });
+    await databaseResetProcess.start();
+    await databaseResetProcess.waitUntilExit();
+    console.info(`${argv.indent}Reset Database!`);
 
     const serverProcess = new ProcessWrapper({
         command: serverCommand,
@@ -68,7 +53,7 @@ async function main(argv) {
     console.info(`${argv.indent}Webdriver started!`);
 
     let recordingProcess;
-    if (argv.recordVideo) {
+    if (argv.record) {
         const rect = await webdriver.manage().window().getRect();
         recordingProcess = new ProcessWrapper({
             command: 'ffmpeg',
@@ -86,7 +71,7 @@ async function main(argv) {
         await recordingProcess.waitUntilOutput(argv.videoPath);
         console.info(`${argv.indent}Screen recording started!`);
     } else {
-        console.info(`${argv.indent}Skipped screen recording! (hint: --record-video)`);
+        console.info(`${argv.indent}Skipped screen recording! (hint: --record)`);
     }
 
     console.info('Initialized!');
@@ -99,13 +84,13 @@ async function main(argv) {
 
     console.info('Terminating ...');
 
-    if (argv.recordVideo) {
+    if (argv.record) {
         await recordingProcess.stop();
     }
     await webdriver.quit();
     await serverProcess.stop();
 
-    if (argv.recordVideo && argv.videoPath.endsWith('.mkv')) {
+    if (argv.record && argv.videoPath.endsWith('.mkv')) {
         // Directly generating an MP4 file does not work for some reason.
         console.info(`${argv.indent}Converting to mp4 format ...`);
         const formatConversionProcess = new ProcessWrapper({
@@ -127,15 +112,12 @@ async function main(argv) {
 
 const { argv } = yargs
     // General
-    .option('config-path', { alias: 'c', default: './demo/config.json' })
+    .option('config-path', { alias: 'c', default: './config/demo.glados.json' })
     .demandOption('config-path')
     .option('verbose')
     .option('indent', { default: '\t' })
-    // Optimize
-    .option('skip-build-client', { alias: 'sbc' })
-    .option('skip-reset-database', { alias: 'srd' })
-    // Screen Recording
-    .option('record-video')
+    // Recording
+    .option('record')
     .option('videoPath', { default: './demo/data/demo.mkv' })
     // Lessons
     .option('filter')

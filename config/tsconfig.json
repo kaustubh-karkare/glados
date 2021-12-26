@@ -2,7 +2,6 @@
     "allowJs": true,
     "strict": true,
     "jsx": "preserve",
-    "rootDirs": [".."],
     "include": ["src/**/*"],
     "exclude": ["node_modules"]
 }

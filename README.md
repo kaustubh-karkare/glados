@@ -15,19 +15,19 @@
 
 ```
 git clone https://github.com/kaustubh-karkare/glados
-cp config.json.example config.json
+cp config/example.glados.example config.json
 mkdir data
 yarn install
+yarn run build
 yarn run database-reset
 ```
 
 * The default `config.json` file specifies the `data` subdirectory as the location of the SQLite database and the backups.
-* I personally made my `data` a symlink to another directory that synced to my [Dropbox](https://www.dropbox.com/).
+* I personally made `data` a symlink to another directory that synced to my [Dropbox](https://www.dropbox.com/).
 
 ### Usage
 
 ```
-yarn run build-client
 yarn run server
 ```
 
@@ -55,7 +55,6 @@ Backup File Size Estimation?
 
 ```
 yarn run demo
-yarn run demo --skip-build-client --record-video --verbose
 ```
 
 * An auxiliary benefit here is that this functionality can be used as an E2E test for this codebase.

@@ -1,16 +1,21 @@
 /* eslint-disable no-console */
 
-import fs from 'fs';
-
 import Application from '../components';
 import { asyncSequence } from '../utils';
 
+const lessonsList = require.context('.');
+
 export default async (webdriver, argv) => {
+    if (!argv.filter) {
+        console.info(`${argv.indent}Note: Running all lessons! (hint: --filter)`);
+    }
+
     const resetUrl = await webdriver.getCurrentUrl();
     const app = new Application(webdriver);
-    const lessonNames = fs.readdirSync(__dirname)
-        .filter((name) => name !== 'index.js')
-        .map((name) => name.replace(/.js$/, ''))
+    const lessonNames = lessonsList.keys()
+        .filter((name) => !name.endsWith('.js'))
+        .map((name) => name.replace(/^\.\//, ''))
+        .filter((name) => name && name !== 'index')
         .filter((name) => !argv.filter || name.includes(argv.filter));
 
     await asyncSequence(lessonNames, async (name, index) => {

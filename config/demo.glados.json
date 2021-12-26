@@ -2,11 +2,11 @@
     "lock_name": "glados-demo",
     "database": {
         "dialect": "sqlite",
-        "storage": "demo/data/test.sqlite",
+        "storage": "dist/demo/test.sqlite",
         "logging": false
     },
     "backup": {
-        "location": "demo/data",
+        "location": "dist/demo",
         "save_interval_ms": null
     },
     "server": {
