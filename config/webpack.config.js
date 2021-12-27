@@ -18,15 +18,6 @@ function getJSModuleRule() {
                     configFile: path.join(__dirname, 'babel.config.js'),
                 },
             },
-            /*
-            {
-                loader: 'ts-loader',
-                options: {
-                    context: path.resolve(__dirname, '..'),
-                    configFile: './tsconfig.json',
-                },
-            },
-            */
         ],
         exclude: /node_modules/,
     };

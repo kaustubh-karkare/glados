@@ -1,7 +1,0 @@
-{
-    "allowJs": true,
-    "strict": true,
-    "jsx": "preserve",
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
-}

@@ -4,7 +4,8 @@ import React from 'react';
 import PopoverElement from './PopoverElement';
 import DateUtils from '../../common/DateUtils';
 
-// https://adphorus.github.io/react-date-range/
+// https://github.com/hypeserver/react-date-range
+// Note: The corresponding CSS is included from DateRangePicker.
 
 class DatePicker extends React.Component {
     constructor(props) {

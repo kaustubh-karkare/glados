@@ -1,43 +1,54 @@
 import fs from 'fs';
 
-function ensureSameStructure(left, right) {
-    const isLeftAtomic = (typeof left !== 'object');
-    const isRightAtomic = (typeof right !== 'object');
-    if (
-        (isLeftAtomic && right === null)
-        || (left === null && isRightAtomic)
-        || (left === null && right === null)
-    ) {
-        return;
-    }
-    if (isLeftAtomic && isRightAtomic) {
-        expect(typeof left).toEqual(typeof right);
-        return;
-    }
-    const isLeftArray = Array.isArray(left);
-    const isRightArray = Array.isArray(right);
-    if (isLeftArray || isRightArray) {
-        expect(isLeftArray).toEqual(true);
-        expect(isRightArray).toEqual(true);
-        const length = Math.min(left.length, right.length);
-        for (let index = 0; index < length; index += 1) {
-            ensureSameStructure(left[index], right[index]);
+const CONFIG_FORMAT = {
+    '?lock': 'string',
+    database: {
+        dialect: 'string',
+        storage: 'string',
+        logging: 'boolean',
+    },
+    backup: {
+        location: 'string',
+    },
+    server: {
+        host: 'string',
+        port: 'number',
+    },
+};
+
+function check(pattern, value) {
+    if (typeof pattern === 'object') {
+        expect(typeof value).toEqual('object');
+        expect(value).not.toBeNull();
+        Object.entries(pattern).forEach(([key, subpattern]) => {
+            if (key.startsWith('?')) {
+                key = key.slice(1);
+                if (Object.prototype.hasOwnProperty.call(value, key)) {
+                    check(subpattern, value[key]);
+                }
+            } else {
+                expect(Object.prototype.hasOwnProperty.call(value, key)).toEqual(true);
+                check(subpattern, value[key]);
+            }
+        });
+    } else if (typeof pattern === 'string') {
+        if (pattern.startsWith('?') && value !== null) {
+            check(value, pattern.slice(1));
+        } else {
+            expect(typeof value).toEqual(pattern);
         }
-        return;
     }
-    const leftKeys = Object.keys(left);
-    const rightKeys = Object.keys(right);
-    expect(leftKeys).toEqual(rightKeys);
-    leftKeys.forEach((key) => {
-        ensureSameStructure(left[key], right[key]);
-    });
+}
+
+function ensureValidConfig(configPath) {
+    if (fs.existsSync(configPath)) {
+        const contents = fs.readFileSync(configPath);
+        check(CONFIG_FORMAT, JSON.parse(contents));
+    }
 }
 
 test('verify_config_structure', () => {
-    if (fs.existsSync('config.json')) {
-        ensureSameStructure(
-            JSON.parse(fs.readFileSync('config/example.glados.json')),
-            JSON.parse(fs.readFileSync('config.json')),
-        );
-    }
+    ensureValidConfig('config/example.glados.json');
+    ensureValidConfig('config/demo.glados.json');
+    ensureValidConfig('config.json');
 });

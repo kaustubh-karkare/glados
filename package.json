@@ -13,7 +13,6 @@
     "backup-save": "yarn run server -a backup-save",
     "backup-load": "yarn run server -a backup-load",
     "lint": "eslint -c ./config/eslint.config.js --ext .js,.jsx --fix . --ignore-pattern dist",
-    "tsc": "tsc --build ./config/tsconfig.json",
     "test": "jest --config ./config/jest.config.js --no-watchman",
     "todo": "grep -nir '// TODO' src demo",
     "kill": "ps -A | grep \"bin/node ./dist\" | grep -v grep | awk '{ print \"kill -9\", $1 }' | zsh"
