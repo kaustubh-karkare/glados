@@ -95,14 +95,25 @@ class Base extends ValidationBase {
         }
         const options = await this.database.findAll(
             this.DataType.name,
-            { ...where, name: { [this.database.Op.like]: `%${query}%` } },
+            { ...where, name: { [this.database.Op.substring]: query } },
         );
         const dataType = getDataType(this.DataType.name);
-        return options.map((option) => ({
+        const items = options.map((option) => ({
             __type__: dataType,
             __id__: option.id,
             name: option.name,
         })).sort((left, right) => left.name.localeCompare(right.name));
+        const first = [];
+        const second = [];
+        query = query.toLowerCase();
+        items.forEach((item) => {
+            if (item.name.toLowerCase().startsWith(query)) {
+                first.push(item);
+            } else {
+                second.push(item);
+            }
+        });
+        return [...first, ...second];
     }
 
     static async validateInternal() {

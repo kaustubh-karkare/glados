@@ -51,12 +51,6 @@ class TypeaheadOptions {
         options = options.flat();
 
         const doesMatchQuery = (item) => item.name.toLowerCase().startsWith(query.toLowerCase());
-        // Move up items that start with the query.
-        options = options.sort((left, right) => {
-            const leftValue = (doesMatchQuery(left) ? 1 : 0);
-            const rightValue = (doesMatchQuery(right) ? 1 : 0);
-            return leftValue - rightValue;
-        });
         options = [
             ...this.config.prefixOptions
                 .filter((item) => !skipTypes[item.__type__])
