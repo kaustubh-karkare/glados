@@ -12,7 +12,7 @@
     "database-reset": "yarn run server -a database-reset",
     "backup-save": "yarn run server -a backup-save",
     "backup-load": "yarn run server -a backup-load",
-    "lint": "eslint -c ./config/eslint.config.js --ext .js,.jsx --fix . --ignore-pattern dist",
+    "lint": "eslint -c ./config/eslint.config.js --ext .js,.jsx --fix src",
     "test": "jest --config ./config/jest.config.js --no-watchman",
     "todo": "grep -nir '// TODO' src demo",
     "kill": "ps -A | grep \"bin/node ./dist\" | grep -v grep | awk '{ print \"kill -9\", $1 }' | zsh"

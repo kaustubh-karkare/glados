@@ -268,8 +268,6 @@ class LogStructure extends Base {
             { group_id: inputLogStructure.logStructureGroup.__id__ },
         );
 
-        // isVirtualItem
-
         const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
         const fields = {
             group_id: inputLogStructure.logStructureGroup.__id__,
@@ -378,7 +376,7 @@ class LogStructure extends Base {
             await updatedLogStructure.update(fields2, { transaction });
         }
 
-        if (originalLogStructure && inputLogEvents) {
+        if (inputLogEvents) {
             await asyncSequence(inputLogEvents, async (inputLogEvent) => {
                 // Update the logEvent to support logKey addition, reorder, deletion.
                 const mapping = {};
@@ -448,22 +446,31 @@ class LogStructure extends Base {
             __id__: index,
             name: rawLogKey.name,
             type: rawLogKey.type,
-            template: rawLogKey.template,
-            isOptional: rawLogKey.is_optional,
+            template: rawLogKey.template || null,
+            isOptional: rawLogKey.is_optional || false,
             enumValues: rawLogKey.enum_values || [],
             parentLogTopic,
         };
     }
 
     static saveKey(inputLogKey) {
-        return {
+        const result = {
             name: inputLogKey.name,
             type: inputLogKey.type,
-            is_optional: inputLogKey.isOptional,
-            template: inputLogKey.template,
-            enum_values: inputLogKey.enumValues,
-            parent_topic_id: inputLogKey.parentLogTopic ? inputLogKey.parentLogTopic.__id__ : null,
         };
+        if (inputLogKey.isOptional) {
+            result.is_optional = true;
+        }
+        if (inputLogKey.template) {
+            result.template = inputLogKey.template;
+        }
+        if (inputLogKey.type === LogStructureKey.ENUM && inputLogKey.enumValues) {
+            result.enum_values = inputLogKey.enumValues;
+        }
+        if (inputLogKey.type === LogStructureKey.LOG_TOPIC && inputLogKey.parentLogTopic) {
+            result.parent_topic_id = inputLogKey.parentLogTopic.__id__;
+        }
+        return result;
     }
 }
 

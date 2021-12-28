@@ -17,51 +17,53 @@ ActionsRegistry['check-consistency'] = async function () {
     // These items only contain the __type__, __id__ & name.
     const logTopicItems = await this.invoke.call(this, 'log-topic-typeahead', { query: '' });
 
-    // Update logTopics using latest topic-names
-    const logTopics = await this.invoke.call(this, 'log-topic-list');
-    await asyncSequence(logTopics, async (logTopic) => {
-        try {
-            logTopic.details = TextEditorUtils.updateDraftContent(
-                logTopic.details, logTopicItems,
-            );
-            await this.invoke.call(this, 'log-topic-upsert', logTopic);
-        } catch (error) {
-            results.push([logTopic, error.toString()]);
-        }
-    });
+    if (false) {
+        // Update logTopics using latest topic-names
+        const logTopics = await this.invoke.call(this, 'log-topic-list');
+        await asyncSequence(logTopics, async (logTopic) => {
+            try {
+                logTopic.details = TextEditorUtils.updateDraftContent(
+                    logTopic.details, logTopicItems,
+                );
+                await this.invoke.call(this, 'log-topic-upsert', logTopic);
+            } catch (error) {
+                results.push([logTopic, error.toString()]);
+            }
+        });
+    }
 
-    /*
+    if (false) {
+        // Update logStructures using latest topic-names
+        const logStructures = await this.invoke.call(this, 'log-structure-list');
+        await asyncSequence(logStructures, async (logStructure) => {
+            try {
+                logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
+                    logStructure.titleTemplate, logTopicItems,
+                );
+                await this.invoke.call(this, 'log-structure-upsert', logStructure);
+            } catch (error) {
+                results.push([logStructure, error.toString()]);
+            }
+        });
+    }
 
-    // Update logStructures using latest topic-names
-    const logStructures = await this.invoke.call(this, 'log-structure-list');
-    await asyncSequence(logStructures, async (logStructure) => {
-        try {
-            logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
-                logStructure.titleTemplate, logTopicItems,
-            );
-            await this.invoke.call(this, 'log-structure-upsert', logStructure);
-        } catch (error) {
-            results.push([logStructure, error.toString()]);
-        }
-    });
-
-    // Update logEvents using latest topic-names & structure-title-template.
-    const logEvents = await this.invoke.call(this, 'log-event-list');
-    await asyncSequence(logEvents, async (logEvent) => {
-        try {
-            logEvent.title = TextEditorUtils.updateDraftContent(
-                logEvent.title, logTopicItems,
-            );
-            logEvent.details = TextEditorUtils.updateDraftContent(
-                logEvent.details, logTopicItems,
-            );
-            await this.invoke.call(this, 'log-event-upsert', logEvent);
-        } catch (error) {
-            results.push([logEvent, error.toString()]);
-        }
-    });
-
-    */
+    if (false) {
+        // Update logEvents using latest topic-names & structure-title-template.
+        const logEvents = await this.invoke.call(this, 'log-event-list');
+        await asyncSequence(logEvents, async (logEvent) => {
+            try {
+                logEvent.title = TextEditorUtils.updateDraftContent(
+                    logEvent.title, logTopicItems,
+                );
+                logEvent.details = TextEditorUtils.updateDraftContent(
+                    logEvent.details, logTopicItems,
+                );
+                await this.invoke.call(this, 'log-event-upsert', logEvent);
+            } catch (error) {
+                results.push([logEvent, error.toString()]);
+            }
+        });
+    }
 
     return results;
 };
