@@ -11,7 +11,7 @@ function getBool(item, key, defaultValue) {
     return typeof item[key] === 'undefined' ? defaultValue : item[key];
 }
 
-export default class Utils {
+export default class TestUtils {
     static async beforeEach() {
         const config = {
             dialect: 'sqlite',

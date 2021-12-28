@@ -1,4 +1,5 @@
-// This file contains custom logic that is specific only for Kaustubh's database.
+// This file contains custom logic that is specific only for Kaustubh's usage.
+// These actions should not be invoked from the client.
 
 /* eslint-disable func-names */
 /* eslint-disable camelcase */
@@ -41,6 +42,7 @@ ActionsRegistry['check-consistency'] = async function () {
                 logStructure.titleTemplate = RichTextUtils.updateDraftContent(
                     logStructure.titleTemplate, logTopicItems,
                 );
+                // TODO: Update topics in keys too.
                 await this.invoke.call(this, 'log-structure-upsert', logStructure);
             } catch (error) {
                 results.push([logStructure, error.toString()]);
@@ -70,19 +72,21 @@ ActionsRegistry['check-consistency'] = async function () {
 };
 
 ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
-    const ID_TO_NAME = {
+    // Update structures so that they each have similar behavior.
+
+    const GROUP_ID_TO_NAME = {
         9: 'Birthdays',
         13: 'Anniversaries',
     };
     const logStructureGroups = await this.invoke.call(
         this,
         'log-structure-group-list',
-        { where: { __id__: Object.keys(ID_TO_NAME) } },
+        { where: { __id__: Object.keys(GROUP_ID_TO_NAME) } },
     );
     return Promise.all(
         logStructureGroups.map(async (logStructureGroup) => {
             assert(
-                ID_TO_NAME[logStructureGroup.__id__] === logStructureGroup.name,
+                GROUP_ID_TO_NAME[logStructureGroup.__id__] === logStructureGroup.name,
                 logStructureGroup.name,
             );
             const logStructures = await this.invoke.call(
@@ -123,8 +127,13 @@ ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
 };
 
 ActionsRegistry['update-television-events'] = async function (data) {
-    const structure_id = data.log_structures.filter((log_structure) => log_structure.name === 'Television')[0].id;
-    const parent_topic_id = data.log_topics.filter((log_topic) => log_topic.name === 'Television Series')[0].id;
+    // Used to change "Television" structure events
+    // to use a topic as a log-key, instead of a string.
+
+    const structure_id = data.log_structures
+        .filter((log_structure) => log_structure.name === 'Television')[0].id;
+    const parent_topic_id = data.log_topics
+        .filter((log_topic) => log_topic.name === 'Television Series')[0].id;
     const value_index = 0;
 
     data.log_structures.forEach((log_structure) => {
@@ -198,20 +207,20 @@ ActionsRegistry['update-television-events'] = async function (data) {
     return { data, validate };
 };
 
-ActionsRegistry['update-hpff-events'] = async function (data) {
-    const log_structure = data.log_structures.filter((item) => item.name === 'HPFF')[0];
+ActionsRegistry['update-xyz-events'] = async function (data) {
+    const log_structure = data.log_structures.filter((item) => item.name === 'xyz')[0];
 
     const keys = JSON.parse(log_structure.keys);
     keys.splice(2, 1, ...[
         {
-            name: 'Story Status',
+            name: 'xyz',
             type: 'string',
             is_optional: false,
             template: null,
             parent_topic_id: null,
         },
         {
-            name: 'Reading Status',
+            name: 'xyz',
             type: 'string',
             is_optional: false,
             template: null,
@@ -220,13 +229,7 @@ ActionsRegistry['update-hpff-events'] = async function (data) {
     ]);
     log_structure.keys = JSON.stringify(keys);
 
-    const mapping = {
-        start: ['Unknown', 'Not Started'],
-        abandoned: ['Unknown', 'Abandoned'],
-        'completed, but abandoned': ['Incomplete', 'Finished'],
-        completed: ['Complete', 'Finished'],
-        null: ['Unknown', 'Unknown'],
-    };
+    const mapping = {};
     data.log_events.forEach((log_event) => {
         if (log_event.structure_id === log_structure.id) {
             const values = JSON.parse(log_event.structure_values);
@@ -242,6 +245,7 @@ ActionsRegistry['update-hpff-events'] = async function (data) {
 };
 
 ActionsRegistry['add-structure-to-events'] = async function () {
+    // Used to add "Project Work" structure to events with the "GLADOS" topic.
     const logTopic = await this.invoke.call(this, 'log-topic-load', { __id__: 4 });
     const logStructure = await this.invoke.call(this, 'log-structure-load', { __id__: 120 });
     const logEvents = await this.invoke.call(

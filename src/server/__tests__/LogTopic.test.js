@@ -1,12 +1,12 @@
 import RichTextUtils from '../../common/rich_text_utils';
-import Utils from './Utils';
+import TestUtils from './TestUtils';
 import { asyncSequence } from '../../common/async_utils';
 
-beforeEach(Utils.beforeEach);
-afterEach(Utils.afterEach);
+beforeEach(TestUtils.beforeEach);
+afterEach(TestUtils.afterEach);
 
 test('test_log_topic_typeahead', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logTopics: [
             { name: 'Anurag Dubey' },
             { name: 'Kaustubh Karkare' },
@@ -16,7 +16,7 @@ test('test_log_topic_typeahead', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     let logTopics;
 
     logTopics = await actions.invoke('log-topic-typeahead', { query: '' });
@@ -32,7 +32,7 @@ test('test_log_topic_typeahead', async () => {
 });
 
 test('test_update_propagation', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logTopics: [
             { name: 'Hacky' },
             { name: 'Todo', details: 'Speak to a #1' },
@@ -42,7 +42,7 @@ test('test_update_propagation', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     let logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     expect(RichTextUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Hacky');
     let logTopic = await actions.invoke('log-topic-load', { __id__: 2 });
@@ -64,7 +64,7 @@ test('test_update_propagation', async () => {
 });
 
 test('test_counts', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logTopics: [
             { name: 'Parent1' },
             { name: 'Parent2' },
@@ -72,7 +72,7 @@ test('test_counts', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
 
     const parentLogTopicIds = [1, 2];
     const expectChildCounts = async (counts) => {

@@ -1,16 +1,16 @@
-import Utils from './Utils';
+import TestUtils from './TestUtils';
 
-beforeEach(Utils.beforeEach);
-afterEach(Utils.afterEach);
+beforeEach(TestUtils.beforeEach);
+afterEach(TestUtils.afterEach);
 
 async function checkIfReminderIsShown(todayLabel, shown) {
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     const results = await actions.invoke('reminder-sidebar', {}, { todayLabel });
     expect(results.length).toEqual(shown ? 1 : 0);
 }
 
 test('test_reminder_without_warning', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Daily Routine' },
         ],
@@ -26,7 +26,7 @@ test('test_reminder_without_warning', async () => {
         ],
     });
     await checkIfReminderIsShown('2020-08-08', true);
-    await Utils.loadData({
+    await TestUtils.loadData({
         logEvents: [
             {
                 date: '2020-08-08',
@@ -38,7 +38,7 @@ test('test_reminder_without_warning', async () => {
 });
 
 test('test_reminder_with_warning', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Birthdays' },
         ],
@@ -65,7 +65,7 @@ test('test_reminder_with_warning', async () => {
     await checkIfReminderIsShown('2020-08-05', true);
     await checkIfReminderIsShown('2020-08-12', true);
     await checkIfReminderIsShown('2020-08-15', true);
-    await Utils.loadData({
+    await TestUtils.loadData({
         logEvents: [
             {
                 date: '2020-08-15',
@@ -77,7 +77,7 @@ test('test_reminder_with_warning', async () => {
 });
 
 async function checkReminderScore(todayLabel, value, deadline) {
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     const logStructure = await actions.invoke('log-structure-load', { __id__: 1 }, { todayLabel });
     const score = await actions.invoke('reminder-score', { logStructure }, { todayLabel });
     expect(score.value).toEqual(value);
@@ -85,7 +85,7 @@ async function checkReminderScore(todayLabel, value, deadline) {
 }
 
 test('test_reminder_score', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Weekly' },
         ],
@@ -100,7 +100,7 @@ test('test_reminder_score', async () => {
             },
         ],
     });
-    const addEvent = (date) => Utils.loadData({
+    const addEvent = (date) => TestUtils.loadData({
         logEvents: [{ date, structureName: 'Weekly Report' }],
     });
     await checkReminderScore('2020-08-15', 0, null);

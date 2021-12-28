@@ -1,10 +1,10 @@
-import Utils from './Utils';
+import TestUtils from './TestUtils';
 
-beforeEach(Utils.beforeEach);
-afterEach(Utils.afterEach);
+beforeEach(TestUtils.beforeEach);
+afterEach(TestUtils.afterEach);
 
 test('test_structure_constraint', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'TestGroup' },
         ],
@@ -28,14 +28,14 @@ test('test_structure_constraint', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     await expect(() => actions.invoke('log-structure-delete', 1)).rejects.toThrow();
     await actions.invoke('log-event-delete', 1);
     await actions.invoke('log-structure-delete', 1);
 });
 
 test('test_event_update', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'TestGroup' },
         ],
@@ -59,7 +59,7 @@ test('test_event_update', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
 
     const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     logEvent.title = 'Dog';
@@ -68,7 +68,7 @@ test('test_event_update', async () => {
 });
 
 test('test_log_event_value_typeahead', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'TestGroup' },
         ],
@@ -92,7 +92,7 @@ test('test_log_event_value_typeahead', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     let logValueSuggestions;
 
     const logEvent = await actions.invoke('log-event-load', { __id__: 1 });

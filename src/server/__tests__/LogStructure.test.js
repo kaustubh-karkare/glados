@@ -1,12 +1,12 @@
 import { LogStructure } from '../../common/data_types';
 import RichTextUtils from '../../common/rich_text_utils';
-import Utils from './Utils';
+import TestUtils from './TestUtils';
 
-beforeEach(Utils.beforeEach);
-afterEach(Utils.afterEach);
+beforeEach(TestUtils.beforeEach);
+afterEach(TestUtils.afterEach);
 
 test('test_key_updates', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Entertainment' },
         ],
@@ -31,7 +31,7 @@ test('test_key_updates', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
 
     const oldLogEvent = await actions.invoke('log-event-load', { __id__: 1 });
     const oldValues = oldLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
@@ -58,7 +58,7 @@ test('test_key_updates', async () => {
 });
 
 test('test_structure_deletion', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Misc' },
         ],
@@ -70,7 +70,7 @@ test('test_structure_deletion', async () => {
             },
         ],
     });
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     await expect(() => actions.invoke('log-topic-delete', 1)).rejects.toThrow();
     await actions.invoke('log-structure-delete', 1);
     const logTopics = await actions.invoke('log-topic-list');
@@ -78,7 +78,7 @@ test('test_structure_deletion', async () => {
 });
 
 test('test_structure_title_template_expression', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Exercise' },
         ],
@@ -112,7 +112,7 @@ test('test_structure_title_template_expression', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     let logEvents = await actions.invoke('log-event-list');
     expect(logEvents.map((logEvent) => RichTextUtils.extractPlainText(logEvent.title))).toEqual([
         'Cycling: 15 miles / 60 minutes',
@@ -136,7 +136,7 @@ test('test_structure_title_template_expression', async () => {
 });
 
 test('test_structure_title_template_link', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logStructureGroups: [
             { name: 'Education' },
         ],
@@ -160,13 +160,13 @@ test('test_structure_title_template_link', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     const logEvents = await actions.invoke('log-event-list');
     expect(RichTextUtils.extractPlainText(logEvents[0].title)).toEqual('Article: Facebook');
 });
 
 test('test_structure_with_topic', async () => {
-    await Utils.loadData({
+    await TestUtils.loadData({
         logTopics: [
             { name: 'Books' },
             { name: 'Harry Potter', parentTopicName: 'Books' },
@@ -195,7 +195,7 @@ test('test_structure_with_topic', async () => {
         ],
     });
 
-    const actions = Utils.getActions();
+    const actions = TestUtils.getActions();
     await expect(() => actions.invoke('log-topic-delete', 2)).rejects.toThrow();
     const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     logEvent.logStructure.logKeys[0].value = await actions.invoke('log-topic-load', { __id__: 3 });
