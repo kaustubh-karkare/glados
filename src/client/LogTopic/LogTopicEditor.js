@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {
     Selector, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogTopic } from '../../data';
+import { LogTopic } from '../../common/data_types';
 
 class LogTopicEditor extends React.Component {
     constructor(props) {

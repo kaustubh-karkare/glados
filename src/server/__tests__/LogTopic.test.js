@@ -1,6 +1,6 @@
-import TextEditorUtils from '../../common/TextEditorUtils';
+import RichTextUtils from '../../common/rich_text_utils';
 import Utils from './Utils';
-import { asyncSequence } from '../../data';
+import { asyncSequence } from '../../common/async_utils';
 
 beforeEach(Utils.beforeEach);
 afterEach(Utils.afterEach);
@@ -44,18 +44,18 @@ test('test_update_propagation', async () => {
 
     const actions = Utils.getActions();
     let logEvent = await actions.invoke('log-event-load', { __id__: 1 });
-    expect(TextEditorUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Hacky');
+    expect(RichTextUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Hacky');
     let logTopic = await actions.invoke('log-topic-load', { __id__: 2 });
-    expect(TextEditorUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Hacky');
+    expect(RichTextUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Hacky');
 
     const person = await actions.invoke('log-topic-load', { __id__: 1 });
     person.name = 'Noob';
     await actions.invoke('log-topic-upsert', person);
 
     logEvent = await actions.invoke('log-event-load', logEvent);
-    expect(TextEditorUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Noob');
+    expect(RichTextUtils.extractPlainText(logEvent.title)).toEqual('Spoke to a Noob');
     logTopic = await actions.invoke('log-topic-load', logTopic);
-    expect(TextEditorUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Noob');
+    expect(RichTextUtils.extractPlainText(logTopic.details)).toEqual('Speak to a Noob');
 
     await expect(() => actions.invoke('log-topic-delete', person.__id__)).rejects.toThrow();
     await actions.invoke('log-event-delete', logEvent.__id__);

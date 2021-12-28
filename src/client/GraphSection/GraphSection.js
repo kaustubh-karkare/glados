@@ -6,7 +6,7 @@ import deepEqual from 'deep-equal';
 
 import { DataLoader } from '../Common';
 import PropTypes from '../prop-types';
-import Enum from '../../common/Enum';
+import { Enum } from '../../common/data_types';
 import { getGraphData } from './GraphSectionData';
 import GraphSectionOptions, { Granularity } from './GraphSectionOptions';
 

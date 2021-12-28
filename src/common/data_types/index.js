@@ -1,7 +1,7 @@
-import LogTopic from './LogTopic';
-import LogStructure from './LogStructure';
-import LogStructureGroup from './LogStructureGroup';
-import LogEvent from './LogEvent';
+import LogTopic from './log_topic';
+import LogStructure from './log_structure';
+import LogStructureGroup from './log_structure_group';
+import LogEvent from './log_event';
 
 export {
     LogTopic,
@@ -20,3 +20,6 @@ const Mapping = {
 export function getDataTypeMapping() {
     return Mapping;
 }
+
+export { default as Enum } from './enum';
+export * from './utils';

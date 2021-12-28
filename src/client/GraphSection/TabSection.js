@@ -4,7 +4,7 @@ import { SidebarSection } from '../Common';
 import { LogEventSearch } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
 import { LogTopicSearch } from '../LogTopic';
-import { GraphSection } from '../GraphSection';
+import { GraphSection } from '.';
 import { Enum } from '../../common/data_types';
 
 const Tab = Enum([

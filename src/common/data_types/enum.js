@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-function Enum(Options) {
+export default function Enum(Options) {
     const result = { Options };
     Options.forEach((option) => {
         assert(option.value === option.value.toLowerCase());
@@ -10,5 +10,3 @@ function Enum(Options) {
     });
     return result;
 }
-
-export default Enum;

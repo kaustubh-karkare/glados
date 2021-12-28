@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 
 import assert from 'assert';
-import { LogStructure } from '../../data';
+import { LogStructure } from '../../common/data_types';
 
 const ActionsRegistry = {};
 

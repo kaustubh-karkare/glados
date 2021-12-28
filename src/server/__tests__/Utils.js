@@ -1,10 +1,9 @@
-import DateUtils from '../../common/DateUtils';
-import Database from '../Database';
-import Actions from '../Actions';
-import {
-    LogStructure, asyncSequence, getVirtualID,
-} from '../../data';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import DateUtils from '../../common/date_utils';
+import Database from '../database';
+import Actions from '../actions';
+import { LogStructure, getVirtualID } from '../../common/data_types';
+import { asyncSequence } from '../../common/async_utils';
+import RichTextUtils from '../../common/rich_text_utils';
 
 let actions = null;
 
@@ -46,7 +45,7 @@ export default class Utils {
                 inputLogTopic.parentLogTopic = logTopicMap[inputLogTopic.parentTopicName];
                 delete inputLogTopic.parentTopicName;
             }
-            inputLogTopic.details = TextEditorUtils.convertPlainTextToDraftContent(
+            inputLogTopic.details = RichTextUtils.convertPlainTextToDraftContent(
                 inputLogTopic.details || '',
                 { '#': logTopics },
             );
@@ -96,7 +95,7 @@ export default class Utils {
             } else {
                 inputLogStructure.logKeys = [];
             }
-            inputLogStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
+            inputLogStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent(
                 inputLogStructure.titleTemplate || '$0',
                 { $: [inputLogStructure, ...inputLogStructure.logKeys] },
             );
@@ -122,11 +121,11 @@ export default class Utils {
         await asyncSequence(data.logEvents, async (inputLogEvent) => {
             inputLogEvent.__id__ = getVirtualID();
             DateUtils.maybeSubstitute(inputLogEvent, 'date');
-            inputLogEvent.title = TextEditorUtils.convertPlainTextToDraftContent(
+            inputLogEvent.title = RichTextUtils.convertPlainTextToDraftContent(
                 inputLogEvent.title || '',
                 { '#': logTopics },
             );
-            inputLogEvent.details = TextEditorUtils.convertPlainTextToDraftContent(
+            inputLogEvent.details = RichTextUtils.convertPlainTextToDraftContent(
                 inputLogEvent.details || '',
                 { '#': logTopics },
             );
@@ -138,7 +137,7 @@ export default class Utils {
                 if (inputLogEvent.logValues) {
                     inputLogEvent.logValues.forEach((value, index) => {
                         const logKey = inputLogEvent.logStructure.logKeys[index];
-                        if (logKey.type === LogStructure.Key.LOG_TOPIC) {
+                        if (logKey.type === LogStructure.Key.Type.LOG_TOPIC) {
                             logKey.value = logTopicMap[value];
                         } else {
                             logKey.value = value;

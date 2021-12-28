@@ -1,6 +1,6 @@
-import TextEditorUtils from '../TextEditorUtils';
+import RichTextUtils from '../rich_text_utils';
 
-const { StorageType } = TextEditorUtils;
+const { StorageType } = RichTextUtils;
 
 const typeToValue = {
     [StorageType.MARKDOWN]: 'markdown:Normal [Kasturi](mention:log-topic:3) [Link](facebook.com) Text\n\n# Heading 1\n\n#### Heading 4\n\n```\nCode\n```\n\n> Quote\n\n- List Item 1\n- List Item 2',
@@ -9,14 +9,14 @@ const typeToValue = {
 
 function verify(inputType, outputType) {
     const expectedValue = typeToValue[outputType];
-    const actualValue = TextEditorUtils.serialize(
-        TextEditorUtils.deserialize(typeToValue[inputType], inputType),
+    const actualValue = RichTextUtils.serialize(
+        RichTextUtils.deserialize(typeToValue[inputType], inputType),
         outputType,
     );
     if (outputType === StorageType.DRAFTJS) {
-        const value1 = TextEditorUtils.deserialize(expectedValue, StorageType.DRAFTJS);
-        const value2 = TextEditorUtils.deserialize(actualValue, StorageType.DRAFTJS);
-        expect(TextEditorUtils.equals(value1, value2)).toBeTruthy();
+        const value1 = RichTextUtils.deserialize(expectedValue, StorageType.DRAFTJS);
+        const value2 = RichTextUtils.deserialize(actualValue, StorageType.DRAFTJS);
+        expect(RichTextUtils.equals(value1, value2)).toBeTruthy();
     } else {
         expect(actualValue).toEqual(expectedValue);
     }

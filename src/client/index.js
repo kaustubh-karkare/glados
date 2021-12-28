@@ -5,8 +5,8 @@ import './prop-types'; // Load PropTypes.Custom
 import React from 'react';
 import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
-import SocketRPC from '../common/SocketRPC';
-import { isVirtualItem } from '../data';
+import SocketRPC from '../common/socket_rpc';
+import { isVirtualItem } from '../common/data_types';
 import { Coordinator } from './Common';
 import { Application } from './Application';
 

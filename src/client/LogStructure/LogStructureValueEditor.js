@@ -4,7 +4,7 @@ import {
     Selector, TextEditor, TypeaheadInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogTopicOptions } from '../LogTopic';
-import { LogStructure, getPartialItem } from '../../data';
+import { LogStructure, getPartialItem } from '../../common/data_types';
 
 class LogStructureValueEditor extends React.Component {
     constructor(props) {
@@ -18,7 +18,7 @@ class LogStructureValueEditor extends React.Component {
 
     update(value) {
         const logKey = { ...this.props.logKey };
-        if (logKey.type === LogStructure.Key.LOG_TOPIC && value) {
+        if (logKey.type === LogStructure.Key.Type.LOG_TOPIC && value) {
             value = getPartialItem(value);
         }
         logKey.value = value;
@@ -31,9 +31,9 @@ class LogStructureValueEditor extends React.Component {
         const uniqueId = `log-structure-value-editor-${logKey.__id__}`;
         let { value } = logKey;
         if (typeof value === 'undefined') {
-            value = LogStructure.Key[logKey.type].default;
+            value = LogStructure.Key.Type[logKey.type].default;
         }
-        if (logKey.type === LogStructure.Key.STRING_LIST) {
+        if (logKey.type === LogStructure.Key.Type.STRING_LIST) {
             return (
                 <TypeaheadSelector
                     id={uniqueId}
@@ -45,7 +45,7 @@ class LogStructureValueEditor extends React.Component {
                     ref={this.ref}
                 />
             );
-        } if (logKey.type === LogStructure.Key.YES_OR_NO) {
+        } if (logKey.type === LogStructure.Key.Type.YES_OR_NO) {
             return (
                 <Selector.Binary
                     value={value === 'yes'}
@@ -54,7 +54,7 @@ class LogStructureValueEditor extends React.Component {
                     ref={this.ref}
                 />
             );
-        } if (logKey.type === LogStructure.Key.ENUM) {
+        } if (logKey.type === LogStructure.Key.Type.ENUM) {
             return (
                 <Selector
                     options={Selector.getStringListOptions(logKey.enumValues)}
@@ -64,7 +64,7 @@ class LogStructureValueEditor extends React.Component {
                     ref={this.ref}
                 />
             );
-        } if (logKey.type === LogStructure.Key.LOG_TOPIC) {
+        } if (logKey.type === LogStructure.Key.Type.LOG_TOPIC) {
             const parentLogTopicId = logKey.parentLogTopic
                 ? logKey.parentLogTopic.__id__
                 : undefined;
@@ -82,7 +82,7 @@ class LogStructureValueEditor extends React.Component {
                     ref={this.ref}
                 />
             );
-        } if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
+        } if (logKey.type === LogStructure.Key.Type.RICH_TEXT_LINE) {
             return (
                 <TextEditor
                     isSingleLine

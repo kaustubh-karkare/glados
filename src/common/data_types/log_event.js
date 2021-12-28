@@ -1,12 +1,13 @@
 import assert from 'assert';
-import Base from './Base';
-import LogStructure from './LogStructure';
-import TextEditorUtils from '../common/TextEditorUtils';
-import { getVirtualID } from './Utils';
+import DataTypeBase from './base';
+import LogStructure from './log_structure';
+import RichTextUtils from '../rich_text_utils';
+import { getVirtualID } from './utils';
+import { validateRecursive } from './validation';
 
 const { LogLevel } = LogStructure;
 
-class LogEvent extends Base {
+class LogEvent extends DataTypeBase {
     static createVirtual({
         date = null,
         title = null,
@@ -42,7 +43,7 @@ class LogEvent extends Base {
             logEvent.logStructure.logKeys = logEvent.logStructure.logKeys.map((logKey) => ({
                 ...logKey,
                 value: logKey.value
-                    || LogStructure.Key[logKey.type].getDefault(logKey)
+                    || LogStructure.Key.Type[logKey.type].getDefault(logKey)
                     || null,
             }));
         }
@@ -72,7 +73,7 @@ class LogEvent extends Base {
                 [this.database.Op.like]: `%${where.details}%`,
             };
         }
-        await Base.updateWhere.call(this, where, {
+        await DataTypeBase.updateWhere.call(this, where, {
             date: 'date',
             title: 'title',
             details: 'details',
@@ -91,8 +92,8 @@ class LogEvent extends Base {
                     return;
                 }
                 const previousLogKeys = logEvent.logStructure.logKeys.slice(0, index);
-                logKey.value = TextEditorUtils.extractPlainText(
-                    TextEditorUtils.updateDraftContent(
+                logKey.value = RichTextUtils.extractPlainText(
+                    RichTextUtils.updateDraftContent(
                         logKey.template,
                         previousLogKeys,
                         previousLogKeys.map(getLogKeyValue),
@@ -100,7 +101,7 @@ class LogEvent extends Base {
                     ),
                 );
             });
-            logEvent.title = TextEditorUtils.updateDraftContent(
+            logEvent.title = RichTextUtils.updateDraftContent(
                 logEvent.logStructure.titleTemplate,
                 logEvent.logStructure.logKeys,
                 logEvent.logStructure.logKeys.map((logKey) => logKey.value || (logKey.isOptional ? '' : logKey)),
@@ -112,8 +113,8 @@ class LogEvent extends Base {
 
     static extractLogTopics(inputLogEvent) {
         let logTopics = {
-            ...TextEditorUtils.extractMentions(inputLogEvent.title, 'log-topic'),
-            ...TextEditorUtils.extractMentions(inputLogEvent.details, 'log-topic'),
+            ...RichTextUtils.extractMentions(inputLogEvent.title, 'log-topic'),
+            ...RichTextUtils.extractMentions(inputLogEvent.details, 'log-topic'),
         };
         if (inputLogEvent.logStructure) {
             inputLogEvent.logStructure.logKeys.forEach((logKey) => {
@@ -122,7 +123,7 @@ class LogEvent extends Base {
                 } else if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
                     logTopics = {
                         ...logTopics,
-                        ...TextEditorUtils.extractMentions(logKey.value, 'log-topic'),
+                        ...RichTextUtils.extractMentions(logKey.value, 'log-topic'),
                     };
                 }
             });
@@ -130,7 +131,7 @@ class LogEvent extends Base {
         return logTopics;
     }
 
-    static async validateInternal(inputLogEvent) {
+    static async validate(inputLogEvent) {
         const results = [];
 
         results.push([
@@ -140,8 +141,11 @@ class LogEvent extends Base {
         ]);
 
         if (inputLogEvent.logStructure) {
-            const logStructureResults = await Base.validateRecursive.call(
-                this, LogStructure, '.logStructure', inputLogEvent.logStructure,
+            const logStructureResults = await validateRecursive.call(
+                this,
+                LogStructure,
+                '.logStructure',
+                inputLogEvent.logStructure,
             );
             results.push(...logStructureResults);
 
@@ -158,7 +162,7 @@ class LogEvent extends Base {
                     if (logKey.isOptional && !logKey.value) return null;
                     const name = `.logKeys[${index}].value`;
                     if (!logKey.value) return [name, false, 'must be non-empty.'];
-                    const KeyOption = LogStructure.Key[logKey.type];
+                    const KeyOption = LogStructure.Key.Type[logKey.type];
                     let isValid = await KeyOption.validator(logKey.value, logKey, this);
                     if (!isValid && KeyOption.maybeFix) {
                         const fixedValue = KeyOption.maybeFix(logKey.value, logKey);
@@ -201,13 +205,13 @@ class LogEvent extends Base {
             date: logEvent.date,
             isComplete: logEvent.is_complete,
             orderingIndex: logEvent.ordering_index,
-            title: TextEditorUtils.deserialize(
+            title: RichTextUtils.deserialize(
                 logEvent.title,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
-            details: TextEditorUtils.deserialize(
+            details: RichTextUtils.deserialize(
                 logEvent.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             logLevel: logEvent.log_level,
             isFavorite: logEvent.is_favorite,
@@ -218,7 +222,7 @@ class LogEvent extends Base {
     static async save(inputLogEvent) {
         let logEvent = await this.database.findItem('LogEvent', inputLogEvent);
 
-        Base.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
+        DataTypeBase.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
 
         const shouldResetOrderingIndex = logEvent ? (
             logEvent.date !== inputLogEvent.date
@@ -228,7 +232,7 @@ class LogEvent extends Base {
             date: inputLogEvent.date,
             is_complete: inputLogEvent.isComplete,
         };
-        const orderingIndex = await Base.getOrderingIndex
+        const orderingIndex = await DataTypeBase.getOrderingIndex
             .call(this, shouldResetOrderingIndex ? null : logEvent, orderingIndexWhere);
         let logValues;
         if (inputLogEvent.logStructure) {
@@ -237,13 +241,13 @@ class LogEvent extends Base {
         const fields = {
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
-            title: TextEditorUtils.serialize(
+            title: RichTextUtils.serialize(
                 inputLogEvent.title,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
-            details: TextEditorUtils.serialize(
+            details: RichTextUtils.serialize(
                 inputLogEvent.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             log_level: inputLogEvent.logLevel,
             is_favorite: inputLogEvent.isFavorite,
@@ -277,7 +281,7 @@ class LogEvent extends Base {
 
     static async delete(id) {
         const logEvent = await this.database.deleteByPk('LogEvent', id);
-        Base.broadcast.call(this, 'log-event-list', logEvent, ['date']);
+        DataTypeBase.broadcast.call(this, 'log-event-list', logEvent, ['date']);
         await this.invoke.call(
             this,
             'value-typeahead-index-refresh',

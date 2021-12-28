@@ -1,7 +1,8 @@
-import { getVirtualID } from './Utils';
-import Base from './Base';
+import { getVirtualID } from './utils';
+import DataTypeBase from './base';
+import { validateNonEmptyString } from './validation';
 
-class LogStructureGroup extends Base {
+class LogStructureGroup extends DataTypeBase {
     static createVirtual() {
         return {
             __type__: 'log-structure-group',
@@ -11,15 +12,15 @@ class LogStructureGroup extends Base {
     }
 
     static async updateWhere(where) {
-        await Base.updateWhere.call(this, where, {
+        await DataTypeBase.updateWhere.call(this, where, {
             __id__: 'id',
         });
     }
 
-    static async validateInternal(inputLogStructureGroup) {
+    static async validate(inputLogStructureGroup) {
         const results = [];
 
-        results.push(Base.validateNonEmptyString('.name', inputLogStructureGroup.name));
+        results.push(validateNonEmptyString('.name', inputLogStructureGroup.name));
 
         return results;
     }
@@ -38,7 +39,10 @@ class LogStructureGroup extends Base {
             'LogStructureGroup',
             inputLogStructureGroup,
         );
-        const orderingIndex = await Base.getOrderingIndex.call(this, originalLogStructureGroup);
+        const orderingIndex = await DataTypeBase.getOrderingIndex.call(
+            this,
+            originalLogStructureGroup,
+        );
         const fields = {
             ordering_index: orderingIndex,
             name: inputLogStructureGroup.name,
@@ -59,7 +63,9 @@ class LogStructureGroup extends Base {
             'log-structure-list',
             { where: { logStructureGroup: inputLogStructureGroup } },
         );
-        await Promise.all(inputLogStructures.map(async (inputLogStructure) => this.invoke.call(this, 'log-structure-upsert', inputLogStructure)));
+        await Promise.all(inputLogStructures.map(
+            async (inputLogStructure) => this.invoke.call(this, 'log-structure-upsert', inputLogStructure),
+        ));
     }
 
     static async delete(id) {

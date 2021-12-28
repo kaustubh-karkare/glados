@@ -1,5 +1,5 @@
-import { LogStructure } from '../../data';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import { LogStructure } from '../../common/data_types';
+import RichTextUtils from '../../common/rich_text_utils';
 import Utils from './Utils';
 
 beforeEach(Utils.beforeEach);
@@ -40,7 +40,7 @@ test('test_key_updates', async () => {
     const newLogKey = {
         ...LogStructure.createNewKey(),
         name: 'Worthwhile?',
-        type: LogStructure.Key.YES_OR_NO,
+        type: LogStructure.Key.Type.YES_OR_NO,
         value: 'yes',
     };
     logStructure.logKeys = [
@@ -114,21 +114,21 @@ test('test_structure_title_template_expression', async () => {
 
     const actions = Utils.getActions();
     let logEvents = await actions.invoke('log-event-list');
-    expect(logEvents.map((logEvent) => TextEditorUtils.extractPlainText(logEvent.title))).toEqual([
+    expect(logEvents.map((logEvent) => RichTextUtils.extractPlainText(logEvent.title))).toEqual([
         'Cycling: 15 miles / 60 minutes',
         'Cycling: 15 miles / 55 minutes',
         'Cycling: 15 miles / 50 minutes',
     ]);
 
     const { logStructure } = logEvents[0];
-    logStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent(
+    logStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent(
         '$0: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
         { $: [logStructure, ...logStructure.logKeys] },
     );
     await actions.invoke('log-structure-upsert', logStructure);
 
     logEvents = await actions.invoke('log-event-list');
-    expect(logEvents.map((logEvent) => TextEditorUtils.extractPlainText(logEvent.title))).toEqual([
+    expect(logEvents.map((logEvent) => RichTextUtils.extractPlainText(logEvent.title))).toEqual([
         'Cycling: 15 miles / 60 minutes (15.00 mph)',
         'Cycling: 15 miles / 55 minutes (16.36 mph)',
         'Cycling: 15 miles / 50 minutes (18.00 mph)',
@@ -162,7 +162,7 @@ test('test_structure_title_template_link', async () => {
 
     const actions = Utils.getActions();
     const logEvents = await actions.invoke('log-event-list');
-    expect(TextEditorUtils.extractPlainText(logEvents[0].title)).toEqual('Article: Facebook');
+    expect(RichTextUtils.extractPlainText(logEvents[0].title)).toEqual('Article: Facebook');
 });
 
 test('test_structure_with_topic', async () => {

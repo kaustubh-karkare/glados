@@ -14,7 +14,7 @@ import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicOptions, LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
 import { SettingsContext } from '../Settings';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import RichTextUtils from '../../common/rich_text_utils';
 
 import './DetailsSection.css';
 
@@ -126,7 +126,7 @@ class DetailsSection extends React.Component {
         if (item) {
             window.api.send(`${item.__type__}-upsert`, item)
                 .then((newItem) => this.setState({
-                    isDirty: !TextEditorUtils.equals(item.details, newItem.details),
+                    isDirty: !RichTextUtils.equals(item.details, newItem.details),
                 }));
         }
     }

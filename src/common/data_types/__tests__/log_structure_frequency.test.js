@@ -1,13 +1,12 @@
 import { addDays, compareAsc } from 'date-fns';
-import { LogStructure } from '..';
-import DateUtils from '../../common/DateUtils';
+import LogStructureFrequency from '../log_structure_frequency';
+import DateUtils from '../../date_utils';
 
-test('test_frequency_previous_and_next_match_methods', async () => {
+test('test_previous_and_next_match_methods', async () => {
     // Verify the symmetry of the 2 frequency methods.
-    const { Frequency } = LogStructure;
     const today = DateUtils.getTodayDate();
-    Frequency.Options.forEach((frequencyOption) => {
-        if (frequencyOption.value === LogStructure.Frequency.YEARLY) {
+    LogStructureFrequency.Options.forEach((frequencyOption) => {
+        if (frequencyOption.value === LogStructureFrequency.YEARLY) {
             return;
         }
         for (let offset = 0; offset < 7; offset += 1) {
@@ -21,7 +20,7 @@ test('test_frequency_previous_and_next_match_methods', async () => {
     });
 
     function check(frequency, date1, method, date2, args = null) {
-        const result = Frequency[frequency][method](DateUtils.getDate(date1), args);
+        const result = LogStructureFrequency[frequency][method](DateUtils.getDate(date1), args);
         expect(DateUtils.getLabel(result)).toEqual(date2);
     }
     check('everyday', '2020-07-29', 'getPreviousMatch', '2020-07-28');

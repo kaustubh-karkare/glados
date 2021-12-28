@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { LogEvent, isRealItem } from '../../data';
+import { LogEvent, isRealItem } from '../../common/data_types';
 import LogEventEditor from './LogEventEditor';
 import {
     Coordinator, KeyCodes, TextEditor, TypeaheadOptions,
@@ -27,7 +27,8 @@ class LogEventAdder extends React.Component {
     onSaveLogEvent(logEvent) {
         if (logEvent.title) {
             window.api.send('log-event-upsert', logEvent)
-                .then((newLogEvent) => {
+                .then((_newLogEvent) => {
+                    // The new LogEvent would have been added to list, so we can reset this.
                     this.setState({ logEvent: LogEvent.createVirtual(this.props.where) });
                 });
         } else {

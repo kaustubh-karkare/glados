@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import toposort from 'toposort';
 
-import { asyncSequence, callbackToPromise } from '../../data';
+import { asyncSequence, callbackToPromise } from '../../common/async_utils';
 
 function getDateAndTime() {
     const date = new Date();

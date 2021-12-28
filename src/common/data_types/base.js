@@ -1,16 +1,24 @@
-/* eslint-disable no-undef */
-
 import assert from 'assert';
-import { asyncSequence, isItem } from './Utils';
-import ValidationBase from './ValidationBase';
+import { isItem } from './utils';
+import DataTypeAPI from './api';
+import { asyncSequence } from '../async_utils';
 
 function getDataType(name) {
     return name.split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-');
 }
 
-class Base extends ValidationBase {
-    static createVirtual() {
-        throw new Exception('not implemented');
+export default class DataTypeBase extends DataTypeAPI {
+    static async getValidationErrors(inputItem) {
+        const { DataType } = this;
+        const result = await DataType.validate.call(this, inputItem);
+        let prefix = DataType.name;
+        prefix = prefix[0].toLowerCase() + prefix.substring(1);
+        for (let jj = 0; jj < result.length; jj += 1) {
+            result[jj][0] = prefix + result[jj][0];
+        }
+        return result
+            .filter((item) => !item[1])
+            .map((item) => `${item[0]} ${item[2]}`);
     }
 
     static async updateLogTopicsWhere(where) {
@@ -51,7 +59,7 @@ class Base extends ValidationBase {
     static async updateWhere(where, mapping) {
         await asyncSequence(Object.keys(where), async (fieldName) => {
             if (fieldName === 'logTopics') {
-                await Base.updateLogTopicsWhere.call(this, where);
+                await DataTypeBase.updateLogTopicsWhere.call(this, where);
             } else if (fieldName in mapping) {
                 const newFieldName = mapping[fieldName];
                 let value = where[fieldName];
@@ -66,7 +74,9 @@ class Base extends ValidationBase {
         });
     }
 
-    static trigger(item) {}
+    static trigger(item) {
+        // Do nothing by default.
+    }
 
     static async list(where, limit) {
         const order = [['ordering_index', 'DESC']];
@@ -116,15 +126,6 @@ class Base extends ValidationBase {
         return [...first, ...second];
     }
 
-    static async validateInternal() {
-        return []; // not implemented
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    static async load(id) {
-        throw new Exception('not implemented');
-    }
-
     // eslint-disable-next-line no-unused-vars
     static async reorder(input) {
         // The client-side does not know the underscore names used in the database.
@@ -137,12 +138,6 @@ class Base extends ValidationBase {
         ));
         this.broadcast(`${input.dataType}-list`, { where: input.where });
         return items.map((item) => item.id);
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    static async save(inputItem) {
-        // returns ID of the newly created item
-        throw new Exception('not implemented');
     }
 
     static async getOrderingIndex(item, where = {}) {
@@ -171,10 +166,4 @@ class Base extends ValidationBase {
             });
         }
     }
-
-    static async delete(id) {
-        throw new Exception('not implemented');
-    }
 }
-
-export default Base;

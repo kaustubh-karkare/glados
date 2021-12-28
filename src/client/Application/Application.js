@@ -19,7 +19,7 @@ import TimeSection from './TimeSection';
 import TopicSection from './TopicSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
-import Enum from '../../common/Enum';
+import { Enum } from '../../common/data_types';
 
 const Layout = Enum([
     {

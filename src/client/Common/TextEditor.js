@@ -8,7 +8,7 @@ import React from 'react';
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createMentionPlugin from 'draft-js-mention-plugin';
 
-import TextEditorUtils from '../../common/TextEditorUtils';
+import RichTextUtils from '../../common/rich_text_utils';
 import { KeyCodes } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 import Link from './Link';
@@ -55,11 +55,11 @@ class TextEditor extends React.Component {
         const isFirstTime = !('value' in state);
         // WARNING: Even if props.value is equivalent to state.value, they might
         // not be in the same format, and that could lead to an infinite loop!
-        if (isFirstTime || !TextEditorUtils.equals(state.value, props.value)) {
+        if (isFirstTime || !RichTextUtils.equals(state.value, props.value)) {
             state.value = props.value;
             // The new value is not what we expected. Reset editor state.
             // eslint-disable-next-line no-param-reassign
-            state.editorState = TextEditorUtils.toEditorState(props.value);
+            state.editorState = RichTextUtils.toEditorState(props.value);
         }
         return state;
     }
@@ -114,24 +114,24 @@ class TextEditor extends React.Component {
             .select(option)
             .then((result) => {
                 if (typeof result === 'undefined') return;
-                const selection = TextEditorUtils.getSelectionData(this.state.editorState);
+                const selection = RichTextUtils.getSelectionData(this.state.editorState);
                 // Abstraction leak! Do not assume name.
                 const delta = result.name.length - option.name.length;
                 selection.anchorOffset += delta;
                 selection.focusOffset += delta;
-                let content = TextEditorUtils.fromEditorState(this.state.editorState);
-                content = TextEditorUtils.updateDraftContent(content, [option], [result || '']);
-                let editorState = TextEditorUtils.toEditorState(content);
+                let content = RichTextUtils.fromEditorState(this.state.editorState);
+                content = RichTextUtils.updateDraftContent(content, [option], [result || '']);
+                let editorState = RichTextUtils.toEditorState(content);
                 // TODO: Figure out why the cursor is not updated properly.
-                editorState = TextEditorUtils.setSelectionData(editorState, selection);
+                editorState = RichTextUtils.setSelectionData(editorState, selection);
                 this.onChange(editorState);
             });
     }
 
     onChange(editorState) {
-        editorState = TextEditorUtils.fixCursorBug(this.state.editorState, editorState);
+        editorState = RichTextUtils.fixCursorBug(this.state.editorState, editorState);
         this.setState({ editorState });
-        const newValue = TextEditorUtils.fromEditorState(editorState);
+        const newValue = RichTextUtils.fromEditorState(editorState);
         if (this.props.onChange) {
             this.setState(
                 { onChange: true, value: newValue },

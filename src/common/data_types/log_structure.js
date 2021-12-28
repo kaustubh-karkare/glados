@@ -1,71 +1,12 @@
-import {
-    asyncSequence, getVirtualID, getPartialItem, isVirtualItem,
-} from './Utils';
-import Base from './Base';
-import Enum from '../common/Enum';
-import Frequency from './Frequency';
-import TextEditorUtils from '../common/TextEditorUtils';
-import LogStructureGroup from './LogStructureGroup';
-
-const LogStructureKey = Enum([
-    {
-        value: 'string',
-        label: 'String',
-        validator: async () => true,
-        getDefault: () => '',
-    },
-    {
-        value: 'string_list',
-        label: 'String List',
-        validator: async (value) => Array.isArray(value),
-        getDefault: () => [],
-    },
-    {
-        value: 'integer',
-        label: 'Integer',
-        validator: async (value) => !!value.match(/^\d+$/),
-        getDefault: () => '',
-    },
-    {
-        value: 'number',
-        label: 'Number',
-        validator: async (value) => !!value.match(/^\d+(?:\.\d+)?$/),
-        getDefault: () => '',
-    },
-    {
-        value: 'time',
-        label: 'Time',
-        validator: async (value) => !!value.match(/^\d{2}:\d{2}$/),
-        getDefault: () => '',
-    },
-    {
-        value: 'yes_or_no',
-        label: 'Yes / No',
-        validator: async (value) => !!value.match(/^(?:yes|no)$/),
-        getDefault: () => 'no',
-    },
-    {
-        value: 'enum',
-        label: 'Enum',
-        validator: async (value, logKey) => logKey.enumValues.includes(value),
-        getDefault: (logKey) => logKey.enumValues[0],
-    },
-    {
-        value: 'log_topic',
-        label: 'Topic',
-        validator: async (value, logKey, that) => {
-            const logTopic = await that.invoke.call(that, 'log-topic-load', value);
-            return logTopic.parentLogTopic.__id__ === logKey.parentLogTopic.__id__;
-        },
-        getDefault: () => null,
-    },
-    {
-        value: 'rich_text_line',
-        label: 'Rich Text Line',
-        validator: async (value) => true,
-        getDefault: () => null,
-    },
-]);
+import { getVirtualID, getPartialItem, isVirtualItem } from './utils';
+import { asyncSequence } from '../async_utils';
+import DataTypeBase from './base';
+import Enum from './enum';
+import LogStructureFrequency from './log_structure_frequency';
+import RichTextUtils from '../rich_text_utils';
+import LogStructureKey from './log_structure_key';
+import LogStructureGroup from './log_structure_group';
+import { validateRecursive, validateRecursiveList } from './validation';
 
 const LogLevel = Enum([
     {
@@ -88,7 +29,7 @@ const LogLevel = Enum([
 LogLevel.getIndex = (value) => LogLevel[value].index;
 LogLevel.getValue = (index) => LogLevel.Options[index - 1].value;
 
-class LogStructure extends Base {
+class LogStructure extends DataTypeBase {
     static createVirtual({ logStructureGroup, name = '' }) {
         return {
             __type__: 'log-structure',
@@ -112,8 +53,12 @@ class LogStructure extends Base {
         };
     }
 
+    static createNewKey() {
+        return LogStructureKey.createVirtual();
+    }
+
     static async updateWhere(where) {
-        await Base.updateWhere.call(this, where, {
+        await DataTypeBase.updateWhere.call(this, where, {
             __id__: 'id',
             logStructureGroup: 'group_id',
             name: 'name',
@@ -127,11 +72,11 @@ class LogStructure extends Base {
         // TODO: If a key is deleted, remove it from the content.
         const options = [getPartialItem(logStructure), ...logStructure.logKeys];
         if (logStructure.name && !logStructure.titleTemplate) {
-            logStructure.titleTemplate = TextEditorUtils.convertPlainTextToDraftContent('$0', {
+            logStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent('$0', {
                 $: [logStructure],
             });
         }
-        logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
+        logStructure.titleTemplate = RichTextUtils.updateDraftContent(
             logStructure.titleTemplate,
             options,
             options,
@@ -143,8 +88,8 @@ class LogStructure extends Base {
 
     static extractLogTopics(inputLogStructure) {
         const logTopics = {
-            ...TextEditorUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
-            ...TextEditorUtils.extractMentions(inputLogStructure.details, 'log-topic'),
+            ...RichTextUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
+            ...RichTextUtils.extractMentions(inputLogStructure.details, 'log-topic'),
         };
         inputLogStructure.logKeys.forEach((logKey) => {
             if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.parentLogTopic) {
@@ -154,12 +99,15 @@ class LogStructure extends Base {
         return logTopics;
     }
 
-    static async validateInternal(inputLogStructure) {
+    static async validate(inputLogStructure) {
         const results = [];
 
         if (inputLogStructure.logStructureGroup) {
-            const logStructureGroupResults = await Base.validateRecursive.call(
-                this, LogStructureGroup, '.logStructureGroup', inputLogStructure.logStructureGroup,
+            const logStructureGroupResults = await validateRecursive.call(
+                this,
+                LogStructureGroup,
+                '.logStructureGroup',
+                inputLogStructure.logStructureGroup,
             );
             results.push(...logStructureGroupResults);
         } else {
@@ -170,28 +118,16 @@ class LogStructure extends Base {
             ]);
         }
 
-        inputLogStructure.logKeys.forEach((logKey, index) => {
-            const prefix = `.logKey[${index}]`;
-            results.push(Base.validateNonEmptyString(`${prefix}.name`, logKey.name));
-            results.push(Base.validateNonEmptyString(`${prefix}.type`, logKey.type));
-            if (logKey.type === LogStructureKey.ENUM) {
-                results.push([
-                    `${prefix}.enumValues`,
-                    logKey.enumValues.length > 0,
-                    'must be provided!',
-                ]);
-            } if (logKey.type === LogStructureKey.LOG_TOPIC) {
-                results.push([
-                    `${prefix}.parentLogTopic`,
-                    logKey.parentLogTopic,
-                    'must be provided!',
-                ]);
-            }
-        });
+        results.push(...await validateRecursiveList.call(
+            this,
+            LogStructureKey,
+            '.logKeys',
+            inputLogStructure.logKeys,
+        ));
 
         results.push([
             '.titleTemplate',
-            inputLogStructure.__id__ in TextEditorUtils.extractMentions(
+            inputLogStructure.__id__ in RichTextUtils.extractMentions(
                 inputLogStructure.titleTemplate,
                 'log-structure',
             ),
@@ -226,7 +162,7 @@ class LogStructure extends Base {
         );
         const logKeys = await Promise.all(
             JSON.parse(logStructure.keys).map(
-                (logKey, index) => LogStructure.loadKey.call(this, logKey, index + 1),
+                (logKey, index) => LogStructureKey.load.call(this, logKey, index + 1),
             ),
         );
         return {
@@ -234,15 +170,15 @@ class LogStructure extends Base {
             __id__: logStructure.id,
             logStructureGroup: outputLogStructureGroup,
             name: logStructure.name,
-            details: TextEditorUtils.deserialize(
+            details: RichTextUtils.deserialize(
                 logStructure.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             allowEventDetails: logStructure.allow_event_details,
             logKeys,
-            titleTemplate: TextEditorUtils.deserialize(
+            titleTemplate: RichTextUtils.deserialize(
                 logStructure.title_template,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             needsEdit: logStructure.needs_edit,
             isPeriodic: logStructure.is_periodic,
@@ -261,29 +197,29 @@ class LogStructure extends Base {
         const logStructure = await this.database.findItem('LogStructure', inputLogStructure);
         const originalLogStructure = logStructure ? { ...logStructure.dataValues } : null;
 
-        Base.broadcast.call(
+        DataTypeBase.broadcast.call(
             this,
             'log-structure-list',
             logStructure,
             { group_id: inputLogStructure.logStructureGroup.__id__ },
         );
 
-        const orderingIndex = await Base.getOrderingIndex.call(this, logStructure);
+        const orderingIndex = await DataTypeBase.getOrderingIndex.call(this, logStructure);
         const fields = {
             group_id: inputLogStructure.logStructureGroup.__id__,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
-            details: TextEditorUtils.serialize(
+            details: RichTextUtils.serialize(
                 inputLogStructure.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             allow_event_details: inputLogStructure.allowEventDetails,
             keys: JSON.stringify(inputLogStructure.logKeys.map(
-                (logKey) => LogStructure.saveKey.call(this, logKey),
+                (logKey) => LogStructureKey.save.call(this, logKey),
             )),
-            title_template: TextEditorUtils.serialize(
+            title_template: RichTextUtils.serialize(
                 inputLogStructure.titleTemplate,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             needs_edit: inputLogStructure.needsEdit,
             is_periodic: inputLogStructure.isPeriodic,
@@ -309,11 +245,11 @@ class LogStructure extends Base {
                 );
             }
             if (!shouldRegenerateLogEvents) {
-                const originalTitleTemplate = TextEditorUtils.deserialize(
+                const originalTitleTemplate = RichTextUtils.deserialize(
                     originalLogStructure.title_template,
-                    TextEditorUtils.StorageType.DRAFTJS,
+                    RichTextUtils.StorageType.DRAFTJS,
                 );
-                shouldRegenerateLogEvents = !TextEditorUtils.equals(
+                shouldRegenerateLogEvents = !RichTextUtils.equals(
                     originalTitleTemplate,
                     inputLogStructure.titleTemplate,
                 );
@@ -361,16 +297,16 @@ class LogStructure extends Base {
                 ...getPartialItem(item),
                 __id__: index || updatedLogStructure.id,
             }));
-            const updatedTitleTemplate = TextEditorUtils.updateDraftContent(
+            const updatedTitleTemplate = RichTextUtils.updateDraftContent(
                 inputLogStructure.titleTemplate,
                 originalItems,
                 updatedItems,
             );
             const transaction = this.database.getTransaction();
             const fields2 = {
-                title_template: TextEditorUtils.serialize(
+                title_template: RichTextUtils.serialize(
                     updatedTitleTemplate,
-                    TextEditorUtils.StorageType.DRAFTJS,
+                    RichTextUtils.StorageType.DRAFTJS,
                 ),
             };
             await updatedLogStructure.update(fields2, { transaction });
@@ -406,7 +342,7 @@ class LogStructure extends Base {
 
     static async delete(id) {
         const logStructure = await this.database.deleteByPk('LogStructure', id);
-        Base.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
+        DataTypeBase.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
         await this.invoke.call(
             this,
             'value-typeahead-index-refresh',
@@ -414,68 +350,10 @@ class LogStructure extends Base {
         );
         return { id: logStructure.id };
     }
-
-    // Log Structure Keys
-
-    static createNewKey() {
-        return {
-            __type__: 'log-structure-key',
-            __id__: getVirtualID(),
-            name: '',
-            type: LogStructureKey.STRING,
-            isOptional: false,
-            template: null,
-            enumValues: [],
-            parentLogTopic: null,
-        };
-    }
-
-    static async loadKey(rawLogKey, index) {
-        let parentLogTopic = null;
-        if (rawLogKey.parent_topic_id) {
-            // Normally, we would use "log-topic-load" here, but it does a lot of extra work.
-            const logTopic = await this.database.findByPk('LogTopic', rawLogKey.parent_topic_id);
-            parentLogTopic = {
-                __type__: 'log-topic',
-                __id__: logTopic.id,
-                name: logTopic.name,
-            };
-        }
-        return {
-            __type__: 'log-structure-key',
-            __id__: index,
-            name: rawLogKey.name,
-            type: rawLogKey.type,
-            template: rawLogKey.template || null,
-            isOptional: rawLogKey.is_optional || false,
-            enumValues: rawLogKey.enum_values || [],
-            parentLogTopic,
-        };
-    }
-
-    static saveKey(inputLogKey) {
-        const result = {
-            name: inputLogKey.name,
-            type: inputLogKey.type,
-        };
-        if (inputLogKey.isOptional) {
-            result.is_optional = true;
-        }
-        if (inputLogKey.template) {
-            result.template = inputLogKey.template;
-        }
-        if (inputLogKey.type === LogStructureKey.ENUM && inputLogKey.enumValues) {
-            result.enum_values = inputLogKey.enumValues;
-        }
-        if (inputLogKey.type === LogStructureKey.LOG_TOPIC && inputLogKey.parentLogTopic) {
-            result.parent_topic_id = inputLogKey.parentLogTopic.__id__;
-        }
-        return result;
-    }
 }
 
 LogStructure.Key = LogStructureKey;
-LogStructure.Frequency = Frequency;
+LogStructure.Frequency = LogStructureFrequency;
 LogStructure.LogLevel = LogLevel;
 
 export default LogStructure;

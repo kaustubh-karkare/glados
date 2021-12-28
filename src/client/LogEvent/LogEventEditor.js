@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {
     DatePicker, Selector, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogEvent } from '../../data';
+import { LogEvent } from '../../common/data_types';
 import { LogStructureValueEditor } from '../LogStructure';
 
 const { LogLevel } = LogEvent;

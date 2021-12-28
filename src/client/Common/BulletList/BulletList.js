@@ -8,7 +8,7 @@ import BulletListLine from './BulletListLine';
 import BulletListPager from './BulletListPager';
 import BulletListTitle from './BulletListTitle';
 import DataLoader from '../DataLoader';
-import { getDataTypeMapping } from '../../../data';
+import { getDataTypeMapping } from '../../../common/data_types';
 
 import './BulletList.css';
 

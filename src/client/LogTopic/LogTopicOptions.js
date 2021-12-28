@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { Coordinator, TypeaheadOptions } from '../Common';
-import { LogTopic, getVirtualID, isRealItem } from '../../data';
+import { LogTopic, getVirtualID, isRealItem } from '../../common/data_types';
 import LogTopicEditor from './LogTopicEditor';
 
 const CREATE_ITEM = {

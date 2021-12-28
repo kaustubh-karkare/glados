@@ -53,7 +53,7 @@ function postProcessDraftRawContent(rawContent) {
     });
 }
 
-class TextEditorUtils {
+class RichTextUtils {
     // eslint-disable-next-line consistent-return
     static extractPlainText(value) {
         if (!value) {
@@ -226,7 +226,7 @@ class TextEditorUtils {
     }
 
     static convertDraftContentToPlainText(value, symbolToItems) {
-        const markdown = TextEditorUtils.deserialize(
+        const markdown = RichTextUtils.deserialize(
             value,
             StorageType.MARKDOWN,
         );
@@ -393,7 +393,7 @@ class TextEditorUtils {
         });
 
         if (evaluateExpressions) {
-            contentState = TextEditorUtils.evaluateDraftContentExpressions(contentState);
+            contentState = RichTextUtils.evaluateDraftContentExpressions(contentState);
         }
         return convertToRaw(contentState);
     }
@@ -537,6 +537,6 @@ class TextEditorUtils {
     }
 }
 
-TextEditorUtils.StorageType = StorageType;
+RichTextUtils.StorageType = StorageType;
 
-export default TextEditorUtils;
+export default RichTextUtils;

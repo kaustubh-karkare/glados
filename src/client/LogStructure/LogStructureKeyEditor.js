@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {
     Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogStructure } from '../../data';
+import { LogStructure } from '../../common/data_types';
 import LogStructureValueEditor from './LogStructureValueEditor';
 
 class LogStructureKeyEditor extends React.Component {
@@ -29,7 +29,7 @@ class LogStructureKeyEditor extends React.Component {
         return (
             <Selector
                 value={this.props.logKey.type}
-                options={LogStructure.Key.Options}
+                options={LogStructure.Key.Type.Options}
                 disabled={this.props.disabled}
                 onChange={(type) => this.updateType(type)}
                 style={{ borderRight: '2px solid transparent' }}

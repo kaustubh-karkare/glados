@@ -1,8 +1,9 @@
-import { getVirtualID } from './Utils';
-import Base from './Base';
-import TextEditorUtils from '../common/TextEditorUtils';
+import { getVirtualID } from './utils';
+import DataTypeBase from './base';
+import RichTextUtils from '../rich_text_utils';
+import { validateNonEmptyString } from './validation';
 
-class LogTopic extends Base {
+class LogTopic extends DataTypeBase {
     static createVirtual({ parentLogTopic = null, name = '' } = {}) {
         return {
             __type__: 'log-topic',
@@ -17,7 +18,7 @@ class LogTopic extends Base {
     }
 
     static async updateWhere(where) {
-        await Base.updateWhere.call(this, where, {
+        await DataTypeBase.updateWhere.call(this, where, {
             __id__: 'id',
             isFavorite: 'is_favorite',
             isDeprecated: 'is_deprecated',
@@ -25,9 +26,9 @@ class LogTopic extends Base {
         });
     }
 
-    static async validateInternal(inputLogTopic) {
+    static async validate(inputLogTopic) {
         const results = [];
-        results.push(Base.validateNonEmptyString('.name', inputLogTopic.name));
+        results.push(validateNonEmptyString('.name', inputLogTopic.name));
         return results;
     }
 
@@ -51,9 +52,9 @@ class LogTopic extends Base {
             __id__: logTopic.id,
             parentLogTopic: outputParentLogTopic,
             name: logTopic.name,
-            details: TextEditorUtils.deserialize(
+            details: RichTextUtils.deserialize(
                 logTopic.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             childCount: logTopic.child_count,
             isFavorite: logTopic.is_favorite,
@@ -68,7 +69,7 @@ class LogTopic extends Base {
         const newParentTopicId = inputLogTopic.parentLogTopic
             ? inputLogTopic.parentLogTopic.__id__
             : null;
-        Base.broadcast.call(
+        DataTypeBase.broadcast.call(
             this,
             'log-topic-list',
             logTopic,
@@ -76,7 +77,7 @@ class LogTopic extends Base {
         );
 
         const originalName = logTopic ? logTopic.name : null;
-        const orderingIndex = await Base.getOrderingIndex.call(this, logTopic);
+        const orderingIndex = await DataTypeBase.getOrderingIndex.call(this, logTopic);
         const childCount = await LogTopic.count.call(
             this,
             { parent_topic_id: inputLogTopic.__id__ },
@@ -85,9 +86,9 @@ class LogTopic extends Base {
             parent_topic_id: newParentTopicId,
             ordering_index: orderingIndex,
             name: inputLogTopic.name,
-            details: TextEditorUtils.serialize(
+            details: RichTextUtils.serialize(
                 inputLogTopic.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
             child_count: childCount,
             is_favorite: inputLogTopic.isFavorite,
@@ -95,7 +96,7 @@ class LogTopic extends Base {
         };
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, fields);
 
-        const targetLogTopics = TextEditorUtils.extractMentions(inputLogTopic.details, 'log-topic');
+        const targetLogTopics = RichTextUtils.extractMentions(inputLogTopic.details, 'log-topic');
         await this.database.setEdges(
             'LogTopicToLogTopic',
             'source_topic_id',
@@ -178,7 +179,7 @@ class LogTopic extends Base {
         await Promise.all(
             inputItems.map((inputItem) => {
                 entityFieldNames.forEach((entityFieldName) => {
-                    inputItem[entityFieldName] = TextEditorUtils.updateDraftContent(
+                    inputItem[entityFieldName] = RichTextUtils.updateDraftContent(
                         inputItem[entityFieldName], [updatedLogTopic],
                     );
                 });
@@ -198,7 +199,7 @@ class LogTopic extends Base {
             await this.invoke.call(this, 'log-topic-upsert', parentLogTopic);
         }
 
-        Base.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
+        DataTypeBase.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
         return { __id__: logTopic.id };
     }
 }

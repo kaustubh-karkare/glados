@@ -1,9 +1,9 @@
 import {
     getDay, getMonth, getYear, subDays,
 } from 'date-fns';
-import Enum from '../../common/Enum';
+import { Enum } from '../../common/data_types';
 
-import DateUtils from '../../common/DateUtils';
+import DateUtils from '../../common/date_utils';
 import { LogEventOptions } from '../LogEvent';
 
 const Granularity = Enum([

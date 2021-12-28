@@ -1,6 +1,6 @@
 import deepcopy from 'deepcopy';
 import deepEqual from 'deep-equal';
-import { isItem, getPartialItem } from '../../data';
+import { isItem, getPartialItem } from '../../common/data_types';
 
 const IGNORE = () => null;
 

@@ -7,8 +7,9 @@
 
 import assert from 'assert';
 
-import { asyncSequence, getPartialItem } from '../../data';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import { getPartialItem } from '../../common/data_types';
+import { asyncSequence } from '../../common/async_utils';
+import RichTextUtils from '../../common/rich_text_utils';
 
 const ActionsRegistry = {};
 
@@ -22,7 +23,7 @@ ActionsRegistry['check-consistency'] = async function () {
         const logTopics = await this.invoke.call(this, 'log-topic-list');
         await asyncSequence(logTopics, async (logTopic) => {
             try {
-                logTopic.details = TextEditorUtils.updateDraftContent(
+                logTopic.details = RichTextUtils.updateDraftContent(
                     logTopic.details, logTopicItems,
                 );
                 await this.invoke.call(this, 'log-topic-upsert', logTopic);
@@ -37,7 +38,7 @@ ActionsRegistry['check-consistency'] = async function () {
         const logStructures = await this.invoke.call(this, 'log-structure-list');
         await asyncSequence(logStructures, async (logStructure) => {
             try {
-                logStructure.titleTemplate = TextEditorUtils.updateDraftContent(
+                logStructure.titleTemplate = RichTextUtils.updateDraftContent(
                     logStructure.titleTemplate, logTopicItems,
                 );
                 await this.invoke.call(this, 'log-structure-upsert', logStructure);
@@ -52,10 +53,10 @@ ActionsRegistry['check-consistency'] = async function () {
         const logEvents = await this.invoke.call(this, 'log-event-list');
         await asyncSequence(logEvents, async (logEvent) => {
             try {
-                logEvent.title = TextEditorUtils.updateDraftContent(
+                logEvent.title = RichTextUtils.updateDraftContent(
                     logEvent.title, logTopicItems,
                 );
-                logEvent.details = TextEditorUtils.updateDraftContent(
+                logEvent.details = RichTextUtils.updateDraftContent(
                     logEvent.details, logTopicItems,
                 );
                 await this.invoke.call(this, 'log-event-upsert', logEvent);
@@ -97,7 +98,7 @@ ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
                         isPeriodic: true,
                         frequency: 'yearly',
                         frequencyArgs: nameRegexResult[1],
-                        reminderText: TextEditorUtils.extractPlainText(logStructure.titleTemplate),
+                        reminderText: RichTextUtils.extractPlainText(logStructure.titleTemplate),
                         warningDays: 2,
                     };
                     let needsUpdate = false;
@@ -251,7 +252,7 @@ ActionsRegistry['add-structure-to-events'] = async function () {
 
     const prefix = `${logTopic.name}: `;
     await Promise.all(logEvents.map(async (logEvent) => {
-        const oldTitleText = TextEditorUtils.extractPlainText(logEvent.title);
+        const oldTitleText = RichTextUtils.extractPlainText(logEvent.title);
         if (logEvent.logStructure || !oldTitleText.startsWith(prefix)) {
             return;
         }
@@ -260,13 +261,13 @@ ActionsRegistry['add-structure-to-events'] = async function () {
             logKeys: logStructure.logKeys.map((logKey) => ({ ...logKey })),
         };
         logEvent.logStructure.logKeys[0].value = getPartialItem(logTopic);
-        logEvent.logStructure.logKeys[1].value = TextEditorUtils.removePrefixFromDraftContext(
+        logEvent.logStructure.logKeys[1].value = RichTextUtils.removePrefixFromDraftContext(
             logEvent.title,
             prefix,
         );
         // Warning! May need to disable this.database.setEdges in LogEvent.save() to avoid timeout.
         logEvent = await this.invoke.call(this, 'log-event-upsert', logEvent);
-        const newTitleText = TextEditorUtils.extractPlainText(logEvent.title);
+        const newTitleText = RichTextUtils.extractPlainText(logEvent.title);
         console.info('Old:', oldTitleText);
         console.info('New:', newTitleText);
     }));

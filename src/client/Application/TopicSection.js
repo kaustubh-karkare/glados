@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DataLoader, SidebarSection } from '../Common';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import RichTextUtils from '../../common/rich_text_utils';
 
 class TopicSection extends React.Component {
     constructor(props) {
@@ -29,12 +29,12 @@ class TopicSection extends React.Component {
             return 'Loading ...';
         }
         // TODO: Update the style of bullet items in the TextEditor, use that instead.
-        const details = TextEditorUtils.deserialize(
-            TextEditorUtils.serialize(
+        const details = RichTextUtils.deserialize(
+            RichTextUtils.serialize(
                 logTopic.details,
-                TextEditorUtils.StorageType.DRAFTJS,
+                RichTextUtils.StorageType.DRAFTJS,
             ),
-            TextEditorUtils.StorageType.MARKDOWN,
+            RichTextUtils.StorageType.MARKDOWN,
         );
         const lines = details.split('\n')
             .filter((line) => line.startsWith('- '))

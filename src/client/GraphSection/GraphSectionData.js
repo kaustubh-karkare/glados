@@ -1,8 +1,8 @@
 import { addDays, compareAsc } from 'date-fns';
 
-import DateUtils from '../../common/DateUtils';
-import { LogStructure } from '../../data';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import DateUtils from '../../common/date_utils';
+import { LogStructure } from '../../common/data_types';
+import RichTextUtils from '../../common/rich_text_utils';
 import { Granularity } from './GraphSectionOptions';
 
 function getLogKeySample(keyIndex, valueParser, logEvents) {
@@ -97,7 +97,7 @@ function getTimeSeries(logEvents, lines, dateRange, granularity) {
             sample[index] = line.getSample(currentLogEvents);
         });
         sample.logEventTitles = currentLogEvents.map(
-            (logEvent) => TextEditorUtils.extractPlainText(logEvent.title),
+            (logEvent) => RichTextUtils.extractPlainText(logEvent.title),
         );
         samples.push(sample);
     }

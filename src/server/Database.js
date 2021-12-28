@@ -1,7 +1,7 @@
 import assert from 'assert';
 import fs from 'fs';
-import defineModels from '../data/Models';
-import { isRealItem } from '../data';
+import defineModels from './models';
+import { isRealItem } from '../common/data_types';
 
 const Sequelize = require('sequelize');
 

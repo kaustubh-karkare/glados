@@ -1,6 +1,6 @@
 /* eslint-disable func-names */
 
-import { getDataTypeMapping } from '../../data';
+import { getDataTypeMapping } from '../../common/data_types';
 
 const ActionsRegistry = {};
 
@@ -20,7 +20,7 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
     };
     ActionsRegistry[`${name}-validate`] = async function (input) {
         const context = { ...this, DataType };
-        return DataType.validate.call(context, input);
+        return DataType.getValidationErrors.call(context, input);
     };
     ActionsRegistry[`${name}-load`] = async function (input) {
         const context = { ...this, DataType };
@@ -35,9 +35,9 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         if (DataType.trigger) {
             DataType.trigger.call(context, input);
         }
-        const errors = await DataType.validate.call(context, input);
+        const errors = await DataType.getValidationErrors.call(context, input);
         if (errors.length) {
-            throw new Error(errors.join('\n'));
+            throw new Error(`${errors.join('\n')}\n${JSON.stringify(input, null, 4)}`);
         }
         const id = await DataType.save.call(context, input);
         // This informs the client-side DataLoader.

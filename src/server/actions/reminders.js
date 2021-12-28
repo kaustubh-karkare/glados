@@ -4,9 +4,10 @@ import assert from 'assert';
 import {
     addDays, compareAsc, differenceInCalendarDays, subDays,
 } from 'date-fns';
-import { LogStructure, filterAsync } from '../../data';
-import DateUtils from '../../common/DateUtils';
-import TextEditorUtils from '../../common/TextEditorUtils';
+import { LogStructure } from '../../common/data_types';
+import { asyncFilter } from '../../common/async_utils';
+import DateUtils from '../../common/date_utils';
+import RichTextUtils from '../../common/rich_text_utils';
 
 const ActionsRegistry = {};
 
@@ -141,7 +142,7 @@ ActionsRegistry['reminder-sidebar'] = async function (input = {}) {
     });
     const reminderGroups = await Promise.all(
         logStructureGroups.map(async (logStructureGroup) => {
-            const logStructures = await filterAsync(
+            const logStructures = await asyncFilter(
                 periodicLogStructures.filter(
                     (logStructure) => logStructure.logStructureGroup.__id__
                         === logStructureGroup.__id__,
@@ -214,7 +215,7 @@ ActionsRegistry['topic-reminders'] = async function ({
     );
     const todayDate = DateUtils.getTodayDate();
     const logTopics = Object.values(
-        TextEditorUtils.extractMentions(logStructure.details, 'log-topic'),
+        RichTextUtils.extractMentions(logStructure.details, 'log-topic'),
     );
     const logTopicAndDayCounts = await Promise.all(logTopics.map(async (logTopic) => {
         // TODO: Fetch only the latest item from the database.

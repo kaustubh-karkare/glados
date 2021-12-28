@@ -24,29 +24,7 @@ yarn run database-reset
 
 * The default `config.json` file specifies the `data` subdirectory as the location of the SQLite database and the backups.
 * I personally made `data` a symlink to another directory that synced to my [Dropbox](https://www.dropbox.com/).
-
-### Usage
-
-```
-yarn run server
-```
-
-### Backups
-
-```
-yarn run backup-save  # Can also be done via the right-sidebar in the UI.
-yarn run backup-load  # This involves a database reset, so be careful!
-```
-
-* Backup files are created by loading the entire database into memory and then writing that as a JSON file.
-* This makes it very easy to apply transformations on the entire database when needed. Eg - if new columns are added, or the data needs to be reorganized.
-* These are also useful if data needs to be moved from one storage to another.
-
-Backup File Size Estimation?
-
-* (1 kilobyte / event) * (50 events / day) * (365 days / year) * (10 years) = 182,500,000 bytes < 200 MB for 10 years.
-* Note that the above estimation does not include other data types, but those are infrequently created, and not separately counted.
-* The total size can reduced significantly by compressing the backup file if needed. JSON was picked for human readability, not for space efficiency.
+* You can change the config to use whatever storage you want, as long as it is compatible with [Sequelize](https://sequelize.org/).
 
 ### Demo
 
@@ -58,3 +36,20 @@ yarn run demo
 ```
 
 * An auxiliary benefit here is that this functionality can be used as an E2E test for this codebase.
+
+### Usage
+
+```
+yarn run server
+```
+
+### Backups
+
+```
+yarn run backup-save
+yarn run backup-load  # This involves a database reset, so be careful!
+```
+
+* Backup files are created by loading the entire database into memory and then writing that as a JSON file.
+* This makes it very easy to apply transformations on the entire database when needed. Eg - if new columns are added, or the data needs to be reorganized.
+* These are also useful if data needs to be moved from one storage to another.

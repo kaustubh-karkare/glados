@@ -271,7 +271,7 @@ export default function (sequelize) {
     });
 
     // Estimated scale? 50 events per day * 365 days * 10 years = 182,500 events
-    // Size of 1 event? 250 bytes, so total size over 10 years ~= 50mb
+    // Size of 1 event? 1 kb, so total size over 10 years ~= 200mb
     const LogEvent = sequelize.define(
         'log_events',
         {

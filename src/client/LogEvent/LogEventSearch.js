@@ -2,11 +2,11 @@ import assert from 'assert';
 import React from 'react';
 import { eachDayOfInterval, getDay } from 'date-fns';
 import PropTypes from '../prop-types';
-import DateUtils from '../../common/DateUtils';
+import DateUtils from '../../common/date_utils';
 import { Coordinator } from '../Common';
 import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
-import { getVirtualID, LogEvent } from '../../data';
+import { getVirtualID, LogEvent } from '../../common/data_types';
 import LogEventOptions from './LogEventOptions';
 
 // Extra Filters for Events

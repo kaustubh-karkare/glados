@@ -8,7 +8,7 @@ import {
 } from '../Common';
 import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
-import { LogStructure, getPartialItem } from '../../data';
+import { LogStructure, getPartialItem } from '../../common/data_types';
 
 const { LogLevel } = LogStructure;
 
@@ -64,8 +64,6 @@ class LogStructureEditor extends React.Component {
                     Name
                 </InputGroup.Text>
                 <TextInput
-                    allowUpdate
-                    dataType="log-structure"
                     value={this.props.logStructure.name}
                     disabled={this.props.disabled}
                     onChange={(name) => this.updateLogStructure('name', name)}
