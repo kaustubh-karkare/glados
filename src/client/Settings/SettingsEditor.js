@@ -100,6 +100,22 @@ class SettingsEditor extends React.Component {
         this.props.onChange(settings);
     }
 
+    renderDisplayOverdueAndUpcomingEvents() {
+        const key = 'display_overdue_and_upcoming_events';
+        return (
+            <div className="my-3">
+                <div>Display Overdue And Upcoming Events</div>
+                <InputGroup className="my-1">
+                    <Selector.Binary
+                        disabled={this.props.disabled}
+                        value={this.getSetting(key, false)}
+                        onChange={(value) => this.setSetting(key, value)}
+                    />
+                </InputGroup>
+            </div>
+        );
+    }
+
     renderDisplaySettingsSection() {
         const key = 'display_settings_section';
         return (
@@ -221,6 +237,7 @@ class SettingsEditor extends React.Component {
     render() {
         return (
             <>
+                {this.renderDisplayOverdueAndUpcomingEvents()}
                 {this.renderDisplaySettingsSection()}
                 {this.renderTwoDetailsSections()}
                 {this.renderTimezones()}

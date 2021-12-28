@@ -263,6 +263,8 @@ TextEditor.SimpleViewer = (props) => {
                         {textPart}
                     </a>
                 );
+            } else {
+                assert(false, `unknown entity type: ${entity.type}`);
             }
         } else {
             const endIndex = entityRange ? entityRange.offset : text.length;
@@ -270,7 +272,6 @@ TextEditor.SimpleViewer = (props) => {
             textIndex = endIndex;
             part = textPart;
         }
-        assert(part);
         parts.push(part);
     }
     return <span>{parts}</span>;

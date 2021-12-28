@@ -1,7 +1,14 @@
 const Sequelize = require('sequelize');
 
-// eslint-disable-next-line func-names
-export default function (sequelize) {
+export function getDataFormatVersion() {
+    // This value is used to ensure that the backup file being loaded
+    // is still compatible with this version of code.
+    // In case of database schema changes, this value should be bumped,
+    // and a script can be written to generate a new backup file from an older version.
+    return 100;
+}
+
+export function getDataModels(sequelize) {
     const options = {
         timestamps: false,
         underscored: true,

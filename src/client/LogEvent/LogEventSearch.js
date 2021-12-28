@@ -1,13 +1,14 @@
+import { addDays, eachDayOfInterval, getDay } from 'date-fns';
 import assert from 'assert';
 import React from 'react';
-import { eachDayOfInterval, getDay } from 'date-fns';
-import PropTypes from '../prop-types';
-import DateUtils from '../../common/date_utils';
 import { Coordinator } from '../Common';
+import { getVirtualID, LogEvent } from '../../common/data_types';
+import { SettingsContext } from '../Settings';
+import DateUtils from '../../common/date_utils';
 import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
-import { getVirtualID, LogEvent } from '../../common/data_types';
 import LogEventOptions from './LogEventOptions';
+import PropTypes from '../prop-types';
 
 // Extra Filters for Events
 
@@ -99,6 +100,7 @@ class LogEventSearch extends React.Component {
 
     // eslint-disable-next-line class-methods-use-this
     renderDefaultView(where, moreProps) {
+        const settings = this.context;
         const today = DateUtils.getTodayLabel();
         const todoMoreProps = {
             ...moreProps,
@@ -111,41 +113,66 @@ class LogEventSearch extends React.Component {
                 displayDate: true,
             },
         };
-        return (
-            <>
+        const results = [
+            <LogEventList
+                key="done"
+                name="Done: Today"
+                where={{ date: today, ...where, isComplete: true }}
+                showAdder
+                {...moreProps}
+            />,
+            <LogEventList
+                key="todo"
+                className="mt-4"
+                name="Todo: Today"
+                where={{
+                    date: today, ...where, isComplete: false,
+                }}
+                showAdder
+                {...todoMoreProps}
+            />,
+        ];
+        if (settings.display_overdue_and_upcoming_events) {
+            const todayDate = DateUtils.getDate(today);
+            results.push(
                 <LogEventList
-                    name="Done (Today)"
-                    where={{ date: today, ...where, isComplete: true }}
-                    showAdder
-                    {...moreProps}
-                />
-                <div className="mt-4" />
-                <LogEventList
-                    name="Todo (Today)"
+                    key="tomorrow"
+                    className="mt-4"
+                    name="Todo: Tomorrow"
                     where={{
-                        date: today, ...where, isComplete: false,
+                        date: DateUtils.getLabel(addDays(todayDate, 1)),
+                        ...where,
+                        isComplete: false,
                     }}
                     showAdder
-                    {...todoMoreProps}
-                />
-                <div className="mt-4" />
+                    {...overdueAndUpcomingMoreProps}
+                />,
                 <LogEventList
-                    name="Todo (Overdue)"
+                    key="upcoming"
+                    className="mt-4"
+                    name="Todo: Next 7 days"
+                    where={{
+                        date: {
+                            startDate: DateUtils.getLabel(addDays(todayDate, 2)),
+                            endDate: DateUtils.getLabel(addDays(todayDate, 7)),
+                        },
+                        ...where,
+                        isComplete: false,
+                    }}
+                    {...overdueAndUpcomingMoreProps}
+                />,
+                <LogEventList
+                    key="overdue"
+                    className="mt-4"
+                    name="Todo: Overdue"
                     where={{
                         date: `lt(${today})`, ...where, isComplete: false,
                     }}
                     {...overdueAndUpcomingMoreProps}
-                />
-                <div className="mt-4" />
-                <LogEventList
-                    name="Todo (Upcoming)"
-                    where={{
-                        date: `gt(${today})`, ...where, isComplete: false,
-                    }}
-                    {...overdueAndUpcomingMoreProps}
-                />
-            </>
-        );
+                />,
+            );
+        }
+        return results;
     }
 
     renderMultipleDaysView(where, moreProps) {
@@ -250,5 +277,7 @@ LogEventSearch.propTypes = {
     dateRange: PropTypes.Custom.DateRange,
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
+
+LogEventSearch.contextType = SettingsContext;
 
 export default LogEventSearch;

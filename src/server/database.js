@@ -1,6 +1,6 @@
 import assert from 'assert';
 import fs from 'fs';
-import defineModels from './models';
+import { getDataModels } from './models';
 import { isRealItem } from '../common/data_types';
 
 const Sequelize = require('sequelize');
@@ -8,7 +8,7 @@ const Sequelize = require('sequelize');
 export default class {
     constructor(config) {
         this.sequelize = new Sequelize(config);
-        const nameAndModels = defineModels(this.sequelize);
+        const nameAndModels = getDataModels(this.sequelize);
         this._modelSequence = nameAndModels.map(([_name, model]) => model);
         this._models = nameAndModels.reduce((result, [name, model]) => {
             result[name] = model;

@@ -14,11 +14,11 @@ ActionsRegistry['value-typeahead-index-$cached'] = async function (input) {
         if (!logKey.value) {
             return [];
         }
-        if (logKey.type === LogStructure.Key.STRING_LIST) {
+        if (logKey.type === LogStructure.Key.Type.STRING_LIST) {
             assert(Array.isArray(logKey.value));
             return logKey.value;
         }
-        if (logKey.type === LogStructure.Key.LOG_TOPIC) {
+        if (logKey.type === LogStructure.Key.Type.LOG_TOPIC) {
             return [logKey.value.__id__];
         }
         return [logKey.value];

@@ -27,11 +27,11 @@ function getLines(logStructure, logEvent) {
     if (logStructure) {
         logEvent.logStructure.logKeys.forEach((logKey, index) => {
             let valueParser;
-            if (logKey.type === LogStructure.Key.INTEGER) {
+            if (logKey.type === LogStructure.Key.Type.INTEGER) {
                 valueParser = parseInt;
-            } else if (logKey.type === LogStructure.Key.NUMBER) {
+            } else if (logKey.type === LogStructure.Key.Type.NUMBER) {
                 valueParser = parseFloat;
-            } else if (logKey.type === LogStructure.Key.TIME) {
+            } else if (logKey.type === LogStructure.Key.Type.TIME) {
                 valueParser = (value) => parseInt(value.replace(':', ''), 10);
             } else {
                 return;

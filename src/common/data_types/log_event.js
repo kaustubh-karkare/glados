@@ -17,6 +17,10 @@ class LogEvent extends DataTypeBase {
         isFavorite = false,
         isComplete = true,
     }) {
+        if (typeof date !== 'string' || date.match(/\(/)) {
+            // In case the filters are gt(null) or lt(null) or dateRange, default to null.
+            date = null;
+        }
         // Abstraction leak! The LogEventSearch component filters to logLevels = [2,3] by default.
         if (Array.isArray(logLevel)) {
             [logLevel] = logLevel;
@@ -118,9 +122,9 @@ class LogEvent extends DataTypeBase {
         };
         if (inputLogEvent.logStructure) {
             inputLogEvent.logStructure.logKeys.forEach((logKey) => {
-                if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.value) {
+                if (logKey.type === LogStructure.Key.Type.LOG_TOPIC && logKey.value) {
                     logTopics[logKey.value.__id__] = logKey.value;
-                } else if (logKey.type === LogStructure.Key.RICH_TEXT_LINE) {
+                } else if (logKey.type === LogStructure.Key.Type.RICH_TEXT_LINE) {
                     logTopics = {
                         ...logTopics,
                         ...RichTextUtils.extractMentions(logKey.value, 'log-topic'),

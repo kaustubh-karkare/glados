@@ -3,6 +3,7 @@ import arrayMove from 'array-move';
 import PropTypes from 'prop-types';
 import React from 'react';
 import deepEqual from 'deep-equal';
+import classNames from 'classnames';
 import BulletListItem from './BulletListItem';
 import BulletListLine from './BulletListLine';
 import BulletListPager from './BulletListPager';
@@ -147,7 +148,7 @@ class BulletList extends React.Component {
 
     render() {
         return (
-            <div className="bullet-list">
+            <div className={classNames('bullet-list', this.props.className)}>
                 <BulletListTitle
                     name={this.props.name}
                     areAllExpanded={this.state.areAllExpanded}
@@ -200,6 +201,7 @@ BulletList.propTypes = {
     AdderComponent: PropTypes.func,
     // eslint-disable-next-line react/forbid-prop-types
     prefixActions: PropTypes.array,
+    className: PropTypes.string,
 };
 
 BulletList.defaultProps = {

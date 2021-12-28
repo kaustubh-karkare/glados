@@ -21,7 +21,7 @@ class LogStructureKeyEditor extends React.Component {
     updateType(newType) {
         const logKey = { ...this.props.logKey };
         logKey.type = newType;
-        logKey.value = LogStructure.Key[newType].default;
+        logKey.value = LogStructure.Key.Type[newType].default;
         this.props.onChange(logKey);
     }
 
@@ -142,7 +142,7 @@ class LogStructureKeyEditor extends React.Component {
                     </InputGroup.Text>
                     {this.renderTypeSelector()}
                     {this.renderNameInput()}
-                    {this.props.logKey.type === LogStructure.Key.LOG_TOPIC
+                    {this.props.logKey.type === LogStructure.Key.Type.LOG_TOPIC
                         ? this.renderParentLogTopic() : null}
                     {this.renderOptionalSelector()}
                     {this.renderValue()}
@@ -154,7 +154,7 @@ class LogStructureKeyEditor extends React.Component {
                     </InputGroup.Text>
                     {this.renderTemplate()}
                 </InputGroup>
-                {this.props.logKey.type === LogStructure.Key.ENUM
+                {this.props.logKey.type === LogStructure.Key.Type.ENUM
                     ? this.renderEnumValuesSection() : null}
             </div>
         );

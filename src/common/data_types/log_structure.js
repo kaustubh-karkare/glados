@@ -92,7 +92,7 @@ class LogStructure extends DataTypeBase {
             ...RichTextUtils.extractMentions(inputLogStructure.details, 'log-topic'),
         };
         inputLogStructure.logKeys.forEach((logKey) => {
-            if (logKey.type === LogStructure.Key.LOG_TOPIC && logKey.parentLogTopic) {
+            if (logKey.type === LogStructure.Key.Type.LOG_TOPIC && logKey.parentLogTopic) {
                 logTopics[logKey.parentLogTopic.__id__] = logKey.parentLogTopic;
             }
         });

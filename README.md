@@ -8,14 +8,14 @@
 
 ### Warning!
 
-* This tool is continuously being modified as I discover what works for me and what doesn't. This includes changes to not only the UI, but to the database schema too. And I do NOT plan to support automatic data migrations when these database modifications happen.
-* I do not recommend using this tool, unless you are able to write the code necessary to update your data according to the new schema. For what it is worth, this should not be particularly difficult using the "Backup" files described later.
+* This tool is continuously being modified as I discover bugs and improving workflows that work for me, since it is primarily designed for an audience of one. It most definitely is NOT perfect, containing edge cases and bugs that I have not yet encountered, despite having used it almost daily since July 2020.
+* As part of the above, I end up modifying not only the UI, but to the database schema too. I do not recommend using this tool unless you are able to write the code necessary to update your data according to the new schema. For what it is worth, this should not be particularly difficult using the "Backup" files described later.
 
 ### Installation
 
 ```
 git clone https://github.com/kaustubh-karkare/glados
-cp config/example.glados.example config.json
+cp config/example.glados.json config.json
 mkdir data
 yarn install
 yarn run build
@@ -46,7 +46,7 @@ yarn run server
 ### Backups
 
 ```
-yarn run backup-save
+yarn run backup-save  # Can also be done via the right-sidebar in the UI.
 yarn run backup-load  # This involves a database reset, so be careful!
 ```
 
