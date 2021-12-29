@@ -48,6 +48,10 @@ const LogEvent = PropTypes.shape({
     logStructure: LogStructure,
 });
 
+const Plugins = PropTypes.objectOf(
+    PropTypes.func.isRequired,
+);
+
 PropTypes.Custom = {
     DateRange,
     EnumOptions,
@@ -57,5 +61,7 @@ PropTypes.Custom = {
     LogStructureKey,
     LogStructure,
     LogEvent,
+    Plugins,
 };
+
 export default PropTypes;

@@ -41,11 +41,17 @@ class ActionsRegistry {
         }
         const result = {};
 
-        // Maybe look at more directories here.
         const actionsContext = require.context('./actions', false, /\.js$/);
         actionsContext.keys()
             .forEach((filePath) => {
                 const exports = actionsContext(filePath);
+                ActionsRegistry.build(result, exports.default);
+            });
+
+        const pluginsContext = require.context('../plugins', true, /actions\.js$/);
+        pluginsContext.keys()
+            .forEach((filePath) => {
+                const exports = pluginsContext(filePath);
                 ActionsRegistry.build(result, exports.default);
             });
 

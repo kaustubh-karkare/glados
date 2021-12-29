@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from '../prop-types';
 import { LeftRight, SidebarSection } from '../Common';
 import SettingsContext from './SettingsContext';
 import SettingsModal from './SettingsModal';
@@ -38,6 +38,7 @@ class SettingsSection extends React.Component {
             <>
                 <SettingsModal
                     settings={this.props.settings}
+                    plugins={this.props.plugins}
                     isShown={this.state.isShown}
                     onClose={() => this.setState({ isShown: false })}
                 />
@@ -50,6 +51,7 @@ class SettingsSection extends React.Component {
 SettingsSection.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     settings: PropTypes.objectOf(PropTypes.any.isRequired).isRequired,
+    plugins: PropTypes.Custom.Plugins.isRequired,
 };
 
 SettingsSection.contextType = SettingsContext;

@@ -34,5 +34,14 @@ window.main = function main() {
         (name, input, error) => Coordinator.invoke('modal-error', error),
     );
 
-    ReactDOM.render(<Application />, document.getElementById('root'));
+    const plugins = {};
+    const pluginsContext = require.context('../plugins', true, /client\.js$/);
+    pluginsContext.keys()
+        .forEach((filePath) => {
+            const exports = pluginsContext(filePath);
+            const name = filePath.split('/').slice(1, -1).join('/');
+            plugins[name] = exports.default;
+        });
+
+    ReactDOM.render(<Application plugins={plugins} />, document.getElementById('root'));
 };

@@ -118,7 +118,7 @@ const { argv } = yargs
     .option('indent', { default: '\t' })
     // Recording
     .option('record')
-    .option('videoPath', { default: './demo/data/demo.mkv' })
+    .option('videoPath', { default: './data/demo.mkv' })
     // Lessons
     .option('filter')
     .option('wait', { default: 0 });

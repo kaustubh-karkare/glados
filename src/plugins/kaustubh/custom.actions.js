@@ -1,6 +1,3 @@
-// This file contains custom logic that is specific only for Kaustubh's usage.
-// These actions should not be invoked from the client.
-
 /* eslint-disable func-names */
 /* eslint-disable camelcase */
 /* eslint-disable no-console */

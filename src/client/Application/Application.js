@@ -2,21 +2,20 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import React from 'react';
 import Row from 'react-bootstrap/Row';
+import PropTypes from '../prop-types';
 import {
     Coordinator, DataLoader, EnumSelectorSection, ModalStack, ScrollableSection,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
 import { LogTopicList } from '../LogTopic';
-import { ReminderSidebar, TopicRemindersSection } from '../Reminders';
+import { ReminderSidebar } from '../Reminders';
 import BackupSection from './BackupSection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import FavoritesSection from './FavoritesSection';
 import { SettingsContext, SettingsSection } from '../Settings';
-import TimeSection from './TimeSection';
-import TopicSection from './TopicSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
 import { Enum } from '../../common/data_types';
@@ -78,6 +77,19 @@ class Applicaton extends React.Component {
     componentWillUnmount() {
         this.dataLoader.stop();
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
+    }
+
+    insertPluginsInto(list, location) {
+        Object.entries(this.props.plugins).forEach(([name, api]) => {
+            if (api.getDisplayLocation() !== location) {
+                return;
+            }
+            const key = api.getSettingsKey();
+            const props = {
+                settings: key ? this.state.settings[key] : null,
+            };
+            list.push(<div key={`plugin:${name}`}>{api.getDisplayComponent(props)}</div>);
+        });
     }
 
     renderLeftSidebar() {
@@ -156,55 +168,54 @@ class Applicaton extends React.Component {
 
     renderRightSidebar() {
         const { settings } = this.state;
+        const results = [];
+        this.insertPluginsInto(results, 'right_sidebar_main_top');
+        results.push(
+            <EnumSelectorSection
+                key="layout"
+                label="Layout: "
+                options={Layout.Options}
+                value={this.state.urlParams.layout}
+                onChange={(layout) => Coordinator.invoke('url-update', { layout })}
+            />,
+            <EnumSelectorSection
+                key="widgets"
+                label="Widgets: "
+                options={Widgets.Options}
+                value={this.state.urlParams.widgets}
+                onChange={(widgets) => Coordinator.invoke('url-update', { widgets })}
+            />,
+            <BackupSection key="backup" />,
+        );
+        if (settings) {
+            results.push(
+                <SettingsSection
+                    key="settings"
+                    settings={settings}
+                    plugins={this.props.plugins}
+                />,
+            );
+        }
+        this.insertPluginsInto(results, 'right_sidebar_main_bottom');
+        if (this.state.urlParams.widgets === Widgets.SHOW) {
+            results.push(...this.renderRightSidebarWidgets());
+        }
+        results.push(<CreditsSection key="credit" />);
         return (
             <Col md={2} className="my-3">
                 <ScrollableSection>
-                    {
-                        (settings.timezones || []).map((item, index) => (
-                            <TimeSection
-                                key={item.__id__}
-                                label={item.label}
-                                timezone={item.timezone}
-                            />
-                        ))
-                    }
-                    <EnumSelectorSection
-                        label="Layout: "
-                        options={Layout.Options}
-                        value={this.state.urlParams.layout}
-                        onChange={(layout) => Coordinator.invoke('url-update', { layout })}
-                    />
-                    <EnumSelectorSection
-                        label="Widgets: "
-                        options={Widgets.Options}
-                        value={this.state.urlParams.widgets}
-                        onChange={(widgets) => Coordinator.invoke('url-update', { widgets })}
-                    />
-                    <BackupSection />
-                    {settings
-                        ? <SettingsSection settings={settings} />
-                        : null}
-                    {this.state.urlParams.widgets === Widgets.SHOW
-                        ? this.renderRightSidebarWidgets()
-                        : null}
-                    <CreditsSection />
+                    {results}
                 </ScrollableSection>
             </Col>
         );
     }
 
     renderRightSidebarWidgets() {
-        const { settings } = this.state;
         const nameSortComparator = (left, right) => left.name.localeCompare(right.name);
-        return (
-            <>
-                {(settings.topic_sections || [])
-                    .map((item) => (
-                        <TopicSection
-                            key={item.__id__}
-                            logTopicId={item.logTopic.__id__}
-                        />
-                    ))}
+        const results = [];
+        this.insertPluginsInto(results, 'right_sidebar_widgets_top');
+        results.push(
+            <div key="favorites">
                 <FavoritesSection
                     title="Favorite Events"
                     dataType="log-event"
@@ -226,16 +237,10 @@ class Applicaton extends React.Component {
                     ViewerComponent={LogStructureList.Single}
                     valueKey="logStructure"
                 />
-                {(settings.reminder_sections || [])
-                    .map((item) => (
-                        <TopicRemindersSection
-                            key={item.__id__}
-                            logStructureId={item.logStructure.__id__}
-                            thresholdDays={parseInt(item.thresholdDays, 10)}
-                        />
-                    ))}
-            </>
+            </div>,
         );
+        this.insertPluginsInto(results, 'right_sidebar_widgets_bottom');
+        return results;
     }
 
     render() {
@@ -258,5 +263,9 @@ class Applicaton extends React.Component {
         );
     }
 }
+
+Applicaton.propTypes = {
+    plugins: PropTypes.Custom.Plugins.isRequired,
+};
 
 export default Applicaton;

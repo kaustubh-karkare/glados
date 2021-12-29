@@ -1,6 +1,6 @@
 import React from 'react';
-import { DataLoader, Link, SidebarSection } from '../Common';
-import PropTypes from '../prop-types';
+import { DataLoader, Link, SidebarSection } from '../../../client/Common';
+import PropTypes from '../../../client/prop-types';
 
 class TopicRemindersSection extends React.Component {
     constructor(props) {

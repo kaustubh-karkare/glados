@@ -20,3 +20,12 @@ export function isRealItem(item) {
 export function getPartialItem(item) {
     return item ? { __type__: item.__type__, __id__: item.__id__, name: item.name } : null;
 }
+
+export function getNextID(items) {
+    let nextId = -1;
+    // eslint-disable-next-line no-loop-func
+    while (items.some((item) => item.__id__ === nextId)) {
+        nextId -= 1;
+    }
+    return nextId;
+}

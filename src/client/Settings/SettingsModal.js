@@ -1,8 +1,8 @@
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
+import PropTypes from '../prop-types';
 import { suppressUnlessShiftKey } from '../Common/Utils';
 import SettingsEditor from './SettingsEditor';
 import { LeftRight } from '../Common';
@@ -38,6 +38,7 @@ class SettingsModal extends React.Component {
                 <Modal.Body>
                     <SettingsEditor
                         settings={this.state.settings}
+                        plugins={this.props.plugins}
                         disabled={this.state.isSaving}
                         onChange={(settings) => this.setState({ settings })}
                     />
@@ -62,9 +63,10 @@ class SettingsModal extends React.Component {
 }
 
 SettingsModal.propTypes = {
-    isShown: PropTypes.bool.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     settings: PropTypes.objectOf(PropTypes.any.isRequired).isRequired,
+    plugins: PropTypes.Custom.Plugins.isRequired,
+    isShown: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
