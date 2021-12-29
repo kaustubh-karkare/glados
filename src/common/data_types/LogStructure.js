@@ -2,10 +2,10 @@ import { getVirtualID, getPartialItem, isVirtualItem } from './utils';
 import { asyncSequence } from '../async_utils';
 import DataTypeBase from './base';
 import Enum from './enum';
-import LogStructureFrequency from './log_structure_frequency';
+import LogStructureFrequency from './LogStructureFrequency';
 import RichTextUtils from '../rich_text_utils';
-import LogStructureKey from './log_structure_key';
-import LogStructureGroup from './log_structure_group';
+import LogStructureKey from './LogStructureKey';
+import LogStructureGroup from './LogStructureGroup';
 import { validateRecursive, validateRecursiveList } from './validation';
 
 const LogLevel = Enum([
