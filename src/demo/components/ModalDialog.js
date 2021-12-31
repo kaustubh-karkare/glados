@@ -1,7 +1,9 @@
 import assert from 'assert';
 import { By } from 'selenium-webdriver';
 import BaseWrapper from './BaseWrapper';
-import { getInputComponent, LogStructureKey } from './Inputs';
+import {
+    LogStructureKey, Selector, TextEditor, TypeaheadSelector,
+} from './Inputs';
 
 export default class ModalDialog extends BaseWrapper {
     static async get(webdriver, index) {
@@ -33,14 +35,33 @@ export default class ModalDialog extends BaseWrapper {
         await this._clickAndWaitForClose(buttonElement);
     }
 
-    async getInput(name) {
-        const inputElement = await this.element.findElement(By.xpath(
+    async _getElement(name) {
+        return this.element.findElement(By.xpath(
             '//div[contains(@class, \'modal-content\')]/div[2]'
             + '//div[contains(@class, \'input-group\')]'
             + `/span[contains(@class, 'input-group-text') and text() = '${name}']`
             + '/../*[2]',
         ));
-        return getInputComponent(this.webdriver, inputElement);
+    }
+
+    async getTextInput(name) {
+        const element = await this._getElement(name);
+        return new BaseWrapper(this.webdriver, element);
+    }
+
+    async getTextEditor(name) {
+        const element = await this._getElement(name);
+        return TextEditor.get(this.webdriver, element);
+    }
+
+    async getTypeahead(name) {
+        const element = await this._getElement(name);
+        return TypeaheadSelector.get(this.webdriver, element);
+    }
+
+    async getSelector(name) {
+        const element = await this._getElement(name);
+        return Selector.get(this.webdriver, element);
     }
 
     async performSave() {

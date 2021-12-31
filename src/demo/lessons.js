@@ -29,6 +29,7 @@ export default async (webdriver, argv) => {
             await app.clearDatabase();
             await webdriver.get(resetUrl);
             await lessonMethod(app);
+            await app.wait(1000); // 1 sec
         } catch (error) {
             console.error(error);
             await app.wait(argv.wait * 1000); // Use this time to debug.

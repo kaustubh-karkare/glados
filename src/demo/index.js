@@ -47,7 +47,7 @@ async function main(argv) {
 
     const webdriver = new Builder().forBrowser('chrome').build();
     await webdriver.manage().window().setRect({
-        width: 1920, height: 1080, x: 0, y: 0,
+        width: 1920, height: 1080, x: 0, y: 1080,
     });
     await webdriver.get(`http://${config.server.host}:${config.server.port}`);
     console.info(`${argv.indent}Webdriver started!`);

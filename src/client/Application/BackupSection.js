@@ -6,7 +6,10 @@ import {
 class BackupSection extends React.Component {
     static onClick() {
         window.api.send('backup-save')
-            .then(({ isUnchanged }) => Coordinator.invoke('modal-error', isUnchanged ? 'Backup unchanged!' : 'Backup complete!'));
+            .then(({ isUnchanged }) => Coordinator.invoke('modal-info', {
+                title: 'Backup',
+                message: isUnchanged ? 'Backup unchanged!' : 'Backup complete!',
+            }));
     }
 
     constructor(props) {

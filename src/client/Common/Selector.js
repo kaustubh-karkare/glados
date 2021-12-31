@@ -19,6 +19,7 @@ class Selector extends React.Component {
         return (
             <Form.Control
                 {...moreProps}
+                className="selector"
                 as="select"
                 onChange={(event) => onChange(event.target.value)}
                 ref={this.ref}

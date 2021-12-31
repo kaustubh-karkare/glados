@@ -150,9 +150,12 @@ class BulletListItem extends React.Component {
         actions.push({
             __id__: 'info',
             name: 'Debug Info',
-            perform: (event) => Coordinator.invoke(
-                'modal-error',
-                JSON.stringify(this.props.value, null, 4),
+            perform: (_event) => Coordinator.invoke(
+                'modal-info',
+                {
+                    title: 'Debug Info',
+                    message: <pre>{JSON.stringify(this.props.value, null, 4)}</pre>,
+                },
             ),
         });
         return (

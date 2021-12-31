@@ -49,13 +49,21 @@ export default class BaseWrapper {
         await this.wait();
     }
 
-    async moveTo(element) {
+    async _moveTo(element) {
         await this.webdriver.actions().move({ origin: element || this.element }).perform();
+    }
+
+    async moveTo(element) {
+        await this._moveTo(element);
         await this.wait();
     }
 
-    async click(element) {
+    async _click(element) {
         await this.webdriver.actions().click(element || this.element).perform();
+    }
+
+    async click(element) {
+        await this._click(element);
         await this.wait();
     }
 
@@ -77,13 +85,12 @@ export default class BaseWrapper {
         return items[index < 0 ? items.length + index : index];
     }
 
-    static async getElementByClassName(element, className) {
+    static async getElementByClassName(element, className, index = 0) {
         const classAttribute = await element.getAttribute('class');
         if (classAttribute.includes(className)) {
             return element;
         }
-        const elements = await element.findElements(By.className('text-editor'));
-        assert(elements.length <= 1);
-        return elements[0] || null;
+        const elements = await element.findElements(By.className(className));
+        return elements[index] || null;
     }
 }

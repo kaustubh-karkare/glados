@@ -4,6 +4,20 @@ import assert from 'assert';
 import { By } from 'selenium-webdriver';
 import BaseWrapper from './BaseWrapper';
 
+export class Selector extends BaseWrapper {
+    static async get(webdriver, element) {
+        const actual = await BaseWrapper.getElementByClassName(element, 'selector');
+        return actual ? new this(webdriver, actual) : null;
+    }
+
+    async pickOption(name) {
+        await this.click(this.element);
+        await this.wait();
+        await this.element.sendKeys(name);
+        await this.wait();
+    }
+}
+
 export class TypeaheadSelector extends BaseWrapper {
     static async get(webdriver, element) {
         const actual = await BaseWrapper.getElementByClassName(element, 'rbt');
@@ -99,6 +113,10 @@ export class LogStructureKey extends BaseWrapper {
         return new this(webdriver, container);
     }
 
+    async getTypeSelector() {
+        return Selector.get(this.webdriver, this.element, 0);
+    }
+
     async getNameInput() {
         return new BaseWrapper(this.webdriver, await this.element.findElement(By.tagName('input')));
     }
@@ -106,19 +124,4 @@ export class LogStructureKey extends BaseWrapper {
     async getTemplateInput() {
         return new TextEditor(this.webdriver, this.element);
     }
-
-    async setType(name) {
-        const selectors = await this.element.findElements(By.xpath('.//select'));
-        const selector = new BaseWrapper(this.webdriver, selectors[0]);
-        await selector.typeSlowly(name);
-    }
-}
-
-export async function getInputComponent(webdriver, element) {
-    let item;
-    item = await TextEditor.get(webdriver, element);
-    if (item) return item;
-    item = await TypeaheadSelector.get(webdriver, element);
-    if (item) return item;
-    return new BaseWrapper(webdriver, element);
 }

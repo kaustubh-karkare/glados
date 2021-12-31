@@ -26,14 +26,15 @@ export default async (app) => {
         const bulletList1 = await bulletItem1.getSubList();
 
         await app.performCreateNew(bulletList1).then(async (modalDialog) => {
-            const nameInput = await modalDialog.getInput('Name');
+            const nameInput = await modalDialog.getTextInput('Name');
             await nameInput.typeSlowly('Woke up');
 
-            const templateInput = await modalDialog.getInput('Title Template');
+            const templateInput = await modalDialog.getTextEditor('Title Template');
             await templateInput.typeSlowly(' at ');
 
             const key1 = await modalDialog.addLogStructureKey();
-            await key1.setType('Time');
+            const typeSelector = await key1.getTypeSelector();
+            await typeSelector.pickOption('Time');
             const key1name = await key1.getNameInput();
             await key1name.typeSlowly('Time');
 
@@ -41,20 +42,20 @@ export default async (app) => {
             await templateInput.pickSuggestion(0);
             await templateInput.sendKeys('BACK_SPACE');
 
-            const isPeriodicSelector = await modalDialog.getInput('Is Periodic?');
-            await isPeriodicSelector.typeSlowly('Yes');
+            const isPeriodicSelector = await modalDialog.getSelector('Is Periodic?');
+            await isPeriodicSelector.pickOption('Yes');
 
             await modalDialog.performSave();
         });
 
         await app.performCreateNew(bulletList1).then(async (modalDialog) => {
-            const nameInput = await modalDialog.getInput('Name');
+            const nameInput = await modalDialog.getTextInput('Name');
             await nameInput.typeSlowly('Made Bed');
 
-            const isPeriodicSelector = await modalDialog.getInput('Is Periodic?');
-            await isPeriodicSelector.typeSlowly('Yes');
+            const isPeriodicSelector = await modalDialog.getSelector('Is Periodic?');
+            await isPeriodicSelector.pickOption('Yes');
 
-            const reminderTextInput = await modalDialog.getInput('Reminder Text');
+            const reminderTextInput = await modalDialog.getTextInput('Reminder Text');
             await reminderTextInput.typeSlowly('Make Bed');
 
             await modalDialog.performSave();
@@ -80,7 +81,7 @@ export default async (app) => {
             await checkbox.click();
 
             const modalDialog = await app.getModalDialog(0);
-            const timeInput = await modalDialog.getInput('Time');
+            const timeInput = await modalDialog.getTypeahead('Time');
             await timeInput.typeSlowly('07:00');
             await modalDialog.performSave();
         });

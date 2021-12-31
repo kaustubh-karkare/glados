@@ -10,6 +10,7 @@ export { default as EnumSelectorSection } from './EnumSelectorSection';
 export { default as ErrorModal } from './ErrorModal';
 export { default as Highlightable } from './Highlightable';
 export { default as Icon } from './Icon';
+export { default as InfoModal } from './InfoModal';
 export { default as InputLine } from './InputLine';
 export { default as LeftRight } from './LeftRight';
 export { default as Link } from './Link';

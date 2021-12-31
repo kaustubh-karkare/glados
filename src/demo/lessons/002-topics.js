@@ -37,7 +37,7 @@ export default async (app) => {
 
         const bulletList2 = await bulletItem2.getSubList();
         await app.performCreateNew(bulletList2);
-        await app.performInputName('Sayee Basole');
+        await app.performInputName('Kasturi Karkare');
         await app.waitUntil(async () => await bulletList2.getItemCount() === 1);
     }
 
@@ -57,7 +57,7 @@ export default async (app) => {
         await adder.sendKeys('ENTER');
         await app.waitUntil(async () => await bulletList.getItemCount() === 3);
 
-        await adder.typeSlowly('Conversation with @S');
+        await adder.typeSlowly('Conversation with @K');
         await adder.pickSuggestion(0);
         await adder.typeSlowly('about @G');
         await adder.pickSuggestion(0);
@@ -92,7 +92,7 @@ export default async (app) => {
         await detailsSection.sendKeys('ENTER');
 
         await detailsSection.perform('Search');
-        const typeahead = await indexSection.getTypeaheadSelector();
+        const typeahead = await indexSection.getTypeahead();
         await app.waitUntil(async () => (await typeahead.getTokens()).length === 1);
 
         topicElement = await app.getTopic('GLADOS', 0);

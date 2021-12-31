@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
+import assert from 'assert';
 import { By } from 'selenium-webdriver';
 import BaseWrapper from './BaseWrapper';
 import { TextEditor } from './Inputs';
@@ -33,28 +34,30 @@ export default class BulletList extends BaseWrapper {
     }
 
     async getAdder() {
-        return TextEditor.get(this.webdriver, this.element);
+        const element = this.element.findElement(By.xpath('./div[3]'));
+        return TextEditor.get(this.webdriver, element);
     }
 }
 
 class BulletListItem extends BaseWrapper {
     async _getButton(title) {
-        await this.moveTo(this.element);
-        return this.element.findElement(By.xpath(
+        await this._moveTo(this.element);
+        const button = this.element.findElement(By.xpath(
             `.//div[contains(@class, 'icon') and @title='${title}']`,
         ));
+        await this._moveTo(button);
+        return button;
     }
 
     async perform(name) {
-        await this.moveTo(this.element);
         const button = await this._getButton(name);
         await this.moveToAndClick(button);
     }
 
     async performAction(name) {
-        await this.moveToAndClick(this.element);
+        await this._moveTo(this.element);
         const actionButton = await this._getButton('Actions');
-        await this.moveTo(actionButton);
+        await this._moveTo(actionButton);
         await this.webdriver.wait(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);
         const actionElement = await actionButton.findElement(
             By.xpath(`.//a[contains(@class, 'dropdown-item') and text() = '${name}']`),
@@ -68,5 +71,13 @@ class BulletListItem extends BaseWrapper {
             + "//div[contains(@class, 'bullet-list')]",
         ));
         return items.length ? new BulletList(this.webdriver, items[0]) : null;
+    }
+
+    async move(direction) {
+        assert(['UP', 'DOWN'].includes(direction));
+        const reorderButton = await this._getButton('Reorder');
+        await this._moveTo(reorderButton);
+        await this.wait();
+        await this.sendKeys(['SHIFT', direction]);
     }
 }

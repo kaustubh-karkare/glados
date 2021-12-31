@@ -26,19 +26,23 @@ export default async (app) => {
         const bulletList1 = await bulletItem1.getSubList();
         const modalDialog = await app.performCreateNew(bulletList1);
 
-        const nameInput = await modalDialog.getInput('Name');
+        const nameInput = await modalDialog.getTextInput('Name');
         await nameInput.typeSlowly('Running');
 
         const key1 = await modalDialog.addLogStructureKey();
+        const key1type = await key1.getTypeSelector();
+        await key1type.pickOption('Number');
         const key1name = await key1.getNameInput();
         await key1name.typeSlowly('Distance (km)');
 
-        const templateInput = await modalDialog.getInput('Title Template');
+        const templateInput = await modalDialog.getTextEditor('Title Template');
         await templateInput.typeSlowly(': @D');
         await templateInput.pickSuggestion(0);
         await templateInput.typeSlowly('km / ');
 
         const key2 = await modalDialog.addLogStructureKey();
+        const key2type = await key2.getTypeSelector();
+        await key2type.pickOption('Number');
         const key2name = await key2.getNameInput();
         await key2name.typeSlowly('Time (minutes)');
 
@@ -60,9 +64,9 @@ export default async (app) => {
         await app.waitUntil(async () => !!(await app.getModalDialog(0)));
 
         const modalDialog = await app.getModalDialog(0);
-        const distanceInput = await modalDialog.getInput('Distance (km)');
+        const distanceInput = await modalDialog.getTypeahead('Distance (km)');
         await distanceInput.typeSlowly('10');
-        const timeInput = await modalDialog.getInput('Time (minutes)');
+        const timeInput = await modalDialog.getTypeahead('Time (minutes)');
         await timeInput.typeSlowly('60');
 
         await modalDialog.performSave();
@@ -86,6 +90,8 @@ export default async (app) => {
         const modalDialog = await app.getModalDialog(0);
 
         const key3 = await modalDialog.addLogStructureKey();
+        const key3type = await key3.getTypeSelector();
+        await key3type.pickOption('Number');
         const key3name = await key3.getNameInput();
         await key3name.typeSlowly('Speed (kmph)');
         const key3template = await key3.getTemplateInput();
@@ -95,7 +101,7 @@ export default async (app) => {
         await key3template.pickSuggestion(0);
         await key3template.typeSlowly(').toFixed(2)}');
 
-        const templateInput = await modalDialog.getInput('Title Template');
+        const templateInput = await modalDialog.getTextEditor('Title Template');
         await templateInput.sendKeys('BACK_SPACE');
         await templateInput.typeSlowly(' (@S');
         await templateInput.pickSuggestion(0);
@@ -112,7 +118,7 @@ export default async (app) => {
         await app.waitUntil(async () => !!(await app.getModalDialog(0)));
 
         const modalDialog = await app.getModalDialog(0);
-        const timeInput = await modalDialog.getInput('Time (minutes)');
+        const timeInput = await modalDialog.getTypeahead('Time (minutes)');
         await timeInput.sendKeys('BACK_SPACE', 'BACK_SPACE');
         await timeInput.typeSlowly('50');
 

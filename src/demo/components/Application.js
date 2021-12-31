@@ -63,7 +63,7 @@ export default class Application extends BaseWrapper {
 
     async performInputName(name) {
         const modalDialog = await this.getModalDialog(0);
-        const nameInput = await modalDialog.getInput('Name');
+        const nameInput = await modalDialog.getTextInput('Name');
         await nameInput.typeSlowly(name);
         await modalDialog.performSave();
     }

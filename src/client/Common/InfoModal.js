@@ -3,11 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { suppressUnlessShiftKey } from './Utils';
 
-function ErrorModal(props) {
-    let { error } = props;
-    if (typeof error !== 'string') {
-        error = JSON.stringify(error);
-    }
+function InfoModal(props) {
     return (
         <Modal
             show
@@ -15,21 +11,20 @@ function ErrorModal(props) {
             onEscapeKeyDown={suppressUnlessShiftKey}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Error</Modal.Title>
+                <Modal.Title>{props.title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <pre>
-                    {error}
-                </pre>
+                {props.message}
             </Modal.Body>
         </Modal>
     );
 }
 
-ErrorModal.propTypes = {
+InfoModal.propTypes = {
+    title: PropTypes.string.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
-    error: PropTypes.any.isRequired,
+    message: PropTypes.any.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
-export default ErrorModal;
+export default InfoModal;

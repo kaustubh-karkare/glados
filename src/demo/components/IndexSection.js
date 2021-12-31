@@ -9,7 +9,7 @@ export default class IndexSection extends BaseWrapper {
         return elements.length ? new this(webdriver, elements[0]) : null;
     }
 
-    async getTypeaheadSelector() {
+    async getTypeahead() {
         const inputElement = await this.element.findElement(
             By.xpath("./div[1]//div[contains(@class, 'rbt')]"),
         );

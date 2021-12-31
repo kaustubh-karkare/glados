@@ -30,14 +30,15 @@ export default async (app) => {
         const bulletList1 = await bulletItem1.getSubList();
 
         await app.performCreateNew(bulletList1).then(async (modalDialog) => {
-            const nameInput = await modalDialog.getInput('Name');
+            const nameInput = await modalDialog.getTextInput('Name');
             await nameInput.typeSlowly('Push Ups');
 
-            const templateInput = await modalDialog.getInput('Title Template');
+            const templateInput = await modalDialog.getTextEditor('Title Template');
             await templateInput.typeSlowly(': ');
 
             const key1 = await modalDialog.addLogStructureKey();
-            await key1.setType('Integer');
+            const key1type = await key1.getTypeSelector();
+            await key1type.pickOption('Integer');
             const key1name = await key1.getNameInput();
             await key1name.typeSlowly('Count');
 
@@ -61,12 +62,12 @@ export default async (app) => {
         await app.waitUntil(async () => !!(await app.getModalDialog(0)));
 
         await app.getModalDialog(0).then(async (modalDialog) => {
-            const countInput = await modalDialog.getInput('Count');
+            const countInput = await modalDialog.getTypeahead('Count');
             await countInput.typeSlowly('50');
             await modalDialog.performSave();
         });
 
-        const typeaheadSelector = await indexSection.getTypeaheadSelector();
+        const typeaheadSelector = await indexSection.getTypeahead();
         await typeaheadSelector.typeSlowly('P');
         await typeaheadSelector.pickSuggestion('Push Ups');
         await app.waitUntil(async () => (await typeaheadSelector.getTokens())[0] === 'Push Ups');
@@ -78,7 +79,7 @@ export default async (app) => {
         await app.waitUntil(async () => app.isDetailsSectionActive());
 
         const detailsSection = await app.getDetailsSection(0);
-        await detailsSection.typeSlowly('Using RPCs to create similar events.');
+        await detailsSection.typeSlowly('Using "Debug Info" to make RPCs to create similar events.');
         await detailsSection.sendKeys('ENTER');
 
         const bulletList = await indexSection.getBulletList(0);
@@ -139,7 +140,7 @@ export default async (app) => {
 
         await app.wait(2000);
 
-        const typeaheadSelector = await indexSection.getTypeaheadSelector();
+        const typeaheadSelector = await indexSection.getTypeahead();
         await typeaheadSelector.typeSlowly('Gr');
         await typeaheadSelector.pickSuggestion('Granularity: Day');
 

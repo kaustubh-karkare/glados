@@ -32,22 +32,6 @@ export default async (app) => {
         const bulletList = await indexSection.getBulletList(0);
         const adder = await bulletList.getAdder();
 
-        await adder.typeSlowly('Events can be reordered.');
-        await adder.sendKeys('ENTER');
-
-        await adder.sendKeys(['SHIFT', 'TAB']);
-        const bulletItem = await bulletList.getItem(-1);
-        await bulletItem.sendKeys(['SHIFT', 'UP']);
-        await app.wait();
-        await bulletItem.sendKeys(['SHIFT', 'UP']);
-        await app.wait();
-        // TODO: Drag and drop to better demonstrate this.
-    }
-
-    if (true) {
-        const bulletList = await indexSection.getBulletList(0);
-        const adder = await bulletList.getAdder();
-
         const count = await bulletList.getItemCount();
         await adder.typeSlowly('You can add details to an event.');
         await adder.sendKeys('ENTER');
@@ -58,7 +42,7 @@ export default async (app) => {
         await app.waitUntil(async () => !!(await app.getModalDialog(0)));
 
         const modalDialog = await app.getModalDialog(0);
-        const detailsInput = await modalDialog.getInput('Details');
+        const detailsInput = await modalDialog.getTextEditor('Details');
         await detailsInput.typeSlowly('Unlike the event title, ');
         await detailsInput.typeSlowly('the details section is not limited to one line.');
         await detailsInput.sendKeys('ENTER');
@@ -66,5 +50,43 @@ export default async (app) => {
         await modalDialog.performSave();
 
         await bulletItem.perform('Expand');
+        await bulletItem.perform('Collapse');
+    }
+
+    if (true) {
+        const bulletList = await indexSection.getBulletList(0);
+        const adder = await bulletList.getAdder();
+        const count = await bulletList.getItemCount();
+
+        await adder.typeSlowly('Some events could be more important than others.');
+        await adder.sendKeys('ENTER');
+        await app.waitUntil(async () => await bulletList.getItemCount() === count + 1);
+
+        const minorItem = await bulletList.getItem(-1);
+        await minorItem.perform('Edit');
+        await app.waitUntil(async () => !!(await app.getModalDialog(0)));
+
+        const modalDialog = await app.getModalDialog(0);
+        const logLevelSelector = await modalDialog.getSelector('Log Level');
+        await logLevelSelector.pickOption('Minor (1)');
+        const detailTextEditor = await modalDialog.getTextEditor('Details');
+        await detailTextEditor.typeSlowly('Minor events are not displayed by default.');
+
+        await modalDialog.performSave();
+        await app.waitUntil(async () => await bulletList.getItemCount() === count);
+
+        const typeaheadSelector = await indexSection.getTypeahead();
+        await typeaheadSelector.typeSlowly('A');
+        await typeaheadSelector.pickSuggestion('All Events');
+        await app.waitUntil(async () => (await typeaheadSelector.getTokens())[0] === 'All Events');
+        await app.waitUntil(async () => await bulletList.getItemCount() === count + 1);
+
+        await adder.typeSlowly('While viewing all events, you can reorder them.');
+        await adder.sendKeys('ENTER');
+        await app.waitUntil(async () => await bulletList.getItemCount() === count + 2);
+
+        const bulletItem = await bulletList.getItem(-1);
+        await bulletItem.move('UP');
+        await bulletItem.move('UP');
     }
 };

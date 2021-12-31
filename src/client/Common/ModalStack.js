@@ -4,6 +4,7 @@ import Coordinator from './Coordinator';
 import ConfirmModal from './ConfirmModal';
 import EditorModal from './EditorModal';
 import ErrorModal from './ErrorModal';
+import InfoModal from './InfoModal';
 
 class ModalStack extends React.Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class ModalStack extends React.Component {
             ),
             Coordinator.register('modal-confirm', this.push.bind(this, ConfirmModal)),
             Coordinator.register('modal-error', (error) => this.push(ErrorModal, { error })),
+            Coordinator.register('modal-info', ({ title, message }) => this.push(InfoModal, { title, message })),
         ];
     }
 
