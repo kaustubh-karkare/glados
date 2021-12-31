@@ -1,9 +1,10 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { listTimeZones } from 'timezone-support';
+
 import {
-    LeftRight, SortableList, Selector, TextInput,
+    LeftRight, Selector, SortableList, TextInput,
 } from '../../../client/Common';
 import { getNextID } from '../../../common/data_types';
 

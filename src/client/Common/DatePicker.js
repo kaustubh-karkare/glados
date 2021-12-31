@@ -1,8 +1,9 @@
-import { Calendar } from 'react-date-range';
 import PropTypes from 'prop-types';
 import React from 'react';
-import PopoverElement from './PopoverElement';
+import { Calendar } from 'react-date-range';
+
 import DateUtils from '../../common/DateUtils';
+import PopoverElement from './PopoverElement';
 
 // https://github.com/hypeserver/react-date-range
 // Note: The corresponding CSS is included from DateRangePicker.

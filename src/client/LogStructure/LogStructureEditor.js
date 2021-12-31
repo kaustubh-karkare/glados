@@ -1,14 +1,15 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
-import PropTypes from 'prop-types';
+
+import { getPartialItem, LogStructure } from '../../common/data_types';
 import {
-    SortableList, Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
+    Selector, SortableList, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
 import LogStructureKeyEditor from './LogStructureKeyEditor';
-import { LogStructure, getPartialItem } from '../../common/data_types';
 
 const { LogLevel } = LogStructure;
 

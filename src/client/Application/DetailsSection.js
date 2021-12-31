@@ -1,3 +1,5 @@
+import './DetailsSection.css';
+
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -5,18 +7,17 @@ import {
     MdCheckCircle, MdClose, MdEdit, MdFavorite, MdFavoriteBorder, MdSearch,
 } from 'react-icons/md';
 import { RiLoaderLine } from 'react-icons/ri';
-import PropTypes from '../prop-types';
+
+import RichTextUtils from '../../common/RichTextUtils';
 import {
-    Coordinator, DataLoader, ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector,
-    debounce,
+    Coordinator, DataLoader, debounce,
+    ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
-import { LogTopicOptions, LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
+import { LogTopicDetailsHeader, LogTopicEditor, LogTopicOptions } from '../LogTopic';
+import PropTypes from '../prop-types';
 import { SettingsContext } from '../Settings';
-import RichTextUtils from '../../common/RichTextUtils';
-
-import './DetailsSection.css';
 
 const HEADER_MAPPING = {
     'log-event': {

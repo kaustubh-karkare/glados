@@ -1,9 +1,10 @@
-import classNames from 'classnames';
-import React from 'react';
-import PropTypes from 'prop-types';
-import Coordinator from './Coordinator';
-
 import './Highlightable.css';
+
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+
+import Coordinator from './Coordinator';
 
 class Highlightable extends React.Component {
     constructor(props) {

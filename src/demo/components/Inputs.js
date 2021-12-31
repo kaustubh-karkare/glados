@@ -2,6 +2,7 @@
 
 import assert from 'assert';
 import { By } from 'selenium-webdriver';
+
 import BaseWrapper from './BaseWrapper';
 
 export class Selector extends BaseWrapper {

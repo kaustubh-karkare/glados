@@ -1,6 +1,7 @@
 /* eslint-disable func-names */
 
 import { differenceInCalendarDays } from 'date-fns';
+
 import DateUtils from '../../../common/DateUtils';
 import RichTextUtils from '../../../common/RichTextUtils';
 

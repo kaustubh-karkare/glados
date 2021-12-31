@@ -1,7 +1,8 @@
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
-import PropTypes from '../prop-types';
+import InputGroup from 'react-bootstrap/InputGroup';
+
 import { DateRangePicker, ScrollableSection, TypeaheadSelector } from '../Common';
+import PropTypes from '../prop-types';
 
 function IndexSection(props) {
     const { Component } = props;

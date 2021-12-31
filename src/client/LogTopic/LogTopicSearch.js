@@ -1,6 +1,7 @@
 import React from 'react';
-import PropTypes from '../prop-types';
+
 import { TypeaheadOptions } from '../Common';
+import PropTypes from '../prop-types';
 import LogTopicList from './LogTopicList';
 import LogTopicOptions from './LogTopicOptions';
 

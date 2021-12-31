@@ -1,17 +1,18 @@
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import './BulletList.css';
+
 import arrayMove from 'array-move';
+import classNames from 'classnames';
+import deepEqual from 'deep-equal';
 import PropTypes from 'prop-types';
 import React from 'react';
-import deepEqual from 'deep-equal';
-import classNames from 'classnames';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+
+import { getDataTypeMapping } from '../../../common/data_types';
+import DataLoader from '../DataLoader';
 import BulletListItem from './BulletListItem';
 import BulletListLine from './BulletListLine';
 import BulletListPager from './BulletListPager';
 import BulletListTitle from './BulletListTitle';
-import DataLoader from '../DataLoader';
-import { getDataTypeMapping } from '../../../common/data_types';
-
-import './BulletList.css';
 
 const BATCH_SIZE = 25;
 

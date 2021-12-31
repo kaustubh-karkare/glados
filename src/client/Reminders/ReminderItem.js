@@ -1,13 +1,14 @@
-import { BsList } from 'react-icons/bs';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import React from 'react';
-import PropTypes from 'prop-types';
+import { BsList } from 'react-icons/bs';
+
+import { LogEvent } from '../../common/data_types';
+import DateUtils from '../../common/DateUtils';
 import {
     Coordinator, Dropdown, Highlightable, Icon, InputLine,
 } from '../Common';
-import DateUtils from '../../common/DateUtils';
-import { LogEvent } from '../../common/data_types';
 import { LogEventEditor } from '../LogEvent';
 import { LogStructureEditor } from '../LogStructure';
 

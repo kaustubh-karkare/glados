@@ -1,21 +1,20 @@
+import 'draft-js/dist/Draft.css';
+import './TextEditor.css';
+
 import assert from 'assert';
 import classNames from 'classnames';
-import Editor from 'draft-js-plugins-editor';
 import { RichUtils } from 'draft-js';
+import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
+import createMentionPlugin from 'draft-js-mention-plugin';
+import Editor from 'draft-js-plugins-editor';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
-import createMentionPlugin from 'draft-js-mention-plugin';
-
 import RichTextUtils from '../../common/RichTextUtils';
-import { KeyCodes } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 import Link from './Link';
 import TypeaheadOptions from './TypeaheadOptions';
-
-import 'draft-js/dist/Draft.css';
-import './TextEditor.css';
+import { KeyCodes } from './Utils';
 
 function MentionComponent(props) {
     return <Link logTopic={props.mention}>{props.children}</Link>;

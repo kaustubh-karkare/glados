@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import React from 'react';
-import PropTypes from 'prop-types';
-
 import './Icon.css';
+
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 function Icon(props) {
     const {

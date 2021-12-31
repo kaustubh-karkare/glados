@@ -1,24 +1,25 @@
+import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import React from 'react';
 import Row from 'react-bootstrap/Row';
-import PropTypes from '../prop-types';
+
+import { Enum } from '../../common/data_types';
 import {
     Coordinator, DataLoader, EnumSelectorSection, ModalStack, ScrollableSection,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
 import { LogTopicList } from '../LogTopic';
+import PropTypes from '../prop-types';
 import { ReminderSidebar } from '../Reminders';
+import { SettingsContext, SettingsSection } from '../Settings';
 import BackupSection from './BackupSection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
-import IndexSection from './IndexSection';
 import FavoritesSection from './FavoritesSection';
-import { SettingsContext, SettingsSection } from '../Settings';
+import IndexSection from './IndexSection';
 import TabSection from './TabSection';
 import URLState from './URLState';
-import { Enum } from '../../common/data_types';
 
 const Layout = Enum([
     {

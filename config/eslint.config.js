@@ -23,6 +23,7 @@ module.exports = {
     },
     plugins: [
         'react',
+        'simple-import-sort',
     ],
     settings: {
         react: {
@@ -49,5 +50,6 @@ module.exports = {
         'react/jsx-props-no-spreading': [0],
         // Otherwise, every non-required propType would need defaultValue.
         'react/require-default-props': [0],
+        'simple-import-sort/imports': 'error',
     },
 };

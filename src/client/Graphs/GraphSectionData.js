@@ -1,7 +1,7 @@
 import { addDays, compareAsc } from 'date-fns';
 
-import DateUtils from '../../common/DateUtils';
 import { LogStructure } from '../../common/data_types';
+import DateUtils from '../../common/DateUtils';
 import RichTextUtils from '../../common/RichTextUtils';
 import { Granularity } from './GraphSectionOptions';
 

@@ -1,4 +1,5 @@
 import { By } from 'selenium-webdriver';
+
 import BaseWrapper from './BaseWrapper';
 
 export default class ReminderItem extends BaseWrapper {

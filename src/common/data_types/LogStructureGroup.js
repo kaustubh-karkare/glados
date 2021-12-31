@@ -1,5 +1,5 @@
-import { getVirtualID } from './utils';
 import DataTypeBase from './base';
+import { getVirtualID } from './utils';
 import { validateNonEmptyString } from './validation';
 
 class LogStructureGroup extends DataTypeBase {

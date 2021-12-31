@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { LogEvent, isRealItem } from '../../common/data_types';
-import LogEventEditor from './LogEventEditor';
+
+import { isRealItem, LogEvent } from '../../common/data_types';
 import {
     Coordinator, KeyCodes, TextEditor, TypeaheadOptions,
 } from '../Common';
+import LogEventEditor from './LogEventEditor';
 
 class LogEventAdder extends React.Component {
     constructor(props) {

@@ -1,15 +1,16 @@
+import './GraphSection.css';
+
+import deepEqual from 'deep-equal';
 import React from 'react';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer,
+    Tooltip, XAxis, YAxis,
 } from 'recharts';
-import deepEqual from 'deep-equal';
 
 import { DataLoader } from '../Common';
 import PropTypes from '../prop-types';
 import { getGraphData } from './GraphSectionData';
 import GraphSectionOptions, { Granularity } from './GraphSectionOptions';
-
-import './GraphSection.css';
 
 const CustomTooltip = ({ active, label, payload }) => {
     if (active && payload && payload.length) {

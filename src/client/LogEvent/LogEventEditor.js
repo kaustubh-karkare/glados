@@ -1,10 +1,11 @@
-import InputGroup from 'react-bootstrap/InputGroup';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+
+import { LogEvent } from '../../common/data_types';
 import {
     DatePicker, Selector, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogEvent } from '../../common/data_types';
 import { LogStructureValueEditor } from '../LogStructure';
 
 const { LogLevel } = LogEvent;

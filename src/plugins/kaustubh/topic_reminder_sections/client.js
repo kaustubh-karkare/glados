@@ -1,7 +1,8 @@
 import React from 'react';
+
+import { PluginClient } from '../../common';
 import TopicRemindersSection from './TopicRemindersSection';
 import TopicRemindersSectionSettings from './TopicRemindersSectionSettings';
-import { PluginClient } from '../../common';
 
 export default class extends PluginClient {
     static getSettingsKey() {

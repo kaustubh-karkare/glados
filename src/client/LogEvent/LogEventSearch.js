@@ -1,14 +1,15 @@
-import { addDays, eachDayOfInterval, getDay } from 'date-fns';
 import assert from 'assert';
+import { addDays, eachDayOfInterval, getDay } from 'date-fns';
 import React from 'react';
-import { Coordinator } from '../Common';
+
 import { getVirtualID, LogEvent } from '../../common/data_types';
-import { SettingsContext } from '../Settings';
 import DateUtils from '../../common/DateUtils';
+import { Coordinator } from '../Common';
+import PropTypes from '../prop-types';
+import { SettingsContext } from '../Settings';
 import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
 import LogEventOptions from './LogEventOptions';
-import PropTypes from '../prop-types';
 
 // Extra Filters for Events
 

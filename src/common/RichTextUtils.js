@@ -1,10 +1,10 @@
-import {
-    EditorState, Modifier, SelectionState, convertFromRaw, convertToRaw,
-} from 'draft-js';
-import { draftToMarkdown, markdownToDraft } from 'markdown-draft-js';
-
 import assert from 'assert';
 import deepEqual from 'deep-equal';
+import {
+    convertFromRaw, convertToRaw,
+    EditorState, Modifier, SelectionState,
+} from 'draft-js';
+import { draftToMarkdown, markdownToDraft } from 'markdown-draft-js';
 
 const StorageType = {
     MARKDOWN: 'markdown:',

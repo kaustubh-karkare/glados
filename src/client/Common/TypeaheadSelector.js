@@ -1,12 +1,13 @@
-import { AsyncTypeahead } from 'react-bootstrap-typeahead';
-import Button from 'react-bootstrap/Button';
-import { MdClose } from 'react-icons/md';
-import React from 'react';
-import PropTypes from 'prop-types';
-import TypeaheadOptions from './TypeaheadOptions';
-
 import 'react-bootstrap-typeahead/css/Typeahead.min.css';
 import './TypeaheadSelector.css';
+
+import PropTypes from 'prop-types';
+import React from 'react';
+import Button from 'react-bootstrap/Button';
+import { AsyncTypeahead } from 'react-bootstrap-typeahead';
+import { MdClose } from 'react-icons/md';
+
+import TypeaheadOptions from './TypeaheadOptions';
 
 class TypeaheadSelector extends React.Component {
     constructor(props) {

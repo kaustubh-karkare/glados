@@ -1,17 +1,18 @@
-import { BsList } from 'react-icons/bs';
-import { GoPrimitiveDot } from 'react-icons/go';
-import { MdFormatLineSpacing, MdEdit } from 'react-icons/md';
-import { SortableHandle } from 'react-sortable-hoc';
-import { TiMinus, TiPlus } from 'react-icons/ti';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { BsList } from 'react-icons/bs';
+import { GoPrimitiveDot } from 'react-icons/go';
+import { MdEdit, MdFormatLineSpacing } from 'react-icons/md';
+import { TiMinus, TiPlus } from 'react-icons/ti';
+import { SortableHandle } from 'react-sortable-hoc';
+
 import Coordinator from '../Coordinator';
-import { KeyCodes } from '../Utils';
+import Dropdown from '../Dropdown';
 import Highlightable from '../Highlightable';
 import Icon from '../Icon';
 import InputLine from '../InputLine';
-import Dropdown from '../Dropdown';
+import { KeyCodes } from '../Utils';
 
 const SortableDragHandle = SortableHandle(() => (
     <Icon className="sortableDragHandle" title="Reorder">

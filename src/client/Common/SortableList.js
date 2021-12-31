@@ -1,12 +1,12 @@
+import './SortableList.css';
+
+import arrayMove from 'array-move';
+import PropTypes from 'prop-types';
+import React from 'react';
+import Button from 'react-bootstrap/Button';
 import { GoTrashcan } from 'react-icons/go';
 import { GrDrag } from 'react-icons/gr';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
-import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
-import React from 'react';
-
-import './SortableList.css';
 
 const SortableDragHandle = SortableHandle((props) => (
     <Button

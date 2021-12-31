@@ -1,13 +1,14 @@
-import { TiMinus, TiPlus } from 'react-icons/ti';
+import './SidebarSection.css';
+
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { GoPrimitiveDot } from 'react-icons/go';
+import { TiMinus, TiPlus } from 'react-icons/ti';
+
 import Icon from './Icon';
 import LeftRight from './LeftRight';
-
-import './SidebarSection.css';
 
 class SidebarSection extends React.Component {
     constructor(props) {

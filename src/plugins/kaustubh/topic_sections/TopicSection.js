@@ -1,5 +1,6 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+
 import { DataLoader, SidebarSection } from '../../../client/Common';
 import RichTextUtils from '../../../common/RichTextUtils';
 

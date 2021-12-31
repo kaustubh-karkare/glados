@@ -1,7 +1,8 @@
 import React from 'react';
+
+import { PluginClient } from '../../common';
 import TopicSection from './TopicSection';
 import TopicSectionSettings from './TopicSectionSettings';
-import { PluginClient } from '../../common';
 
 export default class extends PluginClient {
     static getSettingsKey() {

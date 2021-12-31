@@ -1,7 +1,8 @@
 import React from 'react';
+
+import { PluginClient } from '../../common';
 import TimeSection from './TimeSection';
 import TimeSectionSettings from './TimeSectionSettings';
-import { PluginClient } from '../../common';
 
 export default class extends PluginClient {
     static getSettingsKey() {

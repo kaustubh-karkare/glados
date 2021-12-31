@@ -1,7 +1,8 @@
 import React from 'react';
+
 import PropTypes from '../prop-types';
-import LogStructureList from './LogStructureList';
 import LogStructureGroupList from './LogStructureGroupList';
+import LogStructureList from './LogStructureList';
 import LogStructureOptions from './LogStructureOptions';
 
 class LogStructureSearch extends React.Component {

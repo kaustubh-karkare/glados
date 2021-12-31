@@ -1,9 +1,10 @@
-import Dropdown from 'react-bootstrap/Dropdown';
-import React from 'react';
-import PropTypes from 'prop-types';
-import TypeaheadOptions from './TypeaheadOptions';
-
 import './Dropdown.css';
+
+import PropTypes from 'prop-types';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+
+import TypeaheadOptions from './TypeaheadOptions';
 
 class CustomDropdown extends React.Component {
     constructor(props) {

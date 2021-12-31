@@ -1,8 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+
 import { BulletList } from '../Common';
-import LogStructureList from './LogStructureList';
 import LogStructureGroupEditor from './LogStructureGroupEditor';
+import LogStructureList from './LogStructureList';
 
 function LogStructureGroupViewer(props) {
     const { logStructureGroup } = props;

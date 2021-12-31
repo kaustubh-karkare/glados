@@ -1,6 +1,7 @@
 import React from 'react';
-import PropTypes from '../prop-types';
+
 import { LeftRight, SidebarSection } from '../Common';
+import PropTypes from '../prop-types';
 import SettingsContext from './SettingsContext';
 import SettingsModal from './SettingsModal';
 

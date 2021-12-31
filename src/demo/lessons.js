@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import Application from './components';
 import { asyncSequence } from '../common/AsyncUtils';
+import Application from './components';
 
 const lessonsContext = require.context('./lessons', false, /\.js$/);
 

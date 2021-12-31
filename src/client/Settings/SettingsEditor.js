@@ -1,5 +1,6 @@
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+
 import { Selector } from '../Common';
 import PropTypes from '../prop-types';
 

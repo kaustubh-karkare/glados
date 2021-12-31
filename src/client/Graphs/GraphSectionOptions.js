@@ -1,8 +1,8 @@
 import {
     getDay, getMonth, getYear, subDays,
 } from 'date-fns';
-import { Enum } from '../../common/data_types';
 
+import { Enum } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
 import { LogEventOptions } from '../LogEvent';
 

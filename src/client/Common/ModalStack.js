@@ -1,7 +1,8 @@
-import React from 'react';
 import assert from 'assert';
-import Coordinator from './Coordinator';
+import React from 'react';
+
 import ConfirmModal from './ConfirmModal';
+import Coordinator from './Coordinator';
 import EditorModal from './EditorModal';
 import ErrorModal from './ErrorModal';
 import InfoModal from './InfoModal';

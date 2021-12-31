@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import React from 'react';
-import PropTypes from 'prop-types';
-
 import './InputLine.css';
+
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 function InputLine(props) {
     const {

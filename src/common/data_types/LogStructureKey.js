@@ -1,6 +1,6 @@
 import Enum from './enum';
-import { validateNonEmptyString } from './validation';
 import { getVirtualID } from './utils';
+import { validateNonEmptyString } from './validation';
 
 const LogStructureKeyType = Enum([
     {

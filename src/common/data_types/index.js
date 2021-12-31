@@ -1,7 +1,7 @@
-import LogTopic from './LogTopic';
+import LogEvent from './LogEvent';
 import LogStructure from './LogStructure';
 import LogStructureGroup from './LogStructureGroup';
-import LogEvent from './LogEvent';
+import LogTopic from './LogTopic';
 
 export {
     LogTopic,

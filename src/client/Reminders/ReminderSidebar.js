@@ -1,7 +1,8 @@
 import React from 'react';
+
+import { DataLoader } from '../Common';
 import PropTypes from '../prop-types';
 import ReminderList from './ReminderList';
-import { DataLoader } from '../Common';
 
 class ReminderSidebar extends React.Component {
     constructor(props) {

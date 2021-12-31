@@ -1,9 +1,10 @@
-import { MdClose } from 'react-icons/md';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { MdClose } from 'react-icons/md';
+
 import InputLine from './InputLine';
 
 class PopoverElement extends React.Component {

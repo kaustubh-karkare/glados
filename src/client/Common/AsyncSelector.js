@@ -1,6 +1,7 @@
-import Form from 'react-bootstrap/Form';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import Form from 'react-bootstrap/Form';
+
 import DataLoader from './DataLoader';
 
 class AsyncSelector extends React.Component {

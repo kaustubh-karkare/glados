@@ -1,6 +1,6 @@
-import { getVirtualID } from './utils';
-import DataTypeBase from './base';
 import RichTextUtils from '../RichTextUtils';
+import DataTypeBase from './base';
+import { getVirtualID } from './utils';
 import { validateNonEmptyString } from './validation';
 
 class LogTopic extends DataTypeBase {

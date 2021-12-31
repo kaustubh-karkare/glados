@@ -2,6 +2,7 @@
 
 import assert from 'assert';
 import toposort from 'toposort';
+
 import { asyncSequence } from '../../common/AsyncUtils';
 import { getDataFormatVersion } from '../models';
 

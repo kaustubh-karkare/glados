@@ -1,7 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { BulletList, DetailsIcon, TextEditor } from '../Common';
+import React from 'react';
 
+import { BulletList, DetailsIcon, TextEditor } from '../Common';
 import LogEventAdder from './LogEventAdder';
 import LogEventEditor from './LogEventEditor';
 

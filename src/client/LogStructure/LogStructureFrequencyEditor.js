@@ -1,11 +1,12 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
-import PropTypes from 'prop-types';
+
+import { LogStructure } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
 import {
     DatePicker, Selector, TextInput,
 } from '../Common';
-import { LogStructure } from '../../common/data_types';
 
 const MonthOptions = DateUtils.MonthsOfTheYear.map((month, index) => {
     const value = `0${index + 1}`.substr(-2);

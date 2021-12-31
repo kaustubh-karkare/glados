@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-
 import './ScrollableSection.css';
+
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class WindowHeightDetector {
     static subscribe(callback) {

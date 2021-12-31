@@ -1,11 +1,12 @@
-import InputGroup from 'react-bootstrap/InputGroup';
-import Modal from 'react-bootstrap/Modal';
 import React from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from '../prop-types';
-import { suppressUnlessShiftKey } from '../Common/Utils';
-import SettingsEditor from './SettingsEditor';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Modal from 'react-bootstrap/Modal';
+
 import { LeftRight } from '../Common';
+import { suppressUnlessShiftKey } from '../Common/Utils';
+import PropTypes from '../prop-types';
+import SettingsEditor from './SettingsEditor';
 
 class SettingsModal extends React.Component {
     constructor(props) {

@@ -1,10 +1,11 @@
-import InputGroup from 'react-bootstrap/InputGroup';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+
+import { LogStructure } from '../../common/data_types';
 import {
     Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogStructure } from '../../common/data_types';
 import LogStructureValueEditor from './LogStructureValueEditor';
 
 class LogStructureKeyEditor extends React.Component {

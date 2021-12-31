@@ -5,8 +5,8 @@
 
 import assert from 'assert';
 
-import { getPartialItem } from '../../common/data_types';
 import { asyncSequence } from '../../common/AsyncUtils';
+import { getPartialItem } from '../../common/data_types';
 import RichTextUtils from '../../common/RichTextUtils';
 
 const ActionsRegistry = {};

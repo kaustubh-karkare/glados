@@ -1,10 +1,11 @@
-import InputGroup from 'react-bootstrap/InputGroup';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+
+import { LogTopic } from '../../common/data_types';
 import {
     Selector, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogTopic } from '../../common/data_types';
 
 class LogTopicEditor extends React.Component {
     constructor(props) {

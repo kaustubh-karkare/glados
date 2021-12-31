@@ -1,6 +1,6 @@
 const fs = require('fs');
-const walkSync = require('walk-sync');
 const path = require('path');
+const walkSync = require('walk-sync');
 
 test('verify_no_random_colors', async () => {
     const rootPath = 'src/client';

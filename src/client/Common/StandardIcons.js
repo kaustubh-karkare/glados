@@ -1,8 +1,8 @@
+import PropTypes from 'prop-types';
+import React from 'react';
 import { AiOutlineWarning } from 'react-icons/ai';
 import { BiDetail } from 'react-icons/bi';
 import { MdHelp, MdInfo } from 'react-icons/md';
-import React from 'react';
-import PropTypes from 'prop-types';
 
 function getIconWrapper(Component, color = 'var(--link-color)', style = { cursor: 'pointer' }) {
     function IconWrapper(props) {

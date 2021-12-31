@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { By } from 'selenium-webdriver';
+
 import BaseWrapper from './BaseWrapper';
 import {
     LogStructureKey, Selector, TextEditor, TypeaheadSelector,

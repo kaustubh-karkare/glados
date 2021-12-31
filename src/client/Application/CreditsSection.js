@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { SidebarSection } from '../Common';
 
 function CreditsSection(props) {

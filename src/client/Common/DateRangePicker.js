@@ -1,13 +1,13 @@
-import { DateRangePicker as DateRangePickerOriginal } from 'react-date-range';
-import React from 'react';
-import PropTypes from '../prop-types';
-import PopoverElement from './PopoverElement';
-import DateUtils from '../../common/DateUtils';
-
 // https://adphorus.github.io/react-date-range/
-
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+
+import React from 'react';
+import { DateRangePicker as DateRangePickerOriginal } from 'react-date-range';
+
+import DateUtils from '../../common/DateUtils';
+import PropTypes from '../prop-types';
+import PopoverElement from './PopoverElement';
 
 const KEY = 'selection';
 

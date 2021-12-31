@@ -1,8 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import BulletListLine from './BulletListLine';
+import React from 'react';
+
 import Highlightable from '../Highlightable';
 import { KeyCodes } from '../Utils';
+import BulletListLine from './BulletListLine';
 
 class BulletListPager extends React.Component {
     constructor(props) {

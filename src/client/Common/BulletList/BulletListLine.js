@@ -1,6 +1,6 @@
-import { GoPrimitiveDot } from 'react-icons/go';
-import InputGroup from 'react-bootstrap/InputGroup';
 import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { GoPrimitiveDot } from 'react-icons/go';
 
 function BulletListLine(props) {
     // eslint-disable-next-line react/prop-types

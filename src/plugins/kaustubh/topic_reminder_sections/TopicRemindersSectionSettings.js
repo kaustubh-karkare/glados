@@ -1,6 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
+
 import {
     HelpIcon, LeftRight, SortableList, TextInput,
     TooltipElement, TypeaheadOptions, TypeaheadSelector,

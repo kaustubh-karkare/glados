@@ -1,7 +1,8 @@
 import assert from 'assert';
-import { isItem } from './utils';
-import DataTypeAPI from './api';
+
 import { asyncSequence } from '../AsyncUtils';
+import DataTypeAPI from './api';
+import { isItem } from './utils';
 
 function getDataType(name) {
     return name.split(/(?=[A-Z])/).map((word) => word.toLowerCase()).join('-');

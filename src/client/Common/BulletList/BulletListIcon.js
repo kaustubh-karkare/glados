@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import { KeyCodes } from '../Utils';
 
 function BulletListIcon(props) {

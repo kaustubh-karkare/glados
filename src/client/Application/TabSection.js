@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+
+import { Enum } from '../../common/data_types';
 import { SidebarSection } from '../Common';
+import { GraphSection } from '../Graphs';
 import { LogEventSearch } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
 import { LogTopicSearch } from '../LogTopic';
-import { GraphSection } from '../Graphs';
-import { Enum } from '../../common/data_types';
 
 const Tab = Enum([
     {

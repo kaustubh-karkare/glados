@@ -1,11 +1,12 @@
-import { MdAddCircleOutline } from 'react-icons/md';
-import { TiMinus, TiPlus } from 'react-icons/ti';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { MdAddCircleOutline } from 'react-icons/md';
+import { TiMinus, TiPlus } from 'react-icons/ti';
+
 import Highlightable from '../Highlightable';
-import BulletListIcon from './BulletListIcon';
 import { KeyCodes } from '../Utils';
+import BulletListIcon from './BulletListIcon';
 
 class BulletListTitle extends React.Component {
     constructor(props) {

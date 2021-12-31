@@ -1,10 +1,11 @@
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Modal from 'react-bootstrap/Modal';
+
 import LeftRight from './LeftRight';
-import { KeyCodes, debounce, suppressUnlessShiftKey } from './Utils';
+import { debounce, KeyCodes, suppressUnlessShiftKey } from './Utils';
 
 class EditorModal extends React.Component {
     constructor(props) {

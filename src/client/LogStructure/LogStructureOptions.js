@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import { TypeaheadOptions } from '../Common';
 
 class LogStructureOptions {

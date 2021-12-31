@@ -1,4 +1,5 @@
 import { By } from 'selenium-webdriver';
+
 import BaseWrapper from './BaseWrapper';
 import { TextEditor } from './Inputs';
 

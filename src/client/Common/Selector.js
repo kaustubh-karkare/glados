@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
-import Form from 'react-bootstrap/Form';
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import Form from 'react-bootstrap/Form';
 
 class Selector extends React.Component {
     constructor(props) {

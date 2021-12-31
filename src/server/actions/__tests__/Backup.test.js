@@ -1,6 +1,7 @@
 import tmp from 'tmp';
-import TestUtils from './TestUtils';
+
 import { LogTopic } from '../../../common/data_types';
+import TestUtils from './TestUtils';
 
 beforeEach(TestUtils.beforeEach);
 afterEach(TestUtils.afterEach);

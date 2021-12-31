@@ -1,6 +1,7 @@
 import assert from 'assert';
-import { TypeaheadOptions } from '../Common';
+
 import { getVirtualID } from '../../common/data_types';
+import { TypeaheadOptions } from '../Common';
 
 const NO_STRUCTURE_ITEM = {
     __type__: 'log-structure',

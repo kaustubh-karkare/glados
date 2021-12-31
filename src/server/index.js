@@ -1,17 +1,18 @@
 /* eslint-disable no-console */
 
 import '../common/polyfill';
-import Database from './database';
-import Actions from './actions';
-import SocketRPC from '../common/SocketRPC';
 
-const express = require('express');
-const fs = require('fs');
-const http = require('http');
-const process = require('process');
-const SingleInstance = require('single-instance');
-const SocketIO = require('socket.io');
-const yargs = require('yargs');
+import express from 'express';
+import fs from 'fs';
+import http from 'http';
+import process from 'process';
+import SingleInstance from 'single-instance';
+import SocketIO from 'socket.io';
+import yargs from 'yargs';
+
+import SocketRPC from '../common/SocketRPC';
+import Actions from './actions';
+import Database from './database';
 
 async function init() {
     this.database = new Database(this.config.database);
