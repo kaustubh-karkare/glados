@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import InputLine from './InputLine';
 
-class PopoverPicker extends React.Component {
+class PopoverElement extends React.Component {
     renderOverlayTrigger() {
         const overlay = (
             <Popover id="date-range-selector">
@@ -41,10 +41,10 @@ class PopoverPicker extends React.Component {
     }
 }
 
-PopoverPicker.propTypes = {
+PopoverElement.propTypes = {
     onReset: PropTypes.func.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     children: PropTypes.any.isRequired,
 };
 
-export default PopoverPicker;
+export default PopoverElement;

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {
-    LeftRight, SortableList, TypeaheadOptions, TypeaheadSelector,
+    HelpIcon, LeftRight, SortableList, TooltipElement, TypeaheadOptions, TypeaheadSelector,
 } from '../../../client/Common';
 import { getNextID } from '../../../common/data_types';
 
@@ -27,11 +27,21 @@ function renderRow(props) {
 }
 
 function TopicSectionSettings(props) {
+    const helpText = (
+        'Add sections on the right sidebar for each topic selected here, '
+        + 'which display the bullet-points in the details of those topics.'
+    );
     const items = props.value;
     return (
         <div className="my-3">
             <LeftRight>
-                <div>Topic Sections</div>
+                <div>
+                    Topic Sections
+                    <TooltipElement>
+                        <HelpIcon isShown />
+                        <span>{helpText}</span>
+                    </TooltipElement>
+                </div>
                 <a
                     href="#"
                     onClick={() => props.onChange(items.concat({

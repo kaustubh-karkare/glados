@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {
-    LeftRight, SortableList, TextInput, TypeaheadOptions, TypeaheadSelector,
+    HelpIcon, LeftRight, SortableList, TextInput,
+    TooltipElement, TypeaheadOptions, TypeaheadSelector,
 } from '../../../client/Common';
 import { getNextID } from '../../../common/data_types';
 
@@ -16,6 +17,7 @@ function renderRow(props) {
                 <TypeaheadSelector
                     id={`topic-reminders-settings-row-${item.__id__}`}
                     disabled={props.disabled}
+                    placeholder="Structure"
                     options={TypeaheadOptions.getFromTypes(['log-structure'])}
                     value={item.logStructure}
                     onChange={(logStructure) => props.onChange({ ...item, logStructure })}
@@ -33,11 +35,23 @@ function renderRow(props) {
 }
 
 function TopicRemindersSettings(props) {
+    const helpText = (
+        'Add sections on the right sidebar for each structure selected here (eg - Conversation). '
+        + 'For each structure, look at the details to get a list of topics (eg - people), and then '
+        + 'check to see if there are any events with that structure and topic in the last X days. '
+        + 'If not, show a reminder about that topic (eg - speak to someone every X days).'
+    );
     const items = props.value;
     return (
         <div className="my-3">
             <LeftRight>
-                <div>Reminder Sections</div>
+                <div>
+                    Reminder Sections
+                    <TooltipElement>
+                        <HelpIcon isShown />
+                        <span>{helpText}</span>
+                    </TooltipElement>
+                </div>
                 <a
                     href="#"
                     onClick={() => props.onChange(items.concat({
