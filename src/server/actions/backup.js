@@ -113,7 +113,7 @@ ActionsRegistry['backup-load'] = async function ({ verbose } = {}) {
     let data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
     const transformationResult = await this.invoke.call(this, 'backup-transform-data', data);
     data = transformationResult.data;
-    await this.invoke.call(this, 'database-validate', data);
+    await this.invoke.call(this, 'database-validate', { data });
     await this.invoke.call(this, 'database-save', data);
     if (verbose) {
         // eslint-disable-next-line no-console

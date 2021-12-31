@@ -42,7 +42,7 @@ async function main(argv) {
         verbose: argv.verbose,
     });
     await serverProcess.start();
-    await serverProcess.waitUntilOutput('Server ready!');
+    await serverProcess.waitUntilOutput('Server running');
     console.info(`${argv.indent}Test server started!`);
 
     const webdriver = new Builder().forBrowser('chrome').build();

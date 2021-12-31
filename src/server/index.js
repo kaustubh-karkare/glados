@@ -19,6 +19,7 @@ async function init() {
 }
 
 async function startServer() {
+    await this.actions.invoke('database-validate', { verbose: true });
     const app = express();
     const server = http.Server(app);
     const io = SocketIO(server);

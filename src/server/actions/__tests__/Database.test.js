@@ -26,7 +26,7 @@ test('test_data_format_version', async () => {
     const actions = await TestUtils.getActions();
     await actions.invoke('database-validate');
     const data = await actions.invoke('database-load');
-    await actions.invoke('database-validate', data);
+    await actions.invoke('database-validate', { data });
     data.settings[0].value += '+';
-    await expect(actions.invoke('database-validate', data)).rejects.toThrow();
+    await expect(actions.invoke('database-validate', { data })).rejects.toThrow();
 });

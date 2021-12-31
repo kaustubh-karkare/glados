@@ -22,7 +22,7 @@ mkdir data
 yarn install
 yarn run build
 yarn run database-reset
-# Initialization Complete
+# Installation Complete
 
 yarn run server
 ```

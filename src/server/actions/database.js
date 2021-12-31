@@ -60,7 +60,7 @@ ActionsRegistry['database-reset'] = async function ({ verbose = false } = {}) {
     }
 };
 
-ActionsRegistry['database-validate'] = async function (backupData) {
+ActionsRegistry['database-validate'] = async function ({ data: backupData, verbose } = {}) {
     const expectedValue = getDataFormatVersion();
     let actualValue = null;
     if (backupData) {
@@ -72,8 +72,12 @@ ActionsRegistry['database-validate'] = async function (backupData) {
     }
     assert(
         expectedValue === actualValue,
-        `Data Format Version Mismatch! Expected = ${expectedValue}, Actual = ${actualValue}`,
+        `Data format version mismatch! Expected = ${expectedValue}, Actual = ${actualValue}`,
     );
+    if (verbose) {
+        // eslint-disable-next-line no-console
+        console.info('Data format version validated!');
+    }
 };
 
 ActionsRegistry['database-clear'] = async function () {
