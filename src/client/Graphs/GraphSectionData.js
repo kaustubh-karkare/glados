@@ -1,8 +1,8 @@
 import { addDays, compareAsc } from 'date-fns';
 
-import DateUtils from '../../common/date_utils';
+import DateUtils from '../../common/DateUtils';
 import { LogStructure } from '../../common/data_types';
-import RichTextUtils from '../../common/rich_text_utils';
+import RichTextUtils from '../../common/RichTextUtils';
 import { Granularity } from './GraphSectionOptions';
 
 function getLogKeySample(keyIndex, valueParser, logEvents) {

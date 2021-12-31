@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DataLoader, SidebarSection } from '../../../client/Common';
-import RichTextUtils from '../../../common/rich_text_utils';
+import RichTextUtils from '../../../common/RichTextUtils';
 
 class TopicSection extends React.Component {
     constructor(props) {

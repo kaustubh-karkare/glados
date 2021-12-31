@@ -4,7 +4,7 @@ import React from 'react';
 import { Coordinator } from '../Common';
 import { getVirtualID, LogEvent } from '../../common/data_types';
 import { SettingsContext } from '../Settings';
-import DateUtils from '../../common/date_utils';
+import DateUtils from '../../common/DateUtils';
 import LogEventEditor from './LogEventEditor';
 import LogEventList from './LogEventList';
 import LogEventOptions from './LogEventOptions';

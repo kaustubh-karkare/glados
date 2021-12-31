@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { By, Key } from 'selenium-webdriver';
-import { asyncSequence } from '../../common/async_utils';
+import { asyncSequence } from '../../common/AsyncUtils';
 
 export default class BaseWrapper {
     constructor(webdriver, element) {

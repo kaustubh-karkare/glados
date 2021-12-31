@@ -1,4 +1,4 @@
-import RichTextUtils from '../rich_text_utils';
+import RichTextUtils from '../RichTextUtils';
 
 const { StorageType } = RichTextUtils;
 

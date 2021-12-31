@@ -3,8 +3,8 @@
 import assert from 'assert';
 import { addDays, compareAsc, subDays } from 'date-fns';
 import { LogStructure } from '../../common/data_types';
-import { asyncFilter } from '../../common/async_utils';
-import DateUtils from '../../common/date_utils';
+import { asyncFilter } from '../../common/AsyncUtils';
+import DateUtils from '../../common/DateUtils';
 
 const ActionsRegistry = {};
 

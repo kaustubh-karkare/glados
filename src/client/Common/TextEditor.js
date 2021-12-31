@@ -8,7 +8,7 @@ import React from 'react';
 import createMarkdownShortcutsPlugin from 'draft-js-markdown-shortcuts-plugin';
 import createMentionPlugin from 'draft-js-mention-plugin';
 
-import RichTextUtils from '../../common/rich_text_utils';
+import RichTextUtils from '../../common/RichTextUtils';
 import { KeyCodes } from './Utils';
 import AddLinkPlugin from './AddLinkPlugin';
 import Link from './Link';

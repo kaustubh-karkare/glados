@@ -1,7 +1,7 @@
 import assert from 'assert';
 import DataTypeBase from './base';
 import LogStructure from './LogStructure';
-import RichTextUtils from '../rich_text_utils';
+import RichTextUtils from '../RichTextUtils';
 import { getVirtualID } from './utils';
 import { validateRecursive } from './validation';
 

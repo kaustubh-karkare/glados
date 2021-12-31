@@ -1,6 +1,6 @@
-import RichTextUtils from '../../common/rich_text_utils';
+import RichTextUtils from '../../common/RichTextUtils';
 import TestUtils from './TestUtils';
-import { asyncSequence } from '../../common/async_utils';
+import { asyncSequence } from '../../common/AsyncUtils';
 
 beforeEach(TestUtils.beforeEach);
 afterEach(TestUtils.afterEach);

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import {
     Coordinator, Dropdown, Highlightable, Icon, InputLine,
 } from '../Common';
-import DateUtils from '../../common/date_utils';
+import DateUtils from '../../common/DateUtils';
 import { LogEvent } from '../../common/data_types';
 import { LogEventEditor } from '../LogEvent';
 import { LogStructureEditor } from '../LogStructure';

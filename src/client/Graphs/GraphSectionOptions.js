@@ -3,7 +3,7 @@ import {
 } from 'date-fns';
 import { Enum } from '../../common/data_types';
 
-import DateUtils from '../../common/date_utils';
+import DateUtils from '../../common/DateUtils';
 import { LogEventOptions } from '../LogEvent';
 
 const Granularity = Enum([

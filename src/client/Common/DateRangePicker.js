@@ -2,7 +2,7 @@ import { DateRangePicker as DateRangePickerOriginal } from 'react-date-range';
 import React from 'react';
 import PropTypes from '../prop-types';
 import PopoverElement from './PopoverElement';
-import DateUtils from '../../common/date_utils';
+import DateUtils from '../../common/DateUtils';
 
 // https://adphorus.github.io/react-date-range/
 

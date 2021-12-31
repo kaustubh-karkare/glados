@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 
 import { differenceInCalendarDays } from 'date-fns';
-import DateUtils from '../../../common/date_utils';
-import RichTextUtils from '../../../common/rich_text_utils';
+import DateUtils from '../../../common/DateUtils';
+import RichTextUtils from '../../../common/RichTextUtils';
 
 const ActionsRegistry = {};
 

@@ -6,7 +6,7 @@ import {
     setDate, setMonth,
     subDays, subYears,
 } from 'date-fns';
-import DateUtils from '../date_utils';
+import DateUtils from '../DateUtils';
 import Enum from './enum';
 
 const FrequencyRawOptions = [

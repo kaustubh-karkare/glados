@@ -3,7 +3,7 @@
 import '../common/polyfill';
 import Database from './database';
 import Actions from './actions';
-import SocketRPC from '../common/socket_rpc';
+import SocketRPC from '../common/SocketRPC';
 
 const express = require('express');
 const fs = require('fs');

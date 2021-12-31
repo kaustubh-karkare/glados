@@ -1,6 +1,6 @@
 import { addDays, compareAsc } from 'date-fns';
 import LogStructureFrequency from '../LogStructureFrequency';
-import DateUtils from '../../date_utils';
+import DateUtils from '../../DateUtils';
 
 test('test_previous_and_next_match_methods', async () => {
     // Verify the symmetry of the 2 frequency methods.

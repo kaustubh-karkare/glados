@@ -1,9 +1,9 @@
-import DateUtils from '../../common/date_utils';
+import DateUtils from '../../common/DateUtils';
 import Database from '../database';
 import Actions from '../actions';
 import { LogStructure, getVirtualID } from '../../common/data_types';
-import { asyncSequence } from '../../common/async_utils';
-import RichTextUtils from '../../common/rich_text_utils';
+import { asyncSequence } from '../../common/AsyncUtils';
+import RichTextUtils from '../../common/RichTextUtils';
 
 let actions = null;
 

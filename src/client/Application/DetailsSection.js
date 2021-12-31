@@ -14,7 +14,7 @@ import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicOptions, LogTopicDetailsHeader, LogTopicEditor } from '../LogTopic';
 import { SettingsContext } from '../Settings';
-import RichTextUtils from '../../common/rich_text_utils';
+import RichTextUtils from '../../common/RichTextUtils';
 
 import './DetailsSection.css';
 
