@@ -1,6 +1,6 @@
 ## Generic Life Activity Data Organization System (GLADOS)
 
-https://user-images.githubusercontent.com/1102450/147816494-335b2033-a110-4eca-8c2c-2956fa788426.mp4
+https://user-images.githubusercontent.com/1102450/147822871-ca69bedc-ed20-45aa-88de-e02c66bb92f0.mp4
 
 ### Rationale
 * Over the past decade, I have tried using various todo-list apps (including [my own](https://github.com/kaustubh-karkare/todolist)), but none of them really worked out for me: the motivation never seemed to last beyond a few days. But when I first encountered the idea of an anti-todo/done-list in some blog post (maybe [this one](https://www.fastcompany.com/3034785/why-an-anti-to-do-list-might-be-the-secret-to-productivity)?) I was fascinated enough to give it a try, and at last, it stuck!
