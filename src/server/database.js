@@ -7,7 +7,8 @@ const Sequelize = require('sequelize');
 
 export default class {
     constructor(config) {
-        this.sequelize = new Sequelize(config);
+        this.config = config;
+        this.sequelize = new Sequelize(this.config);
         const nameAndModels = getDataModels(this.sequelize);
         this._modelSequence = nameAndModels.map(([_name, model]) => model);
         this._models = nameAndModels.reduce((result, [name, model]) => {
@@ -32,7 +33,14 @@ export default class {
         if (fs.existsSync(this.sequelize.options.storage)) {
             fs.unlinkSync(this.sequelize.options.storage);
         }
-        await this.sequelize.sync({ force: true });
+        if (this.config.dialect === 'sqlite') {
+            // https://github.com/sequelize/sequelize/issues/11583
+            await this.sequelize.query('PRAGMA foreign_keys = false;');
+            await this.sequelize.sync({ force: true });
+            await this.sequelize.query('PRAGMA foreign_keys = true;');
+        } else {
+            await this.sequelize.sync({ force: true });
+        }
         this.transaction = await this.sequelize.transaction();
     }
 

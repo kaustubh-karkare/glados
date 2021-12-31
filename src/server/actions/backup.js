@@ -4,9 +4,8 @@ import assert from 'assert';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import toposort from 'toposort';
 
-import { asyncSequence, callbackToPromise } from '../../common/AsyncUtils';
+import { callbackToPromise } from '../../common/AsyncUtils';
 
 function getDateAndTime() {
     const date = new Date();
@@ -79,45 +78,6 @@ ActionsRegistry['backup-file-save'] = async function ({ data }) {
     };
 };
 
-ActionsRegistry['backup-data-load'] = async function () {
-    // Since the database format might not be in-sync with the code,
-    // use the QueryInterface to load the data, instead of models.
-    const { sequelize } = this.database;
-    const api = sequelize.getQueryInterface();
-    const tableNames = await api.showAllTables();
-    const data = {};
-    await asyncSequence(tableNames, async (tableName) => {
-        data[tableName] = await sequelize.query(
-            `SELECT * FROM ${tableName}`,
-            { type: sequelize.QueryTypes.SELECT },
-        );
-    });
-    return data;
-};
-
-ActionsRegistry['backup-data-save'] = async function ({ data }) {
-    await this.database.reset();
-    await asyncSequence(this.database.getModelSequence(), async (model) => {
-        const items = data[model.name] || [];
-        if (model.name !== 'log_topics') {
-            await asyncSequence(items, async (item) => {
-                try {
-                    await model.create(item, { transaction: this.database.transaction });
-                } catch (error) {
-                    // eslint-disable-next-line no-constant-condition
-                    if (false) {
-                        // eslint-disable-next-line no-console
-                        console.error(model.name, item);
-                    }
-                    throw error;
-                }
-            });
-        } else {
-            await model.bulkCreate(items, { transaction: this.database.transaction });
-        }
-    });
-};
-
 ActionsRegistry['backup-transform-data'] = async function (data) {
     // return this.invoke.call(this, 'transformation-method', data);
     return { data };
@@ -125,10 +85,10 @@ ActionsRegistry['backup-transform-data'] = async function (data) {
 
 // Actual API
 
-ActionsRegistry['backup-save'] = async function ({ logging } = {}) {
-    const data = await this.invoke.call(this, 'backup-data-load');
+ActionsRegistry['backup-save'] = async function ({ verbose } = {}) {
+    const data = await this.invoke.call(this, 'database-load');
     const result = await this.invoke.call(this, 'backup-file-save', { data });
-    if (logging) {
+    if (verbose) {
         // eslint-disable-next-line no-console
         console.info(`Saved ${result.filename}${result.isUnchanged ? ' (unchanged)' : ''}`);
     }
@@ -147,13 +107,15 @@ ActionsRegistry['backup-latest'] = async function () {
     return { filename, ...components };
 };
 
-ActionsRegistry['backup-load'] = async function ({ logging } = {}) {
+ActionsRegistry['backup-load'] = async function ({ verbose } = {}) {
     const latestBackup = await this.invoke.call(this, 'backup-latest');
     assert(latestBackup, 'at least one backup is required');
-    const data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
+    let data = await this.invoke.call(this, 'backup-file-load', { filename: latestBackup.filename });
     const transformationResult = await this.invoke.call(this, 'backup-transform-data', data);
-    await this.invoke.call(this, 'backup-data-save', { data: transformationResult.data });
-    if (logging) {
+    data = transformationResult.data;
+    await this.invoke.call(this, 'database-validate', data);
+    await this.invoke.call(this, 'database-save', data);
+    if (verbose) {
         // eslint-disable-next-line no-console
         console.info(`Loaded ${latestBackup.filename}`);
     }
@@ -165,44 +127,6 @@ ActionsRegistry['backup-load'] = async function ({ logging } = {}) {
 
 ActionsRegistry['backup-delete'] = async function ({ filename }) {
     return callbackToPromise(fs.unlink, path.join(this.config.backup.location, filename));
-};
-
-ActionsRegistry['database-reset'] = async function () {
-    await this.database.reset();
-    // eslint-disable-next-line no-console
-    console.info('Reset database!');
-};
-
-ActionsRegistry['database-clear'] = async function () {
-    // For some reason, calling "database-reset" causes SQLITE_READONLY error.
-    // So this method is specifically designed for the demo video.
-    const models = this.database.getModelSequence().slice().reverse();
-    await asyncSequence(models, async (model) => {
-        if (model.name === 'log_topics') {
-            // Since topics can reference other topics, the order of deletion matters.
-            // Using topological sort to avoid violating foreign key constraints.
-            const logTopics = await model.findAll();
-            const logTopicMap = {};
-            const nodes = [];
-            const edges = [];
-            logTopics.forEach((logTopic) => {
-                logTopicMap[logTopic.id] = logTopic;
-                nodes.push(logTopic.id);
-                if (logTopic.parent_topic_id) {
-                    edges.push([logTopic.parent_topic_id, logTopic.id]);
-                }
-            });
-            const result = toposort.array(nodes, edges).reverse();
-            await asyncSequence(result, async (id) => {
-                await logTopicMap[id].destroy();
-            });
-        }
-        try {
-            await model.sync({ force: true });
-        } catch (error) {
-            throw new Error(`${model.name} // ${error.message}`);
-        }
-    });
 };
 
 export default ActionsRegistry;

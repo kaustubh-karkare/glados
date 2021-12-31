@@ -23,14 +23,15 @@ async function startServer() {
     const server = http.Server(app);
     const io = SocketIO(server);
     io.on('connection', (socket) => SocketRPC.server(socket, this.actions));
+    const { host, port } = this.config.server;
     app.get('/', (req, res) => {
-        res.cookie('host', this.config.server.host);
-        res.cookie('port', this.config.server.port);
+        res.cookie('host', host);
+        res.cookie('port', port);
         res.sendFile('index.html', { root: 'dist' });
     });
     app.use(express.static('dist'));
-    this.server = server.listen(this.config.server.port, this.config.server.host);
-    console.info('Server ready!');
+    this.server = server.listen(port, host);
+    console.info(`Server running at http://${host}:${port}`);
 }
 
 async function cleanup() {
@@ -57,7 +58,7 @@ async function main(argv) {
 
     await init.call(this);
     if (argv.action) {
-        await this.actions.invoke(argv.action, { logging: true });
+        await this.actions.invoke(argv.action, { verbose: true });
     } else {
         await startServer.call(this);
         // Let the server run until we get a signal.

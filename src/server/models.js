@@ -5,7 +5,7 @@ export function getDataFormatVersion() {
     // is still compatible with this version of code.
     // In case of database schema changes, this value should be bumped,
     // and a script can be written to generate a new backup file from an older version.
-    return 100;
+    return '100';
 }
 
 export function getDataModels(sequelize) {

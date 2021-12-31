@@ -19,8 +19,8 @@ export default class TestUtils {
             logging: false,
         };
         const database = new Database(config);
-        await database.sequelize.sync(); // create tables
         actions = new Actions(null, database);
+        await actions.invoke('database-reset');
     }
 
     static getActions() {
