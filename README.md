@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/1102450/147822871-ca69bedc-ed20-45aa-8
 
 ### Warning!
 
-* Since it is primarily designed for an audience of one, this tool is continuously being modified as I discover bugs or find new ways to improve my workflow. It most definitely is NOT perfect, containing edge cases and bugs that I have not yet encountered, despite having used it almost daily since July 2020.
+* Since it is primarily designed for an audience of one, this tool is continuously being modified as I discover bugs or find new ways to improve my workflow. It most definitely is NOT perfect, containing edge cases and bugs that I have not yet encountered or fixed. But for what it is worth, I have been using it almost daily since July 2020.
 
 ### Installation & Usage
 
@@ -51,6 +51,10 @@ yarn run backup-save  # Can also be done via the right-sidebar in the UI.
 yarn run backup-load  # This involves a database reset, so be careful!
 ```
 
-* Backup files are created by loading the entire database into memory (~10MB for me right now) and then writing that as a JSON file.
+* Backup files are created by loading the entire database into memory (less than 10MB for data generated over a full year, uncompressed) and then writing that as a JSON file.
 * This makes it very easy to apply transformations on the entire database when needed. Eg - the database schema has been updated, or if you just want to change how you organize your data.
 * These are also useful if data needs to be moved from one storage to another.
+
+### Community
+
+* https://www.reddit.com/r/glados_app/
