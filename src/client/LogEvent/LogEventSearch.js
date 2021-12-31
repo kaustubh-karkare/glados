@@ -18,7 +18,6 @@ const INCOMPLETE_ITEM = {
     name: 'Incomplete Events',
     apply: (_item, where, extra) => {
         where.isComplete = false;
-        extra.logEventsIncompleteView = true;
     },
 };
 

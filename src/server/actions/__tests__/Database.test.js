@@ -6,9 +6,9 @@ afterEach(TestUtils.afterEach);
 test('test_load_save_and_clear', async () => {
     await TestUtils.loadData({
         logTopics: [
-            { name: 'Physics', parentTopicName: 'Mathematics' },
-            { name: 'Chemistry', parentTopicName: 'Chemistry' },
             { name: 'Mathematics' },
+            { name: 'Physics', parentTopicName: 'Mathematics' },
+            { name: 'Chemistry', parentTopicName: 'Physics' },
             { name: 'English' },
             { name: 'Computer Science', parentTopicName: 'Physics' },
         ],
@@ -20,6 +20,9 @@ test('test_load_save_and_clear', async () => {
     await actions.invoke('database-save', data);
     const logTopics = await actions.invoke('log-topic-list');
     expect(logTopics.length).toEqual(3);
+
+    data.log_topics = data.log_topics.slice(1); // violates foreign key constraint
+    await expect(actions.invoke('database-save', data)).rejects.toThrow();
 });
 
 test('test_data_format_version', async () => {

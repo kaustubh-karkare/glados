@@ -44,6 +44,7 @@ class GraphSection extends React.Component {
 
     static getDerivedStateFromProps(props, state) {
         const result = GraphSectionOptions.extractData(props.search);
+        result.where.date = props.dateRange || undefined;
         const newGranularity = result.extra.granularity || Granularity.WEEK;
         if (!deepEqual(state.where, result.where)) {
             state.reload = true;
