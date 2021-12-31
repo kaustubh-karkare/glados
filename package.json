@@ -11,7 +11,6 @@
     "database-reset": "yarn run server -a database-reset",
     "backup-save": "yarn run server -a backup-save",
     "backup-load": "yarn run server -a backup-load",
-    "babel-node": "babel-node --config-file ./config/babel.config.js",
     "lint": "eslint -c ./config/eslint.config.js --ext .js,.jsx --fix src",
     "test": "jest --config ./config/jest.config.js --no-watchman",
     "todo": "grep -nir '// TODO' src",

@@ -19,7 +19,6 @@ export class Selector extends BaseWrapper {
         // Error = [object HTMLOptionElement] has no size and location
         */
         await this.element.sendKeys(name);
-        await this.click();
         await this.wait();
     }
 }

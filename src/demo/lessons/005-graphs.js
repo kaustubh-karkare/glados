@@ -81,7 +81,6 @@ export default async (app) => {
         const detailsSection = await app.getDetailsSection(0);
         await detailsSection.typeSlowly('Using "Debug Info" to make RPCs to create similar events.');
         await detailsSection.sendKeys('ENTER');
-        await detailsSection.sendKeys('ENTER');
 
         const bulletList = await indexSection.getBulletList(0);
         const bulletItem = await bulletList.getItem(0);
@@ -129,25 +128,29 @@ export default async (app) => {
             // eslint-disable-next-line no-await-in-loop, no-loop-func
             await app.waitUntil(async () => await bulletList.getItemCount() === count);
         }
-        await app.wait();
+
+        await detailsSection.sendKeys('ENTER');
+        await detailsSection.typeSlowly('Note that weekends were skipped while creating the mock events.');
+        await detailsSection.sendKeys('ENTER');
     }
 
     if (true) {
         await app.switchToTab('Explore Graphs');
 
+        await app.wait(2000);
+
         const typeaheadSelector = await indexSection.getTypeahead();
         await typeaheadSelector.typeSlowly('Gr');
         await typeaheadSelector.pickSuggestion('Granularity: Day');
 
-        await app.wait(2000);
+        await app.wait(1000);
 
         const detailsSection = await app.getDetailsSection(0);
-        await detailsSection.typeSlowly("The 'Event Count' graph is an indicator of your consistency.");
         await detailsSection.sendKeys('ENTER');
-        await detailsSection.typeSlowly('Note that weekends were skipped while creating the mock events.');
-        await detailsSection.sendKeys('ENTER');
+        await detailsSection.typeSlowly('The "Event Count" graph is an indicator of your consistency.');
         await detailsSection.sendKeys('ENTER');
 
+        await detailsSection.sendKeys('ENTER');
         await detailsSection.typeSlowly('Additional graphs are generated for each numerical key of your structure,');
         await detailsSection.sendKeys('ENTER');
         await detailsSection.typeSlowly('and can help see patterns in those values.');
