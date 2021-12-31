@@ -75,7 +75,7 @@ class TypeaheadOptions {
         }
         const computedOptions = await this.config.getComputedOptions(query);
         options.push(...computedOptions);
-        // TODO: Maybe prefix type?
+        // TODO: Maybe prefix type name, before item name, for clarity.
         return options;
     }
 

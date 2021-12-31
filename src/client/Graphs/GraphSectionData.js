@@ -9,13 +9,20 @@ function getLogKeySample(keyIndex, valueParser, logEvents) {
     if (logEvents.length === 0) {
         return null;
     }
-    // TODO: Support _AggregationType to combine multiple events?
-    const logEvent = logEvents[logEvents.length - 1];
-    const logKey = logEvent.logStructure.logKeys[keyIndex];
-    if (logKey.value === null) {
+    const values = logEvents.map((logEvent) => {
+        const logKey = logEvent.logStructure.logKeys[keyIndex];
+        if (logKey.value === null) {
+            return null;
+        }
+        return valueParser(logKey.value);
+    }).filter((value) => value !== null);
+    if (values.length === 0) {
         return null;
+    } if (values.length === 1) {
+        return values[0];
     }
-    return valueParser(logKey.value);
+    // logEvents[0].logStructure.logKeys[keyIndex].aggregationType?
+    return values.reduce((result, value) => (result + value), 0) / values.length;
 }
 
 function getLines(logStructure, logEvent) {

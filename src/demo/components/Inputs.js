@@ -11,9 +11,15 @@ export class Selector extends BaseWrapper {
     }
 
     async pickOption(name) {
-        await this.click(this.element);
-        await this.wait();
+        /*
+        const optionElements = await this.element.findElements(By.tagName('option'));
+        const optionLabels = await Promise.all(optionElements.map(element => element.getText()));
+        const index = optionLabels.findIndex(optionLabel => optionLabel === name);
+        await this.moveToAndClick(optionElements[index]);
+        // Error = [object HTMLOptionElement] has no size and location
+        */
         await this.element.sendKeys(name);
+        await this.click();
         await this.wait();
     }
 }

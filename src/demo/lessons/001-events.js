@@ -76,9 +76,10 @@ export default async (app) => {
         await app.waitUntil(async () => await bulletList.getItemCount() === count);
 
         const typeaheadSelector = await indexSection.getTypeahead();
-        await typeaheadSelector.typeSlowly('A');
-        await typeaheadSelector.pickSuggestion('All Events');
-        await app.waitUntil(async () => (await typeaheadSelector.getTokens())[0] === 'All Events');
+        await typeaheadSelector.typeSlowly('L');
+        const name = 'Log Level: Minor+';
+        await typeaheadSelector.pickSuggestion(name);
+        await app.waitUntil(async () => (await typeaheadSelector.getTokens())[0] === name);
         await app.waitUntil(async () => await bulletList.getItemCount() === count + 1);
 
         await adder.typeSlowly('While viewing all events, you can reorder them.');

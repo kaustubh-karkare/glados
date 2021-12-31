@@ -70,11 +70,8 @@ class LogEventOptions {
         return result;
     }
 
-    static extractData(items, typeToActionMap) {
-        const where = {
-            isComplete: true,
-            logLevel: [2, 3],
-        };
+    static extractData(items, typeToActionMap, defaultWhere) {
+        const where = { ...defaultWhere };
         const extra = {};
         items.forEach((item) => {
             const action = typeToActionMap[item.__type__];

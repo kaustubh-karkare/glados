@@ -44,7 +44,7 @@ export default class BaseWrapper {
         }
         await asyncSequence(Array.from(text), async (char) => {
             await this.element.sendKeys(char);
-            // await wait(50ms); // TODO: Re-enable.
+            // Dont need to add additional delay here.
         });
         await this.wait();
     }
@@ -69,9 +69,7 @@ export default class BaseWrapper {
 
     async moveToAndClick(element) {
         await this.moveTo(element);
-        await this.wait();
         await this.click(element);
-        await this.wait();
     }
 
     // eslint-disable-next-line class-methods-use-this

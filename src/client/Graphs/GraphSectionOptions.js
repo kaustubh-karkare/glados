@@ -42,7 +42,6 @@ const GRANULARITY_OPTIONS = Granularity.Options.map((option, index) => ({
 
 const GRANULARITY_MOCK_OPTION = {
     __type__: GRANULARITY_TYPE,
-    __id__: 0,
     apply: (item, _where, extra) => {
         extra.granularity = item.name.substr(GRANULARITY_PREFIX.length).toLowerCase();
     },
@@ -58,7 +57,6 @@ class GraphSectionOptions {
             items,
             LogEventOptions.getTypeToActionMap([GRANULARITY_MOCK_OPTION]),
         );
-        delete result.where.logLevel;
         return result;
     }
 }

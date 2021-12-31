@@ -6,30 +6,10 @@ import deepEqual from 'deep-equal';
 
 import { DataLoader } from '../Common';
 import PropTypes from '../prop-types';
-import { Enum } from '../../common/data_types';
 import { getGraphData } from './GraphSectionData';
 import GraphSectionOptions, { Granularity } from './GraphSectionOptions';
 
 import './GraphSection.css';
-
-const _AggregationType = Enum([
-    {
-        label: 'Maximum',
-        value: 'maximum',
-    },
-    {
-        label: 'Minimum',
-        value: 'minimum',
-    },
-    {
-        label: 'Average',
-        value: 'average',
-    },
-    {
-        label: 'Sum',
-        value: 'sum',
-    },
-]);
 
 const CustomTooltip = ({ active, label, payload }) => {
     if (active && payload && payload.length) {
@@ -69,7 +49,7 @@ class GraphSection extends React.Component {
             state.reload = true;
         }
         state.where = result.where;
-        state.hasAnyFilters = Object.keys(state.where).length > 1; // exclude isComplete
+        state.hasAnyFilters = Object.keys(state.where).length > 0;
         if (state.granularity !== newGranularity && state.logEvents) {
             state.graphData = getGraphData(
                 state.where.logStructure,

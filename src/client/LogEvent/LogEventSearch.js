@@ -21,13 +21,33 @@ const INCOMPLETE_ITEM = {
         extra.logEventsIncompleteView = true;
     },
 };
-const ALL_EVENTS_ITEM = {
-    __type__: 'all-events',
+
+const LOG_LEVEL_MINOR_ITEM = {
+    __type__: 'log-event-level',
     __id__: getVirtualID(),
-    name: 'All Events',
-    apply: (_item, where, _extra) => {
-        delete where.logLevel;
+    name: 'Log Level: Minor+',
+};
+const LOG_LEVEL_MAJOR_ITEM = {
+    __type__: 'log-event-level',
+    __id__: getVirtualID(),
+    name: 'Log Level: Major+',
+};
+const LOG_LEVEL_MOCK_ITEM = {
+    __type__: 'log-event-level',
+    apply: (item, where, extra) => {
+        if (item.__id__ === LOG_LEVEL_MINOR_ITEM.__id__) {
+            delete where.logLevel; // [1, 2, 3]
+            extra.allowReordering = true;
+        } else if (item.__id__ === LOG_LEVEL_MAJOR_ITEM.__id__) {
+            where.logLevel = [3];
+            extra.searchView = true;
+        }
     },
+};
+
+const DEFAULT_WHERE = {
+    isComplete: true,
+    logLevel: [2, 3],
 };
 
 // Extra Actions for Events
@@ -68,14 +88,19 @@ class LogEventSearch extends React.Component {
     static getTypeaheadOptions() {
         return LogEventOptions.get([
             INCOMPLETE_ITEM,
-            ALL_EVENTS_ITEM,
+            LOG_LEVEL_MINOR_ITEM,
+            LOG_LEVEL_MAJOR_ITEM,
         ]);
     }
 
     static getDerivedStateFromProps(props, _state) {
         return LogEventOptions.extractData(
             props.search,
-            LogEventOptions.getTypeToActionMap([INCOMPLETE_ITEM, ALL_EVENTS_ITEM]),
+            LogEventOptions.getTypeToActionMap([
+                INCOMPLETE_ITEM,
+                LOG_LEVEL_MOCK_ITEM,
+            ]),
+            DEFAULT_WHERE,
         );
     }
 
@@ -88,7 +113,7 @@ class LogEventSearch extends React.Component {
         this.deregisterCallbacks = [
             Coordinator.subscribe('log-event-created', (logEvent) => {
                 if (logEvent.logLevel === 1 && !this.props.search.length) {
-                    Coordinator.invoke('url-update', { search: [ALL_EVENTS_ITEM] });
+                    Coordinator.invoke('url-update', { search: [LOG_LEVEL_MINOR_ITEM] });
                 }
             }),
         ];
@@ -257,7 +282,7 @@ class LogEventSearch extends React.Component {
         const moreProps = { viewerComponentProps: {} };
         moreProps.prefixActions = [];
         moreProps.prefixActions.push(DUPLICATE_ACTION);
-        if (!where.logLevel) {
+        if (extra.allowReordering) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps.displayLogLevel = true;
         }
