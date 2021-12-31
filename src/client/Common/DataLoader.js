@@ -11,6 +11,7 @@ class DataLoader {
         this.cancelSubscription = null;
         this.onData = onData || IGNORE;
         this.onError = onError || IGNORE;
+        this.isMounted = true;
         this.reload();
     }
 
@@ -34,11 +35,15 @@ class DataLoader {
         }
         window.api.send(this.input.name, this.input.args)
             .then((data) => {
-                this.setupSubscription();
-                this.onData(data);
+                if (this.isMounted) {
+                    this.setupSubscription();
+                    this.onData(data);
+                }
             })
             .catch((error) => {
-                this.onError(error);
+                if (this.isMounted) {
+                    this.onError(error);
+                }
             });
     }
 
@@ -62,6 +67,9 @@ class DataLoader {
             this.cancelSubscription = cancel;
         }
         promise.then((data) => {
+            if (!this.isMounted) {
+                return;
+            }
             const original = this.input.args || {};
             const modified = data || {};
             if (this.compare(this.input.name, original, modified)) {
@@ -73,6 +81,7 @@ class DataLoader {
     }
 
     stop() {
+        this.isMounted = false;
         if (this.cancelSubscription) {
             this.cancelSubscription();
         }
