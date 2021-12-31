@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const nodeExternals = require('webpack-node-externals');
@@ -97,6 +98,21 @@ function getServerSideBundle(entryPoint, outputFileName) {
                 getJSModuleRule(),
             ],
         },
+        // https://medium.com/tomincode/hiding-critical-dependency-warnings-from-webpack-c76ccdb1f6c1
+        plugins: [
+            new webpack.ContextReplacementPlugin(
+                /src\/server/,
+                (data) => {
+                    // The following error is expected in actions.js to support Jest.
+                    //     Critical dependency: require function is used in a way in
+                    //     which dependencies cannot be statically extracted.
+                    data.dependencies.forEach((dependency) => {
+                        delete dependency.critical;
+                    });
+                    return data;
+                },
+            ),
+        ],
         stats: getStats(),
         // https://www.npmjs.com/package/webpack-node-externals
         target: 'node',
