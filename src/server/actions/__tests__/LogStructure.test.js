@@ -1,5 +1,5 @@
-import { LogStructure } from '../../common/data_types';
-import RichTextUtils from '../../common/RichTextUtils';
+import { LogStructure } from '../../../common/data_types';
+import RichTextUtils from '../../../common/RichTextUtils';
 import TestUtils from './TestUtils';
 
 beforeEach(TestUtils.beforeEach);

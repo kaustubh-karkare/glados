@@ -94,6 +94,7 @@
     "mini-css-extract-plugin": "^0.9.0",
     "nodemon": "^2.0.4",
     "style-loader": "^1.2.1",
+    "tmp": "^0.2.1",
     "ts-loader": "^8.0.2",
     "typescript": "^3.9.5",
     "walk-sync": "^2.2.0",
