@@ -10,9 +10,9 @@ https://user-images.githubusercontent.com/1102450/147822871-ca69bedc-ed20-45aa-8
 
 ### Warning!
 
-* Since it is primarily designed for an audience of one, this tool is continuously being modified as I discover bugs or find new ways to improve my workflow. It most definitely is NOT perfect, containing edge cases and bugs that I have not yet encountered or fixed. But for what it is worth, I have been using it almost daily since July 2020.
+* Since it is primarily designed for an audience of one, this tool is continuously being modified as I find new ways to improve my workflow. It most definitely is NOT perfect, containing edge cases and bugs that I have not yet encountered or fixed. But for what it is worth, I have been using it almost daily since July 2020.
 
-### Installation & Usage
+### Installation
 
 ```
 git clone https://github.com/kaustubh-karkare/glados

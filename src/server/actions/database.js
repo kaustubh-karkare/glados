@@ -82,7 +82,7 @@ ActionsRegistry['database-validate'] = async function ({ data: backupData, verbo
 
 ActionsRegistry['database-clear'] = async function () {
     // For some reason, calling "database-reset" causes SQLITE_READONLY error.
-    // So this method is specifically designed for the demo video.
+    // So this method is specifically designed for the demo videos.
     const models = this.database.getModelSequence().slice().reverse();
     await asyncSequence(models, async (model) => {
         if (model.name === 'log_topics') {

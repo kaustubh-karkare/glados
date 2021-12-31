@@ -22,7 +22,6 @@ export default async (webdriver, argv) => {
         });
 
     await asyncSequence(lessonNames, async (name) => {
-        // eslint-disable-next-line import/no-dynamic-require, global-require
         const { default: lessonMethod } = lessonsContext(name);
         console.info(`${argv.indent}Lesson: ${name}`);
         try {
