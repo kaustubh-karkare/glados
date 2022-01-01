@@ -51,7 +51,7 @@ class GraphSection extends React.Component {
             state.reload = true;
         }
         state.where = result.where;
-        state.hasAnyFilters = Object.keys(state.where).length > 0;
+        state.hasAnyFilters = props.search.length > 0;
         if (state.granularity !== newGranularity && state.logEvents) {
             state.graphData = getGraphData(
                 state.where.logStructure,

@@ -25,14 +25,16 @@ window.main = function main() {
     window.api = SocketRPC.client(
         io(`${cookies.host}:${cookies.port}`),
         (name, input, output) => {
-            const suffix = '-upsert';
-            if (name.endsWith(suffix) && isVirtualItem(input)) {
-                const dataType = name.substring(0, name.length - suffix.length);
-                Coordinator.broadcast(`${dataType}-created`, output);
+            // The "log-event-created" event is used to auto-add the "Log Level: Minor+"
+            // item to LogEventSearch typeahead, to make sure that the new item is visible.
+            if (name === 'log-event-upsert' && isVirtualItem(input)) {
+                Coordinator.broadcast('log-event-created', output);
+            } else if (name === 'reminder-complete') {
+                Coordinator.broadcast('log-event-created', output.logEvent);
             }
         },
         // TODO: Eliminate this catch-all.
-        (name, input, error) => Coordinator.invoke('modal-error', error),
+        (_name, _input, error) => Coordinator.invoke('modal-error', error),
     );
 
     const plugins = {};

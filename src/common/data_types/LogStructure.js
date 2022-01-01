@@ -39,7 +39,7 @@ class LogStructure extends DataTypeBase {
             details: null,
             allowEventDetails: false,
             logKeys: [],
-            titleTemplate: '',
+            titleTemplate: null,
             needsEdit: false,
             isPeriodic: false,
             reminderText: null,

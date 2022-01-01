@@ -32,9 +32,12 @@ export default async (app) => {
             const templateInput = await modalDialog.getTextEditor('Title Template');
             await templateInput.typeSlowly(' at ');
 
+            const logLevelSelector = await modalDialog.getSelector('Log Level');
+            await logLevelSelector.pickOption('Minor (1)');
+
             const key1 = await modalDialog.addLogStructureKey();
-            const typeSelector = await key1.getTypeSelector();
-            await typeSelector.pickOption('Time');
+            const key1type = await key1.getTypeSelector();
+            await key1type.pickOption('Time');
             const key1name = await key1.getNameInput();
             await key1name.typeSlowly('Time');
 

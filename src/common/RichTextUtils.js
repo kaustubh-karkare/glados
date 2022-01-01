@@ -61,7 +61,7 @@ class RichTextUtils {
         }
         const content = convertFromRaw(value);
         const blocks = content.getBlocksAsArray();
-        assert(blocks.length === 1);
+        assert(blocks.length === 1, 'expected single line');
         return blocks[0].getText();
     }
 
@@ -349,7 +349,7 @@ class RichTextUtils {
                 } else { // Rich Text
                     const innerContentState = convertFromRaw(item);
                     const innerContentBlocks = innerContentState.getBlocksAsArray();
-                    assert(innerContentBlocks.length === 1);
+                    assert(innerContentBlocks.length === 1, 'expected single line');
                     const innerContentBlock = innerContentBlocks[0];
                     contentState = Modifier.replaceText(
                         contentState,
@@ -400,7 +400,7 @@ class RichTextUtils {
 
     static addPrefixToDraftContent(contentState, items) {
         const blocks = contentState.getBlocksAsArray();
-        assert(blocks.length === 1);
+        assert(blocks.length === 1, 'expected single line');
         let selectionState = SelectionState.createEmpty(blocks[0].getKey());
         selectionState = selectionState.merge({
             anchorOffset: 0,
@@ -444,7 +444,7 @@ class RichTextUtils {
     static removePrefixFromDraftContext(content, prefix) {
         let contentState = convertFromRaw(content);
         const blocks = contentState.getBlocksAsArray();
-        assert(blocks.length === 1);
+        assert(blocks.length === 1, 'expected single line');
         let selectionState = SelectionState.createEmpty(blocks[0].getKey());
         selectionState = selectionState.merge({
             anchorOffset: 0,
@@ -470,7 +470,7 @@ class RichTextUtils {
                 const originalStartIndex = startIndex;
                 if (currentBlockText[startIndex] === '{') {
                     endIndex = currentBlockText.indexOf('}', startIndex);
-                    assert(endIndex !== -1);
+                    assert(endIndex !== -1, 'expected to find } after {');
                     const expression = currentBlockText.substring(startIndex + 1, endIndex);
                     startIndex = endIndex + 1;
                     try {
@@ -484,31 +484,36 @@ class RichTextUtils {
                         });
                     } catch (error) {
                         // eslint-disable-next-line no-console
-                        console.error(error);
+                        console.warn(error);
                     }
                 } else if (currentBlockText[startIndex] === '[') {
-                    endIndex = currentBlockText.indexOf(']', startIndex);
-                    assert(endIndex !== -1);
-                    const linkText = currentBlockText.substring(startIndex + 1, endIndex);
-                    startIndex = endIndex + 1;
-                    assert(currentBlockText[startIndex] === '(');
-                    endIndex = currentBlockText.indexOf(')', startIndex);
-                    assert(endIndex !== -1);
-                    const linkHref = currentBlockText.substring(startIndex + 1, endIndex);
-                    startIndex = endIndex + 1;
+                    try {
+                        endIndex = currentBlockText.indexOf(']', startIndex);
+                        assert(endIndex !== -1, 'expected to find ] after [');
+                        const linkText = currentBlockText.substring(startIndex + 1, endIndex);
+                        startIndex = endIndex + 1;
+                        assert(currentBlockText[startIndex] === '(', 'expected to find ( after ]');
+                        endIndex = currentBlockText.indexOf(')', startIndex);
+                        assert(endIndex !== -1, 'expected to find ) after (');
+                        const linkHref = currentBlockText.substring(startIndex + 1, endIndex);
+                        startIndex = endIndex + 1;
 
-                    contentState = contentState.createEntity(
-                        LINK_ENTITY_TYPE,
-                        'IMMUTABLE',
-                        { url: linkHref },
-                    );
-                    pendingUpdates.push({
-                        blockKey: currentBlockKey,
-                        startIndex: originalStartIndex,
-                        endIndex: startIndex,
-                        text: linkText,
-                        entityKey: contentState.getLastCreatedEntityKey(),
-                    });
+                        contentState = contentState.createEntity(
+                            LINK_ENTITY_TYPE,
+                            'IMMUTABLE',
+                            { url: linkHref },
+                        );
+                        pendingUpdates.push({
+                            blockKey: currentBlockKey,
+                            startIndex: originalStartIndex,
+                            endIndex: startIndex,
+                            text: linkText,
+                            entityKey: contentState.getLastCreatedEntityKey(),
+                        });
+                    } catch (error) {
+                        // eslint-disable-next-line no-console
+                        console.warn(error);
+                    }
                 } else {
                     startIndex += 1;
                 }

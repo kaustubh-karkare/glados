@@ -46,12 +46,11 @@ class ReminderItem extends React.Component {
             return;
         }
         window.api.send('reminder-complete', { logStructure, logEvent })
-            .then((result) => {
+            .then(() => {
                 if (this.closeModal) {
                     this.closeModal();
                     delete this.closeModal;
                 }
-                Coordinator.broadcast('log-event-created', result.logEvent);
             });
     }
 

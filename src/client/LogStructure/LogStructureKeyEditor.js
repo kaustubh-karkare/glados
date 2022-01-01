@@ -41,6 +41,7 @@ class LogStructureKeyEditor extends React.Component {
     renderNameInput() {
         return (
             <TextInput
+                placeholder="Key Name"
                 value={this.props.logKey.name}
                 disabled={this.props.disabled}
                 onChange={(name) => this.update('name', name)}
