@@ -6,9 +6,9 @@ function CreditsSection(props) {
     return (
         <SidebarSection>
             {'Built by: '}
-            <a href="https://www.facebook.com/kaustubh.karkare/">Kaustubh</a>
-            {' '}
-            <a href="https://www.linkedin.com/in/kaustubh-karkare/">Karkare</a>
+            <a href="http://kaustubh.io">
+                Kaustubh Karkare
+            </a>
             {' | '}
             <a href="https://github.com/kaustubh-karkare/glados">
                 GitHub
