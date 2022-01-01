@@ -2,6 +2,8 @@
 
 https://user-images.githubusercontent.com/1102450/147822871-ca69bedc-ed20-45aa-88de-e02c66bb92f0.mp4
 
+If the above video does not work, you can also watch it here: https://www.youtube.com/watch?v=xd3JJi8zSk4
+
 ### Rationale
 * Over the past decade, I have tried using various todo-list apps, but none of them really worked out for me: the motivation never seemed to last beyond a few days. But when I encountered the idea of an anti-todo/done-list in some blog post (maybe [this one](https://www.fastcompany.com/3034785/why-an-anti-to-do-list-might-be-the-secret-to-productivity)?) I was fascinated enough to give it a try, and it actually proved valuable!
 * Additionally, back then, it was fairly easy to measure my productivity at work in terms of the amount of code generated, so I would only make notes about important/memorable events. But in the last couple of years, as my job has evolved, that metric is no longer a useful proxy for my effectiveness. This transition strongly correlated with an increasing reliance on these done-lists to feel satisfied at the end of the day.
