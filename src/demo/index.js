@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import { assert } from 'console';
 import fs from 'fs';
 import path from 'path';
 import { Builder } from 'selenium-webdriver';
@@ -7,6 +8,11 @@ import yargs from 'yargs';
 
 import runLessons from './lessons';
 import { ProcessWrapper, StreamIntender } from './process';
+
+const DEVICE_TO_WINDOW_SPEC = {
+    desktop: { width: 1920, height: 1080 },
+    mobile: { width: 1280, height: 720 },
+};
 
 async function main(argv) {
     console.info('Initializing ...');
@@ -46,8 +52,10 @@ async function main(argv) {
     console.info(`${argv.indent}Test server started!`);
 
     const webdriver = new Builder().forBrowser('chrome').build();
+    const spec = DEVICE_TO_WINDOW_SPEC[argv.device];
+    assert(spec, `unknown device: ${argv.device}`);
     await webdriver.manage().window().setRect({
-        width: 1920, height: 1080, x: 0, y: 0,
+        width: spec.width, height: spec.height, x: 0, y: 0,
     });
     await webdriver.get(`http://${config.server.host}:${config.server.port}`);
     console.info(`${argv.indent}Webdriver started!`);
@@ -119,6 +127,7 @@ const { argv } = yargs
     // Recording
     .option('record')
     .option('videoPath', { default: './data/glados.demo.mkv' })
+    .option('device', { default: 'desktop' })
     // Lessons
     .option('filter')
     .option('wait', { default: 0 });

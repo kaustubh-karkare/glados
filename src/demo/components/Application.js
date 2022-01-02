@@ -79,4 +79,23 @@ export default class Application extends BaseWrapper {
         await this.webdriver.wait(conditionMethod);
         await this.wait();
     }
+
+    async scrollToBottom(className, index) {
+        // Required for lower resolution demo videos.
+        const injectedMethod = (innerClassName, innerIndex) => {
+            const node = document.getElementsByClassName(innerClassName)[innerIndex];
+            let prevScrollTop = null;
+            return (function loop() {
+                if (prevScrollTop === node.scrollTop) {
+                    return Promise.resolve();
+                }
+                prevScrollTop = node.scrollTop;
+                node.scrollBy(0, 10);
+                return new Promise((resolve) => {
+                    setTimeout(() => resolve(loop()), 10);
+                });
+            }());
+        };
+        await this.webdriver.executeScript(`return (${injectedMethod.toString()})(${JSON.stringify(className)}, ${index});`);
+    }
 }

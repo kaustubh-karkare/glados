@@ -36,7 +36,14 @@ class BackupSection extends React.Component {
         return (
             <SidebarSection>
                 <LeftRight>
-                    <a href="#" onClick={() => BackupSection.onClick()}>Backup</a>
+                    <a
+                        className="mr-2"
+                        href="#"
+                        onClick={() => BackupSection.onClick()}
+                        title="Save New Backup"
+                    >
+                        Backup:
+                    </a>
                     {latestBackup ? `${latestBackup.timetamp}` : 'No backup found!' }
                 </LeftRight>
             </SidebarSection>

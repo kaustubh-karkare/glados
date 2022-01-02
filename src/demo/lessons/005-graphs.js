@@ -163,6 +163,10 @@ export default async (app) => {
         const linkElement = await app.getLink('Left');
         await linkElement.moveToAndClick();
 
-        await app.wait(2000);
+        await app.wait(1000);
+
+        await app.scrollToBottom('scrollable-section', 1);
+
+        await app.wait(1000);
     }
 };

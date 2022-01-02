@@ -29,7 +29,7 @@ class EnumSelectorSection extends React.Component {
         return (
             <SidebarSection>
                 <LeftRight>
-                    {this.props.label}
+                    <div className="mr-2">{this.props.label}</div>
                     <div>{this.renderOptions()}</div>
                 </LeftRight>
             </SidebarSection>

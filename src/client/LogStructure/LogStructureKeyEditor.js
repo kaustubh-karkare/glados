@@ -89,7 +89,7 @@ class LogStructureKeyEditor extends React.Component {
         );
     }
 
-    renderTemplate() {
+    renderKeyTemplate() {
         return (
             <TextEditor
                 isSingleLine
@@ -152,9 +152,9 @@ class LogStructureKeyEditor extends React.Component {
                 </InputGroup>
                 <InputGroup className="my-1">
                     <InputGroup.Text style={{ width: 100 }}>
-                        Template
+                        Key Template
                     </InputGroup.Text>
-                    {this.renderTemplate()}
+                    {this.renderKeyTemplate()}
                 </InputGroup>
                 {this.props.logKey.type === LogStructure.Key.Type.ENUM
                     ? this.renderEnumValuesSection() : null}
