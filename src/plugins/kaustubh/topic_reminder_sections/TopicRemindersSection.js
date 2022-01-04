@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { DataLoader, Link, SidebarSection } from '../../../client/Common';
+import {
+    DataLoader, DateContext, Link, SidebarSection,
+} from '../../../client/Common';
 import PropTypes from '../../../client/prop-types';
 
 class TopicRemindersSection extends React.Component {
@@ -14,6 +16,7 @@ class TopicRemindersSection extends React.Component {
             getInput: () => ({
                 name: 'topic-reminders',
                 args: {
+                    todayLabel: this.props.todayLabel,
                     logStructureId: this.props.logStructureId,
                     thresholdDays: this.props.thresholdDays,
                 },
@@ -51,8 +54,9 @@ class TopicRemindersSection extends React.Component {
 }
 
 TopicRemindersSection.propTypes = {
+    todayLabel: PropTypes.string.isRequired,
     logStructureId: PropTypes.number.isRequired,
     thresholdDays: PropTypes.number.isRequired,
 };
 
-export default TopicRemindersSection;
+export default DateContext.Wrapper(TopicRemindersSection);

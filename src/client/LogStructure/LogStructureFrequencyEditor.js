@@ -5,7 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { LogStructure } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
 import {
-    DatePicker, Selector, TextInput,
+    DateContext, DatePicker, Selector, TextInput,
 } from '../Common';
 
 const MonthOptions = DateUtils.MonthsOfTheYear.map((month, index) => {
@@ -27,6 +27,7 @@ const WarningDayOptions = Array(15).fill(null).map((_, index) => {
 
 class LogStructureFrequencyEditor extends React.Component {
     updateIsPeriodic(newIsPeriodic) {
+        const { todayDate } = this.context;
         this.props.updateLogStructure((updatedLogStructure) => {
             if (newIsPeriodic) {
                 updatedLogStructure.isPeriodic = true;
@@ -36,7 +37,7 @@ class LogStructureFrequencyEditor extends React.Component {
                 );
                 updatedLogStructure.warningDays = updatedLogStructure._warningDays || 0;
                 updatedLogStructure.suppressUntilDate = updatedLogStructure._suppressUntilDate || '{yesterday}';
-                DateUtils.maybeSubstitute(updatedLogStructure, 'suppressUntilDate');
+                DateUtils.maybeSubstitute(todayDate, updatedLogStructure, 'suppressUntilDate');
             } else {
                 updatedLogStructure.isPeriodic = false;
                 updatedLogStructure._reminderText = updatedLogStructure.reminderText;
@@ -52,12 +53,13 @@ class LogStructureFrequencyEditor extends React.Component {
     }
 
     updateFrequency(newFrequency) {
+        const { todayLabel } = this.context;
         this.props.updateLogStructure((updatedLogStructure) => {
             const oldFrequency = updatedLogStructure.frequency;
             updatedLogStructure.frequency = newFrequency;
             if (newFrequency === LogStructure.Frequency.YEARLY) {
                 updatedLogStructure.frequencyArgs = (
-                    updatedLogStructure._frequencyArgs || DateUtils.getTodayLabel().substr(5)
+                    updatedLogStructure._frequencyArgs || todayLabel.substr(5)
                 );
             } else if (oldFrequency === LogStructure.Frequency.YEARLY) {
                 updatedLogStructure._frequencyArgs = updatedLogStructure.frequencyArgs;
@@ -195,5 +197,7 @@ LogStructureFrequencyEditor.propTypes = {
     disabled: PropTypes.bool.isRequired,
     updateLogStructure: PropTypes.func.isRequired,
 };
+
+LogStructureFrequencyEditor.contextType = DateContext;
 
 export default LogStructureFrequencyEditor;

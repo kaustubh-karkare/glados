@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DataLoader } from '../Common';
+import { DataLoader, DateContext } from '../Common';
 import PropTypes from '../prop-types';
 import ReminderList from './ReminderList';
 
@@ -11,8 +11,9 @@ class ReminderSidebar extends React.Component {
     }
 
     componentDidMount() {
+        const { todayLabel } = this.props;
         this.dataLoader = new DataLoader({
-            getInput: () => ({ name: 'reminder-sidebar' }),
+            getInput: () => ({ name: 'reminder-sidebar', args: { todayLabel } }),
             onData: (logStructureGroups) => this.setState({ logStructureGroups }),
         });
     }
@@ -41,7 +42,8 @@ class ReminderSidebar extends React.Component {
 }
 
 ReminderSidebar.propTypes = {
+    todayLabel: PropTypes.string.isRequired,
     disabled: PropTypes.bool.isRequired,
 };
 
-export default ReminderSidebar;
+export default DateContext.Wrapper(ReminderSidebar);

@@ -61,3 +61,4 @@ yarn run backup-load  # This involves a database reset, so be careful!
 ### Community
 
 * https://www.reddit.com/r/glados_app/
+* Hacker News: [2022-01-01](https://news.ycombinator.com/item?id=29756591).

@@ -21,11 +21,12 @@ ActionsRegistry['latest-log-event'] = async function (input) {
 };
 
 ActionsRegistry['reminder-check'] = async function (input) {
-    const { logStructure } = input;
+    // This action is invoked by "reminder-sidebar".
+    const { logStructure, todayLabel } = input;
     assert(logStructure.isPeriodic);
 
     // If the reminder is suppressed, return early.
-    const todayDate = DateUtils.getTodayDate(this);
+    const todayDate = DateUtils.getDate(todayLabel);
     const suppressUntilDate = DateUtils.getDate(logStructure.suppressUntilDate);
     if (compareAsc(todayDate, suppressUntilDate) <= 0) {
         return false;
@@ -52,7 +53,8 @@ ActionsRegistry['reminder-check'] = async function (input) {
 };
 
 ActionsRegistry['reminder-score'] = async function (input) {
-    const { logStructure } = input;
+    // This action is invoked by "reminder-sidebar".
+    const { logStructure, todayLabel } = input;
     assert(logStructure.isPeriodic);
 
     // While the reminder-check is O(1), this operation is O(n).
@@ -68,7 +70,7 @@ ActionsRegistry['reminder-score'] = async function (input) {
     // The "window of opportunity" is defined as the start of the warning for one reminder,
     // to the start of the warning for the next reminder.
     const option = LogStructure.Frequency[logStructure.frequency];
-    const todayDate = DateUtils.getTodayDate(this);
+    const todayDate = DateUtils.getDate(todayLabel);
     const nextReminderDate = option.getNextMatch(
         // Using addDays here, so that deadlineDate will be in the future.
         addDays(todayDate, logStructure.warningDays),
@@ -129,7 +131,8 @@ ActionsRegistry['reminder-score'] = async function (input) {
     return { value, deadline, dateRanges };
 };
 
-ActionsRegistry['reminder-sidebar'] = async function (input = {}) {
+ActionsRegistry['reminder-sidebar'] = async function (input) {
+    const { todayLabel } = input;
     const logStructureGroups = await this.invoke.call(this, 'log-structure-group-list', {
         ordering: true,
         where: input.where,
@@ -145,13 +148,13 @@ ActionsRegistry['reminder-sidebar'] = async function (input = {}) {
                     (logStructure) => logStructure.logStructureGroup.__id__
                         === logStructureGroup.__id__,
                 ),
-                async (logStructure) => this.invoke.call(this, 'reminder-check', { logStructure }),
+                async (logStructure) => this.invoke.call(this, 'reminder-check', { logStructure, todayLabel }),
             );
             if (!logStructures.length) {
                 return null;
             }
             await Promise.all(logStructures.map(async (logStructure) => {
-                logStructure.reminderScore = await this.invoke.call(this, 'reminder-score', { logStructure });
+                logStructure.reminderScore = await this.invoke.call(this, 'reminder-score', { logStructure, todayLabel });
             }));
             return { ...logStructureGroup, logStructures };
         }),
@@ -159,23 +162,23 @@ ActionsRegistry['reminder-sidebar'] = async function (input = {}) {
     return reminderGroups.filter((reminderGroup) => reminderGroup);
 };
 
-function getSuppressUntilDate(logStructure) {
+function getSuppressUntilDate(logStructure, todayLabel) {
     assert(logStructure.isPeriodic);
-    const today = DateUtils.getTodayDate(this);
+    const todayDate = DateUtils.getDate(todayLabel);
     const option = LogStructure.Frequency[logStructure.frequency];
-    const ReminderDate = option.getNextMatch(today, logStructure.frequencyArgs);
-    const warningStartDate = subDays(ReminderDate, 1 + logStructure.warningDays);
+    const reminderDate = option.getNextMatch(todayDate, logStructure.frequencyArgs);
+    const warningStartDate = subDays(reminderDate, 1 + logStructure.warningDays);
     return DateUtils.getLabel(warningStartDate);
 }
 
 ActionsRegistry['reminder-complete'] = async function (input) {
-    const { logEvent: inputLogEvent, logStructure: inputLogStructure } = input;
+    const { logEvent: inputLogEvent, logStructure: inputLogStructure, todayLabel } = input;
     const result = {};
     result.logEvent = await this.invoke.call(this, 'log-event-upsert', inputLogEvent);
     if (inputLogStructure) {
-        inputLogStructure.suppressUntilDate = getSuppressUntilDate.call(
-            this,
+        inputLogStructure.suppressUntilDate = getSuppressUntilDate(
             inputLogStructure,
+            todayLabel,
         );
         result.logStructure = await this.invoke.call(
             this,
@@ -188,10 +191,10 @@ ActionsRegistry['reminder-complete'] = async function (input) {
 };
 
 ActionsRegistry['reminder-dismiss'] = async function (input) {
-    const { logStructure: inputLogStructure } = input;
-    inputLogStructure.suppressUntilDate = getSuppressUntilDate.call(
-        this,
+    const { logStructure: inputLogStructure, todayLabel } = input;
+    inputLogStructure.suppressUntilDate = getSuppressUntilDate(
         inputLogStructure,
+        todayLabel,
     );
     const outputLogStructure = await this.invoke.call(
         this,

@@ -1,7 +1,9 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 
-import { Selector } from '../Common';
+import {
+    HelpIcon, Selector, TextInput, TooltipElement,
+} from '../Common';
 import PropTypes from '../prop-types';
 
 class SettingsEditor extends React.Component {
@@ -63,12 +65,37 @@ class SettingsEditor extends React.Component {
         );
     }
 
+    renderTodayOffsetHoursSection() {
+        const key = 'today_offset_hours';
+        const helpText = (
+            'Adjust the time at which the day starts / ends. Eg - If you frequently stay awake until 2am or so, '
+            + 'you can set this value to "3", so the app does not move on to the next day until 3am.'
+        );
+        return (
+            <div className="my-3">
+                Today Offset Hours
+                <TooltipElement>
+                    <HelpIcon isShown />
+                    <span>{helpText}</span>
+                </TooltipElement>
+                <InputGroup className="my-1">
+                    <TextInput
+                        disabled={this.props.disabled}
+                        value={this.getSetting(key, '')}
+                        onChange={(value) => this.setSetting(key, value)}
+                    />
+                </InputGroup>
+            </div>
+        );
+    }
+
     render() {
         const results = [
             <div key="standard">
                 {this.renderDisplayOverdueAndUpcomingEvents()}
                 {this.renderDisplaySettingsSection()}
                 {this.renderTwoDetailsSections()}
+                {this.renderTodayOffsetHoursSection()}
             </div>,
         ];
         Object.entries(this.props.plugins).forEach(([name, api]) => {

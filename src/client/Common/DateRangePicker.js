@@ -7,6 +7,7 @@ import { DateRangePicker as DateRangePickerOriginal } from 'react-date-range';
 
 import DateUtils from '../../common/DateUtils';
 import PropTypes from '../prop-types';
+import DateContext from './DateContext';
 import PopoverElement from './PopoverElement';
 
 const KEY = 'selection';
@@ -43,10 +44,7 @@ class DateRangePicker extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            lastDateRange: this.props.dateRange || {
-                startDate: DateUtils.getTodayLabel(),
-                endDate: DateUtils.getTodayLabel(),
-            },
+            lastDateRange: this.props.dateRange || null,
         };
     }
 
@@ -62,11 +60,16 @@ class DateRangePicker extends React.Component {
     }
 
     render() {
+        const { todayLabel } = this.context;
+        const lastDateRange = this.state.lastDateRange || {
+            startDate: todayLabel,
+            endDate: todayLabel,
+        };
         return (
             <PopoverElement onReset={() => this.props.onChange(null)}>
                 {this.renderSummary()}
                 <DateRangeSelector
-                    dateRange={this.props.dateRange || this.state.lastDateRange}
+                    dateRange={this.props.dateRange || lastDateRange}
                     onChange={(newDateRange) => {
                         this.setState({ lastDateRange: newDateRange });
                         this.props.onChange(newDateRange);
@@ -96,5 +99,7 @@ DateRangePicker.deserialize = (value) => {
     const [startDate, endDate] = value.split(DATE_RANGE_SEPARATOR);
     return { startDate, endDate };
 };
+
+DateRangePicker.contextType = DateContext;
 
 export default DateRangePicker;

@@ -5,9 +5,8 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { BsList } from 'react-icons/bs';
 
 import { LogEvent } from '../../common/data_types';
-import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, Dropdown, Highlightable, Icon, InputLine,
+    Coordinator, DateContext, Dropdown, Highlightable, Icon, InputLine,
 } from '../Common';
 import { LogEventEditor } from '../LogEvent';
 import { LogStructureEditor } from '../LogStructure';
@@ -29,10 +28,11 @@ class ReminderItem extends React.Component {
     }
 
     onCompleteReminder(logEvent = null) {
+        const { todayLabel } = this.context;
         const { logStructure } = this.props;
         const wasLogEventProvided = !!logEvent;
         if (!logEvent) {
-            logEvent = LogEvent.createVirtual({ date: DateUtils.getTodayLabel(), logStructure });
+            logEvent = LogEvent.createVirtual({ date: todayLabel, logStructure });
         }
         if (logStructure.needsEdit && !wasLogEventProvided) {
             // This modal is only closed after the reminder-complete RPC.
@@ -45,7 +45,7 @@ class ReminderItem extends React.Component {
             });
             return;
         }
-        window.api.send('reminder-complete', { logStructure, logEvent })
+        window.api.send('reminder-complete', { logStructure, logEvent, todayLabel })
             .then(() => {
                 if (this.closeModal) {
                     this.closeModal();
@@ -55,8 +55,9 @@ class ReminderItem extends React.Component {
     }
 
     onDismissReminder() {
+        const { todayLabel } = this.context;
         const { logStructure } = this.props;
-        window.api.send('reminder-dismiss', { logStructure });
+        window.api.send('reminder-dismiss', { logStructure, todayLabel });
     }
 
     renderRight() {
@@ -72,22 +73,22 @@ class ReminderItem extends React.Component {
             {
                 __id__: 'done',
                 name: 'Mark as Complete',
-                perform: (event) => this.onCompleteReminder(),
+                perform: (_event) => this.onCompleteReminder(),
             },
             {
                 __id__: 'dismiss',
                 name: 'Dismiss Reminder',
-                perform: (event) => this.onDismissReminder(),
+                perform: (_event) => this.onDismissReminder(),
             },
             {
                 __id__: 'edit',
                 name: 'Edit Structure',
-                perform: (event) => this.onEditButtonClick(),
+                perform: (_event) => this.onEditButtonClick(),
             },
             {
                 __id__: 'info',
                 name: 'Debug Info',
-                perform: (event) => Coordinator.invoke(
+                perform: (_event) => Coordinator.invoke(
                     'modal-error',
                     JSON.stringify(logStructure, null, 4),
                 ),
@@ -150,5 +151,7 @@ class ReminderItem extends React.Component {
 ReminderItem.propTypes = {
     logStructure: PropTypes.Custom.LogStructure.isRequired,
 };
+
+ReminderItem.contextType = DateContext;
 
 export default ReminderItem;

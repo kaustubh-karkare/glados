@@ -8,6 +8,7 @@ import RichTextUtils from '../../../common/RichTextUtils';
 const ActionsRegistry = {};
 
 ActionsRegistry['topic-reminders'] = async function ({
+    todayLabel,
     logStructureId,
     thresholdDays,
 }) {
@@ -16,7 +17,7 @@ ActionsRegistry['topic-reminders'] = async function ({
         'log-structure-load',
         { __id__: logStructureId },
     );
-    const todayDate = DateUtils.getTodayDate();
+    const todayDate = DateUtils.getDate(todayLabel);
     const logTopics = Object.values(
         RichTextUtils.extractMentions(logStructure.details, 'log-topic'),
     );

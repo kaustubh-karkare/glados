@@ -5,7 +5,7 @@ afterEach(TestUtils.afterEach);
 
 async function checkIfReminderIsShown(todayLabel, shown) {
     const actions = TestUtils.getActions();
-    const results = await actions.invoke('reminder-sidebar', {}, { todayLabel });
+    const results = await actions.invoke('reminder-sidebar', { todayLabel });
     expect(results.length).toEqual(shown ? 1 : 0);
 }
 
@@ -78,8 +78,8 @@ test('test_reminder_with_warning', async () => {
 
 async function checkReminderScore(todayLabel, value, deadline) {
     const actions = TestUtils.getActions();
-    const logStructure = await actions.invoke('log-structure-load', { __id__: 1 }, { todayLabel });
-    const score = await actions.invoke('reminder-score', { logStructure }, { todayLabel });
+    const logStructure = await actions.invoke('log-structure-load', { __id__: 1 });
+    const score = await actions.invoke('reminder-score', { logStructure, todayLabel });
     expect(score.value).toEqual(value);
     expect(score.deadline).toEqual(deadline);
 }

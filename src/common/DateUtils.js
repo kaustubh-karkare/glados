@@ -3,7 +3,7 @@ import {
     addDays, format, isValid, parse, set, subDays,
 } from 'date-fns';
 
-const TODAY_OFFSET = 3 * 3600 * 1000;
+const MS_IN_HOURS = 60 * 60 * 1000;
 const LABEL_FORMAT = 'yyyy-MM-dd';
 const MonthsOfTheYear = [
     { name: 'January', days: 31 },
@@ -38,20 +38,16 @@ const timeValues = {
 // Section: Date Utilities
 
 class DateUtils {
-    static getTodayDate(context) {
-        if (context && context.todayLabel) {
-            return DateUtils.getDate(context.todayLabel);
-        } if (context && context.todayDate) {
-            return context.todayDate;
+    static getContext(settings) {
+        let timestamp = new Date().valueOf();
+        if (settings) {
+            timestamp -= (parseFloat(settings.today_offset_hours) || 0) * MS_IN_HOURS;
         }
-        return set(new Date(new Date().valueOf() - TODAY_OFFSET), timeValues);
-    }
-
-    static getTodayLabel(context) {
-        if (context && context.todayLabel) {
-            return context.todayLabel;
-        }
-        return DateUtils.getLabel(DateUtils.getTodayDate(context));
+        const todayDate = set(new Date(timestamp), timeValues);
+        return {
+            todayDate,
+            todayLabel: DateUtils.getLabel(todayDate),
+        };
     }
 
     static getDate(label) {
@@ -62,15 +58,15 @@ class DateUtils {
         return format(date, LABEL_FORMAT);
     }
 
-    static maybeSubstitute(path, name) {
+    static maybeSubstitute(todayDate, path, name) {
         if (typeof path[name] !== 'string') {
             // do nothing
         } else if (path[name] === '{yesterday}') {
-            path[name] = DateUtils.getLabel(subDays(DateUtils.getTodayDate(), 1));
+            path[name] = DateUtils.getLabel(subDays(todayDate, 1));
         } else if (path[name] === '{today}') {
-            path[name] = DateUtils.getTodayLabel();
+            path[name] = DateUtils.getLabel(todayDate);
         } else if (path[name] === '{tomorrow}') {
-            path[name] = DateUtils.getLabel(addDays(DateUtils.getTodayDate(), 1));
+            path[name] = DateUtils.getLabel(addDays(todayDate, 1));
         } else if (!isValid(DateUtils.getDate(path[name]))) {
             assert(false, path[name]);
         }

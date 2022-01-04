@@ -4,7 +4,7 @@ import React from 'react';
 
 import { getVirtualID, LogEvent } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
-import { Coordinator } from '../Common';
+import { Coordinator, DateContext } from '../Common';
 import PropTypes from '../prop-types';
 import { SettingsContext } from '../Settings';
 import LogEventEditor from './LogEventEditor';
@@ -17,7 +17,7 @@ const INCOMPLETE_ITEM = {
     __type__: 'incomplete',
     __id__: getVirtualID(),
     name: 'Incomplete Events',
-    apply: (_item, where, extra) => {
+    apply: (_item, where, _extra) => {
         where.isComplete = false;
     },
 };
@@ -48,36 +48,6 @@ const LOG_LEVEL_MOCK_ITEM = {
 const DEFAULT_WHERE = {
     isComplete: true,
     logLevel: [2, 3],
-};
-
-// Extra Actions for Events
-
-const COMPLETE_ACTION = {
-    __id__: 'complete',
-    name: 'Complete',
-    perform: (logEvent) => {
-        window.api.send('log-event-upsert', {
-            ...logEvent,
-            date: DateUtils.getTodayLabel(),
-            isComplete: true,
-        });
-    },
-};
-
-const DUPLICATE_ACTION = {
-    __id__: 'duplicate',
-    name: 'Duplicate',
-    perform: (logEvent) => {
-        Coordinator.invoke('modal-editor', {
-            dataType: 'log-event',
-            EditorComponent: LogEventEditor,
-            valueKey: 'logEvent',
-            value: LogEvent.createVirtual({
-                ...logEvent,
-                date: logEvent.date ? DateUtils.getTodayLabel() : null,
-            }),
-        });
-    },
 };
 
 function getDayOfTheWeek(label) {
@@ -123,13 +93,48 @@ class LogEventSearch extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
+    // Extra Actions for Events
+
+    getCompleteAction() {
+        const { todayLabel } = this.context;
+        return {
+            __id__: 'complete',
+            name: 'Complete',
+            perform: (logEvent) => {
+                window.api.send('log-event-upsert', {
+                    ...logEvent,
+                    date: todayLabel,
+                    isComplete: true,
+                });
+            },
+        };
+    }
+
+    getDuplicateAction() {
+        const { todayLabel } = this.context;
+        return {
+            __id__: 'duplicate',
+            name: 'Duplicate',
+            perform: (logEvent) => {
+                Coordinator.invoke('modal-editor', {
+                    dataType: 'log-event',
+                    EditorComponent: LogEventEditor,
+                    valueKey: 'logEvent',
+                    value: LogEvent.createVirtual({
+                        ...logEvent,
+                        date: logEvent.date ? todayLabel : null,
+                    }),
+                });
+            },
+        };
+    }
+
     // eslint-disable-next-line class-methods-use-this
-    renderDefaultView(where, moreProps) {
-        const settings = this.context;
-        const today = DateUtils.getTodayLabel();
+    renderDefaultView(where, moreProps, settings) {
+        const { todayDate, todayLabel } = this.context;
         const todoMoreProps = {
             ...moreProps,
-            prefixActions: [...moreProps.prefixActions, COMPLETE_ACTION],
+            prefixActions: [...moreProps.prefixActions, this.getCompleteAction()],
         };
         const overdueAndUpcomingMoreProps = {
             ...todoMoreProps,
@@ -142,7 +147,7 @@ class LogEventSearch extends React.Component {
             <LogEventList
                 key="done"
                 name="Done: Today"
-                where={{ date: today, ...where, isComplete: true }}
+                where={{ date: todayLabel, ...where, isComplete: true }}
                 showAdder
                 {...moreProps}
             />,
@@ -151,14 +156,13 @@ class LogEventSearch extends React.Component {
                 className="mt-4"
                 name="Todo: Today"
                 where={{
-                    date: today, ...where, isComplete: false,
+                    date: todayLabel, ...where, isComplete: false,
                 }}
                 showAdder
                 {...todoMoreProps}
             />,
         ];
         if (settings.display_overdue_and_upcoming_events) {
-            const todayDate = DateUtils.getDate(today);
             results.push(
                 <LogEventList
                     key="tomorrow"
@@ -191,7 +195,7 @@ class LogEventSearch extends React.Component {
                     className="mt-4"
                     name="Todo: Overdue"
                     where={{
-                        date: `lt(${today})`, ...where, isComplete: false,
+                        date: `lt(${todayLabel})`, ...where, isComplete: false,
                     }}
                     {...overdueAndUpcomingMoreProps}
                 />,
@@ -281,7 +285,7 @@ class LogEventSearch extends React.Component {
 
         const moreProps = { viewerComponentProps: {} };
         moreProps.prefixActions = [];
-        moreProps.prefixActions.push(DUPLICATE_ACTION);
+        moreProps.prefixActions.push(this.getDuplicateAction());
         if (extra.allowReordering) {
             moreProps.allowReordering = true;
             moreProps.viewerComponentProps.displayLogLevel = true;
@@ -294,7 +298,11 @@ class LogEventSearch extends React.Component {
         } if (this.props.dateRange) {
             return this.renderMultipleDaysView(where, moreProps);
         }
-        return this.renderDefaultView(where, moreProps);
+        return (
+            <SettingsContext.Consumer>
+                {(settings) => this.renderDefaultView(where, moreProps, settings)}
+            </SettingsContext.Consumer>
+        );
     }
 }
 
@@ -303,6 +311,6 @@ LogEventSearch.propTypes = {
     search: PropTypes.arrayOf(PropTypes.Custom.Item.isRequired).isRequired,
 };
 
-LogEventSearch.contextType = SettingsContext;
+LogEventSearch.contextType = DateContext;
 
 export default LogEventSearch;

@@ -2,6 +2,7 @@ export { default as AsyncSelector } from './AsyncSelector';
 export { default as BulletList } from './BulletList';
 export { default as Coordinator } from './Coordinator';
 export { default as DataLoader } from './DataLoader';
+export { default as DateContext } from './DateContext';
 export { default as DatePicker } from './DatePicker';
 export { default as DateRangePicker } from './DateRangePicker';
 export { default as Dropdown } from './Dropdown';

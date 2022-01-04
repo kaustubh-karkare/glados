@@ -32,6 +32,7 @@ export default class TestUtils {
     }
 
     static async loadData(data) {
+        const { todayDate } = DateUtils.getContext();
         const logTopicMap = {};
         const logTopics = [null];
         const existingLogTopics = await actions.invoke('log-topic-list');
@@ -111,7 +112,7 @@ export default class TestUtils {
                 ? (inputLogStructure.warningDays || 0)
                 : null;
             inputLogStructure.suppressUntilDate = inputLogStructure.suppressUntilDate || null;
-            DateUtils.maybeSubstitute(inputLogStructure, 'suppressUntilDate');
+            DateUtils.maybeSubstitute(todayDate, inputLogStructure, 'suppressUntilDate');
 
             inputLogStructure.logLevel = 0;
             const outputLogStructure = await actions.invoke('log-structure-upsert', inputLogStructure);
@@ -120,7 +121,7 @@ export default class TestUtils {
 
         await asyncSequence(data.logEvents, async (inputLogEvent) => {
             inputLogEvent.__id__ = getVirtualID();
-            DateUtils.maybeSubstitute(inputLogEvent, 'date');
+            DateUtils.maybeSubstitute(todayDate, inputLogEvent, 'date');
             inputLogEvent.title = RichTextUtils.convertPlainTextToDraftContent(
                 inputLogEvent.title || '',
                 { '#': logTopics },

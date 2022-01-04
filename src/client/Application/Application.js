@@ -4,8 +4,9 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
 import { Enum } from '../../common/data_types';
+import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, DataLoader, EnumSelectorSection, ModalStack, ScrollableSection,
+    Coordinator, DataLoader, DateContext, EnumSelectorSection, ModalStack, ScrollableSection,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
@@ -250,16 +251,21 @@ class Applicaton extends React.Component {
         } if (!this.state.settings) {
             return null;
         }
+        const container = (
+            <Container fluid>
+                <Row>
+                    {this.renderLeftSidebar()}
+                    {this.renderCenterSection(this.state.urlParams.layout)}
+                    {this.renderRightSidebar()}
+                </Row>
+                <ModalStack />
+            </Container>
+        );
         return (
             <SettingsContext.Provider value={this.state.settings}>
-                <Container fluid>
-                    <Row>
-                        {this.renderLeftSidebar()}
-                        {this.renderCenterSection(this.state.urlParams.layout)}
-                        {this.renderRightSidebar()}
-                    </Row>
-                    <ModalStack />
-                </Container>
+                <DateContext.Provider value={DateUtils.getContext(this.state.settings)}>
+                    {container}
+                </DateContext.Provider>
             </SettingsContext.Provider>
         );
     }

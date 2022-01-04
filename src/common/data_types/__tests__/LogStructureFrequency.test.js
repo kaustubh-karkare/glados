@@ -5,18 +5,18 @@ import LogStructureFrequency from '../LogStructureFrequency';
 
 test('test_previous_and_next_match_methods', async () => {
     // Verify the symmetry of the 2 frequency methods.
-    const today = DateUtils.getTodayDate();
+    const { todayDate } = DateUtils.getContext();
     LogStructureFrequency.Options.forEach((frequencyOption) => {
         if (frequencyOption.value === LogStructureFrequency.YEARLY) {
             return;
         }
         for (let offset = 0; offset < 7; offset += 1) {
-            const start = addDays(today, offset);
-            const forward = frequencyOption.getNextMatch(start);
-            const middle = frequencyOption.getPreviousMatch(forward);
-            const backward = frequencyOption.getPreviousMatch(middle);
-            const end = frequencyOption.getNextMatch(backward);
-            expect(compareAsc(middle, end)).toEqual(0);
+            const startDate = addDays(todayDate, offset);
+            const forwardDate = frequencyOption.getNextMatch(startDate);
+            const middleDate = frequencyOption.getPreviousMatch(forwardDate);
+            const backwardDate = frequencyOption.getPreviousMatch(middleDate);
+            const endDate = frequencyOption.getNextMatch(backwardDate);
+            expect(compareAsc(middleDate, endDate)).toEqual(0);
         }
     });
 
