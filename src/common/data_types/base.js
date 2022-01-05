@@ -116,15 +116,18 @@ export default class DataTypeBase extends DataTypeAPI {
         })).sort((left, right) => left.name.localeCompare(right.name));
         const first = [];
         const second = [];
+        const third = [];
         query = query.toLowerCase();
         items.forEach((item) => {
-            if (item.name.toLowerCase().startsWith(query)) {
+            if (item.name === query) {
                 first.push(item);
-            } else {
+            } else if (item.name.toLowerCase().startsWith(query)) {
                 second.push(item);
+            } else { // item.name.toLowerCase().includes(query)
+                third.push(item);
             }
         });
-        return [...first, ...second];
+        return [...first, ...second, ...third];
     }
 
     // eslint-disable-next-line no-unused-vars

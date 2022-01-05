@@ -1,3 +1,4 @@
+import assert from 'assert';
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 
@@ -5,6 +6,38 @@ import {
     HelpIcon, Selector, TextInput, TooltipElement,
 } from '../Common';
 import PropTypes from '../prop-types';
+
+const SETTINGS_ITEMS = [
+    {
+        key: 'display_overdue_and_upcoming_events',
+        label: 'Display Overdue And Upcoming Events',
+        type: 'boolean',
+    },
+    {
+        key: 'display_settings_section',
+        label: 'Display Settings Section',
+        type: 'boolean',
+    },
+    {
+        key: 'display_two_details_sections',
+        label: 'Display Two Details Sections',
+        type: 'boolean',
+    },
+    {
+        key: 'today_offset_hours',
+        label: 'Today Offset Hours',
+        type: 'integer',
+        description: (
+            'Adjust the time at which the day starts / ends. Eg - If you frequently stay awake until 2am or so, '
+            + 'you can set this value to "3", so the app does not move on to the next day until 3am.'
+        ),
+    },
+    {
+        key: 'bullet_list_page_size',
+        label: 'Bullet List Page Size',
+        type: 'integer',
+    },
+];
 
 class SettingsEditor extends React.Component {
     getSetting(key, defaultValue = null) {
@@ -17,85 +50,52 @@ class SettingsEditor extends React.Component {
         this.props.onChange(settings);
     }
 
-    renderDisplayOverdueAndUpcomingEvents() {
-        const key = 'display_overdue_and_upcoming_events';
-        return (
-            <div className="my-3">
-                <div>Display Overdue And Upcoming Events</div>
-                <InputGroup className="my-1">
+    renderSettingsItems() {
+        return SETTINGS_ITEMS.map((item) => {
+            let inputElement = null;
+            if (item.type === 'boolean') {
+                inputElement = (
                     <Selector.Binary
                         disabled={this.props.disabled}
-                        value={this.getSetting(key, false)}
-                        onChange={(value) => this.setSetting(key, value)}
+                        value={this.getSetting(item.key, false)}
+                        onChange={(value) => this.setSetting(item.key, value)}
                     />
-                </InputGroup>
-            </div>
-        );
-    }
-
-    renderDisplaySettingsSection() {
-        const key = 'display_settings_section';
-        return (
-            <div className="my-3">
-                <div>Display Settings Section</div>
-                <InputGroup className="my-1">
-                    <Selector.Binary
-                        disabled={this.props.disabled}
-                        value={this.getSetting(key, false)}
-                        onChange={(value) => this.setSetting(key, value)}
-                    />
-                </InputGroup>
-            </div>
-        );
-    }
-
-    renderTwoDetailsSections() {
-        const key = 'display_two_details_sections';
-        return (
-            <div className="my-3">
-                <div>Display Two Details Sections</div>
-                <InputGroup className="my-1">
-                    <Selector.Binary
-                        disabled={this.props.disabled}
-                        value={this.getSetting(key, false)}
-                        onChange={(value) => this.setSetting(key, value)}
-                    />
-                </InputGroup>
-            </div>
-        );
-    }
-
-    renderTodayOffsetHoursSection() {
-        const key = 'today_offset_hours';
-        const helpText = (
-            'Adjust the time at which the day starts / ends. Eg - If you frequently stay awake until 2am or so, '
-            + 'you can set this value to "3", so the app does not move on to the next day until 3am.'
-        );
-        return (
-            <div className="my-3">
-                Today Offset Hours
-                <TooltipElement>
-                    <HelpIcon isShown />
-                    <span>{helpText}</span>
-                </TooltipElement>
-                <InputGroup className="my-1">
+                );
+            } if (item.type === 'integer') {
+                inputElement = (
                     <TextInput
                         disabled={this.props.disabled}
-                        value={this.getSetting(key, '')}
-                        onChange={(value) => this.setSetting(key, value)}
+                        value={this.getSetting(item.key, '')}
+                        onChange={(value) => this.setSetting(item.key, value)}
                     />
+                );
+            }
+            assert(inputElement, `unknown settings item type: ${item.type}`);
+            let tooltip;
+            if (item.description) {
+                tooltip = (
+                    <TooltipElement>
+                        <HelpIcon isShown />
+                        <span>{item.description}</span>
+                    </TooltipElement>
+                );
+            }
+            return (
+                <InputGroup className="my-1" key={item.key}>
+                    <div className="pr-2" style={{ width: '250px', textAlign: 'right' }}>
+                        {item.label}
+                        {tooltip}
+                    </div>
+                    {inputElement}
                 </InputGroup>
-            </div>
-        );
+            );
+        });
     }
 
     render() {
         const results = [
-            <div key="standard">
-                {this.renderDisplayOverdueAndUpcomingEvents()}
-                {this.renderDisplaySettingsSection()}
-                {this.renderTwoDetailsSections()}
-                {this.renderTodayOffsetHoursSection()}
+            <div key="my-3">
+                {this.renderSettingsItems()}
             </div>,
         ];
         Object.entries(this.props.plugins).forEach(([name, api]) => {

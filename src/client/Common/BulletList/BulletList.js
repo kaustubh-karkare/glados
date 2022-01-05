@@ -9,12 +9,11 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import { getDataTypeMapping } from '../../../common/data_types';
 import DataLoader from '../DataLoader';
+import SettingsContext from '../SettingsContext';
 import BulletListItem from './BulletListItem';
 import BulletListLine from './BulletListLine';
 import BulletListPager from './BulletListPager';
 import BulletListTitle from './BulletListTitle';
-
-const BATCH_SIZE = 25;
 
 const WrappedContainer = SortableContainer(({ children }) => <div>{children}</div>);
 const SortableBulletListItem = SortableElement(BulletListItem);
@@ -30,11 +29,13 @@ class BulletList extends React.Component {
 
     constructor(props) {
         super(props);
+        const pageSize = parseInt(props.settings.bullet_list_page_size, 10) || 25;
         this.state = {
             items: null,
             isExpanded: {},
             areAllExpanded: true,
-            limit: BATCH_SIZE,
+            pageSize,
+            limit: pageSize,
         };
     }
 
@@ -62,7 +63,7 @@ class BulletList extends React.Component {
             prevProps.dataType !== this.props.dataType
             || !deepEqual(prevProps.where, this.props.where)
         ) {
-            this.updateLimit(BATCH_SIZE);
+            this.updateLimit(this.state.pageSize);
         }
     }
 
@@ -168,7 +169,7 @@ class BulletList extends React.Component {
                         : null}
                 />
                 <BulletListPager
-                    batchSize={BATCH_SIZE}
+                    batchSize={this.state.pageSize}
                     limit={this.state.limit}
                     updateLimit={(limit) => this.updateLimit(limit)}
                     itemsLength={this.state.items ? this.state.items.length : null}
@@ -203,6 +204,8 @@ BulletList.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     prefixActions: PropTypes.array,
     className: PropTypes.string,
+    // eslint-disable-next-line react/forbid-prop-types
+    settings: PropTypes.object.isRequired,
 };
 
 BulletList.defaultProps = {
@@ -210,6 +213,7 @@ BulletList.defaultProps = {
     prefixActions: [],
 };
 
-BulletList.Item = BulletListItem;
+const WrappedBulletList = SettingsContext.Wrapper(BulletList);
+WrappedBulletList.Item = BulletListItem;
 
-export default BulletList;
+export default WrappedBulletList;

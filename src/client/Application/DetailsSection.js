@@ -11,13 +11,12 @@ import { RiLoaderLine } from 'react-icons/ri';
 import RichTextUtils from '../../common/RichTextUtils';
 import {
     Coordinator, DataLoader, debounce,
-    ScrollableSection, TextEditor, TypeaheadOptions, TypeaheadSelector,
+    ScrollableSection, SettingsContext, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicDetailsHeader, LogTopicEditor, LogTopicOptions } from '../LogTopic';
 import PropTypes from '../prop-types';
-import { SettingsContext } from '../Settings';
 
 const HEADER_MAPPING = {
     'log-event': {

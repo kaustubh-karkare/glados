@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { LeftRight, SidebarSection } from '../Common';
+import { LeftRight, SettingsContext, SidebarSection } from '../Common';
 import PropTypes from '../prop-types';
-import SettingsContext from './SettingsContext';
 import SettingsModal from './SettingsModal';
 
 class SettingsSection extends React.Component {

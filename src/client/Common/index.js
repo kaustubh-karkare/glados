@@ -18,6 +18,7 @@ export { default as Link } from './Link';
 export { default as ModalStack } from './ModalStack';
 export { default as ScrollableSection } from './ScrollableSection';
 export { default as Selector } from './Selector';
+export { default as SettingsContext } from './SettingsContext';
 export { default as SidebarSection } from './SidebarSection';
 export { default as SortableList } from './SortableList';
 export { default as TextInput } from './TextInput';

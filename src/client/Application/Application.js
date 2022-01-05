@@ -7,13 +7,14 @@ import { Enum } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
 import {
     Coordinator, DataLoader, DateContext, EnumSelectorSection, ModalStack, ScrollableSection,
+    SettingsContext,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
 import { LogTopicList } from '../LogTopic';
 import PropTypes from '../prop-types';
 import { ReminderSidebar } from '../Reminders';
-import { SettingsContext, SettingsSection } from '../Settings';
+import { SettingsSection } from '../Settings';
 import BackupSection from './BackupSection';
 import CreditsSection from './CreditsSection';
 import DetailsSection from './DetailsSection';
