@@ -29,5 +29,6 @@ export { default as TypeaheadOptions } from './TypeaheadOptions';
 export { default as TypeaheadSelector } from './TypeaheadSelector';
 export { default as URLManager } from './URLManager';
 
+export * from './Plugins';
 export * from './StandardIcons';
 export * from './Utils';

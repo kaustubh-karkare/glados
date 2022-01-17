@@ -78,7 +78,7 @@ class LogStructureEditor extends React.Component {
         const { logStructure } = this.props;
         return (
             <InputGroup className="my-1">
-                <InputGroup.Text style={{ height: 'inherit', width: 99 }}>
+                <InputGroup.Text style={{ height: 'inherit', width: 127 }}>
                     Title Template
                 </InputGroup.Text>
                 <TextEditor

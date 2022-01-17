@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PluginClient } from '../../common';
+import { PluginClient } from '../../../client/Common';
 import TopicRemindersSection from './TopicRemindersSection';
 import TopicRemindersSectionSettings from './TopicRemindersSectionSettings';
 

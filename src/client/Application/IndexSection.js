@@ -4,41 +4,61 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { DateRangePicker, ScrollableSection, TypeaheadSelector } from '../Common';
 import PropTypes from '../prop-types';
 
-function IndexSection(props) {
-    const { Component } = props;
-    const typeaheadOptions = Component.getTypeaheadOptions();
-    const filteredSearch = typeaheadOptions.filterToKnownTypes(props.search);
-    if (filteredSearch.length !== props.search.length) {
-        window.setTimeout(props.onChange.bind(filteredSearch), 0);
-    }
-    const { dateRange } = props;
-    return (
-        <div className="index-section">
-            <div className="mb-1">
-                <InputGroup>
-                    <DateRangePicker
+class IndexSection extends React.Component {
+    renderWithTypeahead() {
+        const { Component, dateRange, onChange } = this.props;
+        const typeaheadOptions = Component.getTypeaheadOptions();
+        const filteredSearch = typeaheadOptions.filterToKnownTypes(this.props.search);
+        if (filteredSearch.length !== this.props.search.length) {
+            window.setTimeout(onChange.bind(filteredSearch), 0);
+        }
+        return (
+            <div className="index-section">
+                <div className="mb-1">
+                    <InputGroup>
+                        <DateRangePicker
+                            dateRange={dateRange}
+                            onChange={(newDateRange) => onChange({ dateRange: newDateRange })}
+                        />
+                        <TypeaheadSelector
+                            id="search"
+                            options={typeaheadOptions}
+                            value={filteredSearch}
+                            disabled={this.props.disabled}
+                            onChange={(search) => onChange({ search })}
+                            placeholder="Search ..."
+                            multiple
+                        />
+                    </InputGroup>
+                </div>
+                <ScrollableSection padding={20 + 4}>
+                    <Component
                         dateRange={dateRange}
-                        onChange={(newDateRange) => props.onChange({ dateRange: newDateRange })}
+                        search={filteredSearch}
                     />
-                    <TypeaheadSelector
-                        id="search"
-                        options={typeaheadOptions}
-                        value={filteredSearch}
-                        disabled={props.disabled}
-                        onChange={(search) => props.onChange({ search })}
-                        placeholder="Search ..."
-                        multiple
-                    />
-                </InputGroup>
+                </ScrollableSection>
             </div>
-            <ScrollableSection padding={20 + 4}>
-                <Component
-                    dateRange={dateRange}
-                    search={filteredSearch}
-                />
-            </ScrollableSection>
-        </div>
-    );
+        );
+    }
+
+    renderSimple() {
+        const { Component } = this.props;
+        return (
+            <div className="index-section">
+                <ScrollableSection>
+                    <Component />
+                </ScrollableSection>
+            </div>
+        );
+    }
+
+    render() {
+        const { Component } = this.props;
+        if (Component.getTypeaheadOptions) {
+            return this.renderWithTypeahead();
+        }
+        return this.renderSimple();
+    }
 }
 
 IndexSection.propTypes = {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PluginClient } from '../../common';
+import { PluginClient } from '../../../client/Common';
 import TopicSection from './TopicSection';
 import TopicSectionSettings from './TopicSectionSettings';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { PluginClient } from '../../common';
+import { PluginClient } from '../../../client/Common';
 import TimeSection from './TimeSection';
 import TimeSectionSettings from './TimeSectionSettings';
 

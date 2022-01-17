@@ -6,8 +6,8 @@ import Row from 'react-bootstrap/Row';
 import { Enum } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
 import {
-    Coordinator, DataLoader, DateContext, EnumSelectorSection, ModalStack, ScrollableSection,
-    SettingsContext,
+    Coordinator, DataLoader, DateContext, EnumSelectorSection, ModalStack,
+    PluginDisplayComponent, PluginDisplayLocation, ScrollableSection, SettingsContext,
 } from '../Common';
 import { LogEventList } from '../LogEvent';
 import { LogStructureList } from '../LogStructure';
@@ -82,24 +82,12 @@ class Applicaton extends React.Component {
         this.deregisterCallbacks.forEach((deregisterCallback) => deregisterCallback());
     }
 
-    insertPluginsInto(list, location) {
-        Object.entries(this.props.plugins).forEach(([name, api]) => {
-            if (api.getDisplayLocation() !== location) {
-                return;
-            }
-            const key = api.getSettingsKey();
-            const props = {
-                settings: key ? this.state.settings[key] : null,
-            };
-            list.push(<div key={`plugin:${name}`}>{api.getDisplayComponent(props)}</div>);
-        });
-    }
-
     renderLeftSidebar() {
         return (
             <Col md={2} className="my-3">
                 <ScrollableSection>
                     <TabSection
+                        plugins={this.props.plugins}
                         value={this.state.urlParams.tab}
                         onChange={(tab) => Coordinator.invoke('url-update', { tab })}
                         ref={this.tabRef}
@@ -117,15 +105,21 @@ class Applicaton extends React.Component {
     renderCenterSection() {
         const { settings } = this.state;
         const { layout } = this.state.urlParams;
-        const indexSection = (
-            <IndexSection
-                Component={TabSection.Enum[this.state.urlParams.tab].Component}
-                dateRange={this.state.urlParams.dateRange}
-                search={this.state.urlParams.search}
-                disabled={this.state.disabled}
-                onChange={(params) => Coordinator.invoke('url-update', params)}
-            />
-        );
+        let indexSection = null;
+        if (this.tabRef.current) {
+            const Component = this.tabRef.current.getComponent(this.state.urlParams.tab);
+            indexSection = (
+                <IndexSection
+                    Component={Component}
+                    dateRange={this.state.urlParams.dateRange}
+                    search={this.state.urlParams.search}
+                    disabled={this.state.disabled}
+                    onChange={(params) => Coordinator.invoke('url-update', params)}
+                />
+            );
+        } else {
+            setTimeout(() => this.forceUpdate(), 0);
+        }
         let detailsSection = (
             <DetailsSection
                 item={this.state.urlParams.details}
@@ -172,7 +166,13 @@ class Applicaton extends React.Component {
     renderRightSidebar() {
         const { settings } = this.state;
         const results = [];
-        this.insertPluginsInto(results, 'right_sidebar_main_top');
+        results.push(
+            <PluginDisplayComponent
+                key={PluginDisplayLocation.RIGHT_SIDEBAR_MAIN_TOP}
+                plugins={this.props.plugins}
+                location={PluginDisplayLocation.RIGHT_SIDEBAR_MAIN_TOP}
+            />,
+        );
         results.push(
             <EnumSelectorSection
                 key="layout"
@@ -199,7 +199,13 @@ class Applicaton extends React.Component {
                 />,
             );
         }
-        this.insertPluginsInto(results, 'right_sidebar_main_bottom');
+        results.push(
+            <PluginDisplayComponent
+                key={PluginDisplayLocation.RIGHT_SIDEBAR_MAIN_BOTTOM}
+                plugins={this.props.plugins}
+                location={PluginDisplayLocation.RIGHT_SIDEBAR_MAIN_BOTTOM}
+            />,
+        );
         if (this.state.urlParams.widgets === Widgets.SHOW) {
             results.push(...this.renderRightSidebarWidgets());
         }
@@ -216,7 +222,13 @@ class Applicaton extends React.Component {
     renderRightSidebarWidgets() {
         const nameSortComparator = (left, right) => left.name.localeCompare(right.name);
         const results = [];
-        this.insertPluginsInto(results, 'right_sidebar_widgets_top');
+        results.push(
+            <PluginDisplayComponent
+                key={PluginDisplayLocation.RIGHT_SIDEBAR_WIDGETS_TOP}
+                plugins={this.props.plugins}
+                location={PluginDisplayLocation.RIGHT_SIDEBAR_WIDGETS_TOP}
+            />,
+        );
         results.push(
             <div key="favorites">
                 <FavoritesSection
@@ -242,7 +254,13 @@ class Applicaton extends React.Component {
                 />
             </div>,
         );
-        this.insertPluginsInto(results, 'right_sidebar_widgets_bottom');
+        results.push(
+            <PluginDisplayComponent
+                key={PluginDisplayLocation.RIGHT_SIDEBAR_WIDGETS_BOTTOM}
+                plugins={this.props.plugins}
+                location={PluginDisplayLocation.RIGHT_SIDEBAR_WIDGETS_BOTTOM}
+            />,
+        );
         return results;
     }
 

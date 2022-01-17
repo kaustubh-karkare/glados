@@ -139,7 +139,7 @@ class LogStructureKeyEditor extends React.Component {
             <div className="log-structure-key my-2">
                 <InputGroup className="my-1">
                     {children.shift()}
-                    <InputGroup.Text style={{ width: 80 }}>
+                    <InputGroup.Text style={{ width: 108 }}>
                         Key
                     </InputGroup.Text>
                     {this.renderTypeSelector()}
@@ -151,7 +151,7 @@ class LogStructureKeyEditor extends React.Component {
                     {children.pop()}
                 </InputGroup>
                 <InputGroup className="my-1">
-                    <InputGroup.Text style={{ width: 100 }}>
+                    <InputGroup.Text style={{ width: 128 }}>
                         Key Template
                     </InputGroup.Text>
                     {this.renderKeyTemplate()}

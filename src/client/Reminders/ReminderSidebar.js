@@ -33,7 +33,7 @@ class ReminderSidebar extends React.Component {
         return this.state.logStructureGroups.map((reminderGroup) => (
             <ReminderList
                 key={reminderGroup.__id__}
-                name={reminderGroup.name}
+                name={`${reminderGroup.name} (${reminderGroup.logStructures.length})`}
                 logStructures={reminderGroup.logStructures}
                 disabled={this.props.disabled}
             />
