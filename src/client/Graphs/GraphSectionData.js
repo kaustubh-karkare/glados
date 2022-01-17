@@ -5,17 +5,17 @@ import DateUtils from '../../common/DateUtils';
 import RichTextUtils from '../../common/RichTextUtils';
 import { Granularity } from './GraphSectionOptions';
 
-function getLogKeySample(keyIndex, valueParser, logEvents) {
-    if (logEvents.length === 0) {
-        return null;
-    }
-    const values = logEvents.map((logEvent) => {
+function getLogKeyValues(keyIndex, valueParser, logEvents) {
+    return logEvents.map((logEvent) => {
         const logKey = logEvent.logStructure.logKeys[keyIndex];
         if (logKey.value === null) {
             return null;
         }
         return valueParser(logKey.value);
     }).filter((value) => value !== null);
+}
+
+function getAverageValue(values) {
     if (values.length === 0) {
         return null;
     } if (values.length === 1) {
@@ -28,8 +28,10 @@ function getLogKeySample(keyIndex, valueParser, logEvents) {
 function getLines(logStructure, logEvent) {
     const lines = [];
     lines.push({
+        valueKey: 'event_count',
+        valuesKey: 'event_count_values',
         name: 'Event Count',
-        getSample: (logEvents) => logEvents.length,
+        getValues: (logEvents) => [logEvents.length],
     });
     if (logStructure) {
         logEvent.logStructure.logKeys.forEach((logKey, index) => {
@@ -44,8 +46,10 @@ function getLines(logStructure, logEvent) {
                 return;
             }
             lines.push({
+                valueKey: `key_${logKey.__id__}_value`,
+                valuesKey: `key_${logKey.__id__}_values`,
                 name: `Key: ${logKey.name}`,
-                getSample: getLogKeySample.bind(null, index, valueParser),
+                getValues: getLogKeyValues.bind(null, index, valueParser),
             });
         });
     }
@@ -100,11 +104,13 @@ function getTimeSeries(logEvents, lines, dateRange, granularity) {
             currentDate = addDays(currentDate, 1);
         }
         const sample = { label };
-        lines.forEach((line, index) => {
-            sample[index] = line.getSample(currentLogEvents);
+        lines.forEach((line) => {
+            const values = line.getValues(currentLogEvents);
+            sample[line.valuesKey] = values;
+            sample[line.valueKey] = getAverageValue(values);
         });
         sample.logEventTitles = currentLogEvents.map(
-            (logEvent) => RichTextUtils.extractPlainText(logEvent.title),
+            (logEvent) => `${logEvent.date}: ${RichTextUtils.extractPlainText(logEvent.title)}`,
         );
         samples.push(sample);
     }
@@ -117,8 +123,7 @@ export function getGraphData(logStructure, logEvents, dateRange, granularity) {
     try {
         const lines = getLines(logStructure, logEvents[0]);
         const samples = getTimeSeries(logEvents, lines, dateRange, granularity);
-        const ticks = null;
-        return { lines, samples, ticks };
+        return { lines, samples };
     } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);

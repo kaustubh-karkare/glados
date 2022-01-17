@@ -2,41 +2,13 @@ import './GraphSection.css';
 
 import deepEqual from 'deep-equal';
 import React from 'react';
-import {
-    CartesianGrid, Legend, Line, LineChart, ResponsiveContainer,
-    Tooltip, XAxis, YAxis,
-} from 'recharts';
 
 import { DataLoader } from '../Common';
 import PropTypes from '../prop-types';
+import GraphLineChart from './GraphLineChart';
 import { getGraphData } from './GraphSectionData';
 import GraphSectionOptions, { Granularity } from './GraphSectionOptions';
-
-const CustomTooltip = ({ active, label, payload }) => {
-    if (active && payload && payload.length) {
-        const item = payload[0];
-        const output = [];
-        output.push(`Group: ${label}`);
-        output.push(`${item.name}: ${item.payload[item.dataKey]}`);
-        const { logEventTitles } = item.payload;
-        if (logEventTitles.length) {
-            output.push('', ...logEventTitles);
-        }
-        return (
-            <div className="graph-tooltip">
-                {output.map((line) => `${line}\n`).join('')}
-            </div>
-        );
-    }
-    return null;
-};
-
-CustomTooltip.propTypes = {
-    active: PropTypes.bool,
-    label: PropTypes.string,
-    // eslint-disable-next-line react/forbid-prop-types
-    payload: PropTypes.any,
-};
+import { NormalTooltip } from './GraphTooltip';
 
 class GraphSection extends React.Component {
     static getTypeaheadOptions() {
@@ -121,30 +93,20 @@ class GraphSection extends React.Component {
         } if (graphData.isEmpty) {
             return 'No data!';
         }
-        return graphData.lines.map((line, index) => (
-            <ResponsiveContainer key={line.name} width="100%" height={400}>
-                <LineChart
-                    data={graphData.samples}
-                    margin={{
-                        top: 20, right: 40, bottom: 50, left: 10,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="label" angle={-90} dx={-6} dy={40} ticks={graphData.ticks} />
-                    <YAxis domain={['dataMin', 'dataMax']} scale="linear" />
-                    <Legend />
-                    <Tooltip content={CustomTooltip} />
-                    <Line
-                        name={line.name}
-                        dataKey={index}
-                        type="monotone"
-                        stroke="#00bc8c"
-                        connectNulls
-                        isAnimationActive={false}
-                    />
-                </LineChart>
-            </ResponsiveContainer>
-        ));
+        return graphData.lines.map((line) => {
+            const lines = [{
+                name: line.name,
+                dataKey: line.valueKey,
+            }];
+            return (
+                <GraphLineChart
+                    key={line.name}
+                    samples={graphData.samples}
+                    lines={lines}
+                    tooltip={NormalTooltip}
+                />
+            );
+        });
     }
 }
 

@@ -1,14 +1,16 @@
 import React from 'react';
 
 import { PluginClient, PluginDisplayLocation } from '../../../client/Common';
+import LongTermGoalGraph from './LongTermGoalGraph';
+import LongTermGoalsSettings from './LongTermGoalsSettings';
 
 export default class extends PluginClient {
     static getSettingsKey() {
-        return null;
+        return 'long_term_goals';
     }
 
     static getSettingsComponent(props) {
-        return null;
+        return <LongTermGoalsSettings {...props} />;
     }
 
     static getDisplayLocation() {
@@ -23,6 +25,11 @@ export default class extends PluginClient {
     }
 
     static getDisplayComponent(props) {
-        return <div>TODO</div>;
+        return (props.settings || []).map((goal) => (
+            <LongTermGoalGraph
+                key={goal.newLabel}
+                goal={goal}
+            />
+        ));
     }
 }

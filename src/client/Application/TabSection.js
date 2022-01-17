@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Enum } from '../../common/data_types';
-import { PluginDisplayLocation, SidebarSection } from '../Common';
+import { PluginDisplayLocation, SettingsContext, SidebarSection } from '../Common';
 import { GraphSection } from '../Graphs';
 import { LogEventSearch } from '../LogEvent';
 import { LogStructureSearch } from '../LogStructure';
@@ -43,7 +43,16 @@ class TabSection extends React.Component {
             if (api.getDisplayLocation() === PluginDisplayLocation.TAB_SECTION) {
                 const tabData = api.getTabData();
                 PluginOptions.push(tabData);
-                TabComponents[tabData.value] = (...args) => api.getDisplayComponent(...args);
+                TabComponents[tabData.value] = () => (
+                    <SettingsContext.Consumer>
+                        {(settings) => {
+                            const key = api.getSettingsKey();
+                            return api.getDisplayComponent({
+                                settings: key ? settings[key] : null,
+                            });
+                        }}
+                    </SettingsContext.Consumer>
+                );
             }
         });
         this.state = {

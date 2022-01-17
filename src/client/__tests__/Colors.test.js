@@ -3,7 +3,7 @@ const path = require('path');
 const walkSync = require('walk-sync');
 
 test('verify_no_random_colors', async () => {
-    const rootPath = 'src/client';
+    const rootPath = 'src/';
     const excludeNames = ['index.css'];
     let excludeCount = 0;
     walkSync(rootPath, ['**/*.css']).forEach((fileName) => {
