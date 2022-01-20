@@ -39,7 +39,9 @@ window.main = function main() {
 
     const plugins = {};
     const pluginsContext = require.context('../plugins', true, /client\.js$/);
+    const pluginPatterns = JSON.parse(cookies.plugins).map((pattern) => new RegExp(pattern));
     pluginsContext.keys()
+        .filter((filePath) => pluginPatterns.some((regex) => filePath.match(regex)))
         .forEach((filePath) => {
             const exports = pluginsContext(filePath);
             const name = filePath.split('/').slice(1, -1).join('/');

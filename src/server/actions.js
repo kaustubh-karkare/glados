@@ -35,7 +35,7 @@ if (typeof require.context === 'undefined') {
 }
 
 class ActionsRegistry {
-    static get() {
+    static get(configPlugins) {
         if (ActionsRegistry.result) {
             return ActionsRegistry.result;
         }
@@ -48,12 +48,16 @@ class ActionsRegistry {
                 ActionsRegistry.build(result, exports.default);
             });
 
-        const pluginsContext = require.context('../plugins', true, /actions\.js$/);
-        pluginsContext.keys()
-            .forEach((filePath) => {
-                const exports = pluginsContext(filePath);
-                ActionsRegistry.build(result, exports.default);
-            });
+        if (Array.isArray(configPlugins)) {
+            const pluginsContext = require.context('../plugins', true, /actions\.js$/);
+            const pluginPatterns = configPlugins.map((pattern) => new RegExp(pattern));
+            pluginsContext.keys()
+                .filter((filePath) => pluginPatterns.some((regex) => filePath.match(regex)))
+                .forEach((filePath) => {
+                    const exports = pluginsContext(filePath);
+                    ActionsRegistry.build(result, exports.default);
+                });
+        }
 
         ActionsRegistry.result = result;
         return result;
@@ -102,7 +106,7 @@ export default class {
     constructor(config, database) {
         this.config = config;
         this.database = database;
-        this.registry = ActionsRegistry.get();
+        this.registry = ActionsRegistry.get(config ? config.plugins : null);
         this.memory = {};
         this.socket = null;
         this.broadcasts = null;

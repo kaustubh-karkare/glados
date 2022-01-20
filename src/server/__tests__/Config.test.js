@@ -14,10 +14,16 @@ const CONFIG_FORMAT = {
         host: 'string',
         port: 'number',
     },
+    '?plugins': ['string'],
 };
 
 function check(pattern, value) {
-    if (typeof pattern === 'object') {
+    if (Array.isArray(pattern)) {
+        expect(pattern.length).toEqual(1);
+        value.forEach((subvalue) => {
+            check(pattern[0], subvalue);
+        });
+    } else if (typeof pattern === 'object') {
         expect(typeof value).toEqual('object');
         expect(value).not.toBeNull();
         Object.entries(pattern).forEach(([key, subpattern]) => {
