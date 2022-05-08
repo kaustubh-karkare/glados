@@ -94,6 +94,21 @@ class LogEventSearch extends React.Component {
 
     // Extra Actions for Events
 
+    getPlanForTodayAction() {
+        const { todayLabel } = this.context;
+        return {
+            __id__: 'plan_for_today',
+            name: 'Plan for Today',
+            perform: (logEvent) => {
+                window.api.send('log-event-upsert', {
+                    ...logEvent,
+                    date: todayLabel,
+                    isComplete: false,
+                });
+            },
+        };
+    }
+
     getCompleteAction() {
         const { todayLabel } = this.context;
         return {
@@ -112,8 +127,8 @@ class LogEventSearch extends React.Component {
     getDuplicateAction() {
         const { todayLabel } = this.context;
         return {
-            __id__: 'duplicate',
-            name: 'Duplicate',
+            __id__: 'duplicate_for_today',
+            name: 'Duplicate for Today',
             perform: (logEvent) => {
                 Coordinator.invoke('modal-editor', {
                     dataType: 'log-event',
@@ -133,7 +148,7 @@ class LogEventSearch extends React.Component {
         const { todayDate, todayLabel } = this.context;
         const todoMoreProps = {
             ...moreProps,
-            prefixActions: [...moreProps.prefixActions, this.getCompleteAction()],
+            prefixActions: [this.getCompleteAction(), ...moreProps.prefixActions],
         };
         const overdueAndUpcomingMoreProps = {
             ...todoMoreProps,
@@ -141,6 +156,7 @@ class LogEventSearch extends React.Component {
                 ...todoMoreProps.viewerComponentProps,
                 displayDate: true,
             },
+            prefixActions: [this.getPlanForTodayAction(), ...todoMoreProps.prefixActions],
         };
         const results = [
             <LogEventList
