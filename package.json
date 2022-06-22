@@ -63,7 +63,7 @@
     "single-instance": "^0.0.1",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.0.3",
     "timezone-support": "^2.0.2",
     "toposort": "^2.0.2",
     "yargs": "^15.4.1"
