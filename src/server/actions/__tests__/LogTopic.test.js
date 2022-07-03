@@ -1,4 +1,5 @@
 import { asyncSequence } from '../../../common/AsyncUtils';
+import { LogStructureKey } from '../../../common/data_types';
 import RichTextUtils from '../../../common/RichTextUtils';
 import TestUtils from './TestUtils';
 
@@ -61,6 +62,34 @@ test('test_update_propagation', async () => {
     await actions.invoke('log-event-delete', logEvent.__id__);
     await actions.invoke('log-topic-delete', logTopic.__id__);
     await actions.invoke('log-topic-delete', person.__id__);
+});
+
+test('test_child_keys', async () => {
+    await TestUtils.loadData({
+        logTopics: [
+            { name: 'Movies' },
+            { name: 'The Martian', parentTopicName: 'Movies' },
+            { name: 'Inside Out', parentTopicName: 'Movies' },
+            { name: 'Bhool Bhulaiyaa 2', parentTopicName: 'Movies' },
+        ],
+    });
+
+    const actions = TestUtils.getActions();
+    let parentLogTopic = await actions.invoke('log-topic-load', { __id__: 1 });
+    const newLogKey = {
+        ...LogStructureKey.createVirtual(),
+        name: 'Worthwhile?',
+        type: LogStructureKey.Type.YES_OR_NO,
+        // value: 'yes',
+    };
+    parentLogTopic.childKeys = [newLogKey];
+    await expect(() => actions.invoke('log-topic-upsert', parentLogTopic)).rejects.toThrow();
+    parentLogTopic.childKeys[0].value = 'yes';
+    parentLogTopic = await actions.invoke('log-topic-upsert', parentLogTopic);
+
+    let childLogTopic = await actions.invoke('log-topic-load', { __id__: 4 });
+    childLogTopic.parentLogTopic.childKeys[0].value = 'no';
+    childLogTopic = await actions.invoke('log-topic-upsert', childLogTopic);
 });
 
 test('test_counts', async () => {

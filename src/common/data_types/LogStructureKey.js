@@ -1,3 +1,4 @@
+import RichTextUtils from '../RichTextUtils';
 import Enum from './enum';
 import { getVirtualID } from './utils';
 import { validateNonEmptyString } from './validation';
@@ -96,6 +97,22 @@ class LogStructureKey {
         return results;
     }
 
+    static async validateValue(inputLogKey, index) {
+        if (inputLogKey.isOptional && !inputLogKey.value) return null;
+        const name = `.logKeys[${index}].value`;
+        if (!inputLogKey.value) return [name, false, 'must be non-empty.'];
+        const KeyOption = LogStructureKeyType[inputLogKey.type];
+        let isValid = await KeyOption.validator(inputLogKey.value, inputLogKey, this);
+        if (!isValid && KeyOption.maybeFix) {
+            const fixedValue = KeyOption.maybeFix(inputLogKey.value, inputLogKey);
+            if (fixedValue) {
+                inputLogKey.value = fixedValue;
+                isValid = true;
+            }
+        }
+        return [name, isValid, 'fails validation for specified type.'];
+    }
+
     static async load(rawLogKey, index) {
         let parentLogTopic = null;
         if (rawLogKey.parent_topic_id) {
@@ -137,6 +154,19 @@ class LogStructureKey {
             result.parent_topic_id = inputLogKey.parentLogTopic.__id__;
         }
         return result;
+    }
+
+    static extractLogTopics(inputLogKey) {
+        let logTopics = {};
+        if (inputLogKey.type === LogStructureKeyType.LOG_TOPIC && inputLogKey.value) {
+            logTopics[inputLogKey.value.__id__] = inputLogKey.value;
+        } else if (inputLogKey.type === LogStructureKeyType.RICH_TEXT_LINE) {
+            logTopics = {
+                ...logTopics,
+                ...RichTextUtils.extractMentions(inputLogKey.value, 'log-topic'),
+            };
+        }
+        return logTopics;
     }
 }
 

@@ -75,6 +75,15 @@ export function getDataModels(sequelize) {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
+            // Keys & Values
+            child_keys: {
+                type: Sequelize.TEXT,
+                allowNull: true,
+            },
+            values: {
+                type: Sequelize.TEXT,
+                allowNull: true,
+            },
         },
         {
             ...options,

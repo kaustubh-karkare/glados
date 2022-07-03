@@ -122,15 +122,9 @@ class LogEvent extends DataTypeBase {
             ...RichTextUtils.extractMentions(inputLogEvent.details, 'log-topic'),
         };
         if (inputLogEvent.logStructure) {
-            inputLogEvent.logStructure.logKeys.forEach((logKey) => {
-                if (logKey.type === LogStructure.Key.Type.LOG_TOPIC && logKey.value) {
-                    logTopics[logKey.value.__id__] = logKey.value;
-                } else if (logKey.type === LogStructure.Key.Type.RICH_TEXT_LINE) {
-                    logTopics = {
-                        ...logTopics,
-                        ...RichTextUtils.extractMentions(logKey.value, 'log-topic'),
-                    };
-                }
+            inputLogEvent.logStructure.logKeys.forEach((inputLogKey) => {
+                const additionalLogTopics = LogStructure.Key.extractLogTopics(inputLogKey);
+                logTopics = { ...logTopics, ...additionalLogTopics };
             });
         }
         return logTopics;
@@ -163,21 +157,13 @@ class LogEvent extends DataTypeBase {
             ]);
 
             const logKeyResults = await Promise.all(
-                inputLogEvent.logStructure.logKeys.map(async (logKey, index) => {
-                    if (logKey.isOptional && !logKey.value) return null;
-                    const name = `.logKeys[${index}].value`;
-                    if (!logKey.value) return [name, false, 'must be non-empty.'];
-                    const KeyOption = LogStructure.Key.Type[logKey.type];
-                    let isValid = await KeyOption.validator(logKey.value, logKey, this);
-                    if (!isValid && KeyOption.maybeFix) {
-                        const fixedValue = KeyOption.maybeFix(logKey.value, logKey);
-                        if (fixedValue) {
-                            logKey.value = fixedValue;
-                            isValid = true;
-                        }
-                    }
-                    return [name, isValid, 'fails validation for specified type.'];
-                }),
+                inputLogEvent.logStructure.logKeys.map(
+                    async (inputLogKey, index) => LogStructure.Key.validateValue.call(
+                        this,
+                        inputLogKey,
+                        index,
+                    ),
+                ),
             );
             results.push(...logKeyResults.filter((result) => result));
         }
