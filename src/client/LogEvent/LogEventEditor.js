@@ -6,7 +6,7 @@ import { LogEvent } from '../../common/data_types';
 import {
     DatePicker, Selector, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogValueEditor } from '../LogKey';
+import { LogValueListEditor } from '../LogKey';
 
 const { LogLevel } = LogEvent;
 
@@ -15,14 +15,14 @@ class LogEventEditor extends React.Component {
         super(props);
         this.titleRef = React.createRef();
         this.detailsRef = React.createRef();
-        this.valueRef = React.createRef();
+        this.valueListRef = React.createRef();
     }
 
     componentDidMount() {
         const { logEvent } = this.props;
         if (logEvent.logStructure) {
             if (logEvent.logStructure.logKeys.length) {
-                this.valueRef.current.focus();
+                this.valueListRef.current.focus();
             } else {
                 this.detailsRef.current.focus();
             }
@@ -169,26 +169,17 @@ class LogEventEditor extends React.Component {
         if (!logEvent.logStructure) {
             return null;
         }
-        return logEvent.logStructure.logKeys.map((logKey, index) => (
-            <InputGroup className="my-1" key={logKey.__id__}>
-                <InputGroup.Text>
-                    {logKey.name}
-                </InputGroup.Text>
-                <LogValueEditor
-                    logKey={logKey}
-                    disabled={this.props.disabled}
-                    onChange={(updatedLogKey) => this.updateLogEvent((updatedLogEvent) => {
-                        updatedLogEvent.logStructure.logKeys[index] = updatedLogKey;
-                    })}
-                    onSearch={(query) => window.api.send('value-typeahead', {
-                        logStructure: this.props.logEvent.logStructure,
-                        query,
-                        index,
-                    })}
-                    ref={index === 0 ? this.valueRef : null}
-                />
-            </InputGroup>
-        ));
+        return (
+            <LogValueListEditor
+                source={logEvent.logStructure}
+                logKeys={logEvent.logStructure.logKeys}
+                disabled={this.props.disabled}
+                onChange={(updatedLogKeys) => this.updateLogTopic((updatedLogEvent) => {
+                    updatedLogEvent.logStructure.logKeys = updatedLogKeys;
+                })}
+                ref={this.valueListRef}
+            />
+        );
     }
 
     render() {

@@ -8,7 +8,7 @@ import { LogKey, LogTopic } from '../../common/data_types';
 import {
     Selector, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogKeyListEditor, LogValueEditor } from '../LogKey';
+import { LogKeyListEditor, LogValueListEditor } from '../LogKey';
 
 class LogTopicEditor extends React.Component {
     constructor(props) {
@@ -84,30 +84,20 @@ class LogTopicEditor extends React.Component {
     }
 
     renderValues() {
-        const { childKeys } = this.props.logTopic.parentLogTopic;
-        if (!childKeys) {
+        const { parentLogTopic } = this.props.logTopic;
+        if (!parentLogTopic || !parentLogTopic.childKeys) {
             return null;
         }
-        return childKeys.map((logKey, index) => (
-            <InputGroup className="my-1" key={logKey.__id__}>
-                <InputGroup.Text>
-                    {logKey.name}
-                </InputGroup.Text>
-                <LogValueEditor
-                    logKey={logKey}
-                    disabled={this.props.disabled}
-                    onChange={(updatedLogKey) => this.updateLogTopic((updatedLogTopic) => {
-                        updatedLogTopic.parentLogTopic.childKeys[index] = updatedLogKey;
-                    })}
-                    onSearch={(query) => window.api.send('value-typeahead', {
-                        logStructure: this.props.logTopic,
-                        query,
-                        index,
-                    })}
-                    ref={index === 0 ? this.valueRef : null}
-                />
-            </InputGroup>
-        ));
+        return (
+            <LogValueListEditor
+                source={parentLogTopic}
+                logKeys={parentLogTopic.childKeys}
+                disabled={this.props.disabled}
+                onChange={(updatedChildKeys) => this.updateLogTopic((updatedLogTopic) => {
+                    updatedLogTopic.parentLogTopic.childKeys = updatedChildKeys;
+                })}
+            />
+        );
     }
 
     renderChildKeys() {

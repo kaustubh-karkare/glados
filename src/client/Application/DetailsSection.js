@@ -14,6 +14,7 @@ import {
     ScrollableSection, SettingsContext, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
 import { LogEventDetailsHeader, LogEventEditor } from '../LogEvent';
+import { LogValueListEditor } from '../LogKey';
 import { LogStructureDetailsHeader, LogStructureEditor } from '../LogStructure';
 import { LogTopicDetailsHeader, LogTopicEditor, LogTopicOptions } from '../LogTopic';
 import PropTypes from '../prop-types';
@@ -211,14 +212,36 @@ class DetailsSection extends React.Component {
         );
     }
 
+    renderKeys() {
+        const { item } = this.state;
+        let logKeys = null;
+        if (!item) {
+            // nothing
+        } else if (item.__type__ === 'log-event') {
+            logKeys = item.logStructure && item.logStructure.logKeys;
+        } else if (item.__type__ === 'log-topic') {
+            logKeys = item.parentLogTopic && item.parentLogTopic.childKeys;
+        }
+        if (!logKeys) {
+            return null;
+        }
+        return (
+            <LogValueListEditor
+                source={item}
+                logKeys={logKeys}
+                disabled
+                onChange={() => null}
+            />
+        );
+    }
+
     renderDetails() {
         const { item } = this.state;
         if (!item) {
             return null;
         }
         if (
-            item
-            && item.__type__ === 'log-event'
+            item.__type__ === 'log-event'
             && item.logStructure
             && !item.logStructure.allowEventDetails
         ) {
@@ -250,6 +273,7 @@ class DetailsSection extends React.Component {
                     <div className="mb-1">
                         {this.renderHeader()}
                     </div>
+                    {this.renderKeys()}
                     {this.renderDetails()}
                 </div>
             );
