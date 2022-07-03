@@ -10,6 +10,10 @@ class LogValueListEditor extends React.Component {
         this.firstRef = React.createRef();
     }
 
+    focus() {
+        this.firstRef.current.focus();
+    }
+
     render() {
         return this.props.logKeys.map((logKey, index) => (
             <InputGroup className="my-1" key={logKey.__id__}>

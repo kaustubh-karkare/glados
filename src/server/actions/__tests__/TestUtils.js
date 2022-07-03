@@ -1,5 +1,5 @@
 import { asyncSequence } from '../../../common/AsyncUtils';
-import { getVirtualID, LogStructure } from '../../../common/data_types';
+import { getVirtualID, LogKey } from '../../../common/data_types';
 import DateUtils from '../../../common/DateUtils';
 import RichTextUtils from '../../../common/RichTextUtils';
 import Actions from '../../actions';
@@ -84,8 +84,8 @@ export default class TestUtils {
             delete inputLogStructure.groupName;
             inputLogStructure.details = '';
             inputLogStructure.allowEventDetails = true;
-            if (inputLogStructure.logKeys) {
-                inputLogStructure.logKeys.forEach((logKey, index) => {
+            if (inputLogStructure.eventKeys) {
+                inputLogStructure.eventKeys.forEach((logKey, index) => {
                     logKey.__type__ = 'log-structure-key';
                     logKey.__id__ = index + 1;
                     if (logKey.parentTopicName) {
@@ -94,11 +94,11 @@ export default class TestUtils {
                     }
                 });
             } else {
-                inputLogStructure.logKeys = [];
+                inputLogStructure.eventKeys = [];
             }
             inputLogStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent(
                 inputLogStructure.titleTemplate || '$0',
-                { $: [inputLogStructure, ...inputLogStructure.logKeys] },
+                { $: [inputLogStructure, ...inputLogStructure.eventKeys] },
             );
             inputLogStructure.needsEdit = inputLogStructure.needsEdit || false;
             inputLogStructure.isFavorite = false;
@@ -137,8 +137,8 @@ export default class TestUtils {
                 inputLogEvent.logStructure = logStructureMap[inputLogEvent.structureName];
                 if (inputLogEvent.logValues) {
                     inputLogEvent.logValues.forEach((value, index) => {
-                        const logKey = inputLogEvent.logStructure.logKeys[index];
-                        if (logKey.type === LogStructure.Key.Type.LOG_TOPIC) {
+                        const logKey = inputLogEvent.logStructure.eventKeys[index];
+                        if (logKey.type === LogKey.Type.LOG_TOPIC) {
                             logKey.value = logTopicMap[value];
                         } else {
                             logKey.value = value;

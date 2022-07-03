@@ -2,6 +2,7 @@ import assert from 'assert';
 
 import RichTextUtils from '../RichTextUtils';
 import DataTypeBase from './base';
+import LogKey from './LogKey';
 import LogStructure from './LogStructure';
 import { getVirtualID } from './utils';
 import { validateRecursive } from './validation';
@@ -45,10 +46,10 @@ class LogEvent extends DataTypeBase {
 
     static addDefaultStructureValues(logEvent) {
         if (logEvent.logStructure) {
-            logEvent.logStructure.logKeys = logEvent.logStructure.logKeys.map((logKey) => ({
+            logEvent.logStructure.eventKeys = logEvent.logStructure.eventKeys.map((logKey) => ({
                 ...logKey,
                 value: logKey.value
-                    || LogStructure.Key.Type[logKey.type].getDefault(logKey)
+                    || LogKey.Type[logKey.type].getDefault(logKey)
                     || null,
             }));
         }
@@ -92,24 +93,24 @@ class LogEvent extends DataTypeBase {
     static trigger(logEvent) {
         if (logEvent.logStructure) {
             const getLogKeyValue = (logKey) => logKey.value || (logKey.isOptional ? '' : logKey);
-            logEvent.logStructure.logKeys.forEach((logKey, index) => {
+            logEvent.logStructure.eventKeys.forEach((logKey, index) => {
                 if (!logKey.template) {
                     return;
                 }
-                const previousLogKeys = logEvent.logStructure.logKeys.slice(0, index);
+                const previousEventKeys = logEvent.logStructure.eventKeys.slice(0, index);
                 logKey.value = RichTextUtils.extractPlainText(
                     RichTextUtils.updateDraftContent(
                         logKey.template,
-                        previousLogKeys,
-                        previousLogKeys.map(getLogKeyValue),
+                        previousEventKeys,
+                        previousEventKeys.map(getLogKeyValue),
                         true, // evaluateExpressions
                     ),
                 );
             });
             logEvent.title = RichTextUtils.updateDraftContent(
                 logEvent.logStructure.titleTemplate,
-                logEvent.logStructure.logKeys,
-                logEvent.logStructure.logKeys.map((logKey) => logKey.value || (logKey.isOptional ? '' : logKey)),
+                logEvent.logStructure.eventKeys,
+                logEvent.logStructure.eventKeys.map((logKey) => logKey.value || (logKey.isOptional ? '' : logKey)),
                 true, // evaluateExpressions
             );
             logEvent.logLevel = logEvent.logStructure.logLevel;
@@ -122,8 +123,8 @@ class LogEvent extends DataTypeBase {
             ...RichTextUtils.extractMentions(inputLogEvent.details, 'log-topic'),
         };
         if (inputLogEvent.logStructure) {
-            inputLogEvent.logStructure.logKeys.forEach((inputLogKey) => {
-                const additionalLogTopics = LogStructure.Key.extractLogTopics(inputLogKey);
+            inputLogEvent.logStructure.eventKeys.forEach((inputLogKey) => {
+                const additionalLogTopics = LogKey.extractLogTopics(inputLogKey);
                 logTopics = { ...logTopics, ...additionalLogTopics };
             });
         }
@@ -157,8 +158,8 @@ class LogEvent extends DataTypeBase {
             ]);
 
             const logKeyResults = await Promise.all(
-                inputLogEvent.logStructure.logKeys.map(
-                    async (inputLogKey, index) => LogStructure.Key.validateValue.call(
+                inputLogEvent.logStructure.eventKeys.map(
+                    async (inputLogKey, index) => LogKey.validateValue.call(
                         this,
                         inputLogKey,
                         index,
@@ -184,7 +185,7 @@ class LogEvent extends DataTypeBase {
         if (logEvent.structure_id) {
             outputLogStructure = await LogStructure.load.call(this, logEvent.structure_id);
             const structureValues = JSON.parse(logEvent.structure_values);
-            outputLogStructure.logKeys.forEach((logKey, index) => {
+            outputLogStructure.eventKeys.forEach((logKey, index) => {
                 logKey.value = structureValues[index] || null;
             });
         } else {
@@ -227,7 +228,9 @@ class LogEvent extends DataTypeBase {
             .call(this, shouldResetOrderingIndex ? null : logEvent, orderingIndexWhere);
         let logValues;
         if (inputLogEvent.logStructure) {
-            logValues = inputLogEvent.logStructure.logKeys.map((logKey) => logKey.value || null);
+            logValues = inputLogEvent.logStructure.eventKeys.map(
+                (eventKey) => eventKey.value || null,
+            );
         }
         const fields = {
             date: inputLogEvent.date,
@@ -262,7 +265,7 @@ class LogEvent extends DataTypeBase {
         );
         await this.invoke.call(
             this,
-            'value-typeahead-index-refresh',
+            'structure-value-typeahead-index-$refresh',
             { structure_id: logEvent.structure_id },
         );
 
@@ -275,7 +278,7 @@ class LogEvent extends DataTypeBase {
         DataTypeBase.broadcast.call(this, 'log-event-list', logEvent, ['date']);
         await this.invoke.call(
             this,
-            'value-typeahead-index-refresh',
+            'structure-value-typeahead-index-$refresh',
             { structure_id: logEvent.structure_id },
         );
         return { __id__: logEvent.id };

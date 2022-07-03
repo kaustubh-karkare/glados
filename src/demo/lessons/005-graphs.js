@@ -97,7 +97,7 @@ export default async (app) => {
         const msInDay = 24 * 60 * 60 * 1000;
         const totalEvents = 30; // to avoid exceeding page size.
         const initialValue = 10;
-        const finalValue = parseInt(logEventTemplate.logStructure.logKeys[0].value, 10);
+        const finalValue = parseInt(logEventTemplate.logStructure.eventKeys[0].value, 10);
         let count = await bulletList.getItemCount();
         for (let index = 1; index < totalEvents; index += 1) {
             count += 1;
@@ -122,7 +122,7 @@ export default async (app) => {
                 const variation = Math.ceil(10 / 4);
                 value += Math.ceil(Math.random() * variation) - Math.ceil(variation / 2);
             }
-            logEventTemplate.logStructure.logKeys[0].value = value.toString();
+            logEventTemplate.logStructure.eventKeys[0].value = value.toString();
             // eslint-disable-next-line no-await-in-loop
             await app.webdriver.executeScript(`window.api.send('log-event-upsert', ${JSON.stringify(logEventTemplate)})`);
             // eslint-disable-next-line no-await-in-loop, no-loop-func

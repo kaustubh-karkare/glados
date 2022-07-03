@@ -267,6 +267,12 @@ class LogTopic extends DataTypeBase {
             });
         }
 
+        await this.invoke.call(
+            this,
+            'topic-value-typeahead-index-$refresh',
+            { parent_topic_id: logTopic.parent_topic_id },
+        );
+
         return logTopic.id;
     }
 
@@ -315,6 +321,11 @@ class LogTopic extends DataTypeBase {
         }
 
         DataTypeBase.broadcast.call(this, 'log-topic-list', logTopic, ['parent_topic_id']);
+        await this.invoke.call(
+            this,
+            'topic-value-typeahead-index-$refresh',
+            { parent_topic_id: logTopic.parent_topic_id },
+        );
         return { __id__: logTopic.id };
     }
 }

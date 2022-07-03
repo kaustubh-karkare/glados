@@ -12,7 +12,7 @@ test('test_structure_constraint', async () => {
             {
                 groupName: 'TestGroup',
                 name: 'Animals',
-                logKeys: [
+                eventKeys: [
                     { name: 'Size', type: 'string' },
                     { name: 'Legs', type: 'integer' },
                 ],
@@ -43,7 +43,7 @@ test('test_event_update', async () => {
             {
                 groupName: 'TestGroup',
                 name: 'Animals',
-                logKeys: [
+                eventKeys: [
                     { name: 'Size', type: 'string' },
                     { name: 'Legs', type: 'integer' },
                 ],
@@ -63,7 +63,7 @@ test('test_event_update', async () => {
 
     const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
     logEvent.title = 'Dog';
-    logEvent.logStructure.logKeys[0].value = 'medium';
+    logEvent.logStructure.eventKeys[0].value = 'medium';
     await actions.invoke('log-event-upsert', logEvent);
 });
 
@@ -76,7 +76,7 @@ test('test_log_event_value_typeahead', async () => {
             {
                 groupName: 'TestGroup',
                 name: 'Animals',
-                logKeys: [
+                eventKeys: [
                     { name: 'Size', type: 'string' },
                     { name: 'Legs', type: 'integer' },
                 ],
@@ -96,7 +96,7 @@ test('test_log_event_value_typeahead', async () => {
     let logValueSuggestions;
 
     const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
-    const input = { logStructure: logEvent.logStructure, index: null, query: '' };
+    const input = { source: logEvent.logStructure, index: null, query: '' };
 
     logValueSuggestions = await actions.invoke('value-typeahead', { ...input, index: 0 });
     expect(logValueSuggestions).toEqual(['small']);

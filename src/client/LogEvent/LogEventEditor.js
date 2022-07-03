@@ -21,7 +21,7 @@ class LogEventEditor extends React.Component {
     componentDidMount() {
         const { logEvent } = this.props;
         if (logEvent.logStructure) {
-            if (logEvent.logStructure.logKeys.length) {
+            if (logEvent.logStructure.eventKeys.length) {
                 this.valueListRef.current.focus();
             } else {
                 this.detailsRef.current.focus();
@@ -166,16 +166,16 @@ class LogEventEditor extends React.Component {
 
     renderStructureValues() {
         const { logEvent } = this.props;
-        if (!logEvent.logStructure) {
+        if (!logEvent.logStructure || logEvent.logStructure.eventKeys.length === 0) {
             return null;
         }
         return (
             <LogValueListEditor
                 source={logEvent.logStructure}
-                logKeys={logEvent.logStructure.logKeys}
+                logKeys={logEvent.logStructure.eventKeys}
                 disabled={this.props.disabled}
-                onChange={(updatedLogKeys) => this.updateLogTopic((updatedLogEvent) => {
-                    updatedLogEvent.logStructure.logKeys = updatedLogKeys;
+                onChange={(updatedLogKeys) => this.updateLogEvent((updatedLogEvent) => {
+                    updatedLogEvent.logStructure.eventKeys = updatedLogKeys;
                 })}
                 ref={this.valueListRef}
             />

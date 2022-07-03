@@ -38,7 +38,7 @@ const LogStructureGroup = PropTypes.shape({
 const LogStructure = PropTypes.shape({
     __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    logKeys: PropTypes.arrayOf(LogKey.isRequired).isRequired,
+    eventKeys: PropTypes.arrayOf(LogKey.isRequired).isRequired,
 });
 
 const LogEvent = PropTypes.shape({

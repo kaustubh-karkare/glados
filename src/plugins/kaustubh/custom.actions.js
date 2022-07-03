@@ -259,10 +259,10 @@ ActionsRegistry['add-structure-to-events'] = async function () {
         }
         logEvent.logStructure = {
             ...logStructure,
-            logKeys: logStructure.logKeys.map((logKey) => ({ ...logKey })),
+            eventKeys: logStructure.eventKeys.map((logKey) => ({ ...logKey })),
         };
-        logEvent.logStructure.logKeys[0].value = getPartialItem(logTopic);
-        logEvent.logStructure.logKeys[1].value = RichTextUtils.removePrefixFromDraftContext(
+        logEvent.logStructure.eventKeys[0].value = getPartialItem(logTopic);
+        logEvent.logStructure.eventKeys[1].value = RichTextUtils.removePrefixFromDraftContext(
             logEvent.title,
             prefix,
         );

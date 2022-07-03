@@ -1,4 +1,4 @@
-import { LogStructure } from '../../../common/data_types';
+import { LogKey } from '../../../common/data_types';
 import RichTextUtils from '../../../common/RichTextUtils';
 import TestUtils from './TestUtils';
 
@@ -14,7 +14,7 @@ test('test_key_updates', async () => {
             {
                 groupName: 'Entertainment',
                 name: 'Movie',
-                logKeys: [
+                eventKeys: [
                     { name: 'Title', type: 'string' },
                     { name: 'Link', type: 'string' },
                     { name: 'Rating', type: 'integer' },
@@ -34,24 +34,24 @@ test('test_key_updates', async () => {
     const actions = TestUtils.getActions();
 
     const oldLogEvent = await actions.invoke('log-event-load', { __id__: 1 });
-    const oldValues = oldLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
+    const oldValues = oldLogEvent.logStructure.eventKeys.map((logKey) => logKey.value);
 
     const logStructure = await actions.invoke('log-structure-load', { __id__: 1 });
     const newLogKey = {
-        ...LogStructure.createNewKey(),
+        ...LogKey.createVirtual(),
         name: 'Worthwhile?',
-        type: LogStructure.Key.Type.YES_OR_NO,
+        type: LogKey.Type.YES_OR_NO,
         value: 'yes',
     };
-    logStructure.logKeys = [
-        logStructure.logKeys[1],
-        logStructure.logKeys[0],
+    logStructure.eventKeys = [
+        logStructure.eventKeys[1],
+        logStructure.eventKeys[0],
         newLogKey,
     ];
     await actions.invoke('log-structure-upsert', logStructure);
 
     const newLogEvent = await actions.invoke('log-event-load', { __id__: 1 });
-    const newValues = newLogEvent.logStructure.logKeys.map((logKey) => logKey.value);
+    const newValues = newLogEvent.logStructure.eventKeys.map((logKey) => logKey.value);
     expect(newValues[0]).toEqual(oldValues[1]);
     expect(newValues[1]).toEqual(oldValues[0]);
     expect(newValues[2]).toEqual(newLogKey.value);
@@ -86,7 +86,7 @@ test('test_structure_title_template_expression', async () => {
             {
                 groupName: 'Exercise',
                 name: 'Cycling',
-                logKeys: [
+                eventKeys: [
                     { name: 'Distance (miles)', type: 'integer' },
                     { name: 'Time (minutes)', type: 'integer' },
                 ],
@@ -123,7 +123,7 @@ test('test_structure_title_template_expression', async () => {
     const { logStructure } = logEvents[0];
     logStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent(
         '$0: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
-        { $: [logStructure, ...logStructure.logKeys] },
+        { $: [logStructure, ...logStructure.eventKeys] },
     );
     await actions.invoke('log-structure-upsert', logStructure);
 
@@ -144,7 +144,7 @@ test('test_structure_title_template_link', async () => {
             {
                 groupName: 'Education',
                 name: 'Article',
-                logKeys: [
+                eventKeys: [
                     { name: 'Title', type: 'string' },
                     { name: 'Link', type: 'string' },
                 ],
@@ -179,7 +179,7 @@ test('test_structure_with_topic', async () => {
             {
                 groupName: 'Education',
                 name: 'Reading',
-                logKeys: [
+                eventKeys: [
                     { name: 'Book', type: 'log_topic', parentTopicName: 'Books' },
                     { name: 'Progress', type: 'string' },
                 ],
@@ -198,7 +198,7 @@ test('test_structure_with_topic', async () => {
     const actions = TestUtils.getActions();
     await expect(() => actions.invoke('log-topic-delete', 2)).rejects.toThrow();
     const logEvent = await actions.invoke('log-event-load', { __id__: 1 });
-    logEvent.logStructure.logKeys[0].value = await actions.invoke('log-topic-load', { __id__: 3 });
+    logEvent.logStructure.eventKeys[0].value = await actions.invoke('log-topic-load', { __id__: 3 });
     await actions.invoke('log-event-upsert', logEvent);
     await actions.invoke('log-topic-delete', 2);
 });

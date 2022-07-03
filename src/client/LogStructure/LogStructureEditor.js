@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { MdAddCircleOutline } from 'react-icons/md';
 
-import { getPartialItem, LogStructure } from '../../common/data_types';
+import { getPartialItem, LogKey, LogStructure } from '../../common/data_types';
 import {
     Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
@@ -85,7 +85,7 @@ class LogStructureEditor extends React.Component {
                     isSingleLine
                     value={logStructure.titleTemplate}
                     options={new TypeaheadOptions({
-                        prefixOptions: [getPartialItem(logStructure), ...logStructure.logKeys],
+                        prefixOptions: [getPartialItem(logStructure), ...logStructure.eventKeys],
                         serverSideOptions: [{ name: 'log-topic' }, { name: 'log-structure' }],
                     })}
                     disabled={this.props.disabled}
@@ -97,9 +97,9 @@ class LogStructureEditor extends React.Component {
                     onClick={() => {
                         this.updateLogStructure((updatedLogStructure) => {
                             // eslint-disable-next-line no-param-reassign
-                            updatedLogStructure.logKeys = [
-                                ...updatedLogStructure.logKeys,
-                                LogStructure.createNewKey(),
+                            updatedLogStructure.eventKeys = [
+                                ...updatedLogStructure.eventKeys,
+                                LogKey.createVirtual(),
                             ];
                         });
                     }}
@@ -182,12 +182,12 @@ class LogStructureEditor extends React.Component {
                 <div className="my-3">
                     {this.renderTitleTemplateEditor()}
                     <LogKeyListEditor
-                        items={this.props.logStructure.logKeys}
+                        items={this.props.logStructure.eventKeys}
                         disabled={this.props.disabled}
-                        onChange={(logKeys) => {
+                        onChange={(eventKeys) => {
                             this.updateLogStructure((updatedLogStructure) => {
                                 // eslint-disable-next-line no-param-reassign
-                                updatedLogStructure.logKeys = logKeys;
+                                updatedLogStructure.eventKeys = eventKeys;
                             });
                         }}
                         onSearch={(query, index) => window.api.send('value-typeahead', {

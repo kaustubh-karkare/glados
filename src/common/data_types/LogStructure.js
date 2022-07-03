@@ -38,7 +38,7 @@ class LogStructure extends DataTypeBase {
             name,
             details: null,
             allowEventDetails: false,
-            logKeys: [],
+            eventKeys: [],
             titleTemplate: null,
             needsEdit: false,
             isPeriodic: false,
@@ -53,10 +53,6 @@ class LogStructure extends DataTypeBase {
         };
     }
 
-    static createNewKey() {
-        return LogKey.createVirtual();
-    }
-
     static async updateWhere(where) {
         await DataTypeBase.updateWhere.call(this, where, {
             __id__: 'id',
@@ -69,8 +65,8 @@ class LogStructure extends DataTypeBase {
     }
 
     static trigger(logStructure) {
-        // TODO: If a key is deleted, remove it from the content.
-        const options = [getPartialItem(logStructure), ...logStructure.logKeys];
+        // TODO: If an eventKey is deleted, remove it from the content.
+        const options = [getPartialItem(logStructure), ...logStructure.eventKeys];
         if (logStructure.name && !logStructure.titleTemplate) {
             logStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent('$0', {
                 $: [logStructure],
@@ -81,7 +77,7 @@ class LogStructure extends DataTypeBase {
             options,
             options,
         );
-        if (logStructure.logKeys.length) {
+        if (logStructure.eventKeys.length) {
             logStructure.needsEdit = true;
         }
     }
@@ -91,9 +87,9 @@ class LogStructure extends DataTypeBase {
             ...RichTextUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
             ...RichTextUtils.extractMentions(inputLogStructure.details, 'log-topic'),
         };
-        inputLogStructure.logKeys.forEach((logKey) => {
-            if (logKey.type === LogStructure.Key.Type.LOG_TOPIC && logKey.parentLogTopic) {
-                logTopics[logKey.parentLogTopic.__id__] = logKey.parentLogTopic;
+        inputLogStructure.eventKeys.forEach((eventKey) => {
+            if (eventKey.type === LogKey.Type.LOG_TOPIC && eventKey.parentLogTopic) {
+                logTopics[eventKey.parentLogTopic.__id__] = eventKey.parentLogTopic;
             }
         });
         return logTopics;
@@ -121,8 +117,8 @@ class LogStructure extends DataTypeBase {
         results.push(...await validateRecursiveList.call(
             this,
             LogKey,
-            '.logKeys',
-            inputLogStructure.logKeys,
+            '.eventKeys',
+            inputLogStructure.eventKeys,
         ));
 
         results.push([
@@ -160,9 +156,9 @@ class LogStructure extends DataTypeBase {
             'log-structure-group-load',
             { __id__: logStructure.group_id },
         );
-        const logKeys = await Promise.all(
+        const eventKeys = await Promise.all(
             JSON.parse(logStructure.keys).map(
-                (logKey, index) => LogKey.load.call(this, logKey, index + 1),
+                (eventKey, index) => LogKey.load.call(this, eventKey, index + 1),
             ),
         );
         return {
@@ -175,7 +171,7 @@ class LogStructure extends DataTypeBase {
                 RichTextUtils.StorageType.DRAFTJS,
             ),
             allowEventDetails: logStructure.allow_event_details,
-            logKeys,
+            eventKeys,
             titleTemplate: RichTextUtils.deserialize(
                 logStructure.title_template,
                 RichTextUtils.StorageType.DRAFTJS,
@@ -205,7 +201,7 @@ class LogStructure extends DataTypeBase {
         );
 
         const orderingIndex = await DataTypeBase.getOrderingIndex.call(this, logStructure);
-        const fields = {
+        const updated = {
             group_id: inputLogStructure.logStructureGroup.__id__,
             ordering_index: orderingIndex,
             name: inputLogStructure.name,
@@ -214,8 +210,8 @@ class LogStructure extends DataTypeBase {
                 RichTextUtils.StorageType.DRAFTJS,
             ),
             allow_event_details: inputLogStructure.allowEventDetails,
-            keys: JSON.stringify(inputLogStructure.logKeys.map(
-                (logKey) => LogKey.save.call(this, logKey),
+            keys: JSON.stringify(inputLogStructure.eventKeys.map(
+                (eventKey) => LogKey.save.call(this, eventKey),
             )),
             title_template: RichTextUtils.serialize(
                 inputLogStructure.titleTemplate,
@@ -240,8 +236,8 @@ class LogStructure extends DataTypeBase {
             let shouldRegenerateLogEvents = false;
             if (!shouldRegenerateLogEvents) {
                 shouldRegenerateLogEvents = (
-                    originalLogStructure.name !== fields.name
-                    || originalLogStructure.keys !== fields.keys
+                    originalLogStructure.name !== updated.name
+                    || originalLogStructure.keys !== updated.keys
                 );
             }
             if (!shouldRegenerateLogEvents) {
@@ -256,8 +252,8 @@ class LogStructure extends DataTypeBase {
             }
             if (!shouldRegenerateLogEvents) {
                 shouldRegenerateLogEvents = (
-                    originalLogStructure.log_level !== fields.log_level
-                    || originalLogStructure.allow_event_details !== fields.allow_event_details
+                    originalLogStructure.log_level !== updated.log_level
+                    || originalLogStructure.allow_event_details !== updated.allow_event_details
                 );
             }
             if (shouldRegenerateLogEvents) {
@@ -270,7 +266,7 @@ class LogStructure extends DataTypeBase {
         }
 
         const updatedLogStructure = await this.database.createOrUpdateItem(
-            'LogStructure', logStructure, fields,
+            'LogStructure', logStructure, updated,
         );
 
         const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
@@ -288,11 +284,11 @@ class LogStructure extends DataTypeBase {
 
         if (
             !originalLogStructure
-            || inputLogStructure.logKeys.some((logKey) => isVirtualItem(logKey))
+            || inputLogStructure.eventKeys.some((eventKey) => isVirtualItem(eventKey))
         ) {
-            // On creation of logStructure or update of logKeys,
+            // On creation of logStructure or update of eventKeys,
             // replace the virtual IDs in the title template.
-            const originalItems = [inputLogStructure, ...inputLogStructure.logKeys];
+            const originalItems = [inputLogStructure, ...inputLogStructure.eventKeys];
             const updatedItems = originalItems.map((item, index) => ({
                 ...getPartialItem(item),
                 __id__: index || updatedLogStructure.id,
@@ -314,16 +310,16 @@ class LogStructure extends DataTypeBase {
 
         if (inputLogEvents) {
             await asyncSequence(inputLogEvents, async (inputLogEvent) => {
-                // Update the logEvent to support logKey addition, reorder, deletion.
+                // Update the logEvent to support eventKey addition, reorder, deletion.
                 const mapping = {};
-                inputLogEvent.logStructure.logKeys.forEach((logKey) => {
-                    mapping[logKey.__id__] = logKey;
+                inputLogEvent.logStructure.eventKeys.forEach((eventKey) => {
+                    mapping[eventKey.__id__] = eventKey;
                 });
                 inputLogEvent.logStructure = {
                     ...inputLogStructure,
-                    logKeys: inputLogStructure.logKeys.map((logKey) => ({
-                        ...logKey,
-                        value: (mapping[logKey.__id__] || logKey).value,
+                    eventKeys: inputLogStructure.eventKeys.map((eventKey) => ({
+                        ...eventKey,
+                        value: (mapping[eventKey.__id__] || eventKey).value,
                     })),
                 };
                 return this.invoke.call(this, 'log-event-upsert', inputLogEvent);
@@ -332,7 +328,7 @@ class LogStructure extends DataTypeBase {
 
         await this.invoke.call(
             this,
-            'value-typeahead-index-refresh',
+            'structure-value-typeahead-index-$refresh',
             { structure_id: updatedLogStructure.id },
         );
 
@@ -345,14 +341,13 @@ class LogStructure extends DataTypeBase {
         DataTypeBase.broadcast.call(this, 'log-structure-list', logStructure, ['group_id']);
         await this.invoke.call(
             this,
-            'value-typeahead-index-refresh',
+            'structure-value-typeahead-index-$refresh',
             { structure_id: logStructure.id },
         );
         return { id: logStructure.id };
     }
 }
 
-LogStructure.Key = LogKey;
 LogStructure.Frequency = LogStructureFrequency;
 LogStructure.LogLevel = LogLevel;
 

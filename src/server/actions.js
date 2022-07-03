@@ -91,7 +91,7 @@ class ActionsRegistry {
             assert(promise);
             return promise;
         };
-        result[`${name}-refresh`] = async function (input = null) {
+        result[`${name}-$refresh`] = async function (input = null) {
             const serializedInput = JSON.stringify(input);
             if (name in this.memory) {
                 if (serializedInput in this.memory[name]) {

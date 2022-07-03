@@ -1,13 +1,13 @@
 import { addDays, compareAsc } from 'date-fns';
 
-import { LogStructure } from '../../common/data_types';
+import { LogKey } from '../../common/data_types';
 import DateUtils from '../../common/DateUtils';
 import RichTextUtils from '../../common/RichTextUtils';
 import { Granularity } from './GraphSectionOptions';
 
 function getLogKeyValues(keyIndex, valueParser, logEvents) {
     return logEvents.map((logEvent) => {
-        const logKey = logEvent.logStructure.logKeys[keyIndex];
+        const logKey = logEvent.logStructure.eventKeys[keyIndex];
         if (logKey.value === null) {
             return null;
         }
@@ -21,7 +21,7 @@ function getAverageValue(values) {
     } if (values.length === 1) {
         return values[0];
     }
-    // logEvents[0].logStructure.logKeys[keyIndex].aggregationType?
+    // logEvents[0].logStructure.eventKeys[keyIndex].aggregationType?
     return values.reduce((result, value) => (result + value), 0) / values.length;
 }
 
@@ -34,13 +34,13 @@ function getLines(logStructure, logEvent) {
         getValues: (logEvents) => [logEvents.length],
     });
     if (logStructure) {
-        logEvent.logStructure.logKeys.forEach((logKey, index) => {
+        logEvent.logStructure.eventKeys.forEach((logKey, index) => {
             let valueParser;
-            if (logKey.type === LogStructure.Key.Type.INTEGER) {
+            if (logKey.type === LogKey.Type.INTEGER) {
                 valueParser = parseInt;
-            } else if (logKey.type === LogStructure.Key.Type.NUMBER) {
+            } else if (logKey.type === LogKey.Type.NUMBER) {
                 valueParser = parseFloat;
-            } else if (logKey.type === LogStructure.Key.Type.TIME) {
+            } else if (logKey.type === LogKey.Type.TIME) {
                 valueParser = (value) => parseInt(value.replace(':', ''), 10);
             } else {
                 return;
