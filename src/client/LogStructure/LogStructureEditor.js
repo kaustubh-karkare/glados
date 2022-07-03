@@ -6,10 +6,10 @@ import { MdAddCircleOutline } from 'react-icons/md';
 
 import { getPartialItem, LogStructure } from '../../common/data_types';
 import {
-    Selector, SortableList, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
+    Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
+import { LogKeyListEditor } from '../LogKey';
 import LogStructureFrequencyEditor from './LogStructureFrequencyEditor';
-import LogStructureKeyEditor from './LogStructureKeyEditor';
 
 const { LogLevel } = LogStructure;
 
@@ -181,7 +181,7 @@ class LogStructureEditor extends React.Component {
                 </div>
                 <div className="my-3">
                     {this.renderTitleTemplateEditor()}
-                    <SortableList
+                    <LogKeyListEditor
                         items={this.props.logStructure.logKeys}
                         disabled={this.props.disabled}
                         onChange={(logKeys) => {
@@ -195,9 +195,6 @@ class LogStructureEditor extends React.Component {
                             query,
                             index,
                         })}
-                        type={LogStructureKeyEditor}
-                        valueKey="logKey"
-                        logStructure={this.props.logStructure}
                     />
                     {this.renderNeedsEditSelector()}
                     {this.renderAllowEventDetailsSelector()}

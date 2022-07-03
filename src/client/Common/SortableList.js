@@ -72,7 +72,7 @@ class SortableList extends React.Component {
 
     renderRow(item, index) {
         const {
-            items: _items, onChange: _onChange, type: _type, valueKey, disabled, ...moreProps
+            items, itemsKey, onChange: _onChange, type: _type, disabled, ...moreProps
         } = this.props;
         return React.createElement(WrappedRow, {
             key: item.__id__,
@@ -81,9 +81,9 @@ class SortableList extends React.Component {
             disabled,
             // Forwarded to the WrappedRow.
             originalElement: this.state.type({
-                [valueKey]: item,
                 disabled,
                 onChange: (updatedItem) => this.onChange(index, updatedItem),
+                [itemsKey]: items,
                 index,
                 ...moreProps,
             }),
@@ -110,7 +110,7 @@ SortableList.propTypes = {
     items: PropTypes.arrayOf(PropTypes.any.isRequired).isRequired,
     onChange: PropTypes.func.isRequired,
     type: PropTypes.func.isRequired,
-    valueKey: PropTypes.string.isRequired,
+    itemsKey: PropTypes.string.isRequired,
     disabled: PropTypes.bool.isRequired,
 };
 

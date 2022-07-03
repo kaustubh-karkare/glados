@@ -1,7 +1,7 @@
 import { asyncSequence } from '../AsyncUtils';
 import RichTextUtils from '../RichTextUtils';
 import DataTypeBase from './base';
-import LogStructureKey from './LogStructureKey';
+import LogKey from './LogKey';
 import { getVirtualID } from './utils';
 import { validateNonEmptyString, validateRecursiveList } from './validation';
 
@@ -33,7 +33,7 @@ class LogTopic extends DataTypeBase {
         let logTopics = RichTextUtils.extractMentions(inputLogTopic.details, 'log-topic');
         if (inputLogTopic.parentLogTopic && inputLogTopic.parentLogTopic.childKeys) {
             inputLogTopic.parentLogTopic.childKeys.forEach((inputLogKey) => {
-                const additionalLogTopics = LogStructureKey.extractLogTopics.call(
+                const additionalLogTopics = LogKey.extractLogTopics.call(
                     this,
                     inputLogKey,
                 );
@@ -50,7 +50,7 @@ class LogTopic extends DataTypeBase {
         if (inputLogTopic.childKeys) {
             results.push(...await validateRecursiveList.call(
                 this,
-                LogStructureKey,
+                LogKey,
                 '.childKeys',
                 inputLogTopic.childKeys,
             ));
@@ -59,7 +59,7 @@ class LogTopic extends DataTypeBase {
         if (inputLogTopic.parentLogTopic && inputLogTopic.parentLogTopic.childKeys) {
             const logKeyResults = await Promise.all(
                 inputLogTopic.parentLogTopic.childKeys.map(
-                    async (inputLogKey, index) => LogStructureKey.validateValue.call(
+                    async (inputLogKey, index) => LogKey.validateValue.call(
                         this,
                         inputLogKey,
                         index,
@@ -85,7 +85,7 @@ class LogTopic extends DataTypeBase {
             if (parentLogTopic.child_keys) {
                 outputParentChildKeys = await Promise.all(
                     JSON.parse(parentLogTopic.child_keys).map(
-                        (logKey, index) => LogStructureKey.load.call(this, logKey, index + 1),
+                        (logKey, index) => LogKey.load.call(this, logKey, index + 1),
                     ),
                 );
                 const values = JSON.parse(logTopic.values);
@@ -104,7 +104,7 @@ class LogTopic extends DataTypeBase {
         if (logTopic.child_keys) {
             outputChildKeys = await Promise.all(
                 JSON.parse(logTopic.child_keys).map(
-                    (logKey, index) => LogStructureKey.load.call(this, logKey, index + 1),
+                    (logKey, index) => LogKey.load.call(this, logKey, index + 1),
                 ),
             );
         }
@@ -138,7 +138,7 @@ class LogTopic extends DataTypeBase {
         let childKeys;
         if (inputLogTopic.childKeys) {
             childKeys = inputLogTopic.childKeys.map(
-                (logKey) => LogStructureKey.save.call(this, logKey),
+                (logKey) => LogKey.save.call(this, logKey),
             );
         }
         let values;

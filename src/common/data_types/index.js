@@ -1,14 +1,14 @@
 import LogEvent from './LogEvent';
+import LogKey from './LogKey';
 import LogStructure from './LogStructure';
 import LogStructureGroup from './LogStructureGroup';
-import LogStructureKey from './LogStructureKey';
 import LogTopic from './LogTopic';
 
 export {
     LogTopic,
     LogStructureGroup,
     LogStructure,
-    LogStructureKey,
+    LogKey,
     LogEvent,
 };
 

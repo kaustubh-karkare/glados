@@ -1,5 +1,5 @@
 import { asyncSequence } from '../../../common/AsyncUtils';
-import { LogStructureKey } from '../../../common/data_types';
+import { LogKey } from '../../../common/data_types';
 import RichTextUtils from '../../../common/RichTextUtils';
 import TestUtils from './TestUtils';
 
@@ -77,9 +77,9 @@ test('test_child_keys', async () => {
     const actions = TestUtils.getActions();
     let parentLogTopic = await actions.invoke('log-topic-load', { __id__: 1 });
     const newLogKey = {
-        ...LogStructureKey.createVirtual(),
+        ...LogKey.createVirtual(),
         name: 'Worthwhile?',
-        type: LogStructureKey.Type.YES_OR_NO,
+        type: LogKey.Type.YES_OR_NO,
         // value: 'yes',
     };
     parentLogTopic.childKeys = [newLogKey];

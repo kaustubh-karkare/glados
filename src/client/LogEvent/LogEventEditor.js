@@ -6,7 +6,7 @@ import { LogEvent } from '../../common/data_types';
 import {
     DatePicker, Selector, TextEditor, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import { LogStructureValueEditor } from '../LogStructure';
+import { LogValueEditor } from '../LogKey';
 
 const { LogLevel } = LogEvent;
 
@@ -174,7 +174,7 @@ class LogEventEditor extends React.Component {
                 <InputGroup.Text>
                     {logKey.name}
                 </InputGroup.Text>
-                <LogStructureValueEditor
+                <LogValueEditor
                     logKey={logKey}
                     disabled={this.props.disabled}
                     onChange={(updatedLogKey) => this.updateLogEvent((updatedLogEvent) => {

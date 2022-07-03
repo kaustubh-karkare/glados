@@ -2,9 +2,9 @@ import { asyncSequence } from '../AsyncUtils';
 import RichTextUtils from '../RichTextUtils';
 import DataTypeBase from './base';
 import Enum from './enum';
+import LogKey from './LogKey';
 import LogStructureFrequency from './LogStructureFrequency';
 import LogStructureGroup from './LogStructureGroup';
-import LogStructureKey from './LogStructureKey';
 import { getPartialItem, getVirtualID, isVirtualItem } from './utils';
 import { validateRecursive, validateRecursiveList } from './validation';
 
@@ -54,7 +54,7 @@ class LogStructure extends DataTypeBase {
     }
 
     static createNewKey() {
-        return LogStructureKey.createVirtual();
+        return LogKey.createVirtual();
     }
 
     static async updateWhere(where) {
@@ -120,7 +120,7 @@ class LogStructure extends DataTypeBase {
 
         results.push(...await validateRecursiveList.call(
             this,
-            LogStructureKey,
+            LogKey,
             '.logKeys',
             inputLogStructure.logKeys,
         ));
@@ -162,7 +162,7 @@ class LogStructure extends DataTypeBase {
         );
         const logKeys = await Promise.all(
             JSON.parse(logStructure.keys).map(
-                (logKey, index) => LogStructureKey.load.call(this, logKey, index + 1),
+                (logKey, index) => LogKey.load.call(this, logKey, index + 1),
             ),
         );
         return {
@@ -215,7 +215,7 @@ class LogStructure extends DataTypeBase {
             ),
             allow_event_details: inputLogStructure.allowEventDetails,
             keys: JSON.stringify(inputLogStructure.logKeys.map(
-                (logKey) => LogStructureKey.save.call(this, logKey),
+                (logKey) => LogKey.save.call(this, logKey),
             )),
             title_template: RichTextUtils.serialize(
                 inputLogStructure.titleTemplate,
@@ -352,7 +352,7 @@ class LogStructure extends DataTypeBase {
     }
 }
 
-LogStructure.Key = LogStructureKey;
+LogStructure.Key = LogKey;
 LogStructure.Frequency = LogStructureFrequency;
 LogStructure.LogLevel = LogLevel;
 

@@ -23,7 +23,7 @@ const LogTopic = PropTypes.shape({
     name: PropTypes.string.isRequired,
 });
 
-const LogStructureKey = PropTypes.shape({
+const LogKey = PropTypes.shape({
     name: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     isOptional: PropTypes.bool,
@@ -38,7 +38,7 @@ const LogStructureGroup = PropTypes.shape({
 const LogStructure = PropTypes.shape({
     __id__: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    logKeys: PropTypes.arrayOf(LogStructureKey.isRequired).isRequired,
+    logKeys: PropTypes.arrayOf(LogKey.isRequired).isRequired,
 });
 
 const LogEvent = PropTypes.shape({
@@ -58,7 +58,7 @@ PropTypes.Custom = {
     Item,
     LogTopic,
     LogStructureGroup,
-    LogStructureKey,
+    LogKey,
     LogStructure,
     LogEvent,
     Plugins,

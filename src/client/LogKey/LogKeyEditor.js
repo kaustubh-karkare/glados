@@ -2,15 +2,26 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 
-import { LogStructure } from '../../common/data_types';
+import { LogKey } from '../../common/data_types';
 import {
     Selector, TextEditor, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
-import LogStructureValueEditor from './LogStructureValueEditor';
+import LogStructureValueEditor from './LogValueEditor';
 
-class LogStructureKeyEditor extends React.Component {
+class LogKeyEditor extends React.Component {
+    static getDerivedStateFromProps(props) {
+        return {
+            logKey: props.logKeys[props.index],
+        };
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
     update(methodOrName, maybeValue) {
-        const logKey = { ...this.props.logKey };
+        const logKey = { ...this.state.logKey };
         if (typeof methodOrName === 'function') {
             methodOrName(logKey);
         } else {
@@ -20,17 +31,17 @@ class LogStructureKeyEditor extends React.Component {
     }
 
     updateType(newType) {
-        const logKey = { ...this.props.logKey };
+        const logKey = { ...this.state.logKey };
         logKey.type = newType;
-        logKey.value = LogStructure.Key.Type[newType].default;
+        logKey.value = LogKey.Type[newType].default;
         this.props.onChange(logKey);
     }
 
     renderTypeSelector() {
         return (
             <Selector
-                value={this.props.logKey.type}
-                options={LogStructure.Key.Type.Options}
+                value={this.state.logKey.type}
+                options={LogKey.Type.Options}
                 disabled={this.props.disabled}
                 onChange={(type) => this.updateType(type)}
                 style={{ borderRight: '2px solid transparent' }}
@@ -42,7 +53,7 @@ class LogStructureKeyEditor extends React.Component {
         return (
             <TextInput
                 placeholder="Key Name"
-                value={this.props.logKey.name}
+                value={this.state.logKey.name}
                 disabled={this.props.disabled}
                 onChange={(name) => this.update('name', name)}
             />
@@ -54,7 +65,7 @@ class LogStructureKeyEditor extends React.Component {
             <TypeaheadSelector
                 id="log-structure-key-editor-parent-topic"
                 options={TypeaheadOptions.getFromTypes(['log-topic'])}
-                value={this.props.logKey.parentLogTopic}
+                value={this.state.logKey.parentLogTopic}
                 disabled={this.props.disabled}
                 onChange={(parentLogTopic) => this.update('parentLogTopic', parentLogTopic)}
                 placeholder="Parent Topic"
@@ -65,7 +76,7 @@ class LogStructureKeyEditor extends React.Component {
     renderOptionalSelector() {
         return (
             <Selector.Binary
-                value={this.props.logKey.isOptional}
+                value={this.state.logKey.isOptional}
                 disabled={this.props.disabled}
                 onChange={(isOptional) => this.update('isOptional', isOptional)}
                 yesLabel="Optional"
@@ -76,12 +87,12 @@ class LogStructureKeyEditor extends React.Component {
     }
 
     renderValue() {
-        if (this.props.logKey.isOptional) {
+        if (this.state.logKey.isOptional) {
             return null;
         }
         return (
             <LogStructureValueEditor
-                logKey={this.props.logKey}
+                logKey={this.state.logKey}
                 disabled={this.props.disabled}
                 onChange={this.props.onChange}
                 onSearch={(query) => Promise.resolve([])}
@@ -93,9 +104,9 @@ class LogStructureKeyEditor extends React.Component {
         return (
             <TextEditor
                 isSingleLine
-                value={this.props.logKey.template}
+                value={this.state.logKey.template}
                 options={new TypeaheadOptions({
-                    prefixOptions: this.props.logStructure.logKeys.slice(0, this.props.index),
+                    prefixOptions: this.props.logKeys.slice(0, this.props.index),
                     serverSideOptions: [],
                 })}
                 disabled={this.props.disabled}
@@ -105,7 +116,7 @@ class LogStructureKeyEditor extends React.Component {
     }
 
     renderEnumValuesSelector() {
-        const { logKey } = this.props;
+        const { logKey } = this.state;
         return (
             <TypeaheadSelector
                 id="log-structure-key-editor-enum-values"
@@ -144,7 +155,7 @@ class LogStructureKeyEditor extends React.Component {
                     </InputGroup.Text>
                     {this.renderTypeSelector()}
                     {this.renderNameInput()}
-                    {this.props.logKey.type === LogStructure.Key.Type.LOG_TOPIC
+                    {this.state.logKey.type === LogKey.Type.LOG_TOPIC
                         ? this.renderParentLogTopic() : null}
                     {this.renderOptionalSelector()}
                     {this.renderValue()}
@@ -156,20 +167,19 @@ class LogStructureKeyEditor extends React.Component {
                     </InputGroup.Text>
                     {this.renderKeyTemplate()}
                 </InputGroup>
-                {this.props.logKey.type === LogStructure.Key.Type.ENUM
+                {this.state.logKey.type === LogKey.Type.ENUM
                     ? this.renderEnumValuesSection() : null}
             </div>
         );
     }
 }
 
-LogStructureKeyEditor.propTypes = {
-    logStructure: PropTypes.Custom.LogStructure.isRequired,
+LogKeyEditor.propTypes = {
+    logKeys: PropTypes.arrayOf(PropTypes.Custom.LogKey.isRequired).isRequired,
     index: PropTypes.number.isRequired,
-    logKey: PropTypes.Custom.LogStructureKey.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
     onSearch: PropTypes.func.isRequired,
 };
 
-export default LogStructureKeyEditor;
+export default LogKeyEditor;

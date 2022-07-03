@@ -1,11 +1,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
+import { MdAddCircleOutline } from 'react-icons/md';
 
-import { LogTopic } from '../../common/data_types';
+import { LogKey, LogTopic } from '../../common/data_types';
 import {
     Selector, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
+import { LogKeyListEditor, LogValueEditor } from '../LogKey';
 
 class LogTopicEditor extends React.Component {
     constructor(props) {
@@ -17,9 +20,13 @@ class LogTopicEditor extends React.Component {
         this.nameRef.current.focus();
     }
 
-    updateLogTopic(name, value) {
+    updateLogTopic(methodOrName, maybeValue) {
         const updatedLogTopic = { ...this.props.logTopic };
-        updatedLogTopic[name] = value;
+        if (typeof methodOrName === 'function') {
+            methodOrName(updatedLogTopic);
+        } else {
+            updatedLogTopic[methodOrName] = maybeValue;
+        }
         LogTopic.trigger(updatedLogTopic);
         this.props.onChange(updatedLogTopic);
     }
@@ -76,15 +83,100 @@ class LogTopicEditor extends React.Component {
         );
     }
 
+    renderValues() {
+        const { childKeys } = this.props.logTopic.parentLogTopic;
+        if (!childKeys) {
+            return null;
+        }
+        return childKeys.map((logKey, index) => (
+            <InputGroup className="my-1" key={logKey.__id__}>
+                <InputGroup.Text>
+                    {logKey.name}
+                </InputGroup.Text>
+                <LogValueEditor
+                    logKey={logKey}
+                    disabled={this.props.disabled}
+                    onChange={(updatedLogKey) => this.updateLogTopic((updatedLogTopic) => {
+                        updatedLogTopic.parentLogTopic.childKeys[index] = updatedLogKey;
+                    })}
+                    onSearch={(query) => window.api.send('value-typeahead', {
+                        logStructure: this.props.logTopic,
+                        query,
+                        index,
+                    })}
+                    ref={index === 0 ? this.valueRef : null}
+                />
+            </InputGroup>
+        ));
+    }
+
+    renderChildKeys() {
+        const { childKeys } = this.props.logTopic;
+        let button;
+        let logKeyList;
+        if (childKeys) {
+            button = (
+                <Button
+                    className="log-topic-add-key"
+                    disabled={this.props.disabled}
+                    onClick={() => this.updateLogTopic(
+                        'childKeys',
+                        [...childKeys, LogKey.createVirtual()],
+                    )}
+                    style={{ height: 'inherit' }}
+                >
+                    <MdAddCircleOutline />
+                </Button>
+            );
+            logKeyList = (
+                <LogKeyListEditor
+                    logKeys={this.props.logTopic.childKeys || []}
+                    disabled={this.props.disabled}
+                    onChange={(newChildKeys) => this.updateLogTopic('childKeys', newChildKeys)}
+                    onSearch={(query, index) => { throw new Error('not implemented'); }}
+                />
+            );
+        }
+        return (
+            <>
+                <InputGroup className="my-1">
+                    <InputGroup.Text>
+                        Enable Child Keys?
+                    </InputGroup.Text>
+                    <Selector.Binary
+                        value={!!childKeys}
+                        disabled={this.props.disabled}
+                        onChange={(enableChildKeys) => this.updateLogTopic((updatedLogTopic) => {
+                            if (!enableChildKeys) {
+                                updatedLogTopic._childKeys = childKeys;
+                                updatedLogTopic.childKeys = null;
+                            } else {
+                                updatedLogTopic.childKeys = updatedLogTopic._childKeys || [];
+                            }
+                        })}
+                    />
+                    {button}
+                </InputGroup>
+                {logKeyList}
+            </>
+        );
+    }
+
     render() {
         return (
             <>
                 <div className="my-3">
                     {this.renderParent()}
+                    {this.renderValues()}
+                </div>
+                <div className="my-3">
                     {this.renderName()}
                 </div>
                 <div className="my-3">
                     {this.renderIsDeprecated()}
+                </div>
+                <div className="my-3">
+                    {this.renderChildKeys()}
                 </div>
             </>
         );
