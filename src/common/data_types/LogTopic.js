@@ -29,6 +29,21 @@ class LogTopic extends DataTypeBase {
         });
     }
 
+    static trigger(inputLogTopic) {
+        if (inputLogTopic.parentLogTopic && inputLogTopic.parentLogTopic.childNameTemplate) {
+            const { childKeys } = inputLogTopic.parentLogTopic;
+            inputLogTopic.name = RichTextUtils.extractPlainText(
+                RichTextUtils.updateDraftContent(
+                    inputLogTopic.parentLogTopic.childNameTemplate,
+                    childKeys,
+                    childKeys.map((logKey) => logKey.value || (logKey.isOptional ? '' : logKey)),
+                    true, // evaluateExpressions
+                ),
+            );
+        }
+        // Do nothing by default.
+    }
+
     static extractLogTopics(inputLogTopic) {
         let logTopics = RichTextUtils.extractMentions(inputLogTopic.details, 'log-topic');
         if (inputLogTopic.parentLogTopic && inputLogTopic.parentLogTopic.childKeys) {
@@ -98,6 +113,10 @@ class LogTopic extends DataTypeBase {
                 __id__: parentLogTopic.id,
                 name: parentLogTopic.name,
                 childKeys: outputParentChildKeys,
+                childNameTemplate: RichTextUtils.deserialize(
+                    parentLogTopic.child_name_template,
+                    RichTextUtils.StorageType.DRAFTJS,
+                ),
             };
         }
         let outputChildKeys = null;

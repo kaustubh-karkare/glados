@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { MdAddCircleOutline } from 'react-icons/md';
 
-import { LogKey, LogTopic } from '../../common/data_types';
+import { LogTopic } from '../../common/data_types';
 import {
     Selector, TextInput, TypeaheadOptions, TypeaheadSelector,
 } from '../Common';
@@ -53,6 +51,8 @@ class LogTopicEditor extends React.Component {
     }
 
     renderName() {
+        const { parentLogTopic } = this.props.logTopic;
+        const isNameDerived = parentLogTopic ? parentLogTopic.childNameTemplate !== null : false;
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
@@ -60,7 +60,7 @@ class LogTopicEditor extends React.Component {
                 </InputGroup.Text>
                 <TextInput
                     value={this.props.logTopic.name}
-                    disabled={this.props.disabled}
+                    disabled={this.props.disabled || isNameDerived}
                     onChange={(name) => this.updateLogTopic('name', name)}
                     ref={this.nameRef}
                 />
@@ -101,29 +101,22 @@ class LogTopicEditor extends React.Component {
     }
 
     renderChildKeys() {
-        const { childKeys } = this.props.logTopic;
-        let button;
+        const { logTopic } = this.props;
         let logKeyList;
-        if (childKeys) {
-            button = (
-                <Button
-                    className="log-topic-add-key"
-                    disabled={this.props.disabled}
-                    onClick={() => this.updateLogTopic(
-                        'childKeys',
-                        [...childKeys, LogKey.createVirtual()],
-                    )}
-                    style={{ height: 'inherit' }}
-                >
-                    <MdAddCircleOutline />
-                </Button>
-            );
+        if (logTopic.childKeys) {
             logKeyList = (
                 <LogKeyListEditor
-                    logKeys={this.props.logTopic.childKeys || []}
+                    templateLabel="Child Name Template"
+                    templateValue={logTopic.childNameTemplate}
+                    templateOptions={new TypeaheadOptions({
+                        prefixOptions: logTopic.childKeys,
+                        serverSideOptions: [],
+                    })}
+                    onTemplateChange={(childNameTemplate) => this.updateLogTopic('childNameTemplate', childNameTemplate)}
+                    logKeys={logTopic.childKeys || []}
+                    onLogKeysChange={(newChildKeys) => this.updateLogTopic('childKeys', newChildKeys)}
+                    onValueSearch={(query, index) => { throw new Error('not implemented'); }}
                     disabled={this.props.disabled}
-                    onChange={(newChildKeys) => this.updateLogTopic('childKeys', newChildKeys)}
-                    onSearch={(query, index) => { throw new Error('not implemented'); }}
                 />
             );
         }
@@ -134,18 +127,17 @@ class LogTopicEditor extends React.Component {
                         Enable Child Keys?
                     </InputGroup.Text>
                     <Selector.Binary
-                        value={!!childKeys}
+                        value={!!logTopic.childKeys}
                         disabled={this.props.disabled}
                         onChange={(enableChildKeys) => this.updateLogTopic((updatedLogTopic) => {
                             if (!enableChildKeys) {
-                                updatedLogTopic._childKeys = childKeys;
+                                updatedLogTopic._childKeys = updatedLogTopic.childKeys;
                                 updatedLogTopic.childKeys = null;
                             } else {
                                 updatedLogTopic.childKeys = updatedLogTopic._childKeys || [];
                             }
                         })}
                     />
-                    {button}
                 </InputGroup>
                 {logKeyList}
             </>
