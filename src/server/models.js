@@ -80,7 +80,11 @@ export function getDataModels(sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: true,
             },
-            values: {
+            child_name_template: {
+                type: Sequelize.TEXT,
+                allowNull: true,
+            },
+            parent_values: {
                 type: Sequelize.TEXT,
                 allowNull: true,
             },
@@ -183,20 +187,20 @@ export function getDataModels(sequelize) {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            allow_event_details: {
+            // Should this structure have key-value-pairs?
+            event_keys: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            event_title_template: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            event_needs_edit: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },
-            // Should this structure have key-value-pairs?
-            keys: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-            title_template: {
-                type: Sequelize.TEXT,
-                allowNull: false,
-            },
-            needs_edit: {
+            event_allow_details: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
             },

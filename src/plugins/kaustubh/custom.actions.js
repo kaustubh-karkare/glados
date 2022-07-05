@@ -274,4 +274,85 @@ ActionsRegistry['add-structure-to-events'] = async function () {
     }));
 };
 
+ActionsRegistry['convert-structure-to-topics'] = async function (data) {
+    // Create topics for events with "Movie" structures.
+    let last_topic_id = Math.max(...data.log_topics.map((log_topic) => log_topic.id));
+    last_topic_id += 1;
+    const movies_topic_id = last_topic_id;
+    data.log_topics.push({
+        id: last_topic_id,
+        parent_topic_id: 458,
+        ordering_index: 24,
+        name: 'Movies',
+        details: '',
+        child_count: 0,
+        is_favorite: 0,
+        is_deprecated: 0,
+        child_keys: JSON.stringify([
+            { name: 'Name', type: 'string', is_optional: true },
+            { name: 'IMDB Link', type: 'string', is_optional: true },
+            { name: 'Stream Link', type: 'string', is_optional: true },
+            { name: 'Worthwhile?', type: 'yes_or_no' },
+        ]),
+        parent_values: null,
+    });
+    data.log_structures.forEach((log_structure) => {
+        if (log_structure.id === 41) {
+            log_structure.event_keys = JSON.stringify([
+                { name: 'Movie', type: 'log_topic', parent_topic_id: movies_topic_id },
+            ]);
+        }
+    });
+    const nameToTopicId = {};
+    data.log_events.forEach((log_event) => {
+        if (log_event.structure_id === 41) {
+            const structure_values = JSON.parse(log_event.structure_values);
+            const topicName = structure_values[0];
+            let topic_id;
+            if (topicName in nameToTopicId) {
+                topic_id = nameToTopicId[topicName];
+            } else {
+                last_topic_id += 1;
+                data.log_topics.push({
+                    id: last_topic_id,
+                    parent_topic_id: movies_topic_id,
+                    ordering_index: 0,
+                    name: topicName,
+                    details: log_event.details,
+                    child_count: 0,
+                    is_favorite: 0,
+                    is_deprecated: 0,
+                    child_keys: null,
+                    parent_values: JSON.stringify([
+                        topicName,
+                        structure_values[1],
+                        null,
+                        structure_values[2],
+                    ]),
+                });
+                log_event.details = '';
+                topic_id = last_topic_id;
+            }
+            log_event.structure_values = JSON.stringify([
+                {
+                    __type__: 'log-topic',
+                    __id__: topic_id,
+                    name: topicName,
+                },
+            ]);
+        }
+    });
+
+    const nameToCount = {};
+    data.log_topics.forEach((log_topic) => {
+        if (log_topic.name in nameToCount) {
+            nameToCount[log_topic.name] += 1;
+        } else {
+            nameToCount[log_topic.name] = 1;
+        }
+    });
+
+    return { data };
+};
+
 export default ActionsRegistry;

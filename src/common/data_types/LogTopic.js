@@ -88,9 +88,9 @@ class LogTopic extends DataTypeBase {
                         (logKey, index) => LogKey.load.call(this, logKey, index + 1),
                     ),
                 );
-                const values = JSON.parse(logTopic.values);
+                const parentValues = JSON.parse(logTopic.parent_values);
                 outputParentChildKeys.forEach((logKey, index) => {
-                    logKey.value = values[index] || null;
+                    logKey.value = parentValues[index] || null;
                 });
             }
             outputParentLogTopic = {
@@ -118,6 +118,10 @@ class LogTopic extends DataTypeBase {
                 RichTextUtils.StorageType.DRAFTJS,
             ),
             childKeys: outputChildKeys,
+            childNameTemplate: RichTextUtils.deserialize(
+                logTopic.child_name_template,
+                RichTextUtils.StorageType.DRAFTJS,
+            ),
             childCount: logTopic.child_count,
             isFavorite: logTopic.is_favorite,
             isDeprecated: logTopic.is_deprecated,
@@ -141,9 +145,11 @@ class LogTopic extends DataTypeBase {
                 (logKey) => LogKey.save.call(this, logKey),
             );
         }
-        let values;
+        let parentValues;
         if (inputLogTopic.parentLogTopic && inputLogTopic.parentLogTopic.childKeys) {
-            values = inputLogTopic.parentLogTopic.childKeys.map((logKey) => logKey.value || null);
+            parentValues = inputLogTopic.parentLogTopic.childKeys.map(
+                (logKey) => logKey.value || null,
+            );
         }
         const updated = {
             parent_topic_id: inputLogTopic.parentLogTopic
@@ -156,7 +162,11 @@ class LogTopic extends DataTypeBase {
                 RichTextUtils.StorageType.DRAFTJS,
             ),
             child_keys: childKeys ? JSON.stringify(childKeys) : null,
-            values: values ? JSON.stringify(values) : null,
+            child_name_template: RichTextUtils.serialize(
+                inputLogTopic.childNameTemplate,
+                RichTextUtils.StorageType.DRAFTJS,
+            ),
+            parent_values: parentValues ? JSON.stringify(parentValues) : null,
             child_count: 'invalid', // will be set below
             is_favorite: inputLogTopic.isFavorite,
             is_deprecated: inputLogTopic.isDeprecated,

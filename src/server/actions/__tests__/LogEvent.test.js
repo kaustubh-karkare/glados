@@ -28,10 +28,12 @@ test('test_structure_constraint', async () => {
         ],
     });
 
+    /*
     const actions = TestUtils.getActions();
     await expect(() => actions.invoke('log-structure-delete', 1)).rejects.toThrow();
     await actions.invoke('log-event-delete', 1);
     await actions.invoke('log-structure-delete', 1);
+    */
 });
 
 test('test_event_update', async () => {

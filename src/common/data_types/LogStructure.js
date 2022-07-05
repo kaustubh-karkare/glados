@@ -157,7 +157,7 @@ class LogStructure extends DataTypeBase {
             { __id__: logStructure.group_id },
         );
         const eventKeys = await Promise.all(
-            JSON.parse(logStructure.keys).map(
+            JSON.parse(logStructure.event_keys).map(
                 (eventKey, index) => LogKey.load.call(this, eventKey, index + 1),
             ),
         );
@@ -170,13 +170,13 @@ class LogStructure extends DataTypeBase {
                 logStructure.details,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            allowEventDetails: logStructure.allow_event_details,
+            allowEventDetails: logStructure.event_allow_details,
             eventKeys,
             titleTemplate: RichTextUtils.deserialize(
-                logStructure.title_template,
+                logStructure.event_title_template,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            needsEdit: logStructure.needs_edit,
+            needsEdit: logStructure.event_needs_edit,
             isPeriodic: logStructure.is_periodic,
             reminderText: logStructure.reminder_text,
             frequency: logStructure.frequency,
@@ -209,15 +209,15 @@ class LogStructure extends DataTypeBase {
                 inputLogStructure.details,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            allow_event_details: inputLogStructure.allowEventDetails,
-            keys: JSON.stringify(inputLogStructure.eventKeys.map(
+            event_allow_details: inputLogStructure.allowEventDetails,
+            event_keys: JSON.stringify(inputLogStructure.eventKeys.map(
                 (eventKey) => LogKey.save.call(this, eventKey),
             )),
-            title_template: RichTextUtils.serialize(
+            event_title_template: RichTextUtils.serialize(
                 inputLogStructure.titleTemplate,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            needs_edit: inputLogStructure.needsEdit,
+            event_needs_edit: inputLogStructure.needsEdit,
             is_periodic: inputLogStructure.isPeriodic,
             reminder_text: inputLogStructure.reminderText,
             frequency: inputLogStructure.frequency,
@@ -237,12 +237,12 @@ class LogStructure extends DataTypeBase {
             if (!shouldRegenerateLogEvents) {
                 shouldRegenerateLogEvents = (
                     originalLogStructure.name !== updated.name
-                    || originalLogStructure.keys !== updated.keys
+                    || originalLogStructure.event_keys !== updated.event_keys
                 );
             }
             if (!shouldRegenerateLogEvents) {
                 const originalTitleTemplate = RichTextUtils.deserialize(
-                    originalLogStructure.title_template,
+                    originalLogStructure.event_title_template,
                     RichTextUtils.StorageType.DRAFTJS,
                 );
                 shouldRegenerateLogEvents = !RichTextUtils.equals(
@@ -300,7 +300,7 @@ class LogStructure extends DataTypeBase {
             );
             const transaction = this.database.getTransaction();
             const fields2 = {
-                title_template: RichTextUtils.serialize(
+                event_title_template: RichTextUtils.serialize(
                     updatedTitleTemplate,
                     RichTextUtils.StorageType.DRAFTJS,
                 ),
