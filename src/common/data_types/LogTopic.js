@@ -392,6 +392,22 @@ class LogTopic extends DataTypeBase {
         );
         return { __id__: logTopic.id };
     }
+
+    static async sort(input) {
+        const items = await this.database.findAll(
+            this.DataType.name,
+            input.where,
+            [['name', 'ASC']],
+            null, // limit
+        );
+        await Promise.all(items.map(
+            (item, index) => this.database.update(
+                this.DataType.name,
+                { id: item.id, ordering_index: index },
+            ),
+        ));
+        this.broadcast(`${input.dataType}-list`, { where: input.where });
+    }
 }
 
 export default LogTopic;

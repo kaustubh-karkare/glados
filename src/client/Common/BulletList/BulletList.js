@@ -79,6 +79,14 @@ class BulletList extends React.Component {
         BulletListItem.prototype.onEdit.call(context, event);
     }
 
+    onSortButtonClick(event) {
+        const input = {
+            dataType: this.props.dataType,
+            where: this.props.where,
+        };
+        window.api.send(`${this.props.dataType}-sort`, input);
+    }
+
     onMove(index, delta, event) {
         if (!event.shiftKey) return;
         const otherIndex = index + delta;
@@ -167,6 +175,9 @@ class BulletList extends React.Component {
                     onAddButtonClick={this.props.allowCreation
                         ? (event) => this.onAddButtonClick(event)
                         : null}
+                    onSortButtonClick={this.props.allowSorting
+                        ? (event) => this.onSortButtonClick(event)
+                        : null}
                 />
                 <BulletListPager
                     batchSize={this.state.pageSize}
@@ -195,6 +206,7 @@ BulletList.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     where: PropTypes.object,
     allowCreation: PropTypes.bool,
+    allowSorting: PropTypes.bool,
     allowReordering: PropTypes.bool,
     ViewerComponent: PropTypes.func.isRequired,
     // eslint-disable-next-line react/forbid-prop-types

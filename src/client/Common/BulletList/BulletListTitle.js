@@ -55,6 +55,22 @@ class BulletListTitle extends React.Component {
         );
     }
 
+    renderSortButton() {
+        if (!this.props.onSortButtonClick) {
+            return null;
+        }
+        // TODO: Use a proper icon to indicate sorting.
+        // Was on a flight (no internet access) when I added this feature.
+        return (
+            <BulletListIcon
+                title="Sort"
+                onClick={this.props.onSortButtonClick}
+            >
+                <MdAddCircleOutline />
+            </BulletListIcon>
+        );
+    }
+
     render() {
         return (
             <Highlightable
@@ -66,6 +82,7 @@ class BulletListTitle extends React.Component {
                     <div>{this.props.name}</div>
                     {this.state.isHighlighted ? this.renderListToggleButton() : null}
                     {this.state.isHighlighted ? this.renderAddButton() : null}
+                    {this.state.isHighlighted ? this.renderSortButton() : null}
                 </InputGroup>
             </Highlightable>
         );
@@ -77,6 +94,7 @@ BulletListTitle.propTypes = {
     areAllExpanded: PropTypes.bool.isRequired,
     onToggleButtonClick: PropTypes.func.isRequired,
     onAddButtonClick: PropTypes.func,
+    onSortButtonClick: PropTypes.func,
 };
 
 export default BulletListTitle;

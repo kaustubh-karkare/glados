@@ -41,6 +41,7 @@ function LogTopicList(props) {
             ViewerComponent={LogTopicViewer}
             EditorComponent={LogTopicEditor}
             allowReordering
+            allowSorting
             {...props}
         />
     );

@@ -34,6 +34,11 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         const context = { ...this, DataType };
         return DataType.reorder.call(context, input);
     };
+    ActionsRegistry[`${name}-sort`] = async function (input) {
+        const context = { ...this, DataType };
+        await DataType.updateWhere.call(context, input.where);
+        return DataType.sort.call(context, input);
+    };
     ActionsRegistry[`${name}-upsert`] = async function (input) {
         const context = { ...this, DataType };
         if (DataType.trigger) {
