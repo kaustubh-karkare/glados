@@ -72,31 +72,31 @@ class LogStructureEditor extends React.Component {
         );
     }
 
-    renderNeedsEditSelector() {
+    renderEventNeedsEditSelector() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Needs Edit?
                 </InputGroup.Text>
                 <Selector.Binary
-                    value={this.props.logStructure.needsEdit}
+                    value={this.props.logStructure.eventNeedsEdit}
                     disabled={this.props.disabled}
-                    onChange={(needsEdit) => this.updateLogStructure('needsEdit', needsEdit)}
+                    onChange={(eventNeedsEdit) => this.updateLogStructure('eventNeedsEdit', eventNeedsEdit)}
                 />
             </InputGroup>
         );
     }
 
-    renderAllowEventDetailsSelector() {
+    renderEventAllowDetailsSelector() {
         return (
             <InputGroup className="my-1">
                 <InputGroup.Text>
                     Event Details?
                 </InputGroup.Text>
                 <Selector.Binary
-                    value={this.props.logStructure.allowEventDetails}
+                    value={this.props.logStructure.eventAllowDetails}
                     disabled={this.props.disabled}
-                    onChange={(allowEventDetails) => this.updateLogStructure('allowEventDetails', allowEventDetails)}
+                    onChange={(eventAllowDetails) => this.updateLogStructure('eventAllowDetails', eventAllowDetails)}
                 />
             </InputGroup>
         );
@@ -151,20 +151,13 @@ class LogStructureEditor extends React.Component {
                                 ...logStructure.eventKeys,
                             ],
                             serverSideOptions: [
-                                { name: 'log-topic' },
-                                { name: 'log-structure' },
                             ],
                         })}
                         onTemplateChange={
                             (eventTitleTemplate) => this.updateLogStructure('eventTitleTemplate', eventTitleTemplate)
                         }
                         logKeys={logStructure.eventKeys}
-                        onLogKeysChange={(eventKeys) => {
-                            this.updateLogStructure((updatedLogStructure) => {
-                                // eslint-disable-next-line no-param-reassign
-                                updatedLogStructure.eventKeys = eventKeys;
-                            });
-                        }}
+                        onLogKeysChange={(eventKeys) => this.updateLogStructure('eventKeys', eventKeys)}
                         onValueSearch={(query, index) => window.api.send('value-typeahead', {
                             logStructure: this.props.logStructure,
                             query,
@@ -172,8 +165,8 @@ class LogStructureEditor extends React.Component {
                         })}
                         disabled={this.props.disabled}
                     />
-                    {this.renderNeedsEditSelector()}
-                    {this.renderAllowEventDetailsSelector()}
+                    {this.renderEventNeedsEditSelector()}
+                    {this.renderEventAllowDetailsSelector()}
                 </div>
                 <div className="my-3">
                     <LogStructureFrequencyEditor

@@ -101,8 +101,8 @@ class LogEventEditor extends React.Component {
 
     renderDetails() {
         const { logEvent } = this.props;
-        const allowEventDetails = logEvent.logStructure
-            ? logEvent.logStructure.allowEventDetails
+        const eventAllowDetails = logEvent.logStructure
+            ? logEvent.logStructure.eventAllowDetails
             : true;
         return (
             <InputGroup className="my-1">
@@ -112,7 +112,7 @@ class LogEventEditor extends React.Component {
                 <TextEditor
                     value={logEvent.details}
                     options={TypeaheadOptions.getFromTypes(['log-topic'])}
-                    disabled={this.props.disabled || !allowEventDetails}
+                    disabled={this.props.disabled || !eventAllowDetails}
                     onChange={(details) => this.updateLogEvent('details', details)}
                     ref={this.detailsRef}
                 />

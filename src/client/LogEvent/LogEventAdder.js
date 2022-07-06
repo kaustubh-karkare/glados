@@ -45,7 +45,7 @@ class LogEventAdder extends React.Component {
                 logStructure,
             });
             LogEvent.trigger(updatedLogEvent);
-            if (logStructure.needsEdit) {
+            if (logStructure.eventNeedsEdit) {
                 this.onEditLogEvent(updatedLogEvent);
             } else {
                 this.onSaveLogEvent(updatedLogEvent);

@@ -83,7 +83,7 @@ export default class TestUtils {
             inputLogStructure.logStructureGroup = logStructureGroupMap[inputLogStructure.groupName];
             delete inputLogStructure.groupName;
             inputLogStructure.details = '';
-            inputLogStructure.allowEventDetails = true;
+            inputLogStructure.eventAllowDetails = true;
             if (inputLogStructure.eventKeys) {
                 inputLogStructure.eventKeys.forEach((logKey, index) => {
                     logKey.__type__ = 'log-structure-key';
@@ -96,11 +96,11 @@ export default class TestUtils {
             } else {
                 inputLogStructure.eventKeys = [];
             }
-            inputLogStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent(
-                inputLogStructure.titleTemplate || '$0',
+            inputLogStructure.eventTitleTemplate = RichTextUtils.convertPlainTextToDraftContent(
+                inputLogStructure.eventTitleTemplate || '$0',
                 { $: [inputLogStructure, ...inputLogStructure.eventKeys] },
             );
-            inputLogStructure.needsEdit = inputLogStructure.needsEdit || false;
+            inputLogStructure.eventNeedsEdit = inputLogStructure.eventNeedsEdit || false;
             inputLogStructure.isFavorite = false;
             inputLogStructure.isDeprecated = false;
 

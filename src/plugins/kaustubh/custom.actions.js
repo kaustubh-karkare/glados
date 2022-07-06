@@ -36,8 +36,8 @@ ActionsRegistry['check-consistency'] = async function () {
         const logStructures = await this.invoke.call(this, 'log-structure-list');
         await asyncSequence(logStructures, async (logStructure) => {
             try {
-                logStructure.titleTemplate = RichTextUtils.updateDraftContent(
-                    logStructure.titleTemplate, logTopicItems,
+                logStructure.eventTitleTemplate = RichTextUtils.updateDraftContent(
+                    logStructure.eventTitleTemplate, logTopicItems,
                 );
                 // TODO: Update topics in keys too.
                 await this.invoke.call(this, 'log-structure-upsert', logStructure);
@@ -99,7 +99,8 @@ ActionsRegistry['fix-birthdays-anniversaries'] = async function () {
                         isPeriodic: true,
                         frequency: 'yearly',
                         frequencyArgs: nameRegexResult[1],
-                        reminderText: RichTextUtils.extractPlainText(logStructure.titleTemplate),
+                        reminderText:
+                            RichTextUtils.extractPlainText(logStructure.eventTitleTemplate),
                         warningDays: 2,
                     };
                     let needsUpdate = false;
@@ -275,47 +276,49 @@ ActionsRegistry['add-structure-to-events'] = async function () {
 };
 
 ActionsRegistry['convert-structure-to-topics'] = async function (data) {
-    // Create topics for events with "Movie" structures.
+    const collections_container_topic_id = 458;
+    const original_structure_id = 87;
+
+    const original_structure = data.log_structures.find(
+        (log_structure) => log_structure.id === original_structure_id,
+    );
+
+    // Create replacement topic.
     let last_topic_id = Math.max(...data.log_topics.map((log_topic) => log_topic.id));
     last_topic_id += 1;
-    const movies_topic_id = last_topic_id;
+    const collection_topic_id = last_topic_id;
     data.log_topics.push({
         id: last_topic_id,
-        parent_topic_id: 458,
+        parent_topic_id: collections_container_topic_id,
         ordering_index: 24,
-        name: 'Movies',
+        name: `${original_structure.name}s`,
         details: '',
         child_count: 0,
         is_favorite: 0,
         is_deprecated: 0,
-        child_keys: JSON.stringify([
-            { name: 'Name', type: 'string', is_optional: true },
-            { name: 'IMDB Link', type: 'string', is_optional: true },
-            { name: 'Stream Link', type: 'string', is_optional: true },
-            { name: 'Worthwhile?', type: 'yes_or_no' },
-        ]),
+        child_keys: original_structure.event_keys,
         parent_values: null,
     });
-    data.log_structures.forEach((log_structure) => {
-        if (log_structure.id === 41) {
-            log_structure.event_keys = JSON.stringify([
-                { name: 'Movie', type: 'log_topic', parent_topic_id: movies_topic_id },
-            ]);
-        }
-    });
+
+    // Modify existing structure to point to topic.
+    original_structure.event_keys = JSON.stringify([
+        { name: 'Name', type: 'log_topic', parent_topic_id: collection_topic_id },
+    ]);
+
+    // Update all events to use topic.
     const nameToTopicId = {};
     data.log_events.forEach((log_event) => {
-        if (log_event.structure_id === 41) {
-            const structure_values = JSON.parse(log_event.structure_values);
-            const topicName = structure_values[0];
+        if (log_event.structure_id === original_structure_id) {
+            const topicName = JSON.parse(log_event.structure_values)[0];
             let topic_id;
             if (topicName in nameToTopicId) {
                 topic_id = nameToTopicId[topicName];
             } else {
                 last_topic_id += 1;
+                topic_id = last_topic_id;
                 data.log_topics.push({
                     id: last_topic_id,
-                    parent_topic_id: movies_topic_id,
+                    parent_topic_id: collection_topic_id,
                     ordering_index: 0,
                     name: topicName,
                     details: log_event.details,
@@ -323,15 +326,10 @@ ActionsRegistry['convert-structure-to-topics'] = async function (data) {
                     is_favorite: 0,
                     is_deprecated: 0,
                     child_keys: null,
-                    parent_values: JSON.stringify([
-                        topicName,
-                        structure_values[1],
-                        null,
-                        structure_values[2],
-                    ]),
+                    parent_values: log_event.structure_values,
                 });
                 log_event.details = '';
-                topic_id = last_topic_id;
+                nameToTopicId[topicName] = topic_id;
             }
             log_event.structure_values = JSON.stringify([
                 {
@@ -351,6 +349,7 @@ ActionsRegistry['convert-structure-to-topics'] = async function (data) {
             nameToCount[log_topic.name] = 1;
         }
     });
+    console.info(Object.entries(nameToCount).filter(([key, value]) => value > 1));
 
     return { data };
 };

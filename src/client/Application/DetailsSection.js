@@ -243,7 +243,7 @@ class DetailsSection extends React.Component {
         if (
             item.__type__ === 'log-event'
             && item.logStructure
-            && !item.logStructure.allowEventDetails
+            && !item.logStructure.eventAllowDetails
         ) {
             return <div>(disabled by structure)</div>;
         }

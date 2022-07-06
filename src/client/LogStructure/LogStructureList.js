@@ -13,7 +13,7 @@ function LogStructureViewer(props) {
             <Link logStructure={logStructure}>
                 {logStructure.name}
                 <DetailsIcon isShown={!!logStructure.details} />
-                <InfoIcon isShown={!!logStructure.allowEventDetails} />
+                <InfoIcon isShown={!!logStructure.eventAllowDetails} />
                 <WarningIcon isShown={logStructure.isDeprecated} />
             </Link>
         );
@@ -32,11 +32,11 @@ function LogStructureViewer(props) {
                 <TextEditor
                     unstyled
                     disabled
-                    value={logStructure.titleTemplate}
+                    value={logStructure.eventTitleTemplate}
                     isSingleLine
                 />
                 <DetailsIcon isShown={!!logStructure.details} />
-                <InfoIcon isShown={!!logStructure.allowEventDetails} />
+                <InfoIcon isShown={!!logStructure.eventAllowDetails} />
                 <WarningIcon isShown={logStructure.isDeprecated} />
             </span>
             {suffix}

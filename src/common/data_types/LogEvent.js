@@ -108,7 +108,7 @@ class LogEvent extends DataTypeBase {
                 );
             });
             logEvent.title = RichTextUtils.updateDraftContent(
-                logEvent.logStructure.titleTemplate,
+                logEvent.logStructure.eventTitleTemplate,
                 logEvent.logStructure.eventKeys,
                 logEvent.logStructure.eventKeys.map((logKey) => logKey.value || (logKey.isOptional ? '' : logKey)),
                 true, // evaluateExpressions
@@ -173,8 +173,8 @@ class LogEvent extends DataTypeBase {
             results.push(...logStructureResults);
 
             results.push([
-                '.logStructure.allowEventDetails',
-                inputLogEvent.logStructure.allowEventDetails
+                '.logStructure.eventAllowDetails',
+                inputLogEvent.logStructure.eventAllowDetails
                     ? true
                     : inputLogEvent.details === null,
                 'does not allow .details',

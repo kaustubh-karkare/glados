@@ -19,7 +19,7 @@ test('test_key_updates', async () => {
                     { name: 'Link', type: 'string' },
                     { name: 'Rating', type: 'integer' },
                 ],
-                titleTemplate: '$0: [$1]($2)',
+                eventeventTitleTemplate: '$0: [$1]($2)',
             },
         ],
         logEvents: [
@@ -66,7 +66,7 @@ test('test_structure_deletion', async () => {
             {
                 groupName: 'Misc',
                 name: 'Testingwa',
-                titleTemplate: '$0',
+                eventTitleTemplate: '$0',
             },
         ],
     });
@@ -90,7 +90,7 @@ test('test_structure_title_template_expression', async () => {
                     { name: 'Distance (miles)', type: 'integer' },
                     { name: 'Time (minutes)', type: 'integer' },
                 ],
-                titleTemplate: '$0: $1 miles / $2 minutes',
+                eventTitleTemplate: '$0: $1 miles / $2 minutes',
             },
         ],
         logEvents: [
@@ -121,7 +121,7 @@ test('test_structure_title_template_expression', async () => {
     ]);
 
     const { logStructure } = logEvents[0];
-    logStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent(
+    logStructure.eventTitleTemplate = RichTextUtils.convertPlainTextToDraftContent(
         '$0: $1 miles / $2 minutes ({($1*60/$2).toFixed(2)} mph)',
         { $: [logStructure, ...logStructure.eventKeys] },
     );
@@ -148,7 +148,7 @@ test('test_structure_title_template_link', async () => {
                     { name: 'Title', type: 'string' },
                     { name: 'Link', type: 'string' },
                 ],
-                titleTemplate: '$0: [$1]($2)',
+                eventTitleTemplate: '$0: [$1]($2)',
             },
         ],
         logEvents: [
@@ -183,7 +183,7 @@ test('test_structure_with_topic', async () => {
                     { name: 'Book', type: 'log_topic', parentTopicName: 'Books' },
                     { name: 'Progress', type: 'string' },
                 ],
-                titleTemplate: '$0: $1 ($2)',
+                eventTitleTemplate: '$0: $1 ($2)',
             },
         ],
         logEvents: [

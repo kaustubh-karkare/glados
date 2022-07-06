@@ -46,7 +46,7 @@ test('test_reminder_with_warning', async () => {
             {
                 groupName: 'Birthdays',
                 name: 'My Birthday',
-                titleTemplate: '$0',
+                eventTitleTemplate: '$0',
                 isPeriodic: true,
                 frequency: 'yearly',
                 frequencyArgs: '08-12',

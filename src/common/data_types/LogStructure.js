@@ -37,10 +37,10 @@ class LogStructure extends DataTypeBase {
             logStructureGroup,
             name,
             details: null,
-            allowEventDetails: false,
+            eventAllowDetails: false,
             eventKeys: [],
-            titleTemplate: null,
-            needsEdit: false,
+            eventTitleTemplate: null,
+            eventNeedsEdit: false,
             isPeriodic: false,
             reminderText: null,
             frequency: null,
@@ -67,24 +67,24 @@ class LogStructure extends DataTypeBase {
     static trigger(logStructure) {
         // TODO: If an eventKey is deleted, remove it from the content.
         const options = [getPartialItem(logStructure), ...logStructure.eventKeys];
-        if (logStructure.name && !logStructure.titleTemplate) {
-            logStructure.titleTemplate = RichTextUtils.convertPlainTextToDraftContent('$0', {
+        if (logStructure.name && !logStructure.eventTitleTemplate) {
+            logStructure.eventTitleTemplate = RichTextUtils.convertPlainTextToDraftContent('$0', {
                 $: [logStructure],
             });
         }
-        logStructure.titleTemplate = RichTextUtils.updateDraftContent(
-            logStructure.titleTemplate,
+        logStructure.eventTitleTemplate = RichTextUtils.updateDraftContent(
+            logStructure.eventTitleTemplate,
             options,
             options,
         );
         if (logStructure.eventKeys.length) {
-            logStructure.needsEdit = true;
+            logStructure.eventNeedsEdit = true;
         }
     }
 
     static async updateLogTopicsInTitleTemplateAndDetails(inputLogStructure) {
         const originalLogTopics = Object.values({
-            ...RichTextUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
+            ...RichTextUtils.extractMentions(inputLogStructure.eventTitleTemplate, 'log-topic'),
             ...RichTextUtils.extractMentions(inputLogStructure.details, 'log-topic'),
         });
         const updatedLogTopics = await Promise.all(
@@ -94,8 +94,8 @@ class LogStructure extends DataTypeBase {
                 originalTopic,
             )),
         );
-        inputLogStructure.titleTemplate = RichTextUtils.updateDraftContent(
-            inputLogStructure.titleTemplate,
+        inputLogStructure.eventTitleTemplate = RichTextUtils.updateDraftContent(
+            inputLogStructure.eventTitleTemplate,
             originalLogTopics,
             updatedLogTopics,
         );
@@ -146,9 +146,9 @@ class LogStructure extends DataTypeBase {
         ));
 
         results.push([
-            '.titleTemplate',
+            '.eventTitleTemplate',
             inputLogStructure.__id__ in RichTextUtils.extractMentions(
-                inputLogStructure.titleTemplate,
+                inputLogStructure.eventTitleTemplate,
                 'log-structure',
             ),
             'must mention the structure!',
@@ -194,13 +194,13 @@ class LogStructure extends DataTypeBase {
                 logStructure.details,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            allowEventDetails: logStructure.event_allow_details,
+            eventAllowDetails: logStructure.event_allow_details,
             eventKeys,
-            titleTemplate: RichTextUtils.deserialize(
+            eventTitleTemplate: RichTextUtils.deserialize(
                 logStructure.event_title_template,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            needsEdit: logStructure.event_needs_edit,
+            eventNeedsEdit: logStructure.event_needs_edit,
             isPeriodic: logStructure.is_periodic,
             reminderText: logStructure.reminder_text,
             frequency: logStructure.frequency,
@@ -236,15 +236,15 @@ class LogStructure extends DataTypeBase {
                 inputLogStructure.details,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            event_allow_details: inputLogStructure.allowEventDetails,
+            event_allow_details: inputLogStructure.eventAllowDetails,
             event_keys: JSON.stringify(inputLogStructure.eventKeys.map(
                 (eventKey) => LogKey.save.call(this, eventKey),
             )),
             event_title_template: RichTextUtils.serialize(
-                inputLogStructure.titleTemplate,
+                inputLogStructure.eventTitleTemplate,
                 RichTextUtils.StorageType.DRAFTJS,
             ),
-            event_needs_edit: inputLogStructure.needsEdit,
+            event_needs_edit: inputLogStructure.eventNeedsEdit,
             is_periodic: inputLogStructure.isPeriodic,
             reminder_text: inputLogStructure.reminderText,
             frequency: inputLogStructure.frequency,
@@ -274,7 +274,7 @@ class LogStructure extends DataTypeBase {
                 );
                 shouldRegenerateLogEvents = !RichTextUtils.equals(
                     originalTitleTemplate,
-                    inputLogStructure.titleTemplate,
+                    inputLogStructure.eventTitleTemplate,
                 );
             }
             if (!shouldRegenerateLogEvents) {
@@ -320,7 +320,7 @@ class LogStructure extends DataTypeBase {
                 __id__: index || updatedLogStructure.id,
             }));
             const updatedTitleTemplate = RichTextUtils.updateDraftContent(
-                inputLogStructure.titleTemplate,
+                inputLogStructure.eventTitleTemplate,
                 originalItems,
                 updatedItems,
             );

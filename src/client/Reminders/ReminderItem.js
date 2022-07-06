@@ -34,7 +34,7 @@ class ReminderItem extends React.Component {
         if (!logEvent) {
             logEvent = LogEvent.createVirtual({ date: todayLabel, logStructure });
         }
-        if (logStructure.needsEdit && !wasLogEventProvided) {
+        if (logStructure.eventNeedsEdit && !wasLogEventProvided) {
             // This modal is only closed after the reminder-complete RPC.
             this.closeModal = Coordinator.invoke('modal-editor', {
                 dataType: 'log-event',
