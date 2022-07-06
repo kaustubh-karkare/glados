@@ -22,6 +22,10 @@ Object.entries(getDataTypeMapping()).forEach((pair) => {
         const context = { ...this, DataType };
         return DataType.getValidationErrors.call(context, input);
     };
+    ActionsRegistry[`${name}-load-partial`] = async function (input) {
+        const context = { ...this, DataType };
+        return DataType.loadPartial.call(context, input.__id__);
+    };
     ActionsRegistry[`${name}-load`] = async function (input) {
         const context = { ...this, DataType };
         return DataType.load.call(context, input.__id__);

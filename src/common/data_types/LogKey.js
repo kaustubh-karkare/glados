@@ -1,9 +1,9 @@
 import RichTextUtils from '../RichTextUtils';
 import Enum from './enum';
-import { getVirtualID } from './utils';
+import { getPartialItem, getVirtualID } from './utils';
 import { validateNonEmptyString } from './validation';
 
-const LogStructureKeyType = Enum([
+const LogKeyType = Enum([
     {
         value: 'string',
         label: 'String',
@@ -63,13 +63,13 @@ const LogStructureKeyType = Enum([
     },
 ]);
 
-class LogStructureKey {
+class LogKey {
     static createVirtual() {
         return {
             __type__: 'log-structure-key',
             __id__: getVirtualID(),
             name: '',
-            type: LogStructureKeyType.STRING,
+            type: LogKeyType.STRING,
             isOptional: false,
             template: null,
             enumValues: [],
@@ -81,13 +81,13 @@ class LogStructureKey {
         const results = [];
         results.push(validateNonEmptyString('.name', inputLogKey.name));
         results.push(validateNonEmptyString('.type', inputLogKey.type));
-        if (inputLogKey.type === LogStructureKeyType.ENUM) {
+        if (inputLogKey.type === LogKeyType.ENUM) {
             results.push([
                 '.enumValues',
                 inputLogKey.enumValues.length > 0,
                 'must be provided!',
             ]);
-        } if (inputLogKey.type === LogStructureKeyType.LOG_TOPIC) {
+        } if (inputLogKey.type === LogKeyType.LOG_TOPIC) {
             results.push([
                 '.parentLogTopic',
                 inputLogKey.parentLogTopic,
@@ -101,7 +101,7 @@ class LogStructureKey {
         if (inputLogKey.isOptional && !inputLogKey.value) return null;
         const name = `.logKeys[${index}].value`;
         if (!inputLogKey.value) return [name, false, 'must be non-empty.'];
-        const KeyOption = LogStructureKeyType[inputLogKey.type];
+        const KeyOption = LogKeyType[inputLogKey.type];
         let isValid = await KeyOption.validator(inputLogKey.value, inputLogKey, this);
         if (!isValid && KeyOption.maybeFix) {
             const fixedValue = KeyOption.maybeFix(inputLogKey.value, inputLogKey);
@@ -147,29 +147,62 @@ class LogStructureKey {
         if (inputLogKey.template) {
             result.template = inputLogKey.template;
         }
-        if (inputLogKey.type === LogStructureKeyType.ENUM && inputLogKey.enumValues) {
+        if (inputLogKey.type === LogKeyType.ENUM && inputLogKey.enumValues) {
             result.enum_values = inputLogKey.enumValues;
         }
-        if (inputLogKey.type === LogStructureKeyType.LOG_TOPIC && inputLogKey.parentLogTopic) {
+        if (inputLogKey.type === LogKeyType.LOG_TOPIC && inputLogKey.parentLogTopic) {
             result.parent_topic_id = inputLogKey.parentLogTopic.__id__;
         }
         return result;
     }
 
-    static extractLogTopics(inputLogKey) {
-        let logTopics = {};
-        if (inputLogKey.type === LogStructureKeyType.LOG_TOPIC && inputLogKey.value) {
-            logTopics[inputLogKey.value.__id__] = inputLogKey.value;
-        } else if (inputLogKey.type === LogStructureKeyType.RICH_TEXT_LINE) {
-            logTopics = {
-                ...logTopics,
-                ...RichTextUtils.extractMentions(inputLogKey.value, 'log-topic'),
-            };
+    static async updateLogTopicsInLogTopicType(inputLogKey) {
+        const originalLogTopics = [];
+        originalLogTopics.push(inputLogKey.parentLogTopic);
+        if (inputLogKey.value) {
+            originalLogTopics.push(inputLogKey.value);
         }
-        return logTopics;
+        const updatedLogTopics = await Promise.all(
+            originalLogTopics.map((originalLogTopic) => this.invoke.call(
+                this,
+                'log-topic-load-partial',
+                originalLogTopic,
+            )),
+        );
+        inputLogKey.parentLogTopic = getPartialItem(updatedLogTopics[0]);
+        if (inputLogKey.value) {
+            inputLogKey.value = getPartialItem(updatedLogTopics[1]);
+        }
+        return updatedLogTopics.map((logTopic) => logTopic.__id__);
+    }
+
+    static async updateLogTopicsInRichTextLineType(inputLogKey) {
+        const originalLogTopics = Object.values(RichTextUtils.extractMentions(inputLogKey.value, 'log-topic'));
+        const updatedLogTopics = await Promise.all(
+            originalLogTopics.map((originalLogTopic) => this.invoke.call(
+                this,
+                'log-topic-load-partial',
+                originalLogTopic,
+            )),
+        );
+        inputLogKey.value = RichTextUtils.updateDraftContent(
+            inputLogKey.value,
+            originalLogTopics,
+            updatedLogTopics,
+        );
+        return updatedLogTopics.map((logTopic) => logTopic.__id__);
+    }
+
+    static async updateLogTopics(inputLogKey) {
+        if (inputLogKey.type === LogKeyType.LOG_TOPIC) {
+            return LogKey.updateLogTopicsInLogTopicType.call(this, inputLogKey);
+        } if (inputLogKey.type === LogKeyType.RICH_TEXT_LINE) {
+            return LogKey.updateLogTopicsInRichTextLineType.call(this, inputLogKey);
+        }
+        return [];
     }
 }
 
-LogStructureKey.Type = LogStructureKeyType;
+LogKey.Type = LogKeyType;
 
-export default LogStructureKey;
+export default LogKey;

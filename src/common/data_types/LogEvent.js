@@ -117,18 +117,41 @@ class LogEvent extends DataTypeBase {
         }
     }
 
-    static extractLogTopics(inputLogEvent) {
-        let logTopics = {
+    static async updateLogTopicsInTitleAndDetails(inputLogEvent) {
+        const originalLogTopics = Object.values({
             ...RichTextUtils.extractMentions(inputLogEvent.title, 'log-topic'),
             ...RichTextUtils.extractMentions(inputLogEvent.details, 'log-topic'),
-        };
+        });
+        const updatedLogTopics = await Promise.all(
+            originalLogTopics.map((originalTopic) => this.invoke.call(
+                this,
+                'log-topic-load-partial',
+                originalTopic,
+            )),
+        );
+        inputLogEvent.title = RichTextUtils.updateDraftContent(
+            inputLogEvent.title,
+            originalLogTopics,
+            updatedLogTopics,
+        );
+        inputLogEvent.details = RichTextUtils.updateDraftContent(
+            inputLogEvent.details,
+            originalLogTopics,
+            updatedLogTopics,
+        );
+        return updatedLogTopics.map((logTopic) => logTopic.__id__);
+    }
+
+    static async updateLogTopics(inputLogEvent) {
+        const promises = [];
+        promises.push(LogEvent.updateLogTopicsInTitleAndDetails.call(this, inputLogEvent));
         if (inputLogEvent.logStructure) {
             inputLogEvent.logStructure.eventKeys.forEach((inputLogKey) => {
-                const additionalLogTopics = LogKey.extractLogTopics(inputLogKey);
-                logTopics = { ...logTopics, ...additionalLogTopics };
+                promises.push(LogKey.updateLogTopics.call(this, inputLogKey));
             });
         }
-        return logTopics;
+        const listOfTopicIDs = await Promise.all(promises);
+        return listOfTopicIDs.flat();
     }
 
     static async validate(inputLogEvent) {
@@ -216,6 +239,9 @@ class LogEvent extends DataTypeBase {
 
         DataTypeBase.broadcast.call(this, 'log-event-list', logEvent, { date: inputLogEvent.date });
 
+        // Before the serialization process, since the input is modified.
+        const targetLogTopicIDs = await LogEvent.updateLogTopics.call(this, inputLogEvent);
+
         const shouldResetOrderingIndex = logEvent ? (
             logEvent.date !== inputLogEvent.date
             || logEvent.is_complete !== inputLogEvent.isComplete
@@ -232,7 +258,7 @@ class LogEvent extends DataTypeBase {
                 (eventKey) => eventKey.value || null,
             );
         }
-        const fields = {
+        const updated = {
             date: inputLogEvent.date,
             ordering_index: orderingIndex,
             title: RichTextUtils.serialize(
@@ -249,17 +275,16 @@ class LogEvent extends DataTypeBase {
             structure_id: inputLogEvent.logStructure ? inputLogEvent.logStructure.__id__ : null,
             structure_values: logValues ? JSON.stringify(logValues) : null,
         };
-        logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, fields);
+        logEvent = await this.database.createOrUpdateItem('LogEvent', logEvent, updated);
 
-        const targetLogTopics = LogEvent.extractLogTopics(inputLogEvent);
         await this.database.setEdges(
             'LogEventToLogTopic',
             'source_event_id',
             logEvent.id,
             'target_topic_id',
-            Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
+            Object.values(targetLogTopicIDs).reduce((result, topicID) => {
                 // eslint-disable-next-line no-param-reassign
-                result[targetLogTopic.__id__] = {};
+                result[topicID] = {};
                 return result;
             }, {}),
         );

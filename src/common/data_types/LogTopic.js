@@ -44,18 +44,35 @@ class LogTopic extends DataTypeBase {
         // Do nothing by default.
     }
 
-    static extractLogTopics(inputLogTopic) {
-        let logTopics = RichTextUtils.extractMentions(inputLogTopic.details, 'log-topic');
+    static async updateLogTopicInDetails(inputLogTopic) {
+        const originalLogTopics = Object.values(
+            RichTextUtils.extractMentions(inputLogTopic.details, 'log-topic'),
+        );
+        const updatedLogTopics = await Promise.all(
+            originalLogTopics.map((originalTopic) => this.invoke.call(
+                this,
+                'log-topic-load-partial',
+                originalTopic,
+            )),
+        );
+        inputLogTopic.details = RichTextUtils.updateDraftContent(
+            inputLogTopic.details,
+            originalLogTopics,
+            updatedLogTopics,
+        );
+        return updatedLogTopics.map((logTopic) => logTopic.__id__);
+    }
+
+    static async updateLogTopics(inputLogTopic) {
+        const promises = [];
+        promises.push(LogTopic.updateLogTopicInDetails.call(this, inputLogTopic));
         if (inputLogTopic.parentLogTopic && inputLogTopic.parentLogTopic.childKeys) {
             inputLogTopic.parentLogTopic.childKeys.forEach((inputLogKey) => {
-                const additionalLogTopics = LogKey.extractLogTopics.call(
-                    this,
-                    inputLogKey,
-                );
-                logTopics = { ...logTopics, ...additionalLogTopics };
+                promises.push(LogKey.updateLogTopics.call(this, inputLogKey));
             });
         }
-        return logTopics;
+        const listOfTopicIDs = await Promise.all(promises);
+        return listOfTopicIDs.flat();
     }
 
     static async validate(inputLogTopic) {
@@ -85,6 +102,15 @@ class LogTopic extends DataTypeBase {
         }
 
         return results;
+    }
+
+    static async loadPartial(id) {
+        const logTopic = await this.database.findByPk('LogTopic', id);
+        return {
+            __type__: 'log-topic',
+            __id__: logTopic.id,
+            name: logTopic.name,
+        };
     }
 
     static async load(id) {
@@ -152,10 +178,22 @@ class LogTopic extends DataTypeBase {
 
         const original = {};
         if (logTopic) {
+            original.id = logTopic.id;
             original.name = logTopic.name;
             original.parent_topic_id = logTopic.parent_topic_id;
             original.child_keys = logTopic.child_keys;
         }
+
+        if (original.id && original.name !== inputLogTopic.name) {
+            // Update the name first, so that all referencing items
+            // that reference this topic can see the new name.
+            await this.database.update('LogTopic', {
+                id: original.id,
+                name: inputLogTopic.name,
+            });
+        }
+        // Before the serialization process, since the input is modified.
+        const targetLogTopicIDs = await LogTopic.updateLogTopics.call(this, inputLogTopic);
 
         const orderingIndex = await DataTypeBase.getOrderingIndex.call(this, logTopic);
         let childKeys;
@@ -218,15 +256,14 @@ class LogTopic extends DataTypeBase {
 
         logTopic = await this.database.createOrUpdateItem('LogTopic', logTopic, updated);
 
-        const targetLogTopics = LogTopic.extractLogTopics(inputLogTopic);
         await this.database.setEdges(
             'LogTopicToLogTopic',
             'source_topic_id',
             logTopic.id,
             'target_topic_id',
-            Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
+            Object.values(targetLogTopicIDs).reduce((result, topicID) => {
                 // eslint-disable-next-line no-param-reassign
-                result[targetLogTopic.__id__] = {};
+                result[topicID] = {};
                 return result;
             }, {}),
         );
@@ -246,34 +283,31 @@ class LogTopic extends DataTypeBase {
             ]);
         }
 
-        if (original.name !== logTopic.name) {
+        if (original.id && original.name !== updated.name) {
             // Update names on references items.
-            const outputLogTopic = await LogTopic.load.call(this, logTopic.id);
-            await LogTopic.updateOtherEntities.call(
-                this,
-                'LogEventToLogTopic',
-                outputLogTopic,
-                'source_event_id',
-                'log-event',
-                ['title', 'details'],
-                // TODO: What about structureValues?
-            );
-            await LogTopic.updateOtherEntities.call(
-                this,
-                'LogStructureToLogTopic',
-                outputLogTopic,
-                'source_structure_id',
-                'log-structure',
-                ['titleTemplate'],
-            );
-            await LogTopic.updateOtherEntities.call(
-                this,
-                'LogTopicToLogTopic',
-                outputLogTopic,
-                'source_topic_id',
-                'log-topic',
-                ['details'],
-            );
+            await Promise.all([
+                LogTopic.updateOtherEntities.call(
+                    this,
+                    'LogEventToLogTopic',
+                    logTopic.id,
+                    'source_event_id',
+                    'log-event',
+                ),
+                LogTopic.updateOtherEntities.call(
+                    this,
+                    'LogStructureToLogTopic',
+                    logTopic.id,
+                    'source_structure_id',
+                    'log-structure',
+                ),
+                LogTopic.updateOtherEntities.call(
+                    this,
+                    'LogTopicToLogTopic',
+                    logTopic.id,
+                    'source_topic_id',
+                    'log-topic',
+                ),
+            ]);
         }
 
         if (shouldUpdateChildTopics) {
@@ -305,19 +339,16 @@ class LogTopic extends DataTypeBase {
         return logTopic.id;
     }
 
-    // TODO: Replace this with simple updates.
-    // Each entity should be able to correct itself.
     static async updateOtherEntities(
         junctionTableName,
-        updatedLogTopic,
+        targetTopicID,
         junctionSourceName,
         entityType,
-        entityFieldNames,
     ) {
         const edges = await this.database.getEdges(
             junctionTableName,
             'target_topic_id',
-            updatedLogTopic.__id__,
+            targetTopicID,
         );
         const inputItems = await Promise.all(
             edges.map((edge) => this.invoke.call(
@@ -326,16 +357,9 @@ class LogTopic extends DataTypeBase {
                 { __id__: edge[junctionSourceName] },
             )),
         );
-        await Promise.all(
-            inputItems.map((inputItem) => {
-                entityFieldNames.forEach((entityFieldName) => {
-                    inputItem[entityFieldName] = RichTextUtils.updateDraftContent(
-                        inputItem[entityFieldName], [updatedLogTopic],
-                    );
-                });
-                return this.invoke.call(this, `${entityType}-upsert`, inputItem);
-            }),
-        );
+        await Promise.all(inputItems.map(
+            (inputItem) => this.invoke.call(this, `${entityType}-upsert`, inputItem),
+        ));
     }
 
     static async delete(id) {

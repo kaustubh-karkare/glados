@@ -82,17 +82,41 @@ class LogStructure extends DataTypeBase {
         }
     }
 
-    static extractLogTopics(inputLogStructure) {
-        const logTopics = {
+    static async updateLogTopicsInTitleTemplateAndDetails(inputLogStructure) {
+        const originalLogTopics = Object.values({
             ...RichTextUtils.extractMentions(inputLogStructure.titleTemplate, 'log-topic'),
             ...RichTextUtils.extractMentions(inputLogStructure.details, 'log-topic'),
-        };
-        inputLogStructure.eventKeys.forEach((eventKey) => {
-            if (eventKey.type === LogKey.Type.LOG_TOPIC && eventKey.parentLogTopic) {
-                logTopics[eventKey.parentLogTopic.__id__] = eventKey.parentLogTopic;
-            }
         });
-        return logTopics;
+        const updatedLogTopics = await Promise.all(
+            originalLogTopics.map((originalTopic) => this.invoke.call(
+                this,
+                'log-topic-load-partial',
+                originalTopic,
+            )),
+        );
+        inputLogStructure.titleTemplate = RichTextUtils.updateDraftContent(
+            inputLogStructure.titleTemplate,
+            originalLogTopics,
+            updatedLogTopics,
+        );
+        inputLogStructure.details = RichTextUtils.updateDraftContent(
+            inputLogStructure.details,
+            originalLogTopics,
+            updatedLogTopics,
+        );
+        return updatedLogTopics.map((logTopic) => logTopic.__id__);
+    }
+
+    static async updateLogTopics(inputLogStructure) {
+        const promises = [];
+        promises.push(
+            LogStructure.updateLogTopicsInTitleTemplateAndDetails.call(this, inputLogStructure),
+        );
+        inputLogStructure.eventKeys.forEach((inputLogKey) => {
+            promises.push(LogKey.updateLogTopics.call(this, inputLogKey));
+        });
+        const listOfTopicIDs = await Promise.all(promises);
+        return listOfTopicIDs.flat();
     }
 
     static async validate(inputLogStructure) {
@@ -200,6 +224,9 @@ class LogStructure extends DataTypeBase {
             { group_id: inputLogStructure.logStructureGroup.__id__ },
         );
 
+        // Before the serialization process, since the input is modified.
+        const targetLogTopicIDs = await LogStructure.updateLogTopics.call(this, inputLogStructure);
+
         const orderingIndex = await DataTypeBase.getOrderingIndex.call(this, logStructure);
         const updated = {
             group_id: inputLogStructure.logStructureGroup.__id__,
@@ -269,15 +296,14 @@ class LogStructure extends DataTypeBase {
             'LogStructure', logStructure, updated,
         );
 
-        const targetLogTopics = LogStructure.extractLogTopics(inputLogStructure);
         await this.database.setEdges(
             'LogStructureToLogTopic',
             'source_structure_id',
             updatedLogStructure.id,
             'target_topic_id',
-            Object.values(targetLogTopics).reduce((result, targetLogTopic) => {
+            Object.values(targetLogTopicIDs).reduce((result, topicID) => {
                 // eslint-disable-next-line no-param-reassign
-                result[targetLogTopic.__id__] = {};
+                result[topicID] = {};
                 return result;
             }, {}),
         );
