@@ -181,6 +181,7 @@ class LogTopic extends DataTypeBase {
             original.id = logTopic.id;
             original.name = logTopic.name;
             original.parent_topic_id = logTopic.parent_topic_id;
+            original.child_name_template = logTopic.child_name_template;
             original.child_keys = logTopic.child_keys;
         }
 
@@ -236,9 +237,19 @@ class LogTopic extends DataTypeBase {
             { parent_topic_id: updated.parent_topic_id },
         );
 
-        const shouldUpdateChildTopics = (
-            original.child_keys !== updated.child_keys
-        );
+        let shouldUpdateChildTopics = false;
+        if (!shouldUpdateChildTopics && original.child_keys !== updated.child_keys) {
+            shouldUpdateChildTopics = true;
+        }
+        if (!shouldUpdateChildTopics) {
+            const originalChildNameTemplate = RichTextUtils.deserialize(
+                original.child_name_template,
+                RichTextUtils.StorageType.DRAFTJS,
+            );
+            if (!RichTextUtils.equals(originalChildNameTemplate, inputLogTopic.childNameTemplate)) {
+                shouldUpdateChildTopics = true;
+            }
+        }
         let childLogTopics;
         if (shouldUpdateChildTopics) {
             childLogTopics = await this.invoke.call(

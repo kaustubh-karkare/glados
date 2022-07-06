@@ -71,7 +71,7 @@ class DataLoader {
             if (!this.isMounted) {
                 return;
             }
-            const original = this.input.args || {};
+            const original = (this.input && this.input.args) || {};
             const modified = data || {};
             if (this.compare(this.input.name, original, modified)) {
                 this.reload({ force: true });
