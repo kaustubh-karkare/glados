@@ -61,6 +61,12 @@ const LogKeyType = Enum([
         validator: async (value) => true,
         getDefault: () => null,
     },
+    {
+        value: 'link',
+        label: 'Link',
+        validator: async (value) => true,
+        getDefault: () => '',
+    },
 ]);
 
 class LogKey {

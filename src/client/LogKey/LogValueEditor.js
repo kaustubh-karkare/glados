@@ -34,7 +34,13 @@ class LogValueEditor extends React.Component {
         if (typeof value === 'undefined') {
             value = LogKey.Type[logKey.type].default;
         }
-        if (logKey.type === LogKey.Type.STRING_LIST) {
+        if (logKey.type === LogKey.Type.LINK && disabled) {
+            return (
+                <div className="pl-1">
+                    <a href={value} target="new" tabIndex={-1}>{value}</a>
+                </div>
+            );
+        } if (logKey.type === LogKey.Type.STRING_LIST) {
             return (
                 <TypeaheadSelector
                     id={uniqueId}
