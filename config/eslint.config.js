@@ -32,6 +32,7 @@ module.exports = {
     },
     rules: {
         indent: ['error', 4],
+        'import/no-cycle': [0],
         // Unable to resolve path to module 'react'
         'import/no-unresolved': [0],
         // Need to add role attribute for accessibility on HTML elements.
