@@ -160,13 +160,15 @@ class TextEditor extends React.Component {
 
     renderSuggestions() {
         const { MentionSuggestions } = this.mentionPlugin;
+        const suggestions = this.state.suggestions
+            .map((item) => ({ id: `${item.__type__}:${item.__id__}`, ...item }));
         return (
             <div className="mention-suggestions">
                 <MentionSuggestions
                     open={this.state.open}
                     onSearchChange={(data) => this.onSearchChange(data)}
                     onAddMention={(option) => this.onAddMention(option)}
-                    suggestions={this.state.suggestions}
+                    suggestions={suggestions}
                     entryComponent={OptionComponent}
                 />
             </div>
