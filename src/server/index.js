@@ -29,7 +29,7 @@ async function startServer() {
     app.get('/', (req, res) => {
         res.cookie('host', host);
         res.cookie('port', port);
-        res.cookie('plugins', JSON.stringify(this.config.plugins));
+        res.cookie('plugins', JSON.stringify(this.config.plugins || []));
         res.sendFile('index.html', { root: 'dist' });
     });
     app.use(express.static('dist'));
