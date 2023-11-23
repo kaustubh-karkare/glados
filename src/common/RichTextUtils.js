@@ -484,7 +484,7 @@ class RichTextUtils {
                         });
                     } catch (error) {
                         // eslint-disable-next-line no-console
-                        console.warn(error);
+                        console.warn(expression, error);
                     }
                 } else if (currentBlockText[startIndex] === '[') {
                     try {

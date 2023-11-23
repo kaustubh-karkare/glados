@@ -7,10 +7,10 @@ import { validateNonEmptyString, validateRecursiveList } from './validation';
 
 class LogTopic extends DataTypeBase {
     static createVirtual({ parentLogTopic = null, name = '' } = {}) {
-        if (parentLogTopic) {
+        if (parentLogTopic && parentLogTopic.childKeys) {
             parentLogTopic.childKeys.forEach((inputLogKey) => {
                 if (!inputLogKey.isOptional) {
-                    inputLogKey.value = LogKey.Type[inputLogKey.type].getDefault();
+                    inputLogKey.value = LogKey.Type[inputLogKey.type].getDefault(inputLogKey);
                 }
             });
         }
