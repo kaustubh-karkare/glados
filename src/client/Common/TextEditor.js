@@ -82,6 +82,29 @@ class TextEditor extends React.Component {
             mentionComponent: MentionComponent,
             supportWhitespace: true,
         });
+        // Workaround for two bugs in draft-js-mention-plugin v3.x:
+        // 1. Deleting @ doesn't close the dropdown (early return skips closeDropdown).
+        // 2. Typing @ at a non-zero offset doesn't trigger search (> vs >=).
+        // Detection: onSearchChange fires synchronously inside pluginOnChange
+        // when the plugin finds an active search. If it didn't fire, either
+        // the search ended (clear suggestions) or was skipped (trigger manually).
+        const pluginOnChange = this.mentionPlugin.onChange;
+        this.mentionPlugin.onChange = (editorState) => {
+            this._searchFired = false;
+            const result = pluginOnChange(editorState);
+            if (!this._searchFired) {
+                if (this.state.open) {
+                    this.setState({ suggestions: [] });
+                } else if (this.props.options) {
+                    const text = editorState.getCurrentContent().getPlainText();
+                    const offset = editorState.getSelection().getAnchorOffset();
+                    if (offset > 0 && text.charAt(offset - 1) === '@') {
+                        this.onSearchChange({ value: '' });
+                    }
+                }
+            }
+            return result;
+        };
         this.state.plugins.push(this.mentionPlugin);
 
         this.ref = React.createRef();
@@ -100,12 +123,10 @@ class TextEditor extends React.Component {
     }
 
     onSearchChange({ value: query }) {
+        this._searchFired = true;
         this.props.options
             .search(query)
-            .then((suggestions) => this.setState(
-                { suggestions },
-                () => this.mentionPlugin.onChange(this.state.editorState),
-            ));
+            .then((suggestions) => this.setState({ suggestions }));
     }
 
     onAddMention(option) {
@@ -165,7 +186,8 @@ class TextEditor extends React.Component {
         return (
             <div className="mention-suggestions">
                 <MentionSuggestions
-                    open={this.state.open}
+                    onOpen={() => this.setState({ open: true })}
+                    onClose={() => this.setState({ open: false })}
                     onSearchChange={(data) => this.onSearchChange(data)}
                     onAddMention={(option) => this.onAddMention(option)}
                     suggestions={suggestions}

@@ -49,7 +49,7 @@ class DataLoader {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    compare(name, left, right) {
+    _compare(name, left, right) {
         if (name.endsWith('-load')) {
             return left.__id__ === right.__id__;
         } if (name.endsWith('-list')) {
@@ -65,15 +65,16 @@ class DataLoader {
     setupSubscription() {
         const { promise, cancel } = window.api.subscribe(this.input.name);
         if (this.cancelSubscription) {
-            this.cancelSubscription = cancel;
+            this.cancelSubscription();
         }
+        this.cancelSubscription = cancel;
         promise.then((data) => {
-            if (!this.isMounted) {
+            if (!this.isMounted || !this.input) {
                 return;
             }
-            const original = (this.input && this.input.args) || {};
-            const modified = data || {};
-            if (this.compare(this.input.name, original, modified)) {
+            const query_args = this.input.args || {};
+            const broadcast_args = data || {};
+            if (this._compare(this.input.name, query_args, broadcast_args)) {
                 this.reload({ force: true });
             } else {
                 this.setupSubscription();
