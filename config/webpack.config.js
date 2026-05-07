@@ -50,6 +50,10 @@ function getClientSideBundle(entryPoint, outputFileName) {
         },
         resolve: {
             extensions: ['.js', '.css'],
+            fallback: {
+                assert: require.resolve('assert'),
+                util: require.resolve('util'),
+            },
         },
         module: {
             rules: [
@@ -66,7 +70,9 @@ function getClientSideBundle(entryPoint, outputFileName) {
             ],
         },
         plugins: [
-            // TODO: Generalize this part.
+            new webpack.ProvidePlugin({
+                process: 'process/browser',
+            }),
             new MiniCssExtractPlugin({
                 filename: 'index.css',
             }),
