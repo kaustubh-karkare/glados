@@ -35,7 +35,7 @@ export default async (app) => {
         const key1name = await key1.getNameInput();
         await key1name.typeSlowly('Distance (km)');
 
-        const templateInput = await modalDialog.getTextEditor('Title Template');
+        const templateInput = await modalDialog.getTextEditor('Event Title Template');
         await templateInput.typeSlowly(': @D');
         await templateInput.pickSuggestion(0);
         await templateInput.typeSlowly('km / ');
@@ -101,7 +101,7 @@ export default async (app) => {
         await key3template.pickSuggestion(0);
         await key3template.typeSlowly(').toFixed(2)}');
 
-        const templateInput = await modalDialog.getTextEditor('Title Template');
+        const templateInput = await modalDialog.getTextEditor('Event Title Template');
         await templateInput.sendKeys('BACK_SPACE');
         await templateInput.typeSlowly(' (@S');
         await templateInput.pickSuggestion(0);

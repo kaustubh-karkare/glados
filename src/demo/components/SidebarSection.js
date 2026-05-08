@@ -8,7 +8,7 @@ export default class SidebarSection extends BaseWrapper {
         const element = await webdriver.findElement(By.xpath(
             '//div[contains(@class, \'sidebar-section\')]'
             + '/div[contains(@class, \'cursor\')]'
-            + `/div/div[text() = '${name}']`
+            + `/div/div[contains(text(), '${name}')]`
             + '/../../..',
         ));
         return new this(webdriver, element);

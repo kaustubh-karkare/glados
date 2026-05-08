@@ -29,7 +29,7 @@ export default async (app) => {
             const nameInput = await modalDialog.getTextInput('Name');
             await nameInput.typeSlowly('Woke up');
 
-            const templateInput = await modalDialog.getTextEditor('Title Template');
+            const templateInput = await modalDialog.getTextEditor('Event Title Template');
             await templateInput.typeSlowly(' at ');
 
             const logLevelSelector = await modalDialog.getSelector('Log Level');

@@ -33,7 +33,7 @@ export default async (app) => {
             const nameInput = await modalDialog.getTextInput('Name');
             await nameInput.typeSlowly('Push Ups');
 
-            const templateInput = await modalDialog.getTextEditor('Title Template');
+            const templateInput = await modalDialog.getTextEditor('Event Title Template');
             await templateInput.typeSlowly(': ');
 
             const key1 = await modalDialog.addLogStructureKey();
