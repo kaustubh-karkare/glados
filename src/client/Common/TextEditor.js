@@ -46,21 +46,18 @@ OptionComponent.propTypes = {
 class TextEditor extends React.Component {
     static getDerivedStateFromProps(props, state) {
         if (state.onChange) {
-            // This component is being updated because onChange is about to be called,
-            // and we want to remember the expected new value.
-            delete state.onChange;
-            return state;
+            return { onChange: false };
         }
         const isFirstTime = !('value' in state);
         // WARNING: Even if props.value is equivalent to state.value, they might
         // not be in the same format, and that could lead to an infinite loop!
         if (isFirstTime || !RichTextUtils.equals(state.value, props.value)) {
-            state.value = props.value;
-            // The new value is not what we expected. Reset editor state.
-            // eslint-disable-next-line no-param-reassign
-            state.editorState = RichTextUtils.toEditorState(props.value);
+            return {
+                value: props.value,
+                editorState: RichTextUtils.toEditorState(props.value),
+            };
         }
-        return state;
+        return null;
     }
 
     constructor(props) {
