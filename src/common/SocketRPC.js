@@ -8,14 +8,14 @@ const GENERAL_RESPONSE = 'general-response-';
 const GENERAL_SUBSCRIPTION = 'general-subscription';
 const LOG_SUBSCRIPTION = 'log-subscription';
 
-const clients = [];
-
 function _remove(list, value) {
     const index = list.indexOf(value);
     if (index !== -1) list.splice(index, 1);
 }
 
 export default class SocketRPC {
+    static clients = [];
+
     static server(socket, actions) {
         const instance = new SocketRPC(SERVER_SIDE, socket);
         actions.registerBroadcast(instance);
@@ -33,8 +33,8 @@ export default class SocketRPC {
         this.type = type;
         this.socket = socket;
         if (type === SERVER_SIDE) {
-            clients.push(this);
-            this.socket.on('disconnect', () => _remove(clients, this));
+            SocketRPC.clients.push(this);
+            this.socket.on('disconnect', () => _remove(SocketRPC.clients, this));
         } else if (type === CLIENT_SIDE) {
             this.counter = 0;
             this.subscriptions = {};
@@ -141,7 +141,9 @@ export default class SocketRPC {
 
     broadcast(name, data) {
         assert(this.type === SERVER_SIDE);
-        clients.forEach((client) => client.socket.emit(GENERAL_SUBSCRIPTION, { name, data }));
+        SocketRPC.clients.forEach(
+            (client) => client.socket.emit(GENERAL_SUBSCRIPTION, { name, data }),
+        );
     }
 
     /**
@@ -150,6 +152,6 @@ export default class SocketRPC {
      */
     log(...args) {
         assert(this.type === SERVER_SIDE);
-        clients.forEach((client) => client.socket.emit(LOG_SUBSCRIPTION, { args }));
+        SocketRPC.clients.forEach((client) => client.socket.emit(LOG_SUBSCRIPTION, { args }));
     }
 }
