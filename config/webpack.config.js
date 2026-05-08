@@ -11,7 +11,7 @@ function fromProjectRoot(relativePath) {
 
 function getJSModuleRule() {
     return {
-        test: /\.(js|ts)$/,
+        test: /\.js$/,
         use: [
             {
                 loader: 'babel-loader',

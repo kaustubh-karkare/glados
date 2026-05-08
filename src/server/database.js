@@ -1,10 +1,9 @@
 import assert from 'assert';
 import fs from 'fs';
+import Sequelize from 'sequelize';
 
 import { isRealItem } from '../common/data_types';
 import { getDataModels } from './models';
-
-const Sequelize = require('sequelize');
 
 export default class {
     constructor(config) {

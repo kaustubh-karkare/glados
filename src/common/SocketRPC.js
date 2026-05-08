@@ -14,8 +14,6 @@ function _remove(list, value) {
 }
 
 export default class SocketRPC {
-    static clients = [];
-
     static server(socket, actions) {
         const instance = new SocketRPC(SERVER_SIDE, socket);
         actions.registerBroadcast(instance);
@@ -155,3 +153,5 @@ export default class SocketRPC {
         SocketRPC.clients.forEach((client) => client.socket.emit(LOG_SUBSCRIPTION, { args }));
     }
 }
+
+SocketRPC.clients = [];

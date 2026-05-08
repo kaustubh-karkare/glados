@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
+import Sequelize from 'sequelize';
 
 export function getDataFormatVersion() {
     // This value is used to ensure that the backup file being loaded

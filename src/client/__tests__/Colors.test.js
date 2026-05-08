@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const walkSync = require('walk-sync');
+import fs from 'fs';
+import path from 'path';
+import walkSync from 'walk-sync';
 
 test('verify_no_random_colors', async () => {
     const rootPath = 'src/';

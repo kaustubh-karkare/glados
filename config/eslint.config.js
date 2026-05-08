@@ -13,7 +13,6 @@ module.exports = {
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
     },
-    parser: '@typescript-eslint/parser',
     parserOptions: {
         ecmaFeatures: {
             jsx: true,
@@ -32,6 +31,7 @@ module.exports = {
     },
     rules: {
         indent: ['error', 4],
+        'import/no-commonjs': 'error',
         'import/no-cycle': [0],
         // Unable to resolve path to module 'react'
         'import/no-unresolved': [0],

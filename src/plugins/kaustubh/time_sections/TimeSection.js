@@ -1,9 +1,8 @@
+import { formatToTimeZone } from 'date-fns-timezone';
 import PropTypes from 'prop-types';
 import React from 'react';
 
 import { LeftRight, SidebarSection } from '../../../client/Common';
-
-const { formatToTimeZone } = require('date-fns-timezone');
 
 class TimeSection extends React.Component {
     constructor(props) {
