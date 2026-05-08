@@ -137,7 +137,7 @@ export default class {
     async deleteByPk(name, id) {
         const transaction = this.getTransaction();
         const Model = this._models[name];
-        const instance = await Model.findByPk(id);
+        const instance = await Model.findByPk(id, { transaction });
         return instance.destroy({ transaction });
     }
 
@@ -159,7 +159,7 @@ export default class {
         const edges = await this.getEdges(edgeName, leftName, leftId);
         const NodeModel = this._models[rightType];
         const nodes = await Promise.all(
-            edges.map((edge) => NodeModel.findByPk(edge[rightName]), { transaction }),
+            edges.map((edge) => NodeModel.findByPk(edge[rightName], { transaction })),
         );
         return nodes;
     }
@@ -167,7 +167,7 @@ export default class {
     async setEdges(edgeName, leftName, leftId, rightName, right) {
         const transaction = this.getTransaction();
         const Model = this._models[edgeName];
-        const existingEdges = await Model.findAll({ where: { [leftName]: leftId } });
+        const existingEdges = await Model.findAll({ where: { [leftName]: leftId }, transaction });
         const existingIDs = existingEdges.map((edge) => edge[rightName].toString());
         // Why specify fields? https://github.com/sequelize/sequelize/issues/11417
         const fields = [
