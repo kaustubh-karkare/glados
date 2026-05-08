@@ -62,15 +62,17 @@ function LogStructureList(props) {
     );
 }
 
-LogStructureList.Single = (props) => (
-    <BulletList.Item
-        dataType="log-structure"
-        value={props.logStructure}
-        valueKey="logStructure"
-        ViewerComponent={LogStructureViewer}
-        EditorComponent={LogStructureEditor}
-    />
-);
+LogStructureList.Single = function (props) {
+    return (
+        <BulletList.Item
+            dataType="log-structure"
+            value={props.logStructure}
+            valueKey="logStructure"
+            ViewerComponent={LogStructureViewer}
+            EditorComponent={LogStructureEditor}
+        />
+    );
+};
 
 LogStructureList.Single.propTypes = {
     logStructure: PropTypes.Custom.LogStructure.isRequired,

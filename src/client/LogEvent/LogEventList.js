@@ -58,7 +58,7 @@ LogEventViewer.propTypes = {
     toggleExpansion: PropTypes.func.isRequired,
 };
 
-LogEventViewer.Expanded = (props) => {
+LogEventViewer.Expanded = function (props) {
     const { logEvent } = props;
     if (!logEvent.details) {
         return null;
@@ -96,7 +96,7 @@ LogEventList.propTypes = {
     showAdder: PropTypes.bool,
 };
 
-LogEventList.Single = (props) => {
+LogEventList.Single = function (props) {
     const { logEvent, ...moreProps } = props;
     return (
         <BulletList.Item

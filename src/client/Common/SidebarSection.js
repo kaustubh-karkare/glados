@@ -74,14 +74,16 @@ SidebarSection.propTypes = {
     children: PropTypes.any,
 };
 
-SidebarSection.Item = ({ children }) => (
-    <InputGroup>
-        <Icon alwaysHighlighted className="mr-1">
-            <GoPrimitiveDot />
-        </Icon>
-        {children}
-    </InputGroup>
-);
+SidebarSection.Item = function ({ children }) {
+    return (
+        <InputGroup>
+            <Icon alwaysHighlighted className="mr-1">
+                <GoPrimitiveDot />
+            </Icon>
+            {children}
+        </InputGroup>
+    );
+};
 
 SidebarSection.Item.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-const NormalTooltip = ({ active, label, payload }) => {
+function NormalTooltip({ active, label, payload }) {
     if (active && payload && payload.length) {
         const item = payload[0];
         const output = [];
@@ -18,7 +18,7 @@ const NormalTooltip = ({ active, label, payload }) => {
         );
     }
     return null;
-};
+}
 
 NormalTooltip.propTypes = {
     active: PropTypes.bool,

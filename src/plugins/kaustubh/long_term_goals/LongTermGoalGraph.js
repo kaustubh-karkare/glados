@@ -11,7 +11,7 @@ import DateUtils from '../../../common/DateUtils';
 const CURRENT_KEY = '__current__';
 const TARGET_KEY = '__target__';
 
-const CustomTooltip = ({ active, label, payload }) => {
+function CustomTooltip({ active, label, payload }) {
     if (active && payload && payload.length) {
         const output = [];
         output.push(`Date: ${label}`);
@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, label, payload }) => {
         );
     }
     return null;
-};
+}
 
 CustomTooltip.propTypes = {
     active: PropTypes.bool,

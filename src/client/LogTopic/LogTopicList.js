@@ -47,7 +47,7 @@ function LogTopicList(props) {
     );
 }
 
-LogTopicViewer.Expanded = (props) => {
+LogTopicViewer.Expanded = function (props) {
     const { logTopic } = props;
     if (logTopic.hasStructure) {
         return null;
@@ -64,15 +64,17 @@ LogTopicViewer.Expanded.propTypes = {
     logTopic: PropTypes.Custom.LogTopic.isRequired,
 };
 
-LogTopicList.Single = (props) => (
-    <BulletList.Item
-        dataType="log-topic"
-        value={props.logTopic}
-        valueKey="logTopic"
-        ViewerComponent={LogTopicViewer}
-        EditorComponent={LogTopicEditor}
-    />
-);
+LogTopicList.Single = function (props) {
+    return (
+        <BulletList.Item
+            dataType="log-topic"
+            value={props.logTopic}
+            valueKey="logTopic"
+            ViewerComponent={LogTopicViewer}
+            EditorComponent={LogTopicEditor}
+        />
+    );
+};
 
 LogTopicList.Single.propTypes = {
     logTopic: PropTypes.Custom.LogTopic.isRequired,

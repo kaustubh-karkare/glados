@@ -253,7 +253,7 @@ TextEditor.defaultProps = {
  * The primary component generates an inline block that does not look great on
  * the main page. This alternative implementation generates an inline span.
  */
-TextEditor.SimpleViewer = (props) => {
+TextEditor.SimpleViewer = function (props) {
     if (!props.value) {
         return null;
     }

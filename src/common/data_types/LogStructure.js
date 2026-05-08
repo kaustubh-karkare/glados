@@ -292,9 +292,7 @@ class LogStructure extends DataTypeBase {
             }
         }
 
-        const updatedLogStructure = await this.database.createOrUpdateItem(
-            'LogStructure', logStructure, updated,
-        );
+        const updatedLogStructure = await this.database.createOrUpdateItem('LogStructure', logStructure, updated);
 
         await this.database.setEdges(
             'LogStructureToLogTopic',

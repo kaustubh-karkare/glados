@@ -49,8 +49,10 @@ module.exports = {
         'react/destructuring-assignment': [0],
         'react/jsx-filename-extension': [0],
         'react/jsx-props-no-spreading': [0],
+        'react/no-unused-class-component-methods': [0],
         // Otherwise, every non-required propType would need defaultValue.
         'react/require-default-props': [0],
+        'no-restricted-exports': [0],
         'simple-import-sort/imports': 'error',
     },
 };

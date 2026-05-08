@@ -3,7 +3,9 @@ import deepcopy from 'deepcopy';
 
 import { getPartialItem, isItem } from '../../common/data_types';
 
-const IGNORE = () => null;
+function IGNORE() {
+    return null;
+}
 
 class DataLoader {
     constructor({ getInput, onData, onError }) {
@@ -72,9 +74,9 @@ class DataLoader {
             if (!this.isMounted || !this.input) {
                 return;
             }
-            const query_args = this.input.args || {};
-            const broadcast_args = data || {};
-            if (this._compare(this.input.name, query_args, broadcast_args)) {
+            const queryArgs = this.input.args || {};
+            const broadcastArgs = data || {};
+            if (this._compare(this.input.name, queryArgs, broadcastArgs)) {
                 this.reload({ force: true });
             } else {
                 this.setupSubscription();

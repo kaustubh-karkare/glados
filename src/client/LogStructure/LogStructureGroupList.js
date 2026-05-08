@@ -16,7 +16,7 @@ LogStructureGroupViewer.propTypes = {
     logStructureGroup: PropTypes.Custom.LogStructureGroup.isRequired,
 };
 
-LogStructureGroupViewer.Expanded = (props) => {
+LogStructureGroupViewer.Expanded = function (props) {
     const { logStructureGroup, ...viewerComponentProps } = props;
     return (
         <LogStructureList

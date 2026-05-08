@@ -1,5 +1,6 @@
 /* eslint-disable func-names */
 /* eslint-disable camelcase */
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable no-constant-condition */
 
@@ -21,9 +22,7 @@ ActionsRegistry['check-consistency'] = async function () {
         const logTopics = await this.invoke.call(this, 'log-topic-list');
         await asyncSequence(logTopics, async (logTopic) => {
             try {
-                logTopic.details = RichTextUtils.updateDraftContent(
-                    logTopic.details, logTopicItems,
-                );
+                logTopic.details = RichTextUtils.updateDraftContent(logTopic.details, logTopicItems);
                 await this.invoke.call(this, 'log-topic-upsert', logTopic);
             } catch (error) {
                 results.push([logTopic, error.toString()]);
@@ -36,9 +35,7 @@ ActionsRegistry['check-consistency'] = async function () {
         const logStructures = await this.invoke.call(this, 'log-structure-list');
         await asyncSequence(logStructures, async (logStructure) => {
             try {
-                logStructure.eventTitleTemplate = RichTextUtils.updateDraftContent(
-                    logStructure.eventTitleTemplate, logTopicItems,
-                );
+                logStructure.eventTitleTemplate = RichTextUtils.updateDraftContent(logStructure.eventTitleTemplate, logTopicItems);
                 // TODO: Update topics in keys too.
                 await this.invoke.call(this, 'log-structure-upsert', logStructure);
             } catch (error) {
@@ -52,12 +49,8 @@ ActionsRegistry['check-consistency'] = async function () {
         const logEvents = await this.invoke.call(this, 'log-event-list');
         await asyncSequence(logEvents, async (logEvent) => {
             try {
-                logEvent.title = RichTextUtils.updateDraftContent(
-                    logEvent.title, logTopicItems,
-                );
-                logEvent.details = RichTextUtils.updateDraftContent(
-                    logEvent.details, logTopicItems,
-                );
+                logEvent.title = RichTextUtils.updateDraftContent(logEvent.title, logTopicItems);
+                logEvent.details = RichTextUtils.updateDraftContent(logEvent.details, logTopicItems);
                 await this.invoke.call(this, 'log-event-upsert', logEvent);
             } catch (error) {
                 results.push([logEvent, error.toString()]);

@@ -47,9 +47,7 @@ class LogStructureGroup extends DataTypeBase {
             ordering_index: orderingIndex,
             name: inputLogStructureGroup.name,
         };
-        const updatedLogStructureGroup = await this.database.createOrUpdateItem(
-            'LogStructureGroup', originalLogStructureGroup, fields,
-        );
+        const updatedLogStructureGroup = await this.database.createOrUpdateItem('LogStructureGroup', originalLogStructureGroup, fields);
         if (originalLogStructureGroup) {
             await LogStructureGroup.updateLogStructures.call(this, inputLogStructureGroup);
         }
