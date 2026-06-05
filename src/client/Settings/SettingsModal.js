@@ -20,7 +20,11 @@ class SettingsModal extends React.Component {
     onSave() {
         this.setState({ isSaving: true });
         window.api.send('settings-set', this.state.settings)
-            .then(() => this.setState({ isSaving: false }));
+            .then(() => {
+                this.setState({ isSaving: false });
+                // Close on save, consistent with every other modal (EditorModal).
+                this.props.onClose();
+            });
     }
 
     render() {
