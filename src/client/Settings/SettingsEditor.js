@@ -82,10 +82,10 @@ class SettingsEditor extends React.Component {
             }
             return (
                 <InputGroup className="my-1" key={item.key}>
-                    <div className="pr-2" style={{ width: '250px', textAlign: 'right' }}>
+                    <InputGroup.Text style={{ width: '250px', justifyContent: 'flex-end' }}>
                         {item.label}
                         {tooltip}
-                    </div>
+                    </InputGroup.Text>
                     {inputElement}
                 </InputGroup>
             );
