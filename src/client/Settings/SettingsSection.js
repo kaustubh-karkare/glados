@@ -14,7 +14,7 @@ class SettingsSection extends React.Component {
 
     componentDidMount() {
         window.onkeydown = (event) => {
-            if (event.shiftKey && event.metaKey && event.key === 's') {
+            if (event.shiftKey && event.metaKey && event.key.toLowerCase() === 's') {
                 this.setState({ isShown: true });
             }
         };
