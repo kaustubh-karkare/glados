@@ -124,7 +124,7 @@ export default async (app) => {
             }
             logEventTemplate.logStructure.eventKeys[0].value = value.toString();
             // eslint-disable-next-line no-await-in-loop
-            await app.webdriver.executeScript(`window.api.send('log-event-upsert', ${JSON.stringify(logEventTemplate)})`);
+            await app.api_send('log-event-upsert', logEventTemplate);
             // eslint-disable-next-line no-await-in-loop, no-loop-func
             await app.waitUntil(async () => await bulletList.getItemCount() === count);
         }

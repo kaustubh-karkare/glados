@@ -3,10 +3,21 @@ import { By, Key } from 'selenium-webdriver';
 
 import { asyncSequence } from '../../common/AsyncUtils';
 
-export default class BaseWrapper {
+// Base class for the demo's component wrappers (BulletList, ModalDialog, ...),
+// and also instantiated directly as a generic wrapper around a single element
+// (e.g. a text input or checkbox). Named "ComponentBase" rather than "Component"
+// on purpose: eslint's react plugin treats any `extends Component` class as a
+// React component and would wrongly apply React rules (e.g. react/sort-comp) to
+// these Selenium/jsdom wrappers.
+export default class ComponentBase {
+    // The driver is kept in a private field so lessons can't read it off a
+    // wrapper. There is no accessor; each subclass keeps its own private copy
+    // (a private field is only visible to methods of the class that declares it).
+    #webdriver;
+
     constructor(webdriver, element) {
         assert(element, 'missing element');
-        this.webdriver = webdriver;
+        this.#webdriver = webdriver;
         this.element = element;
     }
 
@@ -51,7 +62,7 @@ export default class BaseWrapper {
     }
 
     async _moveTo(element) {
-        await this.webdriver.actions().move({ origin: element || this.element }).perform();
+        await this.#webdriver.actions().move({ origin: element || this.element }).perform();
     }
 
     async moveTo(element) {
@@ -60,7 +71,7 @@ export default class BaseWrapper {
     }
 
     async _click(element) {
-        await this.webdriver.actions().click(element || this.element).perform();
+        await this.#webdriver.actions().click(element || this.element).perform();
     }
 
     async click(element) {

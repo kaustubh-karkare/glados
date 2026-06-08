@@ -1,22 +1,30 @@
 import assert from 'assert';
 import { By } from 'selenium-webdriver';
 
-import BaseWrapper from './BaseWrapper';
+import ComponentBase from './ComponentBase';
 import {
     LogStructureKey, Selector, TextEditor, TypeaheadSelector,
 } from './Inputs';
 
-export default class ModalDialog extends BaseWrapper {
+export default class ModalDialog extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('modal-dialog'));
-        const element = BaseWrapper.getItemByIndex(elements, index);
+        const element = ComponentBase.getItemByIndex(elements, index);
         return element ? new this(webdriver, element) : null;
     }
 
     async _clickAndWaitForClose(buttonElement) {
-        await this.webdriver.wait(async () => buttonElement.isEnabled());
+        await this.#webdriver.wait(async () => buttonElement.isEnabled());
         await this.click(buttonElement);
-        await this.webdriver.wait(async () => {
+        await this.#webdriver.wait(async () => {
             try {
                 await this.element.isDisplayed();
                 return false;
@@ -47,22 +55,22 @@ export default class ModalDialog extends BaseWrapper {
 
     async getTextInput(name) {
         const element = await this._getElement(name);
-        return new BaseWrapper(this.webdriver, element);
+        return new ComponentBase(this.#webdriver, element);
     }
 
     async getTextEditor(name) {
         const element = await this._getElement(name);
-        return TextEditor.get(this.webdriver, element);
+        return TextEditor.get(this.#webdriver, element);
     }
 
     async getTypeahead(name) {
         const element = await this._getElement(name);
-        return TypeaheadSelector.get(this.webdriver, element);
+        return TypeaheadSelector.get(this.#webdriver, element);
     }
 
     async getSelector(name) {
         const element = await this._getElement(name);
-        return Selector.get(this.webdriver, element);
+        return Selector.get(this.#webdriver, element);
     }
 
     async performSave() {
@@ -84,7 +92,7 @@ export default class ModalDialog extends BaseWrapper {
     }
 
     async getLogStructureKey(index) {
-        return LogStructureKey.get(this.webdriver, this.element, index);
+        return LogStructureKey.get(this.#webdriver, this.element, index);
     }
 
     // Methods specific to Debug Info

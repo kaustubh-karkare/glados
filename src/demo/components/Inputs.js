@@ -3,11 +3,11 @@
 import assert from 'assert';
 import { By } from 'selenium-webdriver';
 
-import BaseWrapper from './BaseWrapper';
+import ComponentBase from './ComponentBase';
 
-export class Selector extends BaseWrapper {
+export class Selector extends ComponentBase {
     static async get(webdriver, element) {
-        const actual = await BaseWrapper.getElementByClassName(element, 'selector');
+        const actual = await ComponentBase.getElementByClassName(element, 'selector');
         return actual ? new this(webdriver, actual) : null;
     }
 
@@ -24,9 +24,17 @@ export class Selector extends BaseWrapper {
     }
 }
 
-export class TypeaheadSelector extends BaseWrapper {
+export class TypeaheadSelector extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, element) {
-        const actual = await BaseWrapper.getElementByClassName(element, 'rbt');
+        const actual = await ComponentBase.getElementByClassName(element, 'rbt');
         return actual ? new this(webdriver, actual) : null;
     }
 
@@ -51,11 +59,11 @@ export class TypeaheadSelector extends BaseWrapper {
         if (wrappers.length) {
             // multi-selector
             const inputElement = await wrappers[0].findElement(By.xpath('.//input[1]'));
-            return new BaseWrapper(this.webdriver, inputElement);
+            return new ComponentBase(this.#webdriver, inputElement);
         }
         // single-selector
         const inputElement = await this.element.findElement(By.xpath('./div[1]/input[1]'));
-        return new BaseWrapper(this.webdriver, inputElement);
+        return new ComponentBase(this.#webdriver, inputElement);
     }
 
     async _getSuggestions() {
@@ -68,7 +76,7 @@ export class TypeaheadSelector extends BaseWrapper {
     }
 
     async pickSuggestion(label) {
-        await this.webdriver.wait(async () => {
+        await this.#webdriver.wait(async () => {
             const { names } = await this._getSuggestions();
             return names.some((item) => item.startsWith(label));
         });
@@ -78,14 +86,22 @@ export class TypeaheadSelector extends BaseWrapper {
     }
 }
 
-export class TextEditor extends BaseWrapper {
+export class TextEditor extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, element) {
-        const actual = await BaseWrapper.getElementByClassName(element, 'text-editor');
+        const actual = await ComponentBase.getElementByClassName(element, 'text-editor');
         return actual ? new this(webdriver, actual) : null;
     }
 
     async getInput() {
-        return new BaseWrapper(this.webdriver, this.element.findElement(
+        return new ComponentBase(this.#webdriver, this.element.findElement(
             By.xpath(".//div[contains(@class, 'public-DraftEditor-content')]"),
         ));
     }
@@ -98,7 +114,7 @@ export class TextEditor extends BaseWrapper {
     }
 
     async pickSuggestion(indexOrLabel) {
-        await this.webdriver.wait(async () => (await this.getSuggestions()).length > 0);
+        await this.#webdriver.wait(async () => (await this.getSuggestions()).length > 0);
         await this.wait();
         const offset = typeof indexOrLabel === 'number'
             ? indexOrLabel
@@ -112,22 +128,30 @@ export class TextEditor extends BaseWrapper {
     }
 }
 
-export class LogStructureKey extends BaseWrapper {
+export class LogStructureKey extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, element, index) {
         const containers = await element.findElements(By.xpath('.//div[contains(@class, \'log-structure-key\')]'));
-        const container = BaseWrapper.getItemByIndex(containers, index);
+        const container = ComponentBase.getItemByIndex(containers, index);
         return new this(webdriver, container);
     }
 
     async getTypeSelector() {
-        return Selector.get(this.webdriver, this.element, 0);
+        return Selector.get(this.#webdriver, this.element, 0);
     }
 
     async getNameInput() {
-        return new BaseWrapper(this.webdriver, await this.element.findElement(By.tagName('input')));
+        return new ComponentBase(this.#webdriver, await this.element.findElement(By.tagName('input')));
     }
 
     async getTemplateInput() {
-        return new TextEditor(this.webdriver, this.element);
+        return new TextEditor(this.#webdriver, this.element);
     }
 }

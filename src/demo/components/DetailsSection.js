@@ -1,12 +1,20 @@
 import { By } from 'selenium-webdriver';
 
-import BaseWrapper from './BaseWrapper';
+import ComponentBase from './ComponentBase';
 import { TextEditor } from './Inputs';
 
-export default class DetailsSection extends BaseWrapper {
+export default class DetailsSection extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('details-section'));
-        const element = BaseWrapper.getItemByIndex(elements, index);
+        const element = ComponentBase.getItemByIndex(elements, index);
         return element ? new this(webdriver, element) : null;
     }
 
@@ -16,7 +24,7 @@ export default class DetailsSection extends BaseWrapper {
     }
 
     async getInput() {
-        return TextEditor.get(this.webdriver, this.element);
+        return TextEditor.get(this.#webdriver, this.element);
     }
 
     async perform(name) {

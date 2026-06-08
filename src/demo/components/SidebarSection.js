@@ -1,9 +1,17 @@
 import { By } from 'selenium-webdriver';
 
-import BaseWrapper from './BaseWrapper';
+import ComponentBase from './ComponentBase';
 import ReminderItem from './ReminderItem';
 
-export default class SidebarSection extends BaseWrapper {
+export default class SidebarSection extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, name) {
         const element = await webdriver.findElement(By.xpath(
             '//div[contains(@class, \'sidebar-section\')]'
@@ -23,6 +31,6 @@ export default class SidebarSection extends BaseWrapper {
 
     async getReminderItems() {
         const items = await this.element.findElements(By.xpath(".//div[contains(@class, 'reminder-item')]"));
-        return items.map((item) => new ReminderItem(this.webdriver, item));
+        return items.map((item) => new ReminderItem(this.#webdriver, item));
     }
 }

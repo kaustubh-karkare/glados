@@ -3,20 +3,28 @@
 import assert from 'assert';
 import { By } from 'selenium-webdriver';
 
-import BaseWrapper from './BaseWrapper';
+import ComponentBase from './ComponentBase';
 import { TextEditor } from './Inputs';
 
-export default class BulletList extends BaseWrapper {
+export default class BulletList extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     static async get(webdriver, index) {
         const elements = await webdriver.findElements(By.className('bullet-list'));
-        const element = BaseWrapper.getItemByIndex(elements, index);
+        const element = ComponentBase.getItemByIndex(elements, index);
         return element ? new this(webdriver, element) : null;
     }
 
     async getHeader() {
         const element = await this.element.findElement(By.xpath('./div[1]'));
         // eslint-disable-next-line no-use-before-define
-        return new BulletListItem(this.webdriver, element);
+        return new BulletListItem(this.#webdriver, element);
     }
 
     async _getItems() {
@@ -26,7 +34,7 @@ export default class BulletList extends BaseWrapper {
     async getItem(index) {
         const elements = await this._getItems();
         // eslint-disable-next-line no-use-before-define
-        return new BulletListItem(this.webdriver, BaseWrapper.getItemByIndex(elements, index));
+        return new BulletListItem(this.#webdriver, ComponentBase.getItemByIndex(elements, index));
     }
 
     async getItemCount() {
@@ -36,11 +44,19 @@ export default class BulletList extends BaseWrapper {
 
     async getAdder() {
         const element = this.element.findElement(By.xpath('./div[3]'));
-        return TextEditor.get(this.webdriver, element);
+        return TextEditor.get(this.#webdriver, element);
     }
 }
 
-class BulletListItem extends BaseWrapper {
+class BulletListItem extends ComponentBase {
+    #webdriver;
+
+    constructor(webdriver, element) {
+        super(webdriver, element);
+        // Store private reference since the parent's #webdriver is inaccessible.
+        this.#webdriver = webdriver;
+    }
+
     async _getButton(title) {
         await this._moveTo(this.element);
         const button = this.element.findElement(By.xpath(
@@ -59,7 +75,7 @@ class BulletListItem extends BaseWrapper {
         await this._moveTo(this.element);
         const actionButton = await this._getButton('Actions');
         await this._moveTo(actionButton);
-        await this.webdriver.wait(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);
+        await this.#webdriver.wait(async () => (await actionButton.findElements(By.className('dropdown-item'))).length > 0);
         const actionElement = await actionButton.findElement(
             By.xpath(`.//a[contains(@class, 'dropdown-item') and text() = '${name}']`),
         );
@@ -71,7 +87,7 @@ class BulletListItem extends BaseWrapper {
             './following-sibling::*[1]'
             + "//div[contains(@class, 'bullet-list')]",
         ));
-        return items.length ? new BulletList(this.webdriver, items[0]) : null;
+        return items.length ? new BulletList(this.#webdriver, items[0]) : null;
     }
 
     async move(direction) {

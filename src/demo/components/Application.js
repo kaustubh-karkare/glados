@@ -1,51 +1,52 @@
 import { By } from 'selenium-webdriver';
 
-import BaseWrapper from './BaseWrapper';
+import ComponentBase from './ComponentBase';
 import DetailsSection from './DetailsSection';
 import IndexSection from './IndexSection';
 import ModalDialog from './ModalDialog';
 import SidebarSection from './SidebarSection';
 
-export default class Application extends BaseWrapper {
+export default class Application {
+    #webdriver;
+
     constructor(webdriver) {
-        super(webdriver, true);
-        this.webdriver = webdriver;
+        this.#webdriver = webdriver;
     }
 
     async switchToTab(name) {
-        const element = await this.webdriver.findElement(
+        const element = await this.#webdriver.findElement(
             By.xpath(`//div[contains(@class, 'sidebar-section')]/div[text() = '${name}']`),
         );
         await this.moveToAndClick(element);
     }
 
     async getSidebarSection(...args) {
-        return SidebarSection.get(this.webdriver, ...args);
+        return SidebarSection.get(this.#webdriver, ...args);
     }
 
     async getIndexSection() {
-        await this.waitUntil(async () => IndexSection.get(this.webdriver));
-        return IndexSection.get(this.webdriver);
+        await this.waitUntil(async () => IndexSection.get(this.#webdriver));
+        return IndexSection.get(this.#webdriver);
     }
 
     async getDetailsSection(...args) {
-        return DetailsSection.get(this.webdriver, ...args);
+        return DetailsSection.get(this.#webdriver, ...args);
     }
 
     async getModalDialog(...args) {
-        return ModalDialog.get(this.webdriver, ...args);
+        return ModalDialog.get(this.#webdriver, ...args);
     }
 
     async getTopic(name, index) {
-        const elements = await this.webdriver.findElements(By.xpath(`//a[contains(@class, 'topic') and text() = '${name}']`));
-        const element = BaseWrapper.getItemByIndex(elements, index);
-        return new BaseWrapper(this.webdriver, element);
+        const elements = await this.#webdriver.findElements(By.xpath(`//a[contains(@class, 'topic') and text() = '${name}']`));
+        const element = ComponentBase.getItemByIndex(elements, index);
+        return new ComponentBase(this.#webdriver, element);
     }
 
     async getLink(name, index = 0) {
-        const elements = await this.webdriver.findElements(By.xpath(`//a[text() = '${name}']`));
-        const element = BaseWrapper.getItemByIndex(elements, index);
-        return new BaseWrapper(this.webdriver, element);
+        const elements = await this.#webdriver.findElements(By.xpath(`//a[text() = '${name}']`));
+        const element = ComponentBase.getItemByIndex(elements, index);
+        return new ComponentBase(this.#webdriver, element);
     }
 
     // Random Specific Items
@@ -70,14 +71,36 @@ export default class Application extends BaseWrapper {
     }
 
     async clearDatabase() {
-        await this.webdriver.executeScript("return window.api.send('database-clear')");
+        await this.#webdriver.executeScript("return window.api.send('database-clear')");
+    }
+
+    async api_send(name, input) {
+        return this.#webdriver.executeScript(
+            'return window.api.send(arguments[0], arguments[1])',
+            name,
+            input,
+        );
     }
 
     // General Utility
 
-    async waitUntil(conditionMethod) {
-        await this.webdriver.wait(conditionMethod);
+    async moveToAndClick(element) {
+        await this.#webdriver.actions().move({ origin: element }).perform();
         await this.wait();
+        await this.#webdriver.actions().click(element).perform();
+        await this.wait();
+    }
+
+    async waitUntil(conditionMethod) {
+        await this.#webdriver.wait(conditionMethod);
+        await this.wait();
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    wait(milliseconds = 250) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, milliseconds);
+        });
     }
 
     async scrollToBottom(className, index) {
@@ -96,6 +119,6 @@ export default class Application extends BaseWrapper {
                 });
             }());
         };
-        await this.webdriver.executeScript(`return (${injectedMethod.toString()})(${JSON.stringify(className)}, ${index});`);
+        await this.#webdriver.executeScript(`return (${injectedMethod.toString()})(${JSON.stringify(className)}, ${index});`);
     }
 }
