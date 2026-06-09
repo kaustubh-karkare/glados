@@ -78,7 +78,7 @@ class BulletListTitle extends React.Component {
                 onChange={(isHighlighted) => this.setState({ isHighlighted })}
                 onKeyDown={(event) => this.onKeyDown(event)}
             >
-                <InputGroup>
+                <InputGroup className="bullet-list-title">
                     <div>{this.props.name}</div>
                     {this.state.isHighlighted ? this.renderListToggleButton() : null}
                     {this.state.isHighlighted ? this.renderAddButton() : null}

@@ -4,9 +4,9 @@ import { GoPrimitiveDot } from 'react-icons/go';
 
 function BulletListLine(props) {
     // eslint-disable-next-line react/prop-types
-    const { children, ...moreProps } = props;
+    const { children, className, ...moreProps } = props;
     return (
-        <InputGroup {...moreProps}>
+        <InputGroup className={`bullet-list-line ${className || ''}`.trim()} {...moreProps}>
             <div className="icon" />
             <div className="icon mr-1">
                 <GoPrimitiveDot />
